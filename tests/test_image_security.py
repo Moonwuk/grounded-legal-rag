@@ -119,6 +119,30 @@ class ImageReportTests(unittest.TestCase):
 
 
 class ImageSecretTests(unittest.TestCase):
+    def test_only_exact_sbom_vulnerability_notices_are_acknowledged(self):
+        for message in (
+            "Third-party SBOM may lead to inaccurate vulnerability detection",
+            "Recommend using Trivy to generate SBOMs",
+            "Third-party SBOM may lead to inaccurate vulnerability detection extra warning",
+        ):
+            with self.subTest(message=message), tempfile.TemporaryDirectory() as directory:
+                root = Path(directory)
+
+                def run(command, **options):
+                    path = Path(command[command.index("--output") + 1])
+                    path.write_text(json.dumps({"SchemaVersion": 2, "ArtifactType": "container_image"}))
+                    options["stderr"].write(("2026-11-10T00:00:00Z\tWARN\t" + message + "\n").encode())
+                    return subprocess.CompletedProcess(command, 0)
+
+                notices = []
+                with patch.object(secrets.subprocess, "run", side_effect=run):
+                    if message.endswith("extra warning"):
+                        with self.assertRaises(secrets.ScanError):
+                            secrets.invoke(root / "trivy", "image", "image", root / "config", root / "scan", notices)
+                    else:
+                        self.assertEqual(secrets.invoke(root / "trivy", "image", "image", root / "config", root / "scan", notices), [])
+                        self.assertEqual(len(notices), 1)
+
     def test_unexpected_scanner_warning_still_blocks(self):
         with tempfile.TemporaryDirectory() as directory:
             root = Path(directory)
