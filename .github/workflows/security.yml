@@ -74,15 +74,19 @@ jobs:
           retention-days: 7
 
   secrets:
-    name: Secrets in Git history
+    name: Secrets in history and files
     runs-on: ubuntu-24.04
-    timeout-minutes: 10
+    timeout-minutes: 25
     steps:
       - name: Check out all history
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           fetch-depth: 0
           persist-credentials: false
+      - name: Set up Python
+        uses: actions/setup-python@6d4fd22b20465ccc0f7354476588e8df7c9ca0e0 # v7.1.0
+        with:
+          python-version: "3.12"
       - name: Install verified Gitleaks binary
         env:
           GITLEAKS_VERSION: "8.30.1"
@@ -95,17 +99,31 @@ jobs:
             --output "$archive"
           printf '%s  %s\n' "$GITLEAKS_SHA256" "$archive" | sha256sum --check --strict
           tar -xzf "$archive" -C "$RUNNER_TEMP/gitleaks" gitleaks
-      - name: Scan every fetched commit with redacted output
+      - name: Verify AI provider rules with synthetic fixtures
         run: |
-          "$RUNNER_TEMP/gitleaks/gitleaks" git . --log-opts=--all \
-            --redact=100 --no-banner --timeout=300 \
-            --report-format=json --report-path=reports/gitleaks.json
+          python .github/scripts/check_secret_rules.py "$RUNNER_TEMP/gitleaks/gitleaks" \
+            --report reports/secret-rule-tests.json
+      - name: Scan every fetched commit with redacted output
+        if: ${{ !cancelled() }}
+        run: |
+          python .github/scripts/run_secret_scan.py "$RUNNER_TEMP/gitleaks/gitleaks" git \
+            --report reports/gitleaks-history.json
+      - name: Scan current files and supported archives
+        if: ${{ !cancelled() }}
+        run: |
+          python .github/scripts/run_secret_scan.py "$RUNNER_TEMP/gitleaks/gitleaks" dir \
+            --report reports/gitleaks-files.json
       - name: Save redacted secret report
         if: ${{ always() }}
         uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
           name: security-secrets-redacted
-          path: reports/gitleaks.json
+          path: |
+            reports/gitleaks-history.json
+            reports/gitleaks-history.summary.json
+            reports/gitleaks-files.json
+            reports/gitleaks-files.summary.json
+            reports/secret-rule-tests.json
           if-no-files-found: error
           retention-days: 7
 

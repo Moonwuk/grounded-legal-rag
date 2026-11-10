@@ -1,0 +1,26 @@
+title = "PSB: default rules plus standalone AI provider token candidates"
+
+# Keep the entire built-in ruleset; these rules only add coverage.
+[extend]
+useDefault = true
+
+[[rules]]
+id = "ai-sk32-key-candidate"
+description = "Potential AI API token compatible with DeepSeek patterns; provider and validity are unverified."
+regex = '''(?m)(?:^|[^A-Za-z0-9_-])(sk-[a-z0-9]{32})(?:$|[^A-Za-z0-9_-])'''
+secretGroup = 1
+keywords = ["sk-"]
+
+[[rules]]
+id = "openrouter-api-key"
+description = "Potential OpenRouter API key; validity is not verified."
+regex = '''(?m)(?:^|[^A-Za-z0-9_-])(sk-or-v1-[0-9a-f]{64})(?:$|[^A-Za-z0-9_-])'''
+secretGroup = 1
+keywords = ["sk-or-v1-"]
+
+[[rules]]
+id = "groq-api-key"
+description = "Potential Groq API key; validity is not verified."
+regex = '''(?m)(?:^|[^A-Za-z0-9_-])(gsk_[A-Za-z0-9]{52})(?:$|[^A-Za-z0-9_-])'''
+secretGroup = 1
+keywords = ["gsk_"]
