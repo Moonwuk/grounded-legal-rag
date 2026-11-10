@@ -1,0 +1,119 @@
+{
+  "mode": "manual development review against supplied corpus; not independent legal expert assessment",
+  "counts": {
+    "PASS": 15,
+    "WARN": 3
+  },
+  "rubric": "Core answer supported and adequately addressed; WARN includes potentially misleading extra inference, imprecise wording or unhelpful gap description. Does not predict organizer Score.",
+  "runtime_answer_is_not_proof_of_full_answer": true,
+  "items": [
+    {
+      "id": "1",
+      "verdict": "PASS",
+      "answer_kind": "substantive",
+      "note": "450000, НДС, до5-го; дополнительные условия индексации соответствуют источнику."
+    },
+    {
+      "id": "2",
+      "verdict": "PASS",
+      "answer_kind": "substantive",
+      "note": "Максимум шесть месяцев для главного бухгалтера; сохранена оговорка федерального закона."
+    },
+    {
+      "id": "3",
+      "verdict": "WARN",
+      "answer_kind": "refusal",
+      "note": "Отказ по отсутствующей норме обоснован, но описание нужного документа остаётся общим."
+    },
+    {
+      "id": "4",
+      "verdict": "PASS",
+      "answer_kind": "substantive",
+      "note": "Ложная сумма500000 исправлена на450000; отсутствующее изменение не придумано."
+    },
+    {
+      "id": "5",
+      "verdict": "PASS",
+      "answer_kind": "substantive",
+      "note": "Прямо применены прежняя редакция и порог10млн к12млн в августе2024."
+    },
+    {
+      "id": "6",
+      "verdict": "PASS",
+      "answer_kind": "substantive",
+      "note": "Пять рабочих дней, начало от подписи УПД; последняя реплика учтена."
+    },
+    {
+      "id": "7",
+      "verdict": "PASS",
+      "answer_kind": "substantive",
+      "note": "Круглосуточный доступ арендатора и его транспорта распространён на условный приезд грузовика ночью."
+    },
+    {
+      "id": "8",
+      "verdict": "WARN",
+      "answer_kind": "substantive",
+      "note": "Акт о недостатках назван верно. Дополнительное «поэтому недостатки следует зафиксировать в этот срок» выводится из срока приёмки и может читаться как отдельный предел; договор прямо такого вывода не устанавливает."
+    },
+    {
+      "id": "9",
+      "verdict": "PASS",
+      "answer_kind": "substantive",
+      "note": "45 календарных дней и предоплата по соглашению, размер в счёте; правильный контрагент."
+    },
+    {
+      "id": "10",
+      "verdict": "PASS",
+      "answer_kind": "substantive",
+      "note": "Инициатор — руководитель заинтересованного подразделения; обычная роль юротдела в данном сценарии."
+    },
+    {
+      "id": "11",
+      "verdict": "PASS",
+      "answer_kind": "substantive",
+      "note": "Прямо отказано в четырёх днях: максимум три рабочих дня, заявка СЭД."
+    },
+    {
+      "id": "12",
+      "verdict": "PASS",
+      "answer_kind": "substantive",
+      "note": "Действие обычных трудовых правил при испытании подтверждено."
+    },
+    {
+      "id": "13",
+      "verdict": "PASS",
+      "answer_kind": "partial",
+      "note": "Части2–3 и отсутствие текстов статей6/10/11 сохранены; частичный вывод без срока удаления."
+    },
+    {
+      "id": "14",
+      "verdict": "PASS",
+      "answer_kind": "substantive",
+      "note": "Вводная норма и сезонное условие сохранены полностью."
+    },
+    {
+      "id": "15",
+      "verdict": "PASS",
+      "answer_kind": "substantive",
+      "note": "Акт возврата и нормальный износ, одних ключей недостаточно."
+    },
+    {
+      "id": "16",
+      "verdict": "PASS",
+      "answer_kind": "substantive",
+      "note": "Упаковка и доставка включены; допсоглашение меняет адрес, остальные условия сохраняет."
+    },
+    {
+      "id": "17",
+      "verdict": "WARN",
+      "answer_kind": "partial",
+      "note": "Срок в месяцах не выдуман и нужный талон назван. Начальная фраза «гарантийный срок договором не установлен» менее точна, чем «число месяцев в базе не указано»; runtime пометил answer, хотя конкретное число не установлено."
+    },
+    {
+      "id": "18",
+      "verdict": "PASS",
+      "answer_kind": "substantive",
+      "note": "Юротдел, три рабочих дня с даты подписания; кабинет412 из записки."
+    }
+  ]
+}

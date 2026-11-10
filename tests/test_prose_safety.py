@@ -17,12 +17,15 @@ from test_prose_answers import run, select, confirm
 class ProseSafetyTests(unittest.TestCase):
     def test_reference_numbers_do_not_replace_missing_basis_notice(self):
         docs, fragments = load_corpus(ROOT / 'organizer/knowledge-base.zip')
-        prose = ('Согласие можно отозвать. Продолжение обработки допускается при основаниях '
-                 'статей 6, 10 и 11; наличие оснований доказывает оператор.')
-        model = ScriptedModel([select('2. Согласие', prose), confirm()])
+        prose = ('Доказательство согласия или наличия оснований статей 6, 10 и 11 '
+                 'должен предоставить оператор.')
+        # Select the obligation paragraph, which does not trigger source_only.
+        # Thus this regression exercises the prose renderer's mandatory notice.
+        model = ScriptedModel([select('3. Обязанность', prose), confirm()])
         with redirect_stderr(io.StringIO()):
             text, status = answer_question('Человек отозвал согласие. Удалить всё?', Retriever(docs, fragments), model)
         self.assertEqual(status, 'partial')
+        self.assertTrue(text.startswith(prose))
         self.assertIn('В предоставленной базе не найдены тексты отсылочных статей 6, 10, 11', text)
 
     def test_word_numerals_are_checked_as_quantities(self):
@@ -33,6 +36,12 @@ class ProseSafetyTests(unittest.TestCase):
         self.assertTrue(prose_grounded('Срок оплаты — тридцать семь дней.', basis))
         self.assertTrue(prose_grounded('Испытание — шести месяцев.', basis))
         self.assertTrue(prose_grounded('Лимит — тридцать семь тысяч двести рублей.', 'Лимит — 37 200 рублей.'))
+        false_text = 'Оплата производится в течение девяноста календарных дней.'
+        text, status, _, _ = run('Каков срок оплаты?',
+            [select('3.1.', false_text), confirm(), select('3.1.', false_text), confirm()])
+        self.assertEqual(status, 'answer')
+        self.assertNotIn(false_text, text)
+        self.assertIn('37', text)
 
     def test_huge_number_in_user_facts_preserves_verified_source_fallback(self):
         prose = 'Оплата производится в течение 37 календарных дней.'
