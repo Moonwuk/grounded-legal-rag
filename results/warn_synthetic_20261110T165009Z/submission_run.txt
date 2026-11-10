@@ -1,0 +1,22 @@
+{"event": "model_response", "stage": "generate", "attempt": 1, "position": 0, "logical_call": 1, "finish": "stop", "max_tokens": 8192, "completion_tokens": 147, "reasoning_tokens": 52}
+{"event": "model_response", "stage": "generate", "attempt": 1, "position": 0, "logical_call": 2, "finish": "stop", "max_tokens": 8192, "completion_tokens": 185, "reasoning_tokens": 80}
+completed_position=0 status=unverified
+{"event": "model_response", "stage": "generate", "attempt": 1, "position": 1, "logical_call": 1, "finish": "stop", "max_tokens": 8192, "completion_tokens": 207, "reasoning_tokens": 94}
+{"event": "model_response", "stage": "verify", "attempt": 1, "position": 1, "logical_call": 2, "finish": "stop", "max_tokens": 8192, "completion_tokens": 518, "reasoning_tokens": 410}
+{"event": "policy_verdict", "position": 1, "expanded": false, "candidate_status": "answer", "approved": true, "prose": "rejected", "verdict_status": "answer", "check_count": 2, "source_gap_count": 0, "failed_claim_positions": []}
+{"event": "model_response", "stage": "generate", "attempt": 1, "position": 1, "logical_call": 3, "finish": "stop", "max_tokens": 8192, "completion_tokens": 307, "reasoning_tokens": 195}
+{"event": "model_response", "stage": "verify", "attempt": 1, "position": 1, "logical_call": 4, "finish": "stop", "max_tokens": 8192, "completion_tokens": 331, "reasoning_tokens": 230}
+{"event": "policy_verdict", "position": 1, "expanded": true, "candidate_status": "answer", "approved": true, "prose": "published", "verdict_status": "answer", "check_count": 2, "source_gap_count": 0, "failed_claim_positions": []}
+completed_position=1 status=answer
+{"event": "model_response", "stage": "generate", "attempt": 1, "position": 2, "logical_call": 1, "finish": "stop", "max_tokens": 8192, "completion_tokens": 402, "reasoning_tokens": 279}
+{"event": "model_response", "stage": "verify", "attempt": 1, "position": 2, "logical_call": 2, "finish": "stop", "max_tokens": 8192, "completion_tokens": 4218, "reasoning_tokens": 4122}
+{"event": "policy_verdict", "position": 2, "expanded": false, "candidate_status": "partial", "approved": true, "prose": "source_only", "verdict_status": "partial", "check_count": 2, "source_gap_count": 0, "failed_claim_positions": []}
+{"event": "model_response", "stage": "generate", "attempt": 1, "position": 2, "logical_call": 3, "finish": "stop", "max_tokens": 8192, "completion_tokens": 370, "reasoning_tokens": 251}
+{"event": "model_response", "stage": "verify", "attempt": 1, "position": 2, "logical_call": 4, "finish": "stop", "max_tokens": 8192, "completion_tokens": 1234, "reasoning_tokens": 1135}
+{"event": "policy_verdict", "position": 2, "expanded": true, "candidate_status": "partial", "approved": true, "prose": "source_only", "verdict_status": "partial", "check_count": 1, "source_gap_count": 0, "failed_claim_positions": []}
+completed_position=2 status=partial
+{"event": "model_response", "stage": "generate", "attempt": 1, "position": 3, "logical_call": 1, "finish": "stop", "max_tokens": 8192, "completion_tokens": 240, "reasoning_tokens": 140}
+{"event": "model_response", "stage": "verify", "attempt": 1, "position": 3, "logical_call": 2, "finish": "stop", "max_tokens": 8192, "completion_tokens": 254, "reasoning_tokens": 155}
+{"event": "policy_verdict", "position": 3, "expanded": false, "candidate_status": "answer", "approved": true, "prose": "published", "verdict_status": "answer", "check_count": 2, "source_gap_count": 0, "failed_claim_positions": []}
+completed_position=3 status=answer
+rows=4 elapsed_seconds=119.928

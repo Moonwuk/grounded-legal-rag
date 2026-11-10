@@ -1,0 +1,53 @@
+{
+  "id": "W1",
+  "status": "insufficient",
+  "final_answer": "В найденных документах недостаточно оснований для ответа на вопрос «Каков размер компенсации за проезд сотрудникам?». Уточните или предоставьте: документ с условиями, необходимыми для ответа.",
+  "events": [
+    {
+      "stage": "generate",
+      "status": "insufficient",
+      "requested_facts": [
+        "document"
+      ],
+      "source_count": 0,
+      "fact_codes_valid": true,
+      "fact_codes_empty": false,
+      "issue_valid": true,
+      "source_ids_valid": true,
+      "expanded_candidate_valid": true,
+      "unexpected_field_count": 0
+    },
+    {
+      "stage": "generate",
+      "status": "insufficient",
+      "requested_facts": [
+        "document"
+      ],
+      "source_count": 0,
+      "fact_codes_valid": true,
+      "fact_codes_empty": false,
+      "issue_valid": true,
+      "source_ids_valid": true,
+      "expanded_candidate_valid": true,
+      "unexpected_field_count": 0
+    },
+    {
+      "stage": "verify",
+      "status": "insufficient",
+      "approved": true,
+      "complete": true,
+      "answer_supported": true,
+      "requested_facts": [
+        "document"
+      ],
+      "reason_labels": [
+        "absence_mentioned",
+        "grounding_mentioned",
+        "document_mentioned"
+      ],
+      "claim_checks_all_positive": true
+    }
+  ],
+  "mode": "separate diagnostic repeat; not replacement for full run",
+  "source_commit": "8b32f8fe850caf4de376d86b9f27d7e80a8cf882"
+}

@@ -1,0 +1,25 @@
+{
+  "mode": "internal manual source-based review of development scenarios; not an independent legal benchmark",
+  "items": [
+    {
+      "id": "W1",
+      "review": "PASS",
+      "note": "Explicit request scope, no invented amount; asks for a document."
+    },
+    {
+      "id": "W2",
+      "review": "PASS",
+      "note": "Interested department head initiates; financial department approval is stated without an exclusive role limit."
+    },
+    {
+      "id": "W3",
+      "review": "PASS",
+      "note": "Full referral clause preserved, service passport requested, no duration invented."
+    },
+    {
+      "id": "W4",
+      "review": "PASS",
+      "note": "Manufacturer identified; missing passport does not prevent answering who sets the term."
+    }
+  ]
+}
