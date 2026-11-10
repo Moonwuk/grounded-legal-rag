@@ -1,0 +1,182 @@
+{
+  "baseline_run": "results/structural_live_20261110T121135Z",
+  "baseline_archive_sha256": "ebd036874510430a1e1f5f3f115d89e17c65ba73ae4aa1c6129bf2e945f7bc53",
+  "new_archive_sha256": "6cfa4565b408ea3691dbd3caa6ef8fd13bbd93497b78fda08be01736fbcb2cfc",
+  "baseline_seconds": 316.036,
+  "new_seconds": 281.682,
+  "prose_answers": 13,
+  "old_total_words": 1738,
+  "new_total_words": 1004,
+  "above_recommended_150_words": [
+    "13"
+  ],
+  "quotations": 7,
+  "valid_normalized_quotations": 7,
+  "application_reference_names_and_clauses_resolve": true,
+  "not_semantic_evaluation": true,
+  "timing_limit": "Historical comparison, not a simultaneous controlled A/B; a separate synthetic run also used the provider during the new run.",
+  "items": [
+    {
+      "id": "1",
+      "question": "Какая арендная плата по договору с ООО «Северный Склад» и до какого числа её нужно вносить?",
+      "old_words": 113,
+      "new_words": 67,
+      "old_characters": 781,
+      "new_characters": 418,
+      "mode": "prose"
+    },
+    {
+      "id": "2",
+      "question": "Какой максимальный срок испытания можно установить главному бухгалтеру?",
+      "old_words": 79,
+      "new_words": 42,
+      "old_characters": 637,
+      "new_characters": 332,
+      "mode": "source_or_application"
+    },
+    {
+      "id": "3",
+      "question": "Какой размер пособия по беременности и родам?",
+      "old_words": 18,
+      "new_words": 18,
+      "old_characters": 143,
+      "new_characters": 143,
+      "mode": "source_or_application"
+    },
+    {
+      "id": "4",
+      "question": "Почему по договору с ООО «Северный Склад» арендная плата 500 000 рублей в месяц?",
+      "old_words": 35,
+      "new_words": 53,
+      "old_characters": 245,
+      "new_characters": 341,
+      "mode": "prose"
+    },
+    {
+      "id": "5",
+      "question": "Договор на 12 млн рублей заключали в августе 2024 года. Нужно ли было одобрение генерального директора?",
+      "old_words": 118,
+      "new_words": 57,
+      "old_characters": 885,
+      "new_characters": 392,
+      "mode": "prose"
+    },
+    {
+      "id": "6",
+      "question": "Пользователь: Какой гарантийный срок на товар по договору с ООО «Альфа-Трейд»?\nАссистент: По договору поставки № П-17/2024 с ООО «Альфа-Трейд» гарантийный срок — 24 месяца с даты поставки (п. 5.2).\nПользователь: А за сколько дней после поставки нужно проверить качество?",
+      "old_words": 76,
+      "new_words": 54,
+      "old_characters": 571,
+      "new_characters": 391,
+      "mode": "prose"
+    },
+    {
+      "id": "7",
+      "question": "К нашему складу в Химках грузовик приезжает иногда в два часа ночи. По договору с «Северным Складом» нас должны пропускать?",
+      "old_words": 106,
+      "new_words": 62,
+      "old_characters": 795,
+      "new_characters": 406,
+      "mode": "prose"
+    },
+    {
+      "id": "8",
+      "question": "«Альфа-Трейд» привёз мебель с дефектами. Что нужно приложить к претензии?",
+      "old_words": 82,
+      "new_words": 55,
+      "old_characters": 605,
+      "new_characters": 388,
+      "mode": "prose"
+    },
+    {
+      "id": "9",
+      "question": "По договору с «Альфа-Трейдинг» можем оплатить технику авансом или только после поставки?",
+      "old_words": 64,
+      "new_words": 38,
+      "old_characters": 501,
+      "new_characters": 301,
+      "mode": "source_or_application"
+    },
+    {
+      "id": "10",
+      "question": "Мы готовим новый договор. Кто должен запустить согласование — юристы или руководитель нашего отдела?",
+      "old_words": 84,
+      "new_words": 53,
+      "old_characters": 727,
+      "new_characters": 412,
+      "mode": "prose"
+    },
+    {
+      "id": "11",
+      "question": "Хочу взять оригинал договора из архива на четыре рабочих дня. Это разрешено?",
+      "old_words": 177,
+      "new_words": 39,
+      "old_characters": 1281,
+      "new_characters": 263,
+      "mode": "prose"
+    },
+    {
+      "id": "12",
+      "question": "Сотрудник работает на испытательном сроке. На него распространяются обычные трудовые правила?",
+      "old_words": 53,
+      "new_words": 45,
+      "old_characters": 473,
+      "new_characters": 343,
+      "mode": "prose"
+    },
+    {
+      "id": "13",
+      "question": "Человек отозвал согласие на обработку данных. Значит, мы обязаны сразу удалить вообще всё?",
+      "old_words": 263,
+      "new_words": 161,
+      "old_characters": 1910,
+      "new_characters": 1176,
+      "mode": "source_or_application"
+    },
+    {
+      "id": "14",
+      "question": "Мы нанимаем человека только на сезонные работы летом. Можно оформить срочный трудовой договор?",
+      "old_words": 54,
+      "new_words": 32,
+      "old_characters": 419,
+      "new_characters": 237,
+      "mode": "source_or_application"
+    },
+    {
+      "id": "15",
+      "question": "Пользователь: Мы арендуем склад у «Северного Склада». Планируем съезжать.\nАссистент: Подскажите номер договора, чтобы я мог проверить условия возврата помещения.\nПользователь: А-08/2024. Можно просто сдать ключи или обязательно оформлять акт?",
+      "old_words": 47,
+      "new_words": 47,
+      "old_characters": 327,
+      "new_characters": 318,
+      "mode": "prose"
+    },
+    {
+      "id": "16",
+      "question": "Пользователь: Мы заключили договор поставки мебели с «Альфа-Трейд». Хочу проверить расходы перед оплатой.\nАссистент: Подскажите номер договора и что именно нужно уточнить.\nПользователь: П-17/2024. Доставка и упаковка уже включены в цену или их оплачиваем отдельно?",
+      "old_words": 44,
+      "new_words": 56,
+      "old_characters": 306,
+      "new_characters": 375,
+      "mode": "prose"
+    },
+    {
+      "id": "17",
+      "question": "Пользователь: Подскажите гарантию по договору с «Альфой».\nАссистент: Уточните, пожалуйста, поставщик — «Альфа-Трейд» или «Альфа-Трейдинг»?\nПользователь: «Альфа-Трейдинг», у них компьютеры покупали. На сколько гарантия?",
+      "old_words": 225,
+      "new_words": 64,
+      "old_characters": 1796,
+      "new_characters": 478,
+      "mode": "prose"
+    },
+    {
+      "id": "18",
+      "question": "Пользователь: Подписали новый договор, оригинал пока у меня. Не знаю, кому его дальше передавать.\nАссистент: Вы про порядок передачи документов в ООО «Меридиан» после подписания?\nПользователь: Да. В юротдел нужно отнести сразу или есть какой-то срок?",
+      "old_words": 100,
+      "new_words": 61,
+      "old_characters": 769,
+      "new_characters": 447,
+      "mode": "prose"
+    }
+  ]
+}
