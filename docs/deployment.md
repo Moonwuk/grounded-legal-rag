@@ -22,9 +22,11 @@ Docker Compose описывает runtime, Ansible подготавливает 
 
 ## Границы контейнера
 
-Образ рассчитан на `linux/amd64`. Базовый `python:3.12.16-alpine3.24` закреплён digest конкретного amd64 manifest. Обновление версии или digest проходит тот же CI, что и изменение кода. Приложение использует стандартную библиотеку; pip/ensurepip и установщики пакетов Python удалены из runtime. Единственная сетевая установка при сборке — обновление `zlib=1.4-r0` из подписанного репозитория Alpine; версия проверяется также по inventory собранного образа.
+Образ рассчитан на `linux/amd64`. Базовый `python:3.15.0-alpine3.24` закреплён digest конкретного amd64 manifest. Обновление версии или digest проходит тот же CI, что и изменение кода. Приложение использует стандартную библиотеку; pip/ensurepip и установщики пакетов Python удалены из runtime. Каталог стандартной библиотеки определяется через `sysconfig` установленного интерпретатора, поэтому очистка не зависит от номера Python в пути. Полный набор регрессий выполняется также на Python 3.15. При сборке из подписанного репозитория Alpine устанавливаются закреплённые исправления `zlib=1.4-r0`, `musl=1.2.6-r3` и `musl-utils=1.2.6-r3`. Версия zlib дополнительно проверяется по inventory, уязвимости библиотек проверяет обязательный сканер образа.
 
 Ненужные приложению SQLite, curses, readline, native UUID и Tk-модули удалены. ELF-зависимости оставшихся Python-модулей пересчитываются по схеме официального Python image; `apk` удаляет освободившиеся библиотеки и обновляет ведомость пакетов. CI дополнительно запрещает возвращение шести удалённых пакетов. Это устраняет известные уязвимые компоненты физически, не исключает их из отчёта.
+
+В Trivy 0.76.2 обработка стороннего SBOM может выдавать два фиксированных предупреждения об интерпретации уязвимостей. Только точные тексты `Third-party SBOM may lead to inaccurate vulnerability detection` и `Recommend using Trivy to generate SBOMs` допускаются в сканировании секретов и отражаются безопасными кодами в отчёте. Отдельная обязательная проверка уязвимостей сохраняется. Остальные предупреждения, ошибки, изменение текста этих сообщений и неожиданный stdout блокируют gate. Никакие анализаторы или файлы не исключаются; четвёртая preflight-фикстура требует обнаружения синтетического ключа внутри CycloneDX JSON. Первичный код предупреждений: [Trivy 0.76.2](https://github.com/aquasecurity/trivy/blob/v0.76.2/pkg/sbom/cyclonedx/unmarshal.go).
 
 В контекст сборки разрешены только Dockerfile и runtime-исходники. Корпус, вопросы, результаты, тестовые эталоны, `.git`, `.env` и ключи в образ не копируются. Рабочие модули и bootstrap принадлежат root и недоступны приложению для изменения.
 
@@ -121,6 +123,7 @@ CI проверяет синтаксис и политику IaC, реальну
 - [Trivy: image CLI](https://trivy.dev/docs/latest/references/configuration/cli/trivy_image/)
 - [Trivy: secret scan limitations](https://github.com/aquasecurity/trivy/blob/v0.76.2/docs/guide/scanner/secret.md)
 - [Ansible lint](https://docs.ansible.com/projects/lint/usage/)
-- [Официальная сборка Python Alpine](https://github.com/docker-library/python/blob/master/3.12/alpine3.24/Dockerfile)
+- [Официальная сборка Python Alpine](https://github.com/docker-library/python)
 - [Alpine: закреплённая сборка zlib 1.4-r0](https://github.com/alpinelinux/aports/blob/bdf501c870a92a05c097857401f69c48c4810384/main/zlib/APKBUILD)
 - [zlib 1.4: исправления upstream](https://github.com/madler/zlib/blob/v1.4/ChangeLog)
+

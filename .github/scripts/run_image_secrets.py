@@ -16,6 +16,10 @@ import tomllib
 ROOT = Path(__file__).resolve().parents[2]
 RULE_IDS = {"ai-sk32-key-candidate", "openrouter-api-key", "groq-api-key"}
 LEVELS = {"UNKNOWN", "LOW", "MEDIUM", "HIGH", "CRITICAL"}
+SBOM_VULNERABILITY_NOTICES = {
+    b"Third-party SBOM may lead to inaccurate vulnerability detection": "third_party_sbom_vulnerability_notice",
+    b"Recommend using Trivy to generate SBOMs": "trivy_sbom_generation_notice",
+}
 
 
 class ScanError(RuntimeError):
@@ -101,7 +105,7 @@ def sanitized_report(path, artifact_type):
     return records
 
 
-def invoke(binary, mode, target, config, directory):
+def invoke(binary, mode, target, config, directory, notices=None):
     directory.mkdir()
     report = directory / "raw.json"
     stdout_path, stderr_path = directory / "stdout.log", directory / "stderr.log"
@@ -131,13 +135,21 @@ def invoke(binary, mode, target, config, directory):
     records = sanitized_report(report, "container_image" if mode == "image" else "filesystem")
     if (process.returncode == 0 and records) or (process.returncode == 1 and not records):
         raise ScanError("inconsistent_secret_scan")
-    # Trivy INFO lines are expected. Warnings, errors, unknown diagnostics and
-    # unsolicited stdout must not be mistaken for a completed clean scan.
+    # Only two exact upstream SBOM notices concern vulnerability interpretation,
+    # not secret detection. Vulnerabilities have their own mandatory job. Do not
+    # accept arbitrary WARN output, extra context, errors or unsolicited stdout.
     if stdout_path.stat().st_size:
         raise ScanError("unexpected_secret_diagnostics")
     diagnostics = stderr_path.read_bytes().splitlines()
-    if any(line and not re.fullmatch(rb"[0-9TZ:.+\-]+[ \t]+INFO[ \t]+[^\r\n]*", line) for line in diagnostics):
-        raise ScanError("unexpected_secret_diagnostics")
+    for line in diagnostics:
+        if not line or re.fullmatch(rb"[0-9TZ:.+\-]+[ \t]+INFO[ \t]+[^\r\n]*", line):
+            continue
+        match = re.fullmatch(rb"[0-9TZ:.+\-]+[ \t]+WARN[ \t]+([^\r\n]*)", line)
+        code = SBOM_VULNERABILITY_NOTICES.get(match[1]) if match else None
+        if code is None:
+            raise ScanError("unexpected_secret_diagnostics")
+        if notices is not None and code not in notices:
+            notices.append(code)
     return records
 
 
@@ -152,11 +164,22 @@ def preflight(binary, config, directory):
     }
     for index, token in enumerate(values.values()):
         (fixtures / f"probe-{index}.txt").write_text(token, encoding="utf-8")
+    sbom_token = "sk" + "-" + digest("sbom")[:32]
+    sbom_path = fixtures / "probe.cdx.json"
+    sbom_path.write_text(json.dumps({"bomFormat": "CycloneDX", "specVersion": "1.5", "version": 1,
+        "components": [{"type": "library", "name": "synthetic-library", "version": "1",
+                        "properties": [{"name": "synthetic-credential", "value": sbom_token}]}]}), encoding="utf-8")
     records = invoke(binary, "fs", fixtures, config, directory / "preflight")
     found = {record["RuleID"] for record in records}
     if not {"psb-" + rule for rule in RULE_IDS}.issubset(found):
         raise ScanError("custom_secret_rules_not_exercised")
-    return 3
+    sbom_hash = hashlib.sha256(str(sbom_path).encode()).hexdigest()
+    # Trivy filesystem targets may be absolute or relative to the scan root.
+    sbom_hashes = {sbom_hash, hashlib.sha256(sbom_path.name.encode()).hexdigest()}
+    if not any(record["RuleID"] == "psb-ai-sk32-key-candidate" and record["FileSHA256"] in sbom_hashes
+               for record in records):
+        raise ScanError("sbom_file_secret_not_exercised")
+    return 4
 
 
 def main(argv=None):
@@ -166,7 +189,7 @@ def main(argv=None):
     parser.add_argument("--report", required=True, type=Path)
     parser.add_argument("--config", default=ROOT / ".gitleaks.toml", type=Path)
     args = parser.parse_args(argv)
-    records, checks, reason = [], 0, None
+    records, checks, reason, notices = [], 0, None, []
     try:
         configuration = build_detector_config(args.config)
         with tempfile.TemporaryDirectory(prefix="psb-image-secrets-") as temporary:
@@ -176,7 +199,7 @@ def main(argv=None):
             config = base / "trivy-secrets.json"
             config.write_text(json.dumps(configuration), encoding="utf-8")
             checks = preflight(args.binary.resolve(), config, base)
-            records = invoke(args.binary.resolve(), "image", args.image, config, base / "image")
+            records = invoke(args.binary.resolve(), "image", args.image, config, base / "image", notices=notices)
     except ScanError as exc:
         reason = str(exc)
     except (OSError, ValueError, TypeError, AttributeError):
@@ -185,6 +208,7 @@ def main(argv=None):
     count = None if reason else len(records)
     result = {"status": status, "reason": reason or "scan_completed", "preflight_checks": checks,
               "finding_count": count, "findings": records,
+              "notice_codes": notices,
               "scope": "Trivy application image files and image configuration; built-in exclusions apply"}
     args.report.parent.mkdir(parents=True, exist_ok=True)
     args.report.write_text(json.dumps(result, indent=2) + "\n", encoding="utf-8")
@@ -194,3 +218,4 @@ def main(argv=None):
 
 if __name__ == "__main__":
     raise SystemExit(main())
+
