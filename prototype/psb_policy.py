@@ -6,7 +6,7 @@ import sys
 from decimal import Decimal, localcontext
 from psb_corpus import Fragment, norm
 from psb_llm import ProviderError
-from psb_retrieval import user_turns
+from psb_retrieval import user_turns, tokens
 
 FOLLOWUPS = {
     "contract": "номер договора или его текст",
@@ -98,6 +98,11 @@ answer_numbers_not_in_sources — в тексте были числа или н�
 При partial/insufficient/clarify назови конкретный тип недостающих сведений в requested_facts:
 contract, counterparty, event_date, specification_date, warranty_document, document,
 facts, referenced_documents. При answer requested_facts пуст.
+Не превращай описание функции подразделения в исключительный перечень его прав:
+«согласует проект» не означает «лишь согласует» или «никогда не инициирует».
+Если значение определяется другим лицом и указывается в отдельном документе,
+отличай отсылку от отсутствия условия. Когда запрошено само значение и документа
+нет, выбери partial и запроси этот документ; не говори «договором не установлен».
 Факты события и суммы, прямо заданные пользователем, считай условиями сценария,
 а не реквизитами найденного документа. Для применения общего регламента не нужно
 искать в базе конкретный гипотетический договор; не заменяй условия пользователя
@@ -120,6 +125,10 @@ VERIFY = """Ты проверяющий юридического ответа. Q
 сценария. Не требуй существующий в базе договор, если для вопроса достаточно
 общего правила и этих условий. Поле source_gaps вычислено приложением по корпусу:
 не выдавай применение отсутствующих отсылочных оснований за установленное.
+Поле value_gaps содержит распознанные приложением явные отсылки значения к другому
+документу, когда запрошено само значение и нет совпадающего заголовка документа.
+Проверь эту зависимость по evidence; это не утверждение об отсутствии нормы вообще.
+Частичный ответ с исходным положением должен запросить документ и не придумывать значение.
 Проверь каждый дополнительный вывод: не усиливает ли он норму словами «только»,
 «все», «обязательно»; не переносит ли срок одной операции на другое действие.
 Ищи опровергающие или ограничивающие положения во всём evidence. Наличие
@@ -154,6 +163,17 @@ answer_supported=true только если всё подтверждено и �
 # of their documents or in the user's own turns. This is a formal check: it does
 # not establish meaning, negation or applicability (the verifier call does).
 PROSE_LIMIT = 2000
+_EXCLUSIVE = re.compile(r'\b(?:лишь|только|исключительно|единственн\w*|никогда)\b', re.I)
+_ROLE_NEGATION = re.compile(
+    r'\b(?:отдел|служб\w*|юрист\w*|сотрудник\w*|подразделени\w*|руководител\w*)\b'
+    r'[^.!?\n]{0,60}?\bне\s+(?:[а-яё]+(?:ет|ют|ит|ат|ят)|должен|вправе|может|могут)\b', re.I)
+_VALUE_REFERENCE = re.compile(
+    r'(?P<subject>[а-яё][^.!?\n]{2,100}?)\s+(?:устанавливается|определяется)\b'
+    r'[^.!?\n]{0,100}?\b(?P<reference>(?:указывается|содержится|приводится)\s+в\s+'
+    r'(?P<document>[^.!?;\n]{3,100}))', re.I)
+_VALUE_QUESTION = re.compile(
+    r'\b(?:сколько|как(?:о[йв]|ая|ое|ие|овы)\w*\s+(?:[а-яё-]+\s+){0,3}'
+    r'(?:срок|размер|сумм\w*|цен[аыуе]|стоимост\w*))\b', re.I)
 MAX_FIGURE_DIGITS = 128
 _SCALE = {"тыс": 10**3, "млн": 10**6, "миллион": 10**6, "млрд": 10**9, "миллиард": 10**9}
 _SCALED = re.compile(r"(\d+(?:[.,]\d+)?)\s*(тыс|млн|миллион|млрд|миллиард)")
@@ -291,6 +311,53 @@ def prose_of(value) -> str:
     """The model's answer text as one line; anything else counts as absent."""
     text = value.get("answer") if isinstance(value, dict) else None
     return " ".join(text.split()) if isinstance(text, str) else ""
+
+
+def request_scope(question: str) -> str:
+    """Quote a short current user request as data, never a generated legal claim."""
+    current = user_turns(question)[-1].strip()
+    if (not current or len(current) > 240
+            or any(ord(c) < 32 or 0xD800 <= ord(c) <= 0xDFFF for c in current)
+            or re.search(r'https?://|www\.|[<>`«»]|\b(?:system|assistant|система|ассистент)\s*:', current, re.I)):
+        return ""
+    return "«" + current + "»"
+
+
+def prose_scope_safe(text: str, selected: list[Fragment]) -> bool:
+    # A positive model verdict cannot introduce these restrictive operators.
+    # This small lexical barrier is not a general entailment/negation checker.
+    source = "\n".join(f.text for f in selected).lower().replace("ё", "е")
+    operators = {m.group() for m in _EXCLUSIVE.finditer(source)}
+    return (all(m.group().lower().replace("ё", "е") in operators for m in _EXCLUSIVE.finditer(text))
+            and not (_ROLE_NEGATION.search(text) and not _ROLE_NEGATION.search(source)))
+
+
+def value_dependencies(question: str, selected: list[Fragment], documents) -> list[str]:
+    """Recognize explicit value-to-document references, not arbitrary legal links.
+
+    A matching title only suppresses this extra warning; it does not prove the
+    referenced document applies. Retrieval and the semantic judge still decide.
+    """
+    turns = user_turns(question)
+    if not _VALUE_QUESTION.search(turns[-1]):
+        return []
+    generic = {"^срок", "^това", "^дого", "^разм", "^пери", "^рабо"}
+    question_words = {"^како", "^кака", "^скол", "^назо", "^укаж"}
+    query = {t for t in tokens(turns[-1]) if t.startswith("^")} - generic - question_words
+    if not query:
+        query = {t for t in tokens(" ".join(turns[:-1])) if t.startswith("^")}
+    result = []
+    for f in selected:
+        for m in _VALUE_REFERENCE.finditer(f.text):
+            subject = {t for t in tokens(m['subject']) if t.startswith("^")} - generic
+            if not subject & query:
+                continue
+            target = {t for t in tokens(m['document']) if t.startswith("^")}
+            present = any(target and target <= set(tokens(name + " " + document_header(d.text)))
+                          for name, d in documents.items())
+            if not present and m['reference'] not in result:
+                result.append(m['reference'])
+    return result
 
 
 def document_header(text: str, limit: int = 300) -> str:
@@ -475,10 +542,10 @@ def gap_lines(source_gaps) -> list[str]:
     # used here. Article numbers originate in the selected source.
     return ["В предоставленной базе не найдены тексты отсылочных статей " + ", ".join(gap["articles"]) +
             " того же нормативного документа. Содержание этих оснований и их применимость "
-            "по доступным материалам установить нельзя." for gap in source_gaps]
+            "по доступным материалам установить нельзя. Предоставьте эти статьи." for gap in source_gaps]
 
 
-def render(candidate: dict, evidence: list[Fragment], source_gaps=(), prose: str = "") -> str:
+def render(candidate: dict, evidence: list[Fragment], source_gaps=(), prose: str = "", *, question: str = "", value_gaps=()) -> str:
     """Build the published text.
 
     prose is the model-written answer that already passed prose_grounded();
@@ -511,7 +578,9 @@ def render(candidate: dict, evidence: list[Fragment], source_gaps=(), prose: str
         if not candidate["claims"]:
             return clarification_line
     if status == "insufficient":
-        return ((issue + " " if issue else "") + "В найденных документах недостаточно оснований для ответа по существу. " +
+        scope = request_scope(question)
+        return ((issue + " " if issue else "") + ("В найденных документах недостаточно оснований для ответа на вопрос " + scope + ". "
+                if scope else "В найденных документах недостаточно оснований для ответа по существу. ") +
                 (followup(candidate) or "Нужен документ, содержащий сведения по этому вопросу."))
     by_id = {f.id: f for f in evidence}
     references, numbers, lines = [], {}, [clarification_line] if clarification_line else []
@@ -531,10 +600,13 @@ def render(candidate: dict, evidence: list[Fragment], source_gaps=(), prose: str
             line = "«" + norm(by_id[cite["fragment_id"]].text) + "» " + marker
             if line not in lines:
                 lines.append(line)
-    if candidate["missing"]:
+    if candidate["missing"] and not (source_gaps or value_gaps):
         lines.append((issue + " " if issue else "") + "Приведённые документы подтверждают только указанную часть ответа. " +
                      (followup(candidate) or "Для полного ответа нужны дополнительные документы или сведения об обстоятельствах."))
     lines.extend(gap_lines(source_gaps))
+    if value_gaps:
+        lines.append("Найденное положение отсылает к отдельному документу: «" +
+                     "; ".join(value_gaps) + "». Предоставьте этот документ, чтобы определить запрошенное значение.")
     answer = "\n".join(lines + references)
     if len(answer) > 10000:
         raise ProviderError("answer_length_limit")
@@ -575,6 +647,7 @@ def answer_question(question: str, retriever, client, top_k: int = 6) -> tuple[s
             by_id = {f.id:f for f in evidence}
             selected = [by_id[cite["fragment_id"]] for c in candidate["claims"] for cite in c["sources"]]
             source_gaps = retriever.reference_gaps(selected) if hasattr(retriever, "reference_gaps") else []
+            value_gaps = value_dependencies(question, selected, getattr(retriever, "documents", {}))
             candidate = {**candidate, "claims": [{**c, "text": source_wording(c, evidence),
                          "sources":[{"fragment_id":cite["fragment_id"],
                                      "quote":by_id[cite["fragment_id"]].text} for cite in c["sources"]]}
@@ -582,28 +655,32 @@ def answer_question(question: str, retriever, client, top_k: int = 6) -> tuple[s
             if source_gaps and candidate["status"] in {"answer","partial"}:
                 candidate = {**candidate, "status":"partial", "missing":["source_gap"],
                              "requested_facts":["referenced_documents"]}
+            if value_gaps and candidate["status"] in {"answer", "partial"}:
+                candidate = {**candidate, "status":"partial", "missing":["source_gap"],
+                             "requested_facts":["document"]}
             # The model text is published only if its figures are found in the
             # selected provisions and the verifier confirms that very text.
             candidate = {k: v for k, v in candidate.items() if k != "answer"}
             draft = prose_of(generated)
             # Known restrictive units retain the source-only boundary even when
             # a semantic verifier incorrectly approves a contradictory draft.
-            source_only = any(_SOURCE_ONLY.search(norm(f.text)) for f in selected)
-            prose = draft if draft and selected and not source_only and prose_grounded(draft, grounding_basis(
+            source_only = bool(value_gaps) or any(_SOURCE_ONLY.search(norm(f.text)) for f in selected)
+            scope_blocked = bool(draft and selected and not prose_scope_safe(draft, selected))
+            prose = draft if draft and selected and not source_only and not scope_blocked and prose_grounded(draft, grounding_basis(
                 question, selected, getattr(retriever, "documents", {}))) else ""
-            prose_state = ('checked' if prose else 'source_only' if draft and source_only else
+            prose_state = ('checked' if prose else 'source_only' if draft and source_only else 'rejected' if scope_blocked else
                            'no_sources' if draft and not selected else 'ungrounded' if draft else 'absent')
             if prose:
                 candidate["answer"] = prose
-            rendered = render(candidate, evidence, source_gaps, prose)
+            rendered = render(candidate, evidence, source_gaps, prose, question=question, value_gaps=value_gaps)
             verdict = client.complete(VERIFY, {**payload, "candidate": candidate,
                                                "rendered_answer": rendered,
-                                               "source_gaps":source_gaps})
+                                               "source_gaps":source_gaps, "value_gaps":value_gaps})
             allowed = approved(candidate, verdict)
             if prose and allowed and verdict.get("answer_supported") is not True:
                 # The provisions are confirmed, the model text is not.
                 prose_state = "rejected"
-                rendered = render(candidate, evidence, source_gaps)
+                rendered = render(candidate, evidence, source_gaps, question=question, value_gaps=value_gaps)
             elif prose and allowed:
                 prose_state = "published"
             checks = verdict.get("claim_checks") if isinstance(verdict, dict) else None
