@@ -3,6 +3,7 @@ from __future__ import annotations
 import json
 import os
 import socket
+import sys
 import time
 from http.client import HTTPException
 from urllib.error import HTTPError, URLError
@@ -71,15 +72,22 @@ class ProxyClient:
             temperature = min(2., max(0., float(env("TEMPERATURE", default="0"))))
         except ValueError:
             temperature = 0.
-        body = json.dumps({
+        request_body = {
             "model": self.model,
             "messages": [{"role": "system", "content": system},
                          {"role": "user", "content": json.dumps(payload, ensure_ascii=False)}],
             "temperature": temperature,
-            "max_tokens": integer("MAX_TOKENS", 8192, 256, 8192),
-        }, ensure_ascii=False).encode()
+            "max_tokens": integer("MAX_TOKENS", 8192, 256, 65536),
+        }
+        effort = env("LLM_REASONING_EFFORT")
+        if effort:
+            if effort not in {"none", "low", "high", "max"}:
+                raise ProviderError("invalid_reasoning_configuration")
+            request_body["reasoning_effort"] = effort
+        body = json.dumps(request_body, ensure_ascii=False).encode()
         if len(body) > 512000:
             raise ProviderError("request_size_limit")
+        truncation_retry = False
         for attempt in range(3):
             remaining = self.deadline - time.monotonic()
             if remaining <= 1:
@@ -103,7 +111,33 @@ class ProxyClient:
                             raise ProviderError("response_size_limit")
                 result = strict_json(b"".join(chunks))
                 choice = result["choices"][0]
-                if choice.get("finish_reason") == "length":
+                finish = choice.get("finish_reason")
+                event = {"event":"model_response", "stage":"verify" if "candidate" in payload else "generate",
+                         "attempt":attempt + 1, "finish":finish if finish in {"stop","length"} else "other",
+                         "max_tokens":request_body["max_tokens"]}
+                usage = result.get("usage")
+                if isinstance(usage,dict):
+                    count = usage.get("completion_tokens")
+                    if type(count) is int and 0 <= count <= 1000000000:
+                        event["completion_tokens"] = count
+                    detail = usage.get("completion_tokens_details")
+                    if isinstance(detail,dict):
+                        count = detail.get("reasoning_tokens")
+                        if type(count) is int and 0 <= count <= 1000000000:
+                            event["reasoning_tokens"] = count
+                print(json.dumps(event), file=sys.stderr)
+                if finish == "length":
+                    # Never parse or publish a truncated candidate. One bounded
+                    # fresh attempt shares the three-attempt transport budget.
+                    if not truncation_retry and attempt < 2:
+                        truncation_retry = True
+                        request_body["messages"][0]["content"] += (
+                            "\nПовтор после обрезки: верни только минимальный JSON по заданной схеме, "
+                            "без пояснений, без повторения контекста. Сохрани необходимые условия.")
+                        body = json.dumps(request_body, ensure_ascii=False).encode()
+                        if len(body) > 512000:
+                            raise ProviderError("request_size_limit")
+                        continue
                     raise ProviderError("truncated_model_output")
                 if choice.get("finish_reason") != "stop":
                     raise ProviderError("unsupported_model_finish")

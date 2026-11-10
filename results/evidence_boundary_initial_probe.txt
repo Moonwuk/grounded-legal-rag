@@ -1,0 +1,73 @@
+test_long_source_paragraph_is_not_published_from_the_middle (test_evidence_boundary.EvidenceBoundaryTests.test_long_source_paragraph_is_not_published_from_the_middle) ... FAIL
+test_negation_and_conditions_survive_every_crop (test_evidence_boundary.EvidenceBoundaryTests.test_negation_and_conditions_survive_every_crop) ... FAIL
+test_other_law_does_not_satisfy_reference (test_evidence_boundary.EvidenceBoundaryTests.test_other_law_does_not_satisfy_reference) ... ERROR
+test_positive_stub_cannot_release_opposite_wording (test_evidence_boundary.EvidenceBoundaryTests.test_positive_stub_cannot_release_opposite_wording) ... FAIL
+test_present_reference_is_not_reported_missing (test_evidence_boundary.EvidenceBoundaryTests.test_present_reference_is_not_reported_missing) ... ERROR
+test_selected_missing_same_law_reference_has_program_owned_disclaimer (test_evidence_boundary.EvidenceBoundaryTests.test_selected_missing_same_law_reference_has_program_owned_disclaimer) ... FAIL
+
+======================================================================
+ERROR: test_other_law_does_not_satisfy_reference (test_evidence_boundary.EvidenceBoundaryTests.test_other_law_does_not_satisfy_reference)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/scratch/94557bdbb953/work/evidence-boundary-fix/tests/test_evidence_boundary.py", line 70, in test_other_law_does_not_satisfy_reference
+    self.assertTrue(r.reference_gaps(r.search('Обработка допускается')))
+                    ^^^^^^^^^^^^^^^^
+AttributeError: 'Retriever' object has no attribute 'reference_gaps'
+
+======================================================================
+ERROR: test_present_reference_is_not_reported_missing (test_evidence_boundary.EvidenceBoundaryTests.test_present_reference_is_not_reported_missing)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/scratch/94557bdbb953/work/evidence-boundary-fix/tests/test_evidence_boundary.py", line 65, in test_present_reference_is_not_reported_missing
+    self.assertEqual(r.reference_gaps(r.search('Обработка допускается')),[])
+                     ^^^^^^^^^^^^^^^^
+AttributeError: 'Retriever' object has no attribute 'reference_gaps'
+
+======================================================================
+FAIL: test_long_source_paragraph_is_not_published_from_the_middle (test_evidence_boundary.EvidenceBoundaryTests.test_long_source_paragraph_is_not_published_from_the_middle)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/scratch/94557bdbb953/work/evidence-boundary-fix/tests/test_evidence_boundary.py", line 47, in test_long_source_paragraph_is_not_published_from_the_middle
+    self.assertTrue(all(f.text==source for f in hits))
+AssertionError: False is not true
+
+======================================================================
+FAIL: test_negation_and_conditions_survive_every_crop (test_evidence_boundary.EvidenceBoundaryTests.test_negation_and_conditions_survive_every_crop)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/scratch/94557bdbb953/work/evidence-boundary-fix/tests/test_evidence_boundary.py", line 25, in test_negation_and_conditions_survive_every_crop
+    self.assertIn('«'+source+'»',render(c,[f]))
+AssertionError: '«Арендатор не вправе передавать помещение третьим лицам.»' not found in 'вправе передавать помещение третьим лицам. [1]\n[1] conditions: «вправе передавать помещение третьим лицам.».'
+
+======================================================================
+FAIL: test_positive_stub_cannot_release_opposite_wording (test_evidence_boundary.EvidenceBoundaryTests.test_positive_stub_cannot_release_opposite_wording)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/scratch/94557bdbb953/work/evidence-boundary-fix/tests/test_evidence_boundary.py", line 38, in test_positive_stub_cannot_release_opposite_wording
+    text,status=answer_question('Можно передать помещение?',r,ScriptedModel([malicious,approving]))
+                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/scratch/94557bdbb953/work/evidence-boundary-fix/prototype/psb_policy.py", line 253, in answer_question
+    verdict = client.complete(VERIFY, {**payload, "candidate": candidate,
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/scratch/94557bdbb953/work/evidence-boundary-fix/tests/test_baseline.py", line 32, in complete
+    return value(payload) if callable(value) else value
+           ^^^^^^^^^^^^^^
+  File "/workspace/scratch/94557bdbb953/work/evidence-boundary-fix/tests/test_evidence_boundary.py", line 35, in approving
+    self.assertIn('не вправе',p['candidate']['claims'][0]['text'])
+AssertionError: 'не вправе' not found in 'вправе передавать помещение третьим лицам.'
+
+======================================================================
+FAIL: test_selected_missing_same_law_reference_has_program_owned_disclaimer (test_evidence_boundary.EvidenceBoundaryTests.test_selected_missing_same_law_reference_has_program_owned_disclaimer)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/scratch/94557bdbb953/work/evidence-boundary-fix/tests/test_evidence_boundary.py", line 56, in test_selected_missing_same_law_reference_has_program_owned_disclaimer
+    self.assertEqual(status,'partial')
+AssertionError: 'answer' != 'partial'
+- answer
++ partial
+
+
+----------------------------------------------------------------------
+Ran 6 tests in 0.006s
+
+FAILED (failures=4, errors=2)

@@ -5,6 +5,8 @@ Prefix features are a baseline, not a Russian morphological analyser.
 """
 from __future__ import annotations
 from collections import Counter, defaultdict
+import hashlib
+from bisect import bisect_right, bisect_left
 import math
 import re
 from psb_corpus import Document, Fragment, check_deadline
@@ -63,6 +65,35 @@ class Retriever:
         self.avg = sum(map(lambda c: sum(c.values()), self.counts)) / len(self.counts)
         self.idf = {w: math.log(1 + (len(fragments) - n + .5) / (n + .5)) for w, n in df.items()}
         self.doc_ids = {d.name: identifiers(d.text[:700]) for d in documents}
+        self.paragraph_boundaries = {}
+        for d in documents:
+            boundaries = [0]
+            previous_blank = False
+            for line in re.finditer(r"[^\n]*(?:\n|$)", d.text):
+                value = line.group()
+                if not value:
+                    continue
+                structural = re.match(r"\s*(?:Статья\s+\d|\d+(?:\.\d+)*[.)]\s)", value, re.I)
+                if value.strip() and (previous_blank or structural) and line.start() > boundaries[-1]:
+                    boundaries.append(line.start())
+                previous_blank = not value.strip()
+            if boundaries[-1] != len(d.text):
+                boundaries.append(len(d.text))
+            # Quarantine is a hard context boundary. Restoring a paragraph
+            # must never reintroduce a removed instruction line.
+            self.paragraph_boundaries[d.name] = sorted(set(boundaries) |
+                {offset for span in d.quarantined for offset in span})
+        self.article_catalog = defaultdict(set)
+        self.law_by_doc = {}
+        for d in documents:
+            header = d.text.split("\n", 1)[0]
+            code = re.search(r"\b([а-яё]+)\s+кодекс\b", header, re.I)
+            law = re.search(r"(?:N|№)\s*(\d+)\s*[-–]\s*ФЗ\b", header, re.I)
+            identity = code.group(1).casefold() + " кодекс" if code else (law.group(1) + "-фз" if law else None)
+            if identity:
+                self.law_by_doc[d.name] = identity
+                articles = re.findall(r"(?:^|Источник:.*?)(?:Статья)\s+(\d+(?:\.\d+)?)", d.text, re.I | re.M)
+                self.article_catalog[identity].update(articles)
         self.parties = {d.name: {x.casefold().replace(" ", "-") for x in
                         re.findall(r"«([^»\n]{2,80})»", d.text[:1200])} for d in documents}
 
@@ -177,6 +208,19 @@ class Retriever:
         for name in sorted(required):
             existing_ids = {f.id for f in result}
             result.extend(f for f in self.by_doc[name] if f.id not in existing_ids)
+        # Index windows are navigation aids, not publication units. Restore the
+        # complete source blocks (blank/structural boundaries) before the model may select them.
+        complete = {}
+        for f in result:
+            doc = self.documents[f.document]
+            boundaries = self.paragraph_boundaries[doc.name]
+            start = boundaries[max(0, bisect_right(boundaries, f.start) - 1)]
+            end = boundaries[min(len(boundaries) - 1, bisect_left(boundaries, f.end))]
+            if any(a < end and b > start for a, b in doc.quarantined):
+                raise ValueError("unsafe_source_context")
+            fid = hashlib.sha256(f"{doc.name}:{doc.sha256}:{start}:{end}".encode()).hexdigest()[:20]
+            complete[fid] = Fragment(fid, doc.name, start, end, doc.text[start:end], f.heading)
+        result = list(complete.values())
         # Never silently cut an exception or an amendment to satisfy a hard cap.
         if len(result) > 512 or sum(len(f.text) for f in result) > 100000:
             raise ValueError("evidence_size_limit")
@@ -184,3 +228,30 @@ class Retriever:
 
     def evidence(self, fragments: list[Fragment]) -> list[dict]:
         return [{"id": f.id, "document": f.document, "text": f.text} for f in fragments]
+
+    def reference_gaps(self, fragments):
+        """Resolve explicit same-law article references against source headings.
+
+        Unsupported reference forms are not guessed. This catalog does not
+        establish legal applicability or absence outside the supplied corpus.
+        """
+        missing = defaultdict(set)
+        for f in fragments:
+            law = self.law_by_doc.get(f.document)
+            if not law:
+                continue
+            for match in re.finditer(r"настоящего\s+(?:Федерального\s+закона|Кодекса)", f.text, re.I):
+                prefix = f.text[max(0, match.start() - 400):match.start()]
+                parts = re.findall(r"[а-яё]+|\d+(?:\.\d+)*|[^\w\s]", prefix, re.I)
+                tail = []
+                for token in reversed(parts):
+                    if (re.fullmatch(r"\d+(?:\.\d+)*|[,–-]", token)
+                            or re.fullmatch(r"пункт[а-яё]*|част[а-яё]*|стать[яеию]|и", token, re.I)):
+                        tail.append(token)
+                    else:
+                        break
+                chain = " ".join(reversed(tail))
+                refs = set(re.findall(r"стать[яеию]\s+(\d+(?:\.\d+)?)", chain, re.I))
+                missing[f.document].update(refs - self.article_catalog[law])
+        return [{"document":name, "articles":sorted(articles, key=lambda x:tuple(map(int,x.split('.'))))}
+                for name, articles in sorted(missing.items()) if articles]
