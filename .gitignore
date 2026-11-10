@@ -9,3 +9,4 @@ submission.csv
 submission.csv.tmp
 .pytest_cache/
 .DS_Store
+reports/
