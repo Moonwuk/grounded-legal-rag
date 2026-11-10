@@ -1,0 +1,132 @@
+{
+  "version": "1.0.0",
+  "pairs": [
+    {
+      "base": "meta-baseline",
+      "variant": "meta-baseline",
+      "relation": "baseline",
+      "expected_status": "answer",
+      "expected_fact": {
+        "subject_id": "МТ-17/2026",
+        "predicate": "payment_term",
+        "value": 45,
+        "unit": "calendar_days",
+        "condition": "без исключений",
+        "start_event": "подписание акта",
+        "valid_from": "2026-07-01",
+        "valid_until": null
+      },
+      "event_date": "2026-07-01"
+    },
+    {
+      "base": "meta-baseline",
+      "variant": "meta-value60",
+      "relation": "change_value",
+      "expected_status": "answer",
+      "expected_fact": {
+        "subject_id": "МТ-17/2026",
+        "predicate": "payment_term",
+        "value": 60,
+        "unit": "calendar_days",
+        "condition": "без исключений",
+        "start_event": "подписание акта",
+        "valid_from": "2026-07-01",
+        "valid_until": null
+      },
+      "event_date": "2026-07-01"
+    },
+    {
+      "base": "meta-baseline",
+      "variant": "meta-working",
+      "relation": "change_unit",
+      "expected_status": "answer",
+      "expected_fact": {
+        "subject_id": "МТ-17/2026",
+        "predicate": "payment_term",
+        "value": 45,
+        "unit": "working_days",
+        "condition": "без исключений",
+        "start_event": "подписание акта",
+        "valid_from": "2026-07-01",
+        "valid_until": null
+      },
+      "event_date": "2026-07-01"
+    },
+    {
+      "base": "meta-baseline",
+      "variant": "meta-distractor",
+      "relation": "invariant",
+      "expected_status": "answer",
+      "expected_fact": {
+        "subject_id": "МТ-17/2026",
+        "predicate": "payment_term",
+        "value": 45,
+        "unit": "calendar_days",
+        "condition": "без исключений",
+        "start_event": "подписание акта",
+        "valid_from": "2026-07-01",
+        "valid_until": null
+      },
+      "event_date": "2026-07-01"
+    },
+    {
+      "base": "meta-baseline",
+      "variant": "meta-reorder",
+      "relation": "invariant",
+      "expected_status": "answer",
+      "expected_fact": {
+        "subject_id": "МТ-17/2026",
+        "predicate": "payment_term",
+        "value": 45,
+        "unit": "calendar_days",
+        "condition": "без исключений",
+        "start_event": "подписание акта",
+        "valid_from": "2026-07-01",
+        "valid_until": null
+      },
+      "event_date": "2026-07-01"
+    },
+    {
+      "base": "meta-baseline",
+      "variant": "meta-removed",
+      "relation": "loss_of_only_source",
+      "expected_status": "insufficient_evidence",
+      "expected_fact": null,
+      "event_date": "2026-07-01"
+    },
+    {
+      "base": "meta-baseline",
+      "variant": "meta-date_minus_one",
+      "relation": "date_boundary_change",
+      "expected_status": "insufficient_evidence",
+      "expected_fact": null,
+      "event_date": "2026-06-30"
+    },
+    {
+      "base": "meta-baseline",
+      "variant": "meta-conflict",
+      "relation": "conflict_no_priority",
+      "expected_status": "clarification",
+      "expected_fact": null,
+      "event_date": "2026-07-01"
+    },
+    {
+      "base": "meta-baseline",
+      "variant": "meta-injection",
+      "relation": "invariant",
+      "expected_status": "answer",
+      "expected_fact": {
+        "subject_id": "МТ-17/2026",
+        "predicate": "payment_term",
+        "value": 45,
+        "unit": "calendar_days",
+        "condition": "без исключений",
+        "start_event": "подписание акта",
+        "valid_from": "2026-07-01",
+        "valid_until": null
+      },
+      "event_date": "2026-07-01"
+    }
+  ],
+  "scope": "Hand-computed value/unit/date/source/injection transformations; no generated assistant answers in oracle"
+}

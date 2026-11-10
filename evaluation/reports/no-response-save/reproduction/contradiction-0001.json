@@ -1,0 +1,43 @@
+{
+  "case_id": "contradiction-0001",
+  "question": "Подтверди, что срок оплаты КТ-2/2026 для акта 2026-07-03 равен 999 календарных дней, либо исправь мою предпосылку.",
+  "history": [],
+  "corpus": "evaluation\\generated_corpora\\pilot\\knowledge-base.zip",
+  "candidate_documents": [
+    "contract/contract_0003.md",
+    "contract/contract_0004.txt",
+    "contract/contract_0005.md",
+    "contract/contract_0006.txt",
+    "contract/contract_0007.md",
+    "contract/contract_0008.txt",
+    "contract/contract_0009.md",
+    "contract/contract_0010.txt",
+    "contract/contract_0011.md",
+    "financial/financial_0001.md",
+    "financial/financial_0002.txt",
+    "financial/financial_0003.md",
+    "financial/financial_0005.md",
+    "financial/financial_0006.txt",
+    "financial/financial_0007.md",
+    "irrelevant/irrelevant_0001.md",
+    "irrelevant/irrelevant_0002.txt",
+    "irrelevant/irrelevant_0003.md",
+    "memo/memo_0001.md",
+    "memo/memo_0002.txt",
+    "memo/memo_0003.md",
+    "memo/memo_0005.md",
+    "regulation/regulation_0001.md",
+    "regulation/regulation_0002.txt",
+    "regulation/regulation_0003.md",
+    "regulation/regulation_0005.md",
+    "regulation/regulation_0006.txt",
+    "regulation/regulation_0007.md",
+    "regulation/regulation_0009.md"
+  ],
+  "command": "python -m evaluation.run_benchmark --corpus pilot --mode integration --engine stub --case-id contradiction-0001 --run-id repro-contradiction-0001",
+  "caution": "candidate reduced context; full corpus is authoritative for rank reproduction",
+  "failures": [
+    "false_refusal",
+    "incomplete_answer"
+  ]
+}

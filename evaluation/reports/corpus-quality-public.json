@@ -1,0 +1,17 @@
+{
+  "corpus": "public",
+  "documents": 135,
+  "fragments": 11332,
+  "source_offsets_exact": true,
+  "exact_duplicates": 0,
+  "nonempty": true,
+  "quarantined_spans": 0,
+  "load_index_seconds": 0.5898493999998209,
+  "snapshot_total_seconds": 0.9901876999997512,
+  "index_path": "indexes\\24b8adf1546470b5\\bm25.json",
+  "index_sha256": "4634d400e76e3b84284a88f4e0c7a72b24c1a85b7bc28c05b4d4f5c6a10c3684",
+  "index_has_gold": false,
+  "supported_formats": [
+    ".md"
+  ]
+}

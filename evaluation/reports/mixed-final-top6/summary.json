@@ -1,0 +1,174 @@
+{
+  "version": "1.0.0",
+  "git_commit": "b5ecfdc130c8f10aacd75a2d813b124f01e923c3",
+  "runtime_sha256": "e74860d250de51d8b0e0b43d2eb5ac11513ea9bf090d593ed07613650302cea5",
+  "evaluation_sha256": "20607e3dbe811f7d150e151b9540f8cce9e988831a91b49d2fa46df43c615de9",
+  "corpus_id": "mixed-f94a7542d03433ba",
+  "corpus_sha256": "f94a7542d03433ba136dd06767b0f0b6a0190166f6b299e14059961bd22e8312",
+  "gold_sha256": "871c5615e95595c9b8c83d45beec095d101bb6a97c2ed8d388419581a0734de1",
+  "gold_version": "1.0.0",
+  "questions_sha256": "ec68984fc83500ed78aa5c7cbf2472d880f2a2cba91e2a833c704289ec0c2196",
+  "selection_sha256": "3fb2245809658f2376642ddae569db8a0a82f6c7b85fa59b040d86945afddf5d",
+  "documents": 1135,
+  "questions_selected": 400,
+  "mode": "full",
+  "engine": "retrieval",
+  "model": null,
+  "provider_base_url": null,
+  "config": {
+    "top_k": 6,
+    "workers": 4,
+    "timeout": 30,
+    "case_seconds": 240,
+    "max_tokens": 2048,
+    "temperature": 0,
+    "max_requests": 60,
+    "max_token_bound": 3000000,
+    "max_cost": null,
+    "input_price_per_million": 0,
+    "output_price_per_million": 0,
+    "save_responses": true,
+    "bm25_k1": 1.5,
+    "bm25_b": 0.75,
+    "note": "No prices guessed. Set both unit prices to enforce monetary cap. Token bound reserves UTF-8 request bytes plus max_tokens per HTTP attempt; conservative, not billing.",
+    "engine": "retrieval"
+  },
+  "fingerprint": "d63d7b157e452a222bbfd36ebb2a693e5fff4902fa15a470ff6d13053061747c",
+  "started_utc": "2026-11-10T10:18:02.040283+00:00",
+  "elapsed_seconds": 186.65381669999988,
+  "organizer_unchanged": true,
+  "budget": {
+    "requests": 0,
+    "tokens_reserved": 0,
+    "cost_reserved": 0.0
+  },
+  "isolation": "fresh subprocess per case; only copied runtime, corpus and public question; no gold/specs copied",
+  "api_status": "not_requested",
+  "metrics": {
+    "raw_bm25_recall@1": {
+      "numerator": 164.0,
+      "denominator": 316,
+      "value": 0.5189873417721519
+    },
+    "raw_bm25_recall@5": {
+      "numerator": 220.0,
+      "denominator": 316,
+      "value": 0.6962025316455697
+    },
+    "raw_bm25_recall@10": {
+      "numerator": 223.5,
+      "denominator": 316,
+      "value": 0.7072784810126582
+    },
+    "production_context_sufficiency": {
+      "numerator": 297,
+      "denominator": 297,
+      "value": 1.0
+    },
+    "context_available_and_sufficient": {
+      "numerator": 297,
+      "denominator": 316,
+      "value": 0.939873417721519
+    },
+    "fact_accuracy": {
+      "numerator": 0,
+      "denominator": 0,
+      "value": null
+    },
+    "completeness": {
+      "numerator": 0,
+      "denominator": 0,
+      "value": null
+    },
+    "citation_integrity": {
+      "numerator": 0,
+      "denominator": 0,
+      "value": null
+    },
+    "citation_support_accuracy": {
+      "numerator": 0,
+      "denominator": 0,
+      "value": null
+    },
+    "false_refusal_rate": {
+      "numerator": 0,
+      "denominator": 0,
+      "value": null
+    },
+    "unsupported_answer_rate": {
+      "numerator": 0,
+      "denominator": 0,
+      "value": null
+    },
+    "correct_clarification_rate": {
+      "numerator": 0,
+      "denominator": 0,
+      "value": null
+    },
+    "temporal_accuracy": {
+      "numerator": 0,
+      "denominator": 0,
+      "value": null
+    },
+    "end_to_end_success": {
+      "numerator": 0,
+      "denominator": 0,
+      "value": null
+    },
+    "api_error_rate": {
+      "numerator": 0,
+      "denominator": 0,
+      "value": null
+    },
+    "validator_false_acceptance_rate": {
+      "numerator": 0,
+      "denominator": 7,
+      "value": 0.0
+    },
+    "validator_false_rejection_rate": {
+      "numerator": 0,
+      "denominator": 4,
+      "value": 0.0
+    }
+  },
+  "outcomes": {
+    "not_evaluated": 361,
+    "system_error": 39
+  },
+  "categories": {
+    "contradiction": {
+      "not_evaluated": 60
+    },
+    "fact": {
+      "not_evaluated": 70,
+      "system_error": 10
+    },
+    "missing_information": {
+      "not_evaluated": 60
+    },
+    "multi_document": {
+      "not_evaluated": 80
+    },
+    "security": {
+      "system_error": 29,
+      "not_evaluated": 31
+    },
+    "temporal": {
+      "not_evaluated": 60
+    }
+  },
+  "failures": {
+    "system_error": 39
+  },
+  "not_evaluated_reasons": {
+    "generation_not_run": 361
+  },
+  "latency": {
+    "median_seconds": 1.2014770500002214,
+    "p95_seconds": 2.3393660000001546
+  },
+  "requests": 0,
+  "usage": {},
+  "cases_completed": 400,
+  "scope": "Local experiment, not official competition Score. Raw BM25 rank is a separate diagnostic from production grouped context."
+}

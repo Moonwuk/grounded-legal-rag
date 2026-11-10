@@ -1,0 +1,17 @@
+{
+  "case_id": "multi_document-0003",
+  "question": "Для КТ-4/2026 акт подписан 2026-07-03. Назови срок оплаты и срок согласования обычной сделки, единицы, условия и события отсчёта.",
+  "history": [],
+  "corpus": "evaluation\\generated_corpora\\synthetic\\knowledge-base.zip",
+  "candidate_documents": [
+    "contract/contract_0009.md",
+    "regulation/regulation_0003.md",
+    "regulation/regulation_0103.md",
+    "regulation/regulation_0203.md"
+  ],
+  "command": "python -m evaluation.run_benchmark --corpus synthetic --mode full --engine retrieval --case-id multi_document-0003 --run-id repro-multi_document-0003",
+  "caution": "candidate reduced context; full corpus is authoritative for rank reproduction",
+  "failures": [
+    "system_error"
+  ]
+}

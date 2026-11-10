@@ -1,0 +1,12 @@
+__pycache__/
+*.pyc
+*.tmp
+.env
+.env.*
+
+# Rebuildable large artifacts stay local; keep reviewable summaries.
+!reports/
+indexes/
+reports/*/cases/
+reports/**/*.sqlite
+reports/**/*.sqlite-*

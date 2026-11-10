@@ -1,0 +1,2485 @@
+{
+  "commit": "b5ecfdc130c8f10aacd75a2d813b124f01e923c3",
+  "files": [
+    {
+      "path": ".github/codeql/config.yml",
+      "bytes": 93,
+      "sha256": "ba4b6048d2f51e4db03658dced272adeff88a417a37699fbb12123737a34a4fe"
+    },
+    {
+      "path": ".github/dependabot.yml",
+      "bytes": 481,
+      "sha256": "ca9a749d71d59881a00a5a5970df252ef07924cac2c19b9bbd49f211a9b396ac"
+    },
+    {
+      "path": ".github/scripts/check_codeql.py",
+      "bytes": 8132,
+      "sha256": "bf9617f0e61789fc9178e3638bfca24669aa17abf0ead9f7fe6ec7da4f9c0ba8",
+      "functions": [
+        {
+          "name": "ReportError",
+          "line": 15,
+          "end": 16,
+          "kind": "ClassDef"
+        },
+        {
+          "name": "object_value",
+          "line": 19,
+          "end": 22,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "array_value",
+          "line": 25,
+          "end": 28,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "indexed",
+          "line": 31,
+          "end": 34,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "check_invocations",
+          "line": 37,
+          "end": 52,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "components_for",
+          "line": 55,
+          "end": 75,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "result_rule",
+          "line": 78,
+          "end": 119,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "is_blocking",
+          "line": 122,
+          "end": 144,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "check_directory",
+          "line": 147,
+          "end": 173,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "main",
+          "line": 176,
+          "end": 189,
+          "kind": "FunctionDef"
+        }
+      ],
+      "imports": [
+        "__future__",
+        "argparse",
+        "json",
+        "math",
+        "pathlib"
+      ]
+    },
+    {
+      "path": ".github/scripts/check_dependencies.py",
+      "bytes": 6933,
+      "sha256": "1e141d9eaedede2cdef1773ed6ec9e5764e9e1b033aa88f2041c801ab191622b",
+      "functions": [
+        {
+          "name": "PolicyError",
+          "line": 20,
+          "end": 21,
+          "kind": "ClassDef"
+        },
+        {
+          "name": "read_pins",
+          "line": 30,
+          "end": 67,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "inspect_runtime",
+          "line": 70,
+          "end": 126,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "main",
+          "line": 129,
+          "end": 148,
+          "kind": "FunctionDef"
+        }
+      ],
+      "imports": [
+        "__future__",
+        "argparse",
+        "ast",
+        "json",
+        "os",
+        "pathlib",
+        "re",
+        "sys"
+      ]
+    },
+    {
+      "path": ".github/scripts/check_secret_rules.py",
+      "bytes": 10116,
+      "sha256": "7c20aed32d3014fb26b1b2d033c59a778e35055be8425326528eac30967a70ef",
+      "functions": [
+        {
+          "name": "HarnessError",
+          "line": 24,
+          "end": 25,
+          "kind": "ClassDef"
+        },
+        {
+          "name": "generated",
+          "line": 28,
+          "end": 36,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "execute",
+          "line": 39,
+          "end": 45,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "scan",
+          "line": 48,
+          "end": 65,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "archive_bytes",
+          "line": 68,
+          "end": 72,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "run_checks",
+          "line": 75,
+          "end": 171,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "main",
+          "line": 174,
+          "end": 203,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "record",
+          "line": 76,
+          "end": 77,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "fixture",
+          "line": 103,
+          "end": 105,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "git_command",
+          "line": 157,
+          "end": 159,
+          "kind": "FunctionDef"
+        }
+      ],
+      "imports": [
+        "__future__",
+        "argparse",
+        "base64",
+        "hashlib",
+        "io",
+        "json",
+        "os",
+        "pathlib",
+        "shutil",
+        "subprocess",
+        "sys",
+        "tempfile",
+        "zipfile"
+      ]
+    },
+    {
+      "path": ".github/scripts/check_submission.py",
+      "bytes": 1059,
+      "sha256": "2b652e750d824fe99e1a3be36dd6e467561d4d05b00c19172bf9ec8ddd733f22",
+      "functions": [
+        {
+          "name": "main",
+          "line": 12,
+          "end": 23,
+          "kind": "FunctionDef"
+        }
+      ],
+      "imports": [
+        "pathlib",
+        "zipfile"
+      ]
+    },
+    {
+      "path": ".github/scripts/run_secret_scan.py",
+      "bytes": 7383,
+      "sha256": "1b7fc3ec89e5681c55d78400a19ad64850d7a347b8f6e135856c84005f7fb991",
+      "functions": [
+        {
+          "name": "sanitize_report",
+          "line": 24,
+          "end": 58,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "expected_diagnostics",
+          "line": 61,
+          "end": 70,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "scan",
+          "line": 73,
+          "end": 122,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "write_reports",
+          "line": 125,
+          "end": 129,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "main",
+          "line": 132,
+          "end": 157,
+          "kind": "FunctionDef"
+        }
+      ],
+      "imports": [
+        "__future__",
+        "argparse",
+        "hashlib",
+        "json",
+        "pathlib",
+        "re",
+        "subprocess",
+        "tempfile"
+      ]
+    },
+    {
+      "path": ".github/security/requirements.in",
+      "bytes": 117,
+      "sha256": "e2c6d07a79534ac69a6a3550f7b7f5e06bbac316598b7d1e4b44fbbdcccf5d1b"
+    },
+    {
+      "path": ".github/security/requirements.txt",
+      "bytes": 41383,
+      "sha256": "43d6e2e177981332ee7fc9becb95d82b39baed047759f0681709eb56981477cf"
+    },
+    {
+      "path": ".github/workflows/security.yml",
+      "bytes": 14179,
+      "sha256": "8337d4c12f3702b07849e95ecf172cc5a20a286c58f39a77f052e1256b750f72"
+    },
+    {
+      "path": ".gitignore",
+      "bytes": 130,
+      "sha256": "86b56b75ff90bfcd78dea4eee9bb7f24e88f1f9064a88138fbc0622dee87f560"
+    },
+    {
+      "path": ".gitleaks.toml",
+      "bytes": 877,
+      "sha256": "e66b999e23daca909ad148c4eece21d7fb24cb3260556fd17b0bd4d3aefff6d7"
+    },
+    {
+      "path": "PSB_next_step_report.md",
+      "bytes": 19445,
+      "sha256": "d9f6d8fc0fb40fb12284b358c0ffdf7d766b6b04770cfcf499ef1317c735cd84"
+    },
+    {
+      "path": "README.md",
+      "bytes": 12045,
+      "sha256": "fd246af9d71d6bf7d447e8bb891633c0dadb7d9637a85c9652282dea2f57c58b"
+    },
+    {
+      "path": "audit_retrieval.py",
+      "bytes": 3372,
+      "sha256": "a5e4a3484a554ec5b9baab3bce3a89f3bc73b0f9c75eab8b7be56763a1d29c71",
+      "functions": [
+        {
+          "name": "main",
+          "line": 11,
+          "end": 56,
+          "kind": "FunctionDef"
+        }
+      ],
+      "imports": [
+        "dataclasses",
+        "hashlib",
+        "json",
+        "pathlib",
+        "psb_corpus",
+        "psb_retrieval",
+        "statistics",
+        "sys",
+        "time"
+      ]
+    },
+    {
+      "path": "build_cases.py",
+      "bytes": 12412,
+      "sha256": "9bfc33436669ee1c49f4077bbf11fd14144301a56ee89d3f0ea7f2aab5148b8a",
+      "functions": [
+        {
+          "name": "evidence",
+          "line": 19,
+          "end": 23,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "add",
+          "line": 58,
+          "end": 61,
+          "kind": "FunctionDef"
+        }
+      ],
+      "imports": [
+        "csv",
+        "json",
+        "pathlib"
+      ]
+    },
+    {
+      "path": "build_submission.py",
+      "bytes": 1263,
+      "sha256": "333c80a43e714ef49a34c653bbe6b19c172d18a0bee3c66af4808a3a369b5799",
+      "functions": [
+        {
+          "name": "main",
+          "line": 11,
+          "end": 25,
+          "kind": "FunctionDef"
+        }
+      ],
+      "imports": [
+        "hashlib",
+        "json",
+        "pathlib",
+        "zipfile"
+      ]
+    },
+    {
+      "path": "dist/PSB_baseline_submission.zip",
+      "bytes": 17677,
+      "sha256": "46257bf82a338e702fa85032ab3b41ee27aa027a95963992f3c504df5a611b31"
+    },
+    {
+      "path": "docs/pre_submission_audit.md",
+      "bytes": 37448,
+      "sha256": "cfec6216675132782f83b188215c527dca2380d5e53acf28b8651be7e39c8bd7"
+    },
+    {
+      "path": "docs/retrieval_scaling.md",
+      "bytes": 16274,
+      "sha256": "b924187110af5669bb9e6b7cba6211b46f0131d9aac67b3f16a59e26ad4fef1d"
+    },
+    {
+      "path": "docs/root_cause_fixes.md",
+      "bytes": 15805,
+      "sha256": "3a11b2a2a56fad54f8ed3547b7c8b5ce1caf94b8ca6f17fc36db365f385b8425"
+    },
+    {
+      "path": "docs/security_pipeline.md",
+      "bytes": 21090,
+      "sha256": "d76c0a92afef0aaf4b7c57dcae483a2dcda527c2d4c219cbda2427e6a27b55e9"
+    },
+    {
+      "path": "docs/security_review.md",
+      "bytes": 5837,
+      "sha256": "ea63c8e00e6aebebbf56aa842c19708c43bc8be29d8e5fa3ed9925efc731f2c9"
+    },
+    {
+      "path": "eval/cases.json",
+      "bytes": 42415,
+      "sha256": "2e1fb3f7ee0c50e2e21712d100914ab0ff7a2a335abb27427d14af0299094c13"
+    },
+    {
+      "path": "eval/fixtures/legacy_retrieval.py",
+      "bytes": 8585,
+      "sha256": "8b5f416066cb16254e11a274fc90ab0e3b2f167e3c84ecfe7c4e81199b5d4e2d",
+      "functions": [
+        {
+          "name": "tokens",
+          "line": 17,
+          "end": 26,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "user_turns",
+          "line": 29,
+          "end": 35,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "identifiers",
+          "line": 38,
+          "end": 40,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "Retriever",
+          "line": 43,
+          "end": 165,
+          "kind": "ClassDef"
+        },
+        {
+          "name": "__init__",
+          "line": 44,
+          "end": 57,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "search",
+          "line": 59,
+          "end": 162,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "evidence",
+          "line": 164,
+          "end": 165,
+          "kind": "FunctionDef"
+        }
+      ],
+      "imports": [
+        "__future__",
+        "collections",
+        "dataclasses",
+        "math",
+        "psb_corpus",
+        "re"
+      ]
+    },
+    {
+      "path": "eval/run_adversarial.py",
+      "bytes": 7491,
+      "sha256": "243addf1ca5e21725dfeac9b9289da8d4fc11fa4775111b0115bf4d3355938d2",
+      "functions": [
+        {
+          "name": "main",
+          "line": 37,
+          "end": 75,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "run",
+          "line": 56,
+          "end": 66,
+          "kind": "FunctionDef"
+        }
+      ],
+      "imports": [
+        "concurrent.futures",
+        "hashlib",
+        "json",
+        "os",
+        "pathlib",
+        "psb_corpus",
+        "psb_llm",
+        "psb_policy",
+        "psb_retrieval",
+        "sys",
+        "tempfile",
+        "time",
+        "zipfile"
+      ]
+    },
+    {
+      "path": "eval/run_submission_live.py",
+      "bytes": 2649,
+      "sha256": "e26c729cf1adcbb36ec7c734f1121525abebe960dd6e8a426801ba8095ae4c74",
+      "functions": [
+        {
+          "name": "main",
+          "line": 17,
+          "end": 48,
+          "kind": "FunctionDef"
+        }
+      ],
+      "imports": [
+        "csv",
+        "datetime",
+        "hashlib",
+        "json",
+        "os",
+        "pathlib",
+        "shutil",
+        "subprocess",
+        "sys",
+        "tempfile",
+        "time",
+        "zipfile"
+      ]
+    },
+    {
+      "path": "eval/stress_resources.py",
+      "bytes": 4634,
+      "sha256": "1aaeadf44043539ffa4101f068357e4a4949eeca0a5e664a1ab58d1e12fe187c",
+      "functions": [
+        {
+          "name": "child",
+          "line": 20,
+          "end": 47,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "main",
+          "line": 50,
+          "end": 83,
+          "kind": "FunctionDef"
+        }
+      ],
+      "imports": [
+        "importlib.util",
+        "json",
+        "os",
+        "pathlib",
+        "psb_corpus",
+        "psb_retrieval",
+        "resource",
+        "statistics",
+        "subprocess",
+        "sys",
+        "tempfile",
+        "test_security",
+        "time",
+        "zipfile"
+      ]
+    },
+    {
+      "path": "organizer/demo_output.csv",
+      "bytes": 8413,
+      "sha256": "cf73e808c2c0071e616c61a965b8cd01713b62d150ec1c9c1c2c7dcb3206115b"
+    },
+    {
+      "path": "organizer/demo_questions.csv",
+      "bytes": 4469,
+      "sha256": "e922cee1e155ed23f9f1c8f9758e396ed0e72e4309343dffe33824139bbf1423"
+    },
+    {
+      "path": "organizer/knowledge-base.zip",
+      "bytes": 83695,
+      "sha256": "cea8ef2c8f6c8b9f498efacf705b97bf3da53cc78f366f9b1fef7a6de66327e0"
+    },
+    {
+      "path": "organizer/knowledge-base/документы компании__Договор аренды А-08-2024 Северный Склад.txt",
+      "bytes": 5061,
+      "sha256": "ea312cfd0c2727eb321a8a764512ec977725e93e08131048fb77af6bd9700b29"
+    },
+    {
+      "path": "organizer/knowledge-base/документы компании__Договор поставки П-17-2024 Альфа-Трейд.txt",
+      "bytes": 7213,
+      "sha256": "b5df5ca3e2b746cbbaa1757e77697f28ad87d015c66d44fade45a10aae754e25"
+    },
+    {
+      "path": "organizer/knowledge-base/документы компании__Договор поставки ПТ-05-2023 Альфа-Трейдинг.txt",
+      "bytes": 4935,
+      "sha256": "8c2171e4c1bfe5a915a5d3cd7fdfb64ead0866858bf7914f8b84c67be618530d"
+    },
+    {
+      "path": "organizer/knowledge-base/документы компании__Доп соглашение 1 к договору П-17-2024.txt",
+      "bytes": 1736,
+      "sha256": "f37f50f7bcb0900854230903be263bebdea60b3cae4be93ee9ed7ec02e4a380a"
+    },
+    {
+      "path": "organizer/knowledge-base/документы компании__Письмо комплаенс-службы К-12 от 15.04.2025.txt",
+      "bytes": 2455,
+      "sha256": "9d256e900a22e14c01f341d4172dc2923aa8696b0639f5ab8eed5a6ff5884449"
+    },
+    {
+      "path": "organizer/knowledge-base/документы компании__Регламент согласования договоров ред 2023 (утратил силу).txt",
+      "bytes": 2445,
+      "sha256": "27dcb53da4f654f50bdf233aa00b3e006075a85086f10dac57800473e499575d"
+    },
+    {
+      "path": "organizer/knowledge-base/документы компании__Регламент согласования договоров ред 2025.txt",
+      "bytes": 4005,
+      "sha256": "6b899e69657be2b5357d37619cbe31e151bf8ab02f838603a4d55b4257f00e44"
+    },
+    {
+      "path": "organizer/knowledge-base/документы компании__Служебная записка об архиве договоров.txt",
+      "bytes": 1547,
+      "sha256": "a90d426b390e892ba490fde5c5bb85367ed71232a48442728a8e1363232a27ee"
+    },
+    {
+      "path": "organizer/knowledge-base/законы__152ФЗ_ст9_действующая.txt",
+      "bytes": 9991,
+      "sha256": "26fc061b84c6f730cfbcc2c2a6a143ba391c5e0988befa694ec8afa2c36d71ec"
+    },
+    {
+      "path": "organizer/knowledge-base/законы__КоАП_ст13.11_действующая.txt",
+      "bytes": 32375,
+      "sha256": "d982e1ebdc409e93fe4434ada02e7a0801971eacb9dfaad511186004628e097f"
+    },
+    {
+      "path": "organizer/knowledge-base/законы__МРОТ_ст1_действующая.txt",
+      "bytes": 3701,
+      "sha256": "a487d40fa1afb4ff37be1fc4a773a93d16e275c1314a06ed316073ee72936d83"
+    },
+    {
+      "path": "organizer/knowledge-base/законы__НК_ст112_действующая.txt",
+      "bytes": 3028,
+      "sha256": "9f6e55f1968576d70d195cabffbdd1bca1f9747a29f9af665fa29025e43b3d9a"
+    },
+    {
+      "path": "organizer/knowledge-base/законы__НК_ст114_действующая.txt",
+      "bytes": 2969,
+      "sha256": "ef0c299cf34b6a7e2ab91c08f46e6bfb0d157557d7bd9161d7a40f5e13b42941"
+    },
+    {
+      "path": "organizer/knowledge-base/законы__НК_ст145_действующая.txt",
+      "bytes": 38221,
+      "sha256": "59c61690bda78bf26dab36ece2cc3374dc5fed94dd408c0d24b7991776c336b8"
+    },
+    {
+      "path": "organizer/knowledge-base/законы__НК_ст164_действующая.txt",
+      "bytes": 142784,
+      "sha256": "90f7d1f6c472be5e5a89fc1fe9bcdc3a1b57171c475c772150bb463333bb7066"
+    },
+    {
+      "path": "organizer/knowledge-base/законы__НК_ст224_действующая.txt",
+      "bytes": 22935,
+      "sha256": "b4a2313836aadf260106ae02607b14ec6bf803ffc5e029dec2a92b1ba10e0067"
+    },
+    {
+      "path": "organizer/knowledge-base/законы__НК_ст284_действующая.txt",
+      "bytes": 172533,
+      "sha256": "f4805aaa721b5256be3ba2d5a19a4a650623f11598863ff98ee98d313e6558e3"
+    },
+    {
+      "path": "organizer/knowledge-base/законы__ТК_ст152_действующая.txt",
+      "bytes": 4664,
+      "sha256": "7b08540d0e22b14b3413ddd77dbd2e404073938de90e580b896e3ee5f6f448c3"
+    },
+    {
+      "path": "organizer/knowledge-base/законы__ТК_ст59_действующая.txt",
+      "bytes": 9289,
+      "sha256": "8956e946db720da15cf3d359cb70cbbc51d5dc1c3aab5a77df43fb78a592643e"
+    },
+    {
+      "path": "organizer/knowledge-base/законы__ТК_ст70_действующая.txt",
+      "bytes": 4964,
+      "sha256": "faa132894aee5508be9c53bd6af10c28fd6c110c3734a46f32d0c70324c358fb"
+    },
+    {
+      "path": "organizer/knowledge-base/законы__ТК_ст99_действующая.txt",
+      "bytes": 11830,
+      "sha256": "428df66e32e77301db52f526ae76b47b11ad239b0562b787cf2235c984e07d8b"
+    },
+    {
+      "path": "organizer/provenance.json",
+      "bytes": 1074,
+      "sha256": "bd5004cfc86b2d207245f45c6c4498a73a9faf337d26d9dd340c88094969002c"
+    },
+    {
+      "path": "organizer/requirements.txt",
+      "bytes": 463,
+      "sha256": "54e0542fa9f9917d39c51ecf80ea3077b2135eb924ac7328dfad6aa5e3780b12"
+    },
+    {
+      "path": "organizer/sample_submission.zip",
+      "bytes": 6832,
+      "sha256": "99227787858dd5106b1902d5c44ae2399f37efb63beae20683fe467f898d640f"
+    },
+    {
+      "path": "organizer/sample_submission/README.md",
+      "bytes": 5015,
+      "sha256": "c43fd9f7f47a791b721dc44b9c7122bf98c88b5e91a5c768478a1b143d940ab6"
+    },
+    {
+      "path": "organizer/sample_submission/requirements.txt",
+      "bytes": 14,
+      "sha256": "84a869ce0ab453cbdb7dbf81622ea2bc4eaddcc182528fbaacba09365df9446d"
+    },
+    {
+      "path": "organizer/sample_submission/solution.py",
+      "bytes": 11750,
+      "sha256": "430eb2352d25d1f1e819164931f49f841ea91826736241f94685a2294e72a9e9",
+      "functions": [
+        {
+          "name": "env",
+          "line": 24,
+          "end": 26,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "env_int",
+          "line": 29,
+          "end": 33,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "env_float",
+          "line": 36,
+          "end": 40,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "words",
+          "line": 66,
+          "end": 67,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "find_file",
+          "line": 70,
+          "end": 76,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "load_questions",
+          "line": 79,
+          "end": 87,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "read_docx",
+          "line": 90,
+          "end": 99,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "load_documents",
+          "line": 102,
+          "end": 121,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "snippet",
+          "line": 124,
+          "end": 131,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "post",
+          "line": 134,
+          "end": 143,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "embeddings",
+          "line": 146,
+          "end": 163,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "rerank",
+          "line": 166,
+          "end": 176,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "select_documents",
+          "line": 179,
+          "end": 205,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "generate",
+          "line": 208,
+          "end": 231,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "main",
+          "line": 234,
+          "end": 264,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "work",
+          "line": 241,
+          "end": 248,
+          "kind": "FunctionDef"
+        }
+      ],
+      "imports": [
+        "__future__",
+        "concurrent.futures",
+        "csv",
+        "httpx",
+        "io",
+        "math",
+        "os",
+        "pathlib",
+        "re",
+        "sys",
+        "time",
+        "xml.etree",
+        "zipfile"
+      ]
+    },
+    {
+      "path": "organizer/technical_regulations_text.md",
+      "bytes": 16136,
+      "sha256": "1c01822c46b03c3db33134fdf6533b8d599408420fe0bcf21f210728b7a029c1"
+    },
+    {
+      "path": "prototype/psb_corpus.py",
+      "bytes": 8291,
+      "sha256": "0e8edfde588f34e3a4a543762e67cae6612cda584a79744d1d4b68fa1a3b93a8",
+      "functions": [
+        {
+          "name": "check_deadline",
+          "line": 18,
+          "end": 22,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "DocumentXML",
+          "line": 25,
+          "end": 28,
+          "kind": "ClassDef"
+        },
+        {
+          "name": "Document",
+          "line": 36,
+          "end": 40,
+          "kind": "ClassDef"
+        },
+        {
+          "name": "Fragment",
+          "line": 44,
+          "end": 50,
+          "kind": "ClassDef"
+        },
+        {
+          "name": "norm",
+          "line": 53,
+          "end": 54,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "read_docx",
+          "line": 57,
+          "end": 94,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "load_corpus",
+          "line": 97,
+          "end": 188,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "doctype",
+          "line": 26,
+          "end": 28,
+          "kind": "FunctionDef"
+        }
+      ],
+      "imports": [
+        "__future__",
+        "dataclasses",
+        "hashlib",
+        "io",
+        "pathlib",
+        "re",
+        "stat",
+        "time",
+        "xml.etree",
+        "zipfile"
+      ]
+    },
+    {
+      "path": "prototype/psb_llm.py",
+      "bytes": 5829,
+      "sha256": "92472ccd7f56e42307e8fa09488199feac1c118b9e19f0745f5ad9bbcf3ed2ba",
+      "functions": [
+        {
+          "name": "ProviderError",
+          "line": 13,
+          "end": 14,
+          "kind": "ClassDef"
+        },
+        {
+          "name": "env",
+          "line": 17,
+          "end": 22,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "integer",
+          "line": 25,
+          "end": 29,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "NoRedirect",
+          "line": 32,
+          "end": 34,
+          "kind": "ClassDef"
+        },
+        {
+          "name": "strict_json",
+          "line": 37,
+          "end": 47,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "ProxyClient",
+          "line": 50,
+          "end": 135,
+          "kind": "ClassDef"
+        },
+        {
+          "name": "redirect_request",
+          "line": 33,
+          "end": 34,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "pairs",
+          "line": 38,
+          "end": 44,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "constant",
+          "line": 45,
+          "end": 46,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "__init__",
+          "line": 51,
+          "end": 64,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "complete",
+          "line": 66,
+          "end": 135,
+          "kind": "FunctionDef"
+        }
+      ],
+      "imports": [
+        "__future__",
+        "http.client",
+        "json",
+        "os",
+        "socket",
+        "time",
+        "urllib.error",
+        "urllib.parse",
+        "urllib.request"
+      ]
+    },
+    {
+      "path": "prototype/psb_policy.py",
+      "bytes": 20318,
+      "sha256": "a0d1ece76c69cb8897bb653130fb7f7a4ee8586bf103b9616b830e8c2cd3fcb3",
+      "functions": [
+        {
+          "name": "followup",
+          "line": 27,
+          "end": 30,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "validate_candidate",
+          "line": 112,
+          "end": 168,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "approved",
+          "line": 171,
+          "end": 189,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "source_wording",
+          "line": 192,
+          "end": 195,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "render",
+          "line": 198,
+          "end": 231,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "answer_question",
+          "line": 234,
+          "end": 269,
+          "kind": "FunctionDef"
+        }
+      ],
+      "imports": [
+        "__future__",
+        "psb_corpus",
+        "psb_llm",
+        "re",
+        "sys"
+      ]
+    },
+    {
+      "path": "prototype/psb_retrieval.py",
+      "bytes": 9671,
+      "sha256": "15d00e0617eb900c9fd4c1b7f65a2700b07c9a577c31226cb81b27c0f4f0d7d2",
+      "functions": [
+        {
+          "name": "tokens",
+          "line": 15,
+          "end": 24,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "user_turns",
+          "line": 27,
+          "end": 33,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "identifiers",
+          "line": 36,
+          "end": 38,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "Retriever",
+          "line": 41,
+          "end": 186,
+          "kind": "ClassDef"
+        },
+        {
+          "name": "__init__",
+          "line": 42,
+          "end": 67,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "_scores",
+          "line": 69,
+          "end": 76,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "search",
+          "line": 78,
+          "end": 183,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "evidence",
+          "line": 185,
+          "end": 186,
+          "kind": "FunctionDef"
+        }
+      ],
+      "imports": [
+        "__future__",
+        "collections",
+        "math",
+        "psb_corpus",
+        "re"
+      ]
+    },
+    {
+      "path": "prototype/requirements.txt",
+      "bytes": 70,
+      "sha256": "d5373dfa08adacd00365dfefc08228f255806bcea3dc28ea355b2c8e886fa30f"
+    },
+    {
+      "path": "prototype/solution.py",
+      "bytes": 5862,
+      "sha256": "724e997e5b0b25e5ef9efdbfa98c9a03dbbd577b1fa12b06c4a9c816f94437ee",
+      "functions": [
+        {
+          "name": "read_questions",
+          "line": 17,
+          "end": 36,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "write_output",
+          "line": 39,
+          "end": 50,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "main",
+          "line": 53,
+          "end": 122,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "stop_run",
+          "line": 64,
+          "end": 66,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "work",
+          "line": 87,
+          "end": 94,
+          "kind": "FunctionDef"
+        }
+      ],
+      "imports": [
+        "__future__",
+        "concurrent.futures",
+        "csv",
+        "os",
+        "pathlib",
+        "psb_corpus",
+        "psb_llm",
+        "psb_policy",
+        "psb_retrieval",
+        "sys",
+        "threading",
+        "time",
+        "zipfile"
+      ]
+    },
+    {
+      "path": "results/corpus_manifest.json",
+      "bytes": 5959,
+      "sha256": "7b7ff0d0e1bcb797599189a77827dc57ced3e9f639ba24afb14e644d46801913"
+    },
+    {
+      "path": "results/deepseek_after_fixes_20261110T091720Z/run_manifest.json",
+      "bytes": 708,
+      "sha256": "bc4d76d312f0659eb2c5e035f6e5277d3ca47839fc5ada5a78479f515b133fad"
+    },
+    {
+      "path": "results/deepseek_after_fixes_20261110T091720Z/submission.csv",
+      "bytes": 20096,
+      "sha256": "be1c393354b2fc691a46a023fd93864b741590c905f1546fc82b963eef9db918"
+    },
+    {
+      "path": "results/deepseek_after_fixes_20261110T091720Z/submission_run.txt",
+      "bytes": 685,
+      "sha256": "2734571eb304497190599d0d53b7acdbfef350fbedc1899d280a815abcaa0756"
+    },
+    {
+      "path": "results/deepseek_after_fixes_20261110T091720Z/submission_summary.json",
+      "bytes": 932,
+      "sha256": "450c8319c9aa6a76b9a2b8d5f7318b1c3d852d19c025e4fa23bc7164295a0335"
+    },
+    {
+      "path": "results/deepseek_final_fixes_20261110T092122Z/manual_review.json",
+      "bytes": 3610,
+      "sha256": "7cb8595c4ada703c419d9d261ec1953379a26cea5100694c70059a72a08a5197"
+    },
+    {
+      "path": "results/deepseek_final_fixes_20261110T092122Z/question_16_diagnostic_retry.json",
+      "bytes": 7431,
+      "sha256": "2973ad34f342a9a297be0138cda2f10a1ea2dc98ff7da294cb0c6d6290641eb1"
+    },
+    {
+      "path": "results/deepseek_final_fixes_20261110T092122Z/run_manifest.json",
+      "bytes": 708,
+      "sha256": "423feabc7662498b2d964397dc7d18b0e78bd81c5e981efcd40bfee3b5880d36"
+    },
+    {
+      "path": "results/deepseek_final_fixes_20261110T092122Z/submission.csv",
+      "bytes": 16887,
+      "sha256": "e5edaca5ea69d8a4f0f601c629d6ea15b633eeaa9b23a5d3afa890cb81ff1de1"
+    },
+    {
+      "path": "results/deepseek_final_fixes_20261110T092122Z/submission_run.txt",
+      "bytes": 729,
+      "sha256": "0e980d0d1e8fa703468b48c028b6734b9cc58a858dc3e90e47e01e91eff96e6b"
+    },
+    {
+      "path": "results/deepseek_final_fixes_20261110T092122Z/submission_summary.json",
+      "bytes": 932,
+      "sha256": "5fcae68bc5abd78009442a008e08a3683f78116b4316d9d3444a686ecabe61e1"
+    },
+    {
+      "path": "results/deepseek_fixed_20261110/review.md",
+      "bytes": 3327,
+      "sha256": "c6b6a0715b499a29a64fbdabeb71cfdbbdd347ecef8d44406576786c605bee0b"
+    },
+    {
+      "path": "results/deepseek_fixed_20261110/submission.csv",
+      "bytes": 21249,
+      "sha256": "77c6e3c6d503456557bda685c9e1075b257816eeb7cb3ca9075d244a397d4660"
+    },
+    {
+      "path": "results/deepseek_fixed_20261110/summary.json",
+      "bytes": 1445,
+      "sha256": "7bc6eee030434d03e60a2a87c8b5d1a3efc715433e7a161b3099d35b7f3e3aad"
+    },
+    {
+      "path": "results/deepseek_live_20261110/retry_summary.json",
+      "bytes": 217,
+      "sha256": "180b328a207cf2c75be7b5e9668e05269273bcf72e7a115901e4fd27bf4da453"
+    },
+    {
+      "path": "results/deepseek_live_20261110/review.md",
+      "bytes": 3878,
+      "sha256": "9d01e7c004e4e6240013db3715278b64b1d2bb1bfde258a8ae44dfc199a8b47c"
+    },
+    {
+      "path": "results/deepseek_live_20261110/reviewed_answers.csv",
+      "bytes": 36535,
+      "sha256": "963b016b213b95b0b053da3370c9a73d8bfdaf3bdffd94ad1a291a8c51164553"
+    },
+    {
+      "path": "results/deepseek_live_20261110/submission.csv",
+      "bytes": 17661,
+      "sha256": "edbb46c28240082d7a788521d0b364654c8903aa514ff67b5c2587ce568c923b"
+    },
+    {
+      "path": "results/deepseek_live_20261110/summary.json",
+      "bytes": 395,
+      "sha256": "e7625a74b5c100533eef1e50b412d2007e29c7e4f04c3289eea1be4738db7641"
+    },
+    {
+      "path": "results/deepseek_release_check_20261110T093543Z/manual_review.json",
+      "bytes": 3646,
+      "sha256": "d0fb6ac3e42cf471d16588448d0b39f1d0609dab6b6c77361792e2a0c65acac3"
+    },
+    {
+      "path": "results/deepseek_release_check_20261110T093543Z/question_5_non_thinking_experiment.json",
+      "bytes": 5033,
+      "sha256": "67a0d9ebd17d680ea05aef582d33c207701a8fe04c14706a19e8c03cd722202d"
+    },
+    {
+      "path": "results/deepseek_release_check_20261110T093543Z/run_manifest.json",
+      "bytes": 708,
+      "sha256": "d82ccf7bbc6c9ffc415d89ca178c3face35b0d9101ca7edec3dc9105863972ca"
+    },
+    {
+      "path": "results/deepseek_release_check_20261110T093543Z/submission.csv",
+      "bytes": 18430,
+      "sha256": "603c2760e2d57bce4c18c0820669d3b885e58d9ea41d6a056a6a9e8a8ce11b32"
+    },
+    {
+      "path": "results/deepseek_release_check_20261110T093543Z/submission_run.txt",
+      "bytes": 725,
+      "sha256": "4e05765b52654779db1d96e4c7d95592338c7c65aa091ca8e43d23f3cd0a4712"
+    },
+    {
+      "path": "results/deepseek_release_check_20261110T093543Z/submission_summary.json",
+      "bytes": 932,
+      "sha256": "2f256000147b7dd8d599416c7212d6e8a864b1838326475199305a410196ac78"
+    },
+    {
+      "path": "results/package_check.json",
+      "bytes": 439,
+      "sha256": "b8b93d10ae69f39e66153a9a1793b7659c062c648a3a6037a39f790615cf9071"
+    },
+    {
+      "path": "results/retrieval_audit.json",
+      "bytes": 26498,
+      "sha256": "d4f61071a6626d9329a184a369643406bbb4cd3adafa95a54829fe4cdb1c284c"
+    },
+    {
+      "path": "results/root_cause_before_fixes.txt",
+      "bytes": 8167,
+      "sha256": "d8e64ace829e463ecf3c5771549ab047424111eb7c2495cad54fc3d0de9a6679"
+    },
+    {
+      "path": "results/root_cause_regression_tests.txt",
+      "bytes": 14660,
+      "sha256": "b229aaacbbc63b1ffd09383146d18ad2bc23a2bb683baf97242c68f8833c34d8"
+    },
+    {
+      "path": "results/root_cause_validation.json",
+      "bytes": 8175,
+      "sha256": "f1195a35c2694e739d63f1597a724dcb3ff2ac05a78f428707ab134994f44ebf"
+    },
+    {
+      "path": "results/secrets_review_20261110.json",
+      "bytes": 3932,
+      "sha256": "7f98666646689382c1fe1baacaf7cddbd0880225c81a3265c37eb123b5c3e841"
+    },
+    {
+      "path": "results/security_stress_20261110/before.json",
+      "bytes": 283,
+      "sha256": "fce260691eba5344b4100770cf3002efdfea5dd4e7a0d9f63cd4513c9f0688aa"
+    },
+    {
+      "path": "results/security_stress_20261110/final/live_adversarial.json",
+      "bytes": 18253,
+      "sha256": "b20c5248edf859c32409c1f71a8f7ebee50587fa5537b522eebd8bc46141790d"
+    },
+    {
+      "path": "results/security_stress_20261110/final/manual_review.json",
+      "bytes": 3666,
+      "sha256": "312260709191859c4c6714142efca9e4aaf0b2d1f9ae01b01b5347ddd3cef50d"
+    },
+    {
+      "path": "results/security_stress_20261110/final/submission.csv",
+      "bytes": 21897,
+      "sha256": "c0bd02e9efd1037af3a169c33370bf9e8d8f46f20a0ab2d76cf02c95b1720478"
+    },
+    {
+      "path": "results/security_stress_20261110/final/submission_first.csv",
+      "bytes": 19106,
+      "sha256": "de3e26144a8cdb2ed0ac7da6e2648e2cf9a2e70b24c4ba49f40b1eacb9a6ff6f"
+    },
+    {
+      "path": "results/security_stress_20261110/final/submission_first_run.txt",
+      "bytes": 676,
+      "sha256": "a113856035034b073a0506bc05ebcbc916e1f180eaf6c0d6340eefbee1817a94"
+    },
+    {
+      "path": "results/security_stress_20261110/final/submission_manual_review.json",
+      "bytes": 1489,
+      "sha256": "1454ee17fee3a69f18bab0364539e2f6d2baab01015e5b8d9c7ffc4dbaa037bd"
+    },
+    {
+      "path": "results/security_stress_20261110/final/submission_run.txt",
+      "bytes": 677,
+      "sha256": "a25d1ddd42aacd83c921e24cecd9403e5b7dea94cd716aab43ccd228d43eef20"
+    },
+    {
+      "path": "results/security_stress_20261110/final/submission_summary.json",
+      "bytes": 332,
+      "sha256": "fb45f74c229cf2147af311eb6ef7c9ea89e016fd4b6d9b548436388cd7aacfd3"
+    },
+    {
+      "path": "results/security_stress_20261110/final_redteam_run.txt",
+      "bytes": 820,
+      "sha256": "6a73f22a6e2fc749d23c329a2bccb3de074475b5d3ef6775adb72a963a8a9582"
+    },
+    {
+      "path": "results/security_stress_20261110/final_submission_repeat.txt",
+      "bytes": 333,
+      "sha256": "3a8ce1cd002eb7ee6b14d7ed295e11729b665d9a16d7cddd115785148046e252"
+    },
+    {
+      "path": "results/security_stress_20261110/final_submission_run.txt",
+      "bytes": 451,
+      "sha256": "e5c3366ff4ca42298ac3db93c8cf633ed3881d7f1379293e9a265f8f376b64dc"
+    },
+    {
+      "path": "results/security_stress_20261110/live_adversarial.json",
+      "bytes": 20700,
+      "sha256": "2cc8cc79030f0ed94d6313cf7e3c1a56d042c4c14e9b2d21365f0ffc548a059e"
+    },
+    {
+      "path": "results/security_stress_20261110/live_run.txt",
+      "bytes": 822,
+      "sha256": "edb355e491b1c05837cf721352864a293381f4cc890c98e96f23574c7f809fe3"
+    },
+    {
+      "path": "results/security_stress_20261110/resources.json",
+      "bytes": 1291,
+      "sha256": "846f26d285a423bd1fda95d503cc2b4b5d6ab08ae0b56c687f30beeca54cf88f"
+    },
+    {
+      "path": "results/security_stress_20261110/resources_run.txt",
+      "bytes": 1292,
+      "sha256": "4570c40edb8341963b766c647d56023d972266bbb2300e5a1fc3064252a5d565"
+    },
+    {
+      "path": "results/security_stress_20261110/static_inventory.json",
+      "bytes": 2913,
+      "sha256": "e733f8230adef2bf63a7af873e16461608a1176865ab7975a08e38bd43373ddf"
+    },
+    {
+      "path": "results/security_stress_20261110/tests.txt",
+      "bytes": 6852,
+      "sha256": "263c3ba689c310232793330d7ad8aa5c5dfeeb2582c9654c1171d0c449ababcc"
+    },
+    {
+      "path": "results/starter_excerpt_analysis.json",
+      "bytes": 600,
+      "sha256": "a155efd51f67fcc1eb7d82e9cc43931ca5dd8c47dc61426a2cbfa6491f49f0ee"
+    },
+    {
+      "path": "results/submission_manifest.json",
+      "bytes": 369,
+      "sha256": "39ee396c1847d4e8950443922413493bd46e24316088ea5c84e411504eafec6d"
+    },
+    {
+      "path": "results/test_results.json",
+      "bytes": 112,
+      "sha256": "53fff7da21fbcec0b129cf3fa23e59802cb321094a3e33b2a4bfe953bdaba482"
+    },
+    {
+      "path": "results/test_run.txt",
+      "bytes": 6852,
+      "sha256": "263c3ba689c310232793330d7ad8aa5c5dfeeb2582c9654c1171d0c449ababcc"
+    },
+    {
+      "path": "tests/test_audit_fixes.py",
+      "bytes": 8771,
+      "sha256": "c8d29ff106bab04ea5f8929a10b642200e8e97e23e392a0dc2208b6a1a697210",
+      "functions": [
+        {
+          "name": "corpus",
+          "line": 15,
+          "end": 21,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "candidate",
+          "line": 23,
+          "end": 26,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "verdict",
+          "line": 27,
+          "end": 30,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "AuditFixes",
+          "line": 32,
+          "end": 116,
+          "kind": "ClassDef"
+        },
+        {
+          "name": "test_partial_document_gap_expands_and_keeps_verified_fallback",
+          "line": 33,
+          "end": 40,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "test_missing_user_date_does_not_expand",
+          "line": 41,
+          "end": 44,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "test_digit_references_generalize",
+          "line": 45,
+          "end": 49,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "test_long_linked_change_at_end_is_preserved",
+          "line": 50,
+          "end": 55,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "test_linked_context_over_limit_fails_explicitly",
+          "line": 56,
+          "end": 59,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "test_notes_rejected_and_plain_docx_keeps_working",
+          "line": 60,
+          "end": 66,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "test_mixed_empty_document_rejected",
+          "line": 67,
+          "end": 69,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "test_short_value_has_contiguous_citable_source",
+          "line": 70,
+          "end": 75,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "test_no_untyped_missing_gap_accepted",
+          "line": 76,
+          "end": 80,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "test_untrusted_paraphrase_never_published_even_with_positive_verdict",
+          "line": 81,
+          "end": 88,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "test_verifier_receives_published_wording",
+          "line": 89,
+          "end": 98,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "test_separate_excerpts_are_not_glued_into_a_new_sentence",
+          "line": 99,
+          "end": 103,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "test_provider_error_logs_code_not_body",
+          "line": 104,
+          "end": 109,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "test_surface_oracle_excludes_references_and_is_not_semantic_pass",
+          "line": 110,
+          "end": 116,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "bad",
+          "line": 91,
+          "end": 92,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "check",
+          "line": 93,
+          "end": 96,
+          "kind": "FunctionDef"
+        }
+      ],
+      "imports": [
+        "contextlib",
+        "io",
+        "json",
+        "pathlib",
+        "psb_corpus",
+        "psb_llm",
+        "psb_policy",
+        "psb_retrieval",
+        "run_adversarial",
+        "sys",
+        "tempfile",
+        "test_baseline",
+        "unittest",
+        "unittest.mock",
+        "zipfile"
+      ]
+    },
+    {
+      "path": "tests/test_baseline.py",
+      "bytes": 12642,
+      "sha256": "14d0f9a6c802a1011f18121e8568ab581e7167caedde70d0a5f2a5097ba59a4a",
+      "functions": [
+        {
+          "name": "ScriptedModel",
+          "line": 24,
+          "end": 32,
+          "kind": "ClassDef"
+        },
+        {
+          "name": "draft",
+          "line": 35,
+          "end": 38,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "BaselineTests",
+          "line": 45,
+          "end": 229,
+          "kind": "ClassDef"
+        },
+        {
+          "name": "__init__",
+          "line": 25,
+          "end": 27,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "complete",
+          "line": 28,
+          "end": 32,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "setUpClass",
+          "line": 47,
+          "end": 49,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "test_corpus_source_offsets_are_exact",
+          "line": 51,
+          "end": 55,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "test_injected_line_quarantined_but_archival_rule_survives",
+          "line": 57,
+          "end": 63,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "test_safe_zip_loader_rejects_traversal_without_writing",
+          "line": 65,
+          "end": 69,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "test_linked_amendment_not_lost",
+          "line": 71,
+          "end": 75,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "test_multi_document_retrieval",
+          "line": 77,
+          "end": 81,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "test_duplicate_ids_rejected",
+          "line": 83,
+          "end": 86,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "test_csv_quotes_newlines_and_id_preserved",
+          "line": 88,
+          "end": 94,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "test_nonexistent_citation_rejected",
+          "line": 96,
+          "end": 100,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "test_changed_number_in_quote_rejected",
+          "line": 102,
+          "end": 106,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "test_missing_semantic_check_rejected",
+          "line": 108,
+          "end": 110,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "test_semantic_negative_verdict_rejected",
+          "line": 112,
+          "end": 115,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "test_false_string_is_not_boolean",
+          "line": 117,
+          "end": 118,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "test_pipeline_renders_only_cited_claims",
+          "line": 120,
+          "end": 126,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "test_insufficient_gets_one_expansion",
+          "line": 128,
+          "end": 133,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "test_technical_failure_not_legal_absence",
+          "line": 135,
+          "end": 139,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "test_failed_verification_never_releases_bad_claim",
+          "line": 141,
+          "end": 146,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "test_untrusted_missing_and_clarification_never_render",
+          "line": 148,
+          "end": 158,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "test_partial_preserves_cited_claim_and_drops_untrusted_gap",
+          "line": 160,
+          "end": 170,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "test_followup_codes_cannot_carry_model_text",
+          "line": 172,
+          "end": 175,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "test_docx_and_txt_corpus_preserves_source_offsets",
+          "line": 177,
+          "end": 192,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "test_docx_entities_rejected",
+          "line": 194,
+          "end": 199,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "test_proxy_contract_with_stub_http_and_root_modules",
+          "line": 201,
+          "end": 229,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "Handler",
+          "line": 203,
+          "end": 211,
+          "kind": "ClassDef"
+        },
+        {
+          "name": "log_message",
+          "line": 204,
+          "end": 204,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "do_POST",
+          "line": 205,
+          "end": 211,
+          "kind": "FunctionDef"
+        }
+      ],
+      "imports": [
+        "csv",
+        "http.server",
+        "io",
+        "json",
+        "os",
+        "pathlib",
+        "psb_corpus",
+        "psb_llm",
+        "psb_policy",
+        "psb_retrieval",
+        "solution",
+        "subprocess",
+        "sys",
+        "tempfile",
+        "threading",
+        "time",
+        "unittest",
+        "zipfile"
+      ]
+    },
+    {
+      "path": "tests/test_corpus_security.py",
+      "bytes": 3136,
+      "sha256": "14080cac9597891fc8500fec74085e20a37bd1276386cbd23044b0ffd4a9ec4b",
+      "functions": [
+        {
+          "name": "document_xml",
+          "line": 22,
+          "end": 25,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "docx_xml",
+          "line": 28,
+          "end": 32,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "DocxSecurityTests",
+          "line": 35,
+          "end": 76,
+          "kind": "ClassDef"
+        },
+        {
+          "name": "test_valid_text_and_predefined_entities_in_supported_encodings",
+          "line": 36,
+          "end": 42,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "test_all_dtds_rejected_after_decoding",
+          "line": 44,
+          "end": 57,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "test_utf32_dtds_fail_closed",
+          "line": 59,
+          "end": 72,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "test_malformed_xml_is_a_controlled_error",
+          "line": 74,
+          "end": 76,
+          "kind": "FunctionDef"
+        }
+      ],
+      "imports": [
+        "io",
+        "pathlib",
+        "psb_corpus",
+        "sys",
+        "unittest",
+        "zipfile"
+      ]
+    },
+    {
+      "path": "tests/test_dependency_policy.py",
+      "bytes": 6297,
+      "sha256": "38a0945ec1354d3496b1d8f4fc798f842f749564911b81a4281f7e92b0f30418",
+      "functions": [
+        {
+          "name": "DependencyPolicyTests",
+          "line": 21,
+          "end": 118,
+          "kind": "ClassDef"
+        },
+        {
+          "name": "setUp",
+          "line": 22,
+          "end": 29,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "test_stdlib_report_and_actions_output_without_importing_runtime",
+          "line": 31,
+          "end": 44,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "test_third_party_import_with_empty_requirements_fails",
+          "line": 46,
+          "end": 49,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "test_pinned_hashed_direct_and_transitive_inventory",
+          "line": 51,
+          "end": 61,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "test_requirement_directives_ranges_urls_markers_extras_and_noncanonical_names_rejected",
+          "line": 63,
+          "end": 74,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "test_lock_missing_unhashed_or_mismatched_fails",
+          "line": 76,
+          "end": 84,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "test_lock_rejects_extra_options_duplicates_and_truncated_continuation",
+          "line": 86,
+          "end": 98,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "test_incomplete_runtime_scope_and_stale_lock_fail",
+          "line": 100,
+          "end": 110,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "test_failure_does_not_publish_success_output",
+          "line": 112,
+          "end": 118,
+          "kind": "FunctionDef"
+        }
+      ],
+      "imports": [
+        "contextlib",
+        "importlib.util",
+        "io",
+        "json",
+        "os",
+        "pathlib",
+        "tempfile",
+        "unittest",
+        "unittest.mock"
+      ]
+    },
+    {
+      "path": "tests/test_secret_scan.py",
+      "bytes": 9391,
+      "sha256": "9a58f2eea3fb982ea95ee70fe0e04c78957201a97368e5482ac51ee1db3f8956",
+      "functions": [
+        {
+          "name": "finding",
+          "line": 22,
+          "end": 25,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "SecretScanTests",
+          "line": 28,
+          "end": 180,
+          "kind": "ClassDef"
+        },
+        {
+          "name": "invoke",
+          "line": 29,
+          "end": 65,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "test_clean_completed_scan_returns_zero",
+          "line": 67,
+          "end": 72,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "test_findings_are_sanitized_and_expected_warning_is_allowed",
+          "line": 74,
+          "end": 81,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "test_token_in_filename_is_hashed_instead_of_published",
+          "line": 83,
+          "end": 91,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "test_findings_with_quiet_diagnostics_still_fail",
+          "line": 93,
+          "end": 94,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "test_missing_or_malformed_report_never_passes",
+          "line": 96,
+          "end": 101,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "test_exit_code_and_findings_must_agree",
+          "line": 103,
+          "end": 108,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "test_tool_errors_preserve_sanitized_findings",
+          "line": 110,
+          "end": 117,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "test_archive_skips_and_unrecognized_warnings_fail_closed",
+          "line": 119,
+          "end": 125,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "test_expected_summary_must_be_exact_and_count_consistent",
+          "line": 127,
+          "end": 135,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "test_nonempty_stdout_is_not_a_quiet_success",
+          "line": 137,
+          "end": 141,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "test_timeout_retains_partial_findings_and_does_not_leak_exception_output",
+          "line": 143,
+          "end": 150,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "test_launch_failure_is_reported_without_exception_details",
+          "line": 152,
+          "end": 157,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "test_invalid_metadata_is_rejected_but_valid_records_are_kept",
+          "line": 159,
+          "end": 166,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "test_flags_do_not_allow_baselines_or_inline_skips",
+          "line": 168,
+          "end": 180,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "run",
+          "line": 39,
+          "end": 53,
+          "kind": "FunctionDef"
+        }
+      ],
+      "imports": [
+        "contextlib",
+        "hashlib",
+        "importlib.util",
+        "io",
+        "json",
+        "pathlib",
+        "subprocess",
+        "tempfile",
+        "unittest",
+        "unittest.mock"
+      ]
+    },
+    {
+      "path": "tests/test_security.py",
+      "bytes": 21607,
+      "sha256": "4256cfa6c6254ce6fd4ff8e52f0ae0c2ae32c69b67c11325000bfd7cad9b3af4",
+      "functions": [
+        {
+          "name": "envelope",
+          "line": 40,
+          "end": 42,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "proxy",
+          "line": 46,
+          "end": 111,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "OutputValidationTests",
+          "line": 114,
+          "end": 202,
+          "kind": "ClassDef"
+        },
+        {
+          "name": "ArchiveTests",
+          "line": 205,
+          "end": 270,
+          "kind": "ClassDef"
+        },
+        {
+          "name": "CSVTests",
+          "line": 273,
+          "end": 305,
+          "kind": "ClassDef"
+        },
+        {
+          "name": "ProxyTests",
+          "line": 308,
+          "end": 377,
+          "kind": "ClassDef"
+        },
+        {
+          "name": "EntrypointTests",
+          "line": 380,
+          "end": 440,
+          "kind": "ClassDef"
+        },
+        {
+          "name": "Handler",
+          "line": 48,
+          "end": 99,
+          "kind": "ClassDef"
+        },
+        {
+          "name": "test_candidate_type_fuzz",
+          "line": 115,
+          "end": 124,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "test_nested_candidate_type_fuzz",
+          "line": 126,
+          "end": 135,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "test_seeded_json_shape_fuzz",
+          "line": 137,
+          "end": 149,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "test_surrogate_and_null_claims_rejected",
+          "line": 151,
+          "end": 155,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "test_verdict_types_and_indexes",
+          "line": 157,
+          "end": 163,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "test_fake_quote_and_unknown_source",
+          "line": 165,
+          "end": 169,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "test_oversized_answer_never_silently_truncated",
+          "line": 171,
+          "end": 178,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "test_long_question_not_sent_or_truncated",
+          "line": 180,
+          "end": 182,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "test_typed_issue_explains_invalid_date_without_model_free_text",
+          "line": 184,
+          "end": 192,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "test_answer_cannot_hide_an_unresolved_issue",
+          "line": 194,
+          "end": 197,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "test_strict_json_rejects_duplicates_nan_and_infinity",
+          "line": 199,
+          "end": 202,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "load",
+          "line": 206,
+          "end": 214,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "test_archive_attack_paths",
+          "line": 216,
+          "end": 219,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "test_symlink_and_duplicates_rejected",
+          "line": 221,
+          "end": 227,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "test_empty_unknown_format_and_invalid_encoding",
+          "line": 229,
+          "end": 232,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "test_fragment_explosion_is_bounded",
+          "line": 234,
+          "end": 236,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "test_document_count_is_bounded",
+          "line": 238,
+          "end": 240,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "test_compressed_bomb_is_bounded_before_read",
+          "line": 242,
+          "end": 244,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "test_utf16_dtd_rejected",
+          "line": 246,
+          "end": 252,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "test_broken_and_duplicate_docx_xml",
+          "line": 254,
+          "end": 263,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "test_deep_docx_xml_is_bounded",
+          "line": 265,
+          "end": 270,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "test_malformed_csv_and_duplicate_ids",
+          "line": 274,
+          "end": 282,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "test_bom_quoted_lines_and_exact_ids",
+          "line": 284,
+          "end": 295,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "test_failed_output_write_preserves_last_complete_file",
+          "line": 297,
+          "end": 305,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "test_connection_drop_has_bounded_retries",
+          "line": 309,
+          "end": 313,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "test_invalid_trusted_configuration_fails_before_network",
+          "line": 315,
+          "end": 321,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "test_recovery_and_transient_retry_bound",
+          "line": 323,
+          "end": 332,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "test_auth_failure_not_retried_and_not_leaked",
+          "line": 334,
+          "end": 339,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "test_redirect_does_not_forward_authorization",
+          "line": 341,
+          "end": 346,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "test_hostile_model_responses_fail_closed",
+          "line": 348,
+          "end": 353,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "test_call_and_request_size_budgets",
+          "line": 355,
+          "end": 365,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "test_environment_aliases_and_untrusted_text_cannot_select_endpoint",
+          "line": 367,
+          "end": 377,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "setUpClass",
+          "line": 382,
+          "end": 383,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "run_zip",
+          "line": 385,
+          "end": 415,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "test_slow_header_and_body_respect_whole_run_deadline",
+          "line": 417,
+          "end": 424,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "test_corrupted_corpus_preserves_csv_and_generic_error",
+          "line": 426,
+          "end": 430,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "test_concurrent_batch_and_no_cross_id_history",
+          "line": 432,
+          "end": 440,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "log_message",
+          "line": 49,
+          "end": 50,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "do_POST",
+          "line": 51,
+          "end": 99,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "value",
+          "line": 139,
+          "end": 147,
+          "kind": "FunctionDef"
+        }
+      ],
+      "imports": [
+        "contextlib",
+        "copy",
+        "csv",
+        "http.server",
+        "io",
+        "json",
+        "os",
+        "pathlib",
+        "psb_corpus",
+        "psb_llm",
+        "psb_policy",
+        "random",
+        "socket",
+        "solution",
+        "stat",
+        "subprocess",
+        "sys",
+        "tempfile",
+        "threading",
+        "time",
+        "unittest",
+        "unittest.mock",
+        "warnings",
+        "zipfile"
+      ]
+    },
+    {
+      "path": "tests/test_security_ci.py",
+      "bytes": 7229,
+      "sha256": "c99e03be7f86ab741d304ed50dfa0f9ed059f6618d51015763a02cb428d24b52",
+      "functions": [
+        {
+          "name": "report",
+          "line": 18,
+          "end": 25,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "CodeQLGateTests",
+          "line": 28,
+          "end": 150,
+          "kind": "ClassDef"
+        },
+        {
+          "name": "invoke",
+          "line": 29,
+          "end": 36,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "test_clean_report_passes",
+          "line": 38,
+          "end": 39,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "test_high_and_critical_block_at_exact_threshold",
+          "line": 41,
+          "end": 45,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "test_medium_is_reported_but_does_not_block",
+          "line": 47,
+          "end": 50,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "test_rule_id_without_index_is_resolved",
+          "line": 52,
+          "end": 54,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "test_unknown_or_conflicting_rule_references_fail_closed",
+          "line": 56,
+          "end": 62,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "test_extension_rule_reference_is_resolved",
+          "line": 64,
+          "end": 72,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "test_invalid_extension_reference_fails_closed",
+          "line": 74,
+          "end": 77,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "test_missing_or_invalid_scan_output_is_not_clean",
+          "line": 79,
+          "end": 95,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "test_failed_invocation_or_tool_error_blocks",
+          "line": 97,
+          "end": 104,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "test_missing_security_score_or_invalid_values_fail_closed",
+          "line": 106,
+          "end": 112,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "test_non_security_error_level_blocks",
+          "line": 114,
+          "end": 121,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "test_suppressions_and_baseline_do_not_hide_findings",
+          "line": 123,
+          "end": 126,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "test_no_rule_metadata_is_not_scan_coverage",
+          "line": 128,
+          "end": 131,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "test_report_messages_are_not_echoed_to_logs",
+          "line": 133,
+          "end": 137,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "test_every_report_and_run_is_checked",
+          "line": 139,
+          "end": 150,
+          "kind": "FunctionDef"
+        }
+      ],
+      "imports": [
+        "contextlib",
+        "copy",
+        "importlib.util",
+        "io",
+        "json",
+        "pathlib",
+        "tempfile",
+        "unittest"
+      ]
+    }
+  ],
+  "tracked_files": 125
+}

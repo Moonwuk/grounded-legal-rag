@@ -1,0 +1,29 @@
+{
+  "validator_false_acceptance_rate": {
+    "numerator": 0,
+    "denominator": 7,
+    "value": 0.0
+  },
+  "validator_false_rejection_rate": {
+    "numerator": 0,
+    "denominator": 4,
+    "value": 0.0
+  },
+  "permitted_not_evaluated": 0,
+  "bad_outcomes": [
+    "fail",
+    "fail",
+    "fail",
+    "fail",
+    "fail",
+    "fail",
+    "fail"
+  ],
+  "good_outcomes": [
+    "pass",
+    "pass",
+    "pass",
+    "pass"
+  ],
+  "scope": "Finite handwritten anchor mutations; not a universal semantic accuracy claim"
+}

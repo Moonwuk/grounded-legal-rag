@@ -1,0 +1,14 @@
+{
+  "case_id": "temporal-0005",
+  "question": "Какой срок оплаты применяется к КТ-6/2026, если акт подписан 2026-07-07? Сейчас декабрь 2026 года.",
+  "history": [],
+  "corpus": "evaluation\\generated_corpora\\synthetic\\knowledge-base.zip",
+  "candidate_documents": [
+    "contract/contract_0016.txt"
+  ],
+  "command": "python -m evaluation.run_benchmark --corpus synthetic --mode full --engine retrieval --case-id temporal-0005 --run-id repro-temporal-0005",
+  "caution": "candidate reduced context; full corpus is authoritative for rank reproduction",
+  "failures": [
+    "system_error"
+  ]
+}

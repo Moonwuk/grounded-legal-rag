@@ -1,0 +1,15 @@
+{
+  "case_id": "missing_information-0005",
+  "question": "Каковы лимит резерва и ставка неустойки для КТ-6/2026?",
+  "history": [],
+  "corpus": "evaluation\\generated_corpora\\synthetic\\knowledge-base.zip",
+  "candidate_documents": [
+    "financial/financial_0005.md",
+    "financial/financial_0105.md"
+  ],
+  "command": "python -m evaluation.run_benchmark --corpus synthetic --mode full --engine retrieval --case-id missing_information-0005 --run-id repro-missing_information-0005",
+  "caution": "candidate reduced context; full corpus is authoritative for rank reproduction",
+  "failures": [
+    "system_error"
+  ]
+}

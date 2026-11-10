@@ -1,0 +1,29 @@
+{
+  "version": "1.0.0",
+  "corpus_id": "meta-removed-709ddffcb143b26c",
+  "sources": {},
+  "cases": [
+    {
+      "case_id": "pair",
+      "corpus_id": "meta-removed-709ddffcb143b26c",
+      "scenario_id": "hand-anchor",
+      "question": "Каков срок оплаты МТ-17/2026 для акта от 2026-07-01?",
+      "history": [],
+      "category": "metamorphic",
+      "difficulty": 2,
+      "split": "development",
+      "event_date": "2026-07-01",
+      "expected": {
+        "allowed_statuses": [
+          "insufficient_evidence"
+        ],
+        "required_claims": [],
+        "forbidden_claims": [],
+        "missing": [
+          "penalty_document"
+        ],
+        "issue": ""
+      }
+    }
+  ]
+}

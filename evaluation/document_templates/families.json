@@ -1,0 +1,6 @@
+{
+  "version": "1.0.0",
+  "development": ["numbered_sections", "table_appendix", "letter_with_footnote", "protocol_resolution", "long_embedded_clause", "negative_exception"],
+  "holdout": ["question_answer_annex", "reverse_order_bulletin"],
+  "note": "Holdout families are not used in development documents. Legal facts remain controlled; this is template holdout, not an unseen legal domain."
+}

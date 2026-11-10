@@ -1,0 +1,18 @@
+{
+  "corpus": "pilot",
+  "documents": 40,
+  "fragments": 338,
+  "source_offsets_exact": true,
+  "exact_duplicates": 0,
+  "nonempty": true,
+  "quarantined_spans": 0,
+  "load_index_seconds": 0.018850800000109302,
+  "snapshot_total_seconds": 0.027945400000135123,
+  "index_path": "indexes\\9f343a22614ea37d\\bm25.json",
+  "index_sha256": "2c7d04c0fedcaec41e663e7318255cc806063107d501c4c54d613fe7d2ed199c",
+  "index_has_gold": false,
+  "supported_formats": [
+    ".md",
+    ".txt"
+  ]
+}

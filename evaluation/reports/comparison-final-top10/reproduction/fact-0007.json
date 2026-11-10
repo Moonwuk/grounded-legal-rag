@@ -1,0 +1,15 @@
+{
+  "case_id": "fact-0007",
+  "question": "Каков лимит резерва для КТ-8/2026, при каком условии и событии он применяется?",
+  "history": [],
+  "corpus": "evaluation\\generated_corpora\\synthetic\\knowledge-base.zip",
+  "candidate_documents": [
+    "financial/financial_0007.md",
+    "financial/financial_0107.md"
+  ],
+  "command": "python -m evaluation.run_benchmark --corpus synthetic --mode full --engine retrieval --case-id fact-0007 --run-id repro-fact-0007",
+  "caution": "candidate reduced context; full corpus is authoritative for rank reproduction",
+  "failures": [
+    "system_error"
+  ]
+}

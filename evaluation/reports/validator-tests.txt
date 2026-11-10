@@ -1,0 +1,39 @@
+test_concurrent_request_budget_is_atomic (test_adapter.AdapterTests.test_concurrent_request_budget_is_atomic) ... ok
+test_deepseek_probe_retry_usage_and_no_gold (test_adapter.AdapterTests.test_deepseek_probe_retry_usage_and_no_gold) ... ok
+test_invalid_question_and_missing_search_are_not_inferred_success (test_adapter.AdapterTests.test_invalid_question_and_missing_search_are_not_inferred_success) ... ok
+test_solution_uses_synthetic_archive_and_preserves_contract (test_adapter.AdapterTests.test_solution_uses_synthetic_archive_and_preserves_contract) ... ok
+test_token_and_cost_limits (test_adapter.AdapterTests.test_token_and_cost_limits) ... ok
+test_every_source_span_matches_generated_text (test_validators.GeneratorTests.test_every_source_span_matches_generated_text) ... ok
+test_holdout_families_not_in_development (test_validators.GeneratorTests.test_holdout_families_not_in_development) ... ok
+test_reproducibility_distributions_no_gold_in_zip (test_validators.GeneratorTests.test_reproducibility_distributions_no_gold_in_zip) ... ok
+test_additional_unparsed_claim_not_pass (test_validators.ValidatorTests.test_additional_unparsed_claim_not_pass) ... ok
+test_alternative_evidence_sets (test_validators.ValidatorTests.test_alternative_evidence_sets) ... ok
+test_boolean_is_not_zero (test_validators.ValidatorTests.test_boolean_is_not_zero) ... ok
+test_bounded_paraphrase (test_validators.ValidatorTests.test_bounded_paraphrase) ... ok
+test_corpus_revision_checksum_spoof (test_validators.ValidatorTests.test_corpus_revision_checksum_spoof) ... ok
+test_correct_whole_fact (test_validators.ValidatorTests.test_correct_whole_fact) ... ok
+test_corrupt_document_and_fragment_offset (test_validators.ValidatorTests.test_corrupt_document_and_fragment_offset) ... ok
+test_event_boundaries_independent (test_validators.ValidatorTests.test_event_boundaries_independent) ... ok
+test_false_refusal (test_validators.ValidatorTests.test_false_refusal) ... ok
+test_final_text_changed_not_pass (test_validators.ValidatorTests.test_final_text_changed_not_pass) ... ok
+test_injection_marker_fails (test_validators.ValidatorTests.test_injection_marker_fails) ... ok
+test_missing_required_part (test_validators.ValidatorTests.test_missing_required_part) ... ok
+test_missing_source_and_false_quote (test_validators.ValidatorTests.test_missing_source_and_false_quote) ... ok
+test_network_error_not_refusal (test_validators.ValidatorTests.test_network_error_not_refusal) ... ok
+test_no_denominator_is_not_hundred_percent (test_validators.ValidatorTests.test_no_denominator_is_not_hundred_percent) ... ok
+test_number_in_quote_cannot_validate_bad_body (test_validators.ValidatorTests.test_number_in_quote_cannot_validate_bad_body) ... ok
+test_paraphrase_does_not_erase_gold_applicability (test_validators.ValidatorTests.test_paraphrase_does_not_erase_gold_applicability) ... ok
+test_permitted_whitespace_and_quotes (test_validators.ValidatorTests.test_permitted_whitespace_and_quotes) ... ok
+test_retrieval_only_is_not_generation_success (test_validators.ValidatorTests.test_retrieval_only_is_not_generation_success) ... ok
+test_retrieval_requires_full_set (test_validators.ValidatorTests.test_retrieval_requires_full_set) ... ok
+test_short_exact_quote_is_valid (test_validators.ValidatorTests.test_short_exact_quote_is_valid) ... ok
+test_stale_revision_failure (test_validators.ValidatorTests.test_stale_revision_failure) ... ok
+test_unknown_paraphrase_not_rejected_as_false (test_validators.ValidatorTests.test_unknown_paraphrase_not_rejected_as_false) ... ok
+test_valid_conditional_quotes_not_mislabelled_wrong (test_validators.ValidatorTests.test_valid_conditional_quotes_not_mislabelled_wrong) ... ok
+test_wrong_location_real_quote (test_validators.ValidatorTests.test_wrong_location_real_quote) ... ok
+test_wrong_subject_unit_condition_event (test_validators.ValidatorTests.test_wrong_subject_unit_condition_event) ... ok
+
+----------------------------------------------------------------------
+Ran 34 tests in 1.324s
+
+OK
