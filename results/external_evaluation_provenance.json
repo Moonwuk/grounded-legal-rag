@@ -1,0 +1,18 @@
+{
+  "evaluation_zip_sha256": "49400703d3549c5c22f6228a83f97dc1561df81662e22a7fe398eeb98b577238",
+  "archive_entries": 2456,
+  "compressed_bytes": 84840456,
+  "expanded_bytes": 1075532252,
+  "selectively_extracted_files": 77,
+  "selectively_extracted_bytes": 7269595,
+  "old_index_and_case_dumps_extracted": false,
+  "original_report_runtime": "b5ecfdc130c8f10aacd75a2d813b124f01e923c3",
+  "tested_main": "3985d8d3ca13762c339f2ac1e8ae92cc3f5985d1",
+  "top_k_control_same_case_ids": {
+    "1": true,
+    "6": true,
+    "10": true
+  },
+  "generation_evaluated": false,
+  "external_model_api_calls": 0
+}

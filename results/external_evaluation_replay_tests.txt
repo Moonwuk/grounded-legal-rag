@@ -1,0 +1,8 @@
+test_no_required_evidence_is_not_reported_as_hundred_percent (test_external_retrieval_replay.ExternalRetrievalReplayTests.test_no_required_evidence_is_not_reported_as_hundred_percent) ... ok
+test_partial_evidence_and_alternative_full_sets_are_distinguished (test_external_retrieval_replay.ExternalRetrievalReplayTests.test_partial_evidence_and_alternative_full_sets_are_distinguished) ... ok
+test_span_requires_one_matching_document_and_continuous_exact_range (test_external_retrieval_replay.ExternalRetrievalReplayTests.test_span_requires_one_matching_document_and_continuous_exact_range) ... ok
+
+----------------------------------------------------------------------
+Ran 3 tests in 0.000s
+
+OK

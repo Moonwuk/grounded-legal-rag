@@ -1,0 +1,12 @@
+{
+  "source_commit": "3985d8d3ca13762c339f2ac1e8ae92cc3f5985d1",
+  "archive_sha256": "cdd9c1ebcd453e1de3f34f0498637ea644303b8ae9c288d37cfd679b686fd84e",
+  "expected_original_sha256": "cdd9c1ebcd453e1de3f34f0498637ea644303b8ae9c288d37cfd679b686fd84e",
+  "documents": 60,
+  "indexed_fragments": 516,
+  "query": "Возникает ли обязанность уведомления для КТ-51/2026 при отсутствии изменения реквизитов?",
+  "top_k": 6,
+  "status": "context",
+  "context_fragments": 231,
+  "context_characters": 94059
+}
