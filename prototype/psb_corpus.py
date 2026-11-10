@@ -3,7 +3,8 @@ from __future__ import annotations
 from dataclasses import dataclass
 from pathlib import Path, PurePosixPath
 import io
-from xml.etree import ElementTree as ET
+# ElementTree is used only with the DTD-rejecting DocumentXML target below.
+from xml.etree import ElementTree as ET  # nosec B405
 import hashlib
 import re
 import stat
@@ -63,7 +64,9 @@ def read_docx(raw: bytes) -> str:
     if b"<!DOCTYPE" in xml.upper() or b"<!ENTITY" in xml.upper():
         raise ValueError("docx_entities_not_allowed")
     try:
-        root = ET.fromstring(xml, parser=ET.XMLParser(target=DocumentXML()))
+        # DocumentXML rejects the DOCTYPE callback before entity declarations,
+        # after encoding detection. Regression tests cover UTF-8/UTF-16 DTDs.
+        root = ET.fromstring(xml, parser=ET.XMLParser(target=DocumentXML()))  # nosec B314
     except ET.ParseError:
         raise ValueError("invalid_docx_xml") from None
     stack = [(root, 0)]

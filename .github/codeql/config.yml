@@ -1,0 +1,6 @@
+name: Own Python code
+paths-ignore:
+  - organizer/**
+  - results/**
+  - dist/**
+  - tests/**

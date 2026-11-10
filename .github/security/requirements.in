@@ -1,0 +1,4 @@
+# CI tools only. Never install these into the competition submission.
+bandit==1.9.4
+pip-audit==2.10.1
+zizmor==1.32.0
