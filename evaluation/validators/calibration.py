@@ -75,6 +75,13 @@ def calibration():
     for prose,visible in [(wrong,wrong),(None,wrong),(QUOTE.replace('45','90'),QUOTE.replace('45','90')),
                           (QUOTE,'Срок оплаты 90 дней.\n'+QUOTE)]:
         bad.append(published(prose,visible))
+    # Free prose outside the exact grammar, read by validators/prose.py.
+    good.append(published('Срок оплаты по договору TEST-D017 для этого акта составляет 45 календарных дней после подписания акта.',
+                          'Срок оплаты по договору TEST-D017 для этого акта составляет 45 календарных дней после подписания акта.\nИсточник: a.'))
+    for prose in ['Срок оплаты составляет 90 календарных дней после подписания акта.',
+                  'Срок оплаты составляет 45 рабочих дней после подписания акта.',
+                  'Срок оплаты составляет 90 календарных дней, а не 45, после подписания акта.']:
+        bad.append(published(prose,prose+'\nИсточник: a.'))
     both={'p1':(STORE,F_STORE),'p2':(DUTY,F_DUTY)}
     good.append(validate(*block_case(TABLE,both,['p2']))['outcome'])
     good.append(validate(*block_case(PROTOCOL,{'p1':(LIMIT,F_LIMIT)},['p1']))['outcome'])

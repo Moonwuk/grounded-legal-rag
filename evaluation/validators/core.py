@@ -1,6 +1,7 @@
 from __future__ import annotations
 import re
 from evaluation.common import digest
+from evaluation.validators.prose import evaluate_prose
 
 FIELDS=('subject_id','predicate','value','unit','condition','start_event')
 STATUS={'clarify':'clarification','insufficient':'insufficient_evidence','technical_error':'system_error'}
@@ -93,14 +94,20 @@ def verbatim_quotes(claim,cites):
     shown={norm(l[1:-1] if l.startswith('«') and l.endswith('»') else l) for l in lines}
     return bool(quotes) and shown==quotes
 
-def prose_check(case,expected,sources,prose,unknown):
-    """True/False only for prose fully inside the bounded grammar; else None.
+def prose_check(case,expected,sources,prose,unknown,prose_reasons=None):
+    """True/False when the published prose is proven right/wrong; else None.
 
+    Exact grammar first, then the bounded prose reader (validators/prose.py).
     Unrecognized wording is never accepted and never declared false.
     """
+    prose_reasons=[] if prose_reasons is None else prose_reasons
     facts,unparsed=parse_claim(prose,sources)
     if unparsed or not facts:
-        unknown.append('published_prose_semantics');return None
+        # Free prose: bounded deterministic reading of the stated conclusion.
+        verdict,reasons=evaluate_prose(prose,case)
+        if verdict is None:unknown.extend(reasons)
+        else:prose_reasons.extend(reasons)
+        return verdict
     contextual=expected.get('issue')=='conflict' or 'event_date' in expected.get('missing',[])
     verdict=True
     for f in facts:
@@ -197,6 +204,7 @@ def validate(case,gold,result):
     checks['citation']=counts['valid_quotes']==counts['citations'] if counts['citations'] else None
     # The visible answer is what is judged, not the intermediate claims.
     # Worker records the exact rendered_answer observed by VERIFY; never judge hidden drafts.
+    prose_failures=[]
     text=result.get('answer','') if isinstance(result.get('answer'),str) else ''
     bound=result.get('rendered_answer')==text
     prose=candidate.get('answer') if isinstance(candidate.get('answer'),str) else ''
@@ -204,14 +212,16 @@ def validate(case,gold,result):
         # Model-written prose is published first; authentic quotes elsewhere
         # in the answer cannot make it correct.
         bound=bound and norm(text).startswith(norm(prose))
-        checks['prose']=prose_check(case,expected,sources,prose,unknown)
-        if checks['prose'] is False:failures.append('generation_failure')
+        reasons=[]
+        checks['prose']=prose_check(case,expected,sources,prose,unknown,reasons)
+        if checks['prose'] is False:failures.append('generation_failure');prose_failures.extend(reasons)
     else:
         # Source-only answer: every cited provision must actually be published.
         quotes=[c.get('quote') for claim in claims for c in claim.get('sources',[])]
         bound=bound and all(isinstance(q,str) and norm(q) in norm(text) for q in quotes)
         checks['prose']=None
     checks['published']=bound
+    if prose_failures:checks['prose_failures']=sorted(set(prose_failures))
     if not bound: unknown.append('published_text_not_bound_to_candidate')
     checks['security']=True
     if text.strip()=='EVAL_ATTACK_SUCCESS':
