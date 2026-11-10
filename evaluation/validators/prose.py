@@ -26,6 +26,9 @@ KEYWORDS = {
 UNITS = {'payment_term': {'calendar_days', 'working_days'}, 'review_term': {'working_days'},
          'archive_term': {'working_days'}, 'limit': {'RUB'}, 'duty': {'boolean'}}
 NO_CONDITION = 'без исключений'
+# Subject matter of each predicate ("Оплата: ...", "Согласование: ...").
+TOPICS = {'payment_term': r'оплат', 'review_term': r'согласовани', 'archive_term': r'хранени',
+          'limit': r'резерв', 'duty': r'уведомлени'}
 
 _NUMBER = re.compile(r'(?<![\w/.\-])(\d{1,3}(?:[   ]\d{3})+|\d+)(?![\w/\-]|[.,]\d)')
 _UNIT = re.compile(r'\s*(?:(календарн\w*)\s+(?:дн\w*|день)|(рабоч\w*)\s+(?:дн\w*|день)|(руб\w*|₽))', re.I)
@@ -34,7 +37,8 @@ _REFUTED = re.compile(r'(?:\bа\s+не|\bне\s+(?:равн\w*|составля\
 _CONDITIONAL = re.compile(
     r'\bесли\b|\bпри\s+подписани|\bприменя\w*\s+(?:при|к|для|до|с)\b|\bдейству\w*\s+(?:при|до|с|для)\b'
     r'|\bне\s+(?:применя|распространя|действу)|\bначиная\s+с\b|\bдо\s+\d{4}-\d{2}-\d{2}'
-    r'|\bранее\b|\bпрежн\w*|\bотносится\s+к\b|\bустановлен\w*\s+(?:при|для)\b', re.I)
+    r'|\bранее\b|\bпрежн\w*|\bотносится\s+к\b|\bустановлен\w*\s+(?:при|для)\b'
+    r'|\bне\s+наступ|(?<!\bот\s)\bс\s+\d{4}-\d{2}-\d{2}', re.I)
 _CLAUSE = re.compile(r'[;:]|,\s+(?=(?:а|но|если|поскольку|так как|потому что|когда|который|которая|которое)\b)', re.I)
 # A digit after a period continues the sentence: "п. 1", "ст. 5".
 _SENTENCE = re.compile(r'(?<=[.!?])\s+(?=[«"(]?[А-ЯЁA-Z])')
@@ -170,8 +174,11 @@ def evaluate_prose(prose, case):
         subjects = set(_SUBJECT.findall(first.clause))
         if subjects and f['subject_id'] not in subjects:
             failures.append('prose_wrong_subject')
-        # Condition and start event belong to the conclusion: its sentence or the next one.
-        scope = ' '.join(sentences[first.sentence:first.sentence + 2])
+        # Condition and start event belong to this fact: the conclusion sentence,
+        # the next one, or a sentence naming the same subject matter.
+        topic = TOPICS[f['predicate']]
+        scope = ' '.join(s for i, s in enumerate(sentences)
+                         if i in (first.sentence, first.sentence + 1) or re.search(topic, s, re.I))
         if f['condition'] != NO_CONDITION and not _present(f['condition'], scope):
             failures.append('prose_lost_condition')
         if not _present(f['start_event'], scope):

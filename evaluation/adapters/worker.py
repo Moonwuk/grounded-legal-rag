@@ -52,6 +52,31 @@ class NullClient:
         else:r=dict(status='insufficient',claims=[],missing=['document'],clarification='',requested_facts=['document'])
         self.events.append(dict(payload=payload,response=r));return r
 
+def model_steps(events):
+    """Typed per-call diagnostics: why a candidate was or was not accepted.
+
+    Only statuses, flags and positions; no prompt, evidence, model prose or
+    hidden reasoning is copied.
+    """
+    def code(value,allowed):return value if isinstance(value,str) and value in allowed else ('invalid' if value is not None else None)
+    statuses={'answer','partial','clarify','insufficient','out_of_scope','disallowed'}
+    steps=[]
+    for e in events:
+        p,r=e.get('payload',{}),e.get('response')
+        r=r if isinstance(r,dict) else {}
+        if 'candidate' in p:
+            c=p['candidate'];checks=r.get('claim_checks') if isinstance(r.get('claim_checks'),list) else []
+            steps.append(dict(stage='verify',expanded=p.get('expanded_search') is True,candidate_status=c.get('status'),
+                prose=bool(c.get('answer')),approved=approved(c,r),verdict_status=code(r.get('status'),statuses),
+                complete=r.get('complete') is True,answer_supported=r.get('answer_supported') is True,
+                rejected_claims=[i for i,x in enumerate(checks[:12]) if not isinstance(x,dict) or x.get('supported') is not True or x.get('applicable') is not True]))
+        elif 'compatibility_probe' not in p:
+            ids=r.get('source_ids')
+            steps.append(dict(stage='generate',expanded=p.get('expanded_search') is True,status=code(r.get('status'),statuses),
+                selected=len(ids) if isinstance(ids,list) else None,prose=bool(r.get('answer')),
+                retry_reason=p.get('retry_reason') if isinstance(p.get('retry_reason'),str) and len(p['retry_reason'])<=64 else None))
+    return steps
+
 def lexical_rank(r,question,k1=1.5,b=.75):
     # Experimental RAW BM25, without production boosts/context expansion.
     # For defaults calls the actual production _scores; preserves its token weighting.
@@ -89,6 +114,7 @@ def main():
                 answer,status=answer_question(question,traced,client,config['top_k'])
                 out.update(answer=answer,status=status,candidate=None)
                 if status=='technical_error' and hasattr(client,'last_error'):out['error']=client.last_error
+                out['model_steps']=model_steps(client.events)
                 for e in client.events:
                     p=e['payload']
                     if 'candidate' in p and p['rendered_answer']==answer and approved(p['candidate'],e['response']):

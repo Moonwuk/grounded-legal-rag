@@ -117,6 +117,20 @@ class ObservationFidelityTests(unittest.TestCase):
                 for f in reported.values():
                     self.assertEqual(f['text'],texts[f['document']][f['start']:f['end']])
                 self.assertNotIn('unobserved_citations',out)
+                steps=out['model_steps']
+                self.assertEqual([x['stage'] for x in steps],['generate','verify'])
+                self.assertTrue(steps[1]['approved']);self.assertEqual(steps[1]['rejected_claims'],[])
+                # Diagnostics carry no model prose or evidence text.
+                self.assertNotIn(s['prose'],json.dumps(steps,ensure_ascii=False))
+
+    def test_model_steps_explain_a_rejected_candidate(self):
+        events=[dict(payload=dict(question='q',evidence=[],expanded_search=False),response=dict(status='answer',answer='Секретный текст',source_ids=['a','b'])),
+                dict(payload=dict(question='q',evidence=[],expanded_search=False,candidate=dict(status='answer',claims=[{},{}],answer='Секретный текст')),
+                     response=dict(approved=True,complete=True,status='answer',claim_checks=[dict(index=0,supported=True,applicable=True),dict(index=1,supported=True,applicable=False)]))]
+        steps=worker.model_steps(events)
+        self.assertEqual(steps[0],dict(stage='generate',expanded=False,status='answer',selected=2,prose=True,retry_reason=None))
+        self.assertFalse(steps[1]['approved']);self.assertEqual(steps[1]['rejected_claims'],[1])
+        self.assertNotIn('Секретный',json.dumps(steps,ensure_ascii=False))
 
     def test_unobserved_citation_is_not_scored_as_runtime_failure(self):
         calls=[dict(fragments=[dict(id='seen',document='a.txt',start=0,end=1,text='x',heading='')])]
