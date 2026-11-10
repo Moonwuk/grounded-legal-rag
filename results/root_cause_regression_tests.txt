@@ -8,6 +8,7 @@ test_notes_rejected_and_plain_docx_keeps_working (test_audit_fixes.AuditFixes.te
 test_partial_document_gap_expands_and_keeps_verified_fallback (test_audit_fixes.AuditFixes.test_partial_document_gap_expands_and_keeps_verified_fallback) ... provider_error: http_503
 ok
 test_provider_error_logs_code_not_body (test_audit_fixes.AuditFixes.test_provider_error_logs_code_not_body) ... ok
+test_separate_excerpts_are_not_glued_into_a_new_sentence (test_audit_fixes.AuditFixes.test_separate_excerpts_are_not_glued_into_a_new_sentence) ... ok
 test_short_value_has_contiguous_citable_source (test_audit_fixes.AuditFixes.test_short_value_has_contiguous_citable_source) ... ok
 test_surface_oracle_excludes_references_and_is_not_semantic_pass (test_audit_fixes.AuditFixes.test_surface_oracle_excludes_references_and_is_not_semantic_pass) ... ok
 test_untrusted_paraphrase_never_published_even_with_positive_verdict (test_audit_fixes.AuditFixes.test_untrusted_paraphrase_never_published_even_with_positive_verdict) ... ok
@@ -112,6 +113,6 @@ test_suppressions_and_baseline_do_not_hide_findings (test_security_ci.CodeQLGate
 test_unknown_or_conflicting_rule_references_fail_closed (test_security_ci.CodeQLGateTests.test_unknown_or_conflicting_rule_references_fail_closed) ... ok
 
 ----------------------------------------------------------------------
-Ran 110 tests in 15.851s
+Ran 111 tests in 15.768s
 
 OK

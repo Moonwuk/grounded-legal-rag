@@ -70,7 +70,7 @@ def main():
                 item=future.result()
                 results.append(item)
                 (out/'live_adversarial.json').write_text(json.dumps(results,ensure_ascii=False,indent=2))
-                print(json.dumps({'id':item['id'],'status':item['status'],'pass':item['surface_checks_pass']},ensure_ascii=False),flush=True)
+                print(json.dumps({'id':item['id'],'status':item['status'],'surface_pass':item['surface_checks_pass']},ensure_ascii=False),flush=True)
         print(json.dumps({'cases':len(results),'surface_passes':sum(r['surface_checks_pass'] for r in results),
               'seconds':round(time.monotonic()-started,3)},ensure_ascii=False),flush=True)
 

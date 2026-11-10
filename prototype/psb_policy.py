@@ -192,7 +192,7 @@ def approved(candidate: dict, verdict: dict) -> bool:
 def source_wording(claim):
     quotes = list(dict.fromkeys(norm(c["quote"]) for c in claim["sources"]))
     text = claim["text"].strip()
-    return text if any(norm(text) in q for q in quotes) else " ".join(quotes)
+    return text if any(norm(text) in q for q in quotes) else "\n".join("«" + q + "»" for q in quotes)
 
 
 def render(candidate: dict, evidence: list[Fragment]) -> str:
