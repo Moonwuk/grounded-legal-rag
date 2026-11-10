@@ -1,6 +1,7 @@
 __pycache__/
 *.py[cod]
 .venv/
+.venv-iac/
 venv/
 .env
 .env.*
@@ -10,3 +11,8 @@ submission.csv.tmp
 .pytest_cache/
 .DS_Store
 reports/
+deploy/.env
+deploy/secrets/
+infra/ansible/inventory.yml
+infra/ansible/vars.yml
+infra/ansible/.ansible/

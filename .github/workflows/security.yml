@@ -5,6 +5,12 @@ on:
   push:
     branches: [main]
   workflow_dispatch:
+    inputs:
+      publish_container:
+        description: Publish the checked image to GHCR after every security gate passes (main only)
+        type: boolean
+        required: false
+        default: false
   schedule:
     # Monday, 07:27 Europe/Moscow. Scheduled runs use the default branch.
     - cron: "27 4 * * 1"
@@ -146,7 +152,8 @@ jobs:
       - name: Scan own Python code
         run: |
           mkdir -p reports
-          bandit -r prototype .github/scripts audit_retrieval.py build_cases.py build_submission.py \
+          bandit -r prototype containers .github/scripts infra/ansible/roles/psb/files/run_batch.py \
+            audit_retrieval.py build_cases.py build_submission.py \
             -f json -o reports/bandit.json
           python - <<'PY'
           import json
@@ -188,6 +195,12 @@ jobs:
           mkdir -p reports
           pip-audit --no-deps --disable-pip -r .github/security/requirements.txt \
             --format=json --output=reports/scanner-dependencies.json
+      - name: Audit the isolated IaC tool lock without installing it
+        if: ${{ !cancelled() }}
+        run: |
+          mkdir -p reports
+          pip-audit --no-deps --disable-pip -r .github/iac/requirements.txt \
+            --format=json --output=reports/iac-dependencies.json
       - name: Validate complete runtime lock using wheels only
         if: ${{ steps.runtime.outputs.has_dependencies == 'true' }}
         run: |
@@ -206,6 +219,7 @@ jobs:
           path: |
             reports/runtime-dependencies.json
             reports/scanner-dependencies.json
+            reports/iac-dependencies.json
             reports/runtime-resolution.json
             reports/runtime-audit.json
           if-no-files-found: error
@@ -299,10 +313,183 @@ jobs:
             reports/package.json
           if-no-files-found: error
           retention-days: 7
+  iac:
+    name: IaC syntax and deployment policy
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - name: Check out the deployment definitions
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - name: Set up the isolated IaC Python
+        uses: actions/setup-python@6d4fd22b20465ccc0f7354476588e8df7c9ca0e0 # v7.1.0
+        with:
+          python-version: "3.13"
+      - name: Install hash-locked Ansible tools
+        run: |
+          python -m pip install --require-hashes --only-binary=:all: -r .github/iac/requirements.txt
+      - name: Check Ansible syntax without contacting hosts
+        working-directory: infra/ansible
+        run: |
+          mkdir -p ../../reports
+          ansible-playbook --syntax-check --inventory inventory.example.yml playbook.yml \
+            2>&1 | tee ../../reports/ansible-syntax.txt
+      - name: Lint Ansible offline
+        if: ${{ !cancelled() }}
+        working-directory: infra/ansible
+        run: |
+          mkdir -p ../../reports
+          ansible-lint --offline --strict --profile safety --enable-list no-log-password \
+            --format json playbook.yml > ../../reports/ansible-lint.json
+      - name: Test the guarded operator helper
+        run: python -m unittest discover -s infra/ansible/tests -v
+      - name: Resolve Compose using synthetic CI configuration
+        env:
+          PSB_IMAGE: ghcr.io/moonwuk/grounded-legal-rag@sha256:1111111111111111111111111111111111111111111111111111111111111111
+        run: |
+          mkdir -p reports
+          docker compose --env-file deploy/.env.example --file deploy/compose.yml config --quiet
+          docker compose --env-file deploy/.env.example --file deploy/compose.yml config --format json \
+            > reports/compose-config.json
+      - name: Enforce runtime and deployment trust boundaries
+        run: |
+          python .github/scripts/check_deployment.py --compose-json reports/compose-config.json \
+            --ansible-dir infra/ansible --report reports/deployment-policy.json
+      - name: Save IaC reports
+        if: ${{ always() }}
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: security-iac
+          path: |
+            reports/ansible-syntax.txt
+            reports/ansible-lint.json
+            reports/deployment-policy.json
+          if-no-files-found: error
+          retention-days: 7
+
+  container:
+    name: Container security and isolated smoke
+    runs-on: ubuntu-24.04
+    timeout-minutes: 35
+    env:
+      CHECKED_IMAGE: psb-submission:ci
+      DOCKER_HOST: unix:///var/run/docker.sock
+      DOCKER_CONTEXT: ""
+      DOCKER_TLS: ""
+      DOCKER_TLS_VERIFY: ""
+      DOCKER_CERT_PATH: ""
+    steps:
+      - name: Check out image sources
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - name: Set up Python
+        uses: actions/setup-python@6d4fd22b20465ccc0f7354476588e8df7c9ca0e0 # v7.1.0
+        with:
+          python-version: "3.12"
+      - name: Install verified container scanners
+        env:
+          TRIVY_VERSION: "0.76.2"
+          TRIVY_SHA256: bc0fc726e017b8927a62b2d3531d7a84ee01769daf5c99ed866dced54089fdbf
+          HADOLINT_VERSION: "2.15.1"
+          HADOLINT_SHA256: c7187db94eeeeca956519a6af171adc31453941a1e777961f6e680f697c8c507
+        run: |
+          mkdir -p "$RUNNER_TEMP/container-tools" reports
+          archive="$RUNNER_TEMP/container-tools/trivy.tar.gz"
+          curl --fail --silent --show-error --location --retry 3 --proto '=https' --tlsv1.2 \
+            "https://github.com/aquasecurity/trivy/releases/download/v${TRIVY_VERSION}/trivy_${TRIVY_VERSION}_Linux-64bit.tar.gz" \
+            --output "$archive"
+          printf '%s  %s\n' "$TRIVY_SHA256" "$archive" | sha256sum --check --strict
+          tar -xzf "$archive" -C "$RUNNER_TEMP/container-tools" trivy
+          binary="$RUNNER_TEMP/container-tools/hadolint"
+          curl --fail --silent --show-error --location --retry 3 --proto '=https' --tlsv1.2 \
+            "https://github.com/hadolint/hadolint/releases/download/v${HADOLINT_VERSION}/hadolint-linux-x86_64" \
+            --output "$binary"
+          printf '%s  %s\n' "$HADOLINT_SHA256" "$binary" | sha256sum --check --strict
+          chmod +x "$binary"
+      - name: Verify the isolated HTTPS smoke harness
+        run: python -m unittest discover -s .github/container-tests -p 'test_*.py' -v
+      - name: Build the candidate image once
+        id: build
+        run: |
+          docker --host unix:///var/run/docker.sock build --platform linux/amd64 --pull \
+            --tag "$CHECKED_IMAGE" --file Dockerfile .
+      - name: Lint the Dockerfile with Hadolint
+        run: |
+          "$RUNNER_TEMP/container-tools/hadolint" --failure-threshold warning --disable-ignore-pragma \
+            --format json Dockerfile > reports/hadolint.json
+      - name: Check Dockerfile misconfigurations
+        if: ${{ !cancelled() && steps.build.outcome == 'success' }}
+        run: |
+          "$RUNNER_TEMP/container-tools/trivy" config --cache-dir "$RUNNER_TEMP/trivy-cache" --config '' --ignorefile '' \
+            --misconfig-scanners dockerfile --skip-check-update --include-non-failures \
+            --severity MEDIUM,HIGH,CRITICAL --exit-code 1 --format json \
+            --output reports/dockerfile-config.json Dockerfile
+          python .github/scripts/check_trivy_report.py config reports/dockerfile-config.json
+      - name: Scan OS and language vulnerabilities and enforce the runtime package profile
+        if: ${{ !cancelled() && steps.build.outcome == 'success' }}
+        run: |
+          "$RUNNER_TEMP/container-tools/trivy" image --cache-dir "$RUNNER_TEMP/trivy-cache" --config '' --ignorefile '' \
+            --image-src docker --scanners vuln --pkg-types os,library --list-all-pkgs \
+            --severity HIGH,CRITICAL --exit-code 0 --exit-on-eol 2 --timeout 10m --no-progress \
+            --format json --output "$RUNNER_TEMP/image-vulnerabilities.raw.json" "$CHECKED_IMAGE"
+          python .github/scripts/check_trivy_report.py image "$RUNNER_TEMP/image-vulnerabilities.raw.json" \
+            --sanitized-output reports/image-vulnerabilities.json
+      - name: Scan image files and configuration for secrets with sanitized output
+        if: ${{ !cancelled() && steps.build.outcome == 'success' }}
+        run: |
+          python .github/scripts/run_image_secrets.py "$RUNNER_TEMP/container-tools/trivy" \
+            --image "$CHECKED_IMAGE" --report reports/image-secrets.json
+      - name: Create a separate CycloneDX software inventory
+        if: ${{ !cancelled() && steps.build.outcome == 'success' }}
+        run: |
+          "$RUNNER_TEMP/container-tools/trivy" image --cache-dir "$RUNNER_TEMP/trivy-cache" --config '' --ignorefile '' \
+            --image-src docker --format cyclonedx --offline-scan --skip-db-update --no-progress \
+            --output reports/image.sbom.cdx.json "$CHECKED_IMAGE"
+          python .github/scripts/check_trivy_report.py sbom reports/image.sbom.cdx.json
+      - name: Exercise the real container with an isolated local HTTPS stub
+        if: ${{ !cancelled() && steps.build.outcome == 'success' }}
+        run: |
+          python .github/scripts/check_container.py --image "$CHECKED_IMAGE" \
+            --report reports/container-smoke.json
+      - name: Save the exact checked image and its identity
+        if: ${{ success() && github.event_name == 'workflow_dispatch' && inputs.publish_container && github.ref == 'refs/heads/main' }}
+        run: |
+          mkdir -p candidate
+          docker --host unix:///var/run/docker.sock image save "$CHECKED_IMAGE" --output candidate/image.tar
+          docker --host unix:///var/run/docker.sock image inspect "$CHECKED_IMAGE" --format '{{.Id}}' > candidate/image-id.txt
+          cp reports/image.sbom.cdx.json candidate/image.sbom.cdx.json
+          cd candidate
+          sha256sum image.tar image-id.txt image.sbom.cdx.json > SHA256SUMS
+      - name: Retain the checked candidate without publishing it
+        if: ${{ success() && github.event_name == 'workflow_dispatch' && inputs.publish_container && github.ref == 'refs/heads/main' }}
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: checked-container-image
+          path: candidate/
+          if-no-files-found: error
+          compression-level: 0
+          retention-days: 1
+      - name: Save container security reports
+        if: ${{ always() }}
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: security-container
+          path: |
+            reports/hadolint.json
+            reports/dockerfile-config.json
+            reports/image-vulnerabilities.json
+            reports/image-secrets.json
+            reports/image.sbom.cdx.json
+            reports/container-smoke.json
+          if-no-files-found: error
+          retention-days: 7
+
   security-gate:
     name: Security gate
     if: ${{ always() }}
-    needs: [workflow-lint, secrets, bandit, dependencies, codeql, regression]
+    needs: [workflow-lint, secrets, bandit, dependencies, codeql, regression, iac, container]
     runs-on: ubuntu-24.04
     timeout-minutes: 2
     permissions: {}
@@ -316,7 +503,7 @@ jobs:
           import os
           from pathlib import Path
           results = json.loads(os.environ["JOB_RESULTS"])
-          required = {"workflow-lint", "secrets", "bandit", "dependencies", "codeql", "regression"}
+          required = {"workflow-lint", "secrets", "bandit", "dependencies", "codeql", "regression", "iac", "container"}
           if set(results) != required:
               raise SystemExit("Security gate is missing a required job")
           summary = ["## Security checks", "", "| Check | Result |", "| --- | --- |"]
@@ -357,3 +544,80 @@ jobs:
           path: dist/PSB_baseline_submission.zip
           if-no-files-found: error
           retention-days: 7
+
+  publish-container:
+    name: Publish the checked main image on explicit request
+    if: ${{ github.event_name == 'workflow_dispatch' && inputs.publish_container && github.ref == 'refs/heads/main' }}
+    needs: [security-gate, container]
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    environment: container-release
+    env:
+      DOCKER_HOST: unix:///var/run/docker.sock
+      DOCKER_CONTEXT: ""
+      DOCKER_TLS: ""
+      DOCKER_TLS_VERIFY: ""
+      DOCKER_CERT_PATH: ""
+    permissions:
+      contents: read
+      packages: write
+      id-token: write
+      attestations: write
+    steps:
+      - name: Download this run's checked image
+        uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
+        with:
+          name: checked-container-image
+          path: candidate
+      - name: Verify artifact checksums and image identity before login
+        working-directory: candidate
+        run: |
+          sha256sum --check --strict SHA256SUMS
+          docker --host unix:///var/run/docker.sock image load --input image.tar
+          actual="$(docker --host unix:///var/run/docker.sock image inspect psb-submission:ci --format '{{.Id}}')"
+          expected="$(cat image-id.txt)"
+          [[ "$expected" =~ ^sha256:[0-9a-f]{64}$ && "$actual" == "$expected" ]]
+      - name: Authenticate to GitHub Container Registry
+        uses: docker/login-action@8aa5831fb8d48d8f76594c7ddde61ae58019f550 # v4.8.0
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - name: Push the already checked image and resolve its immutable digest
+        id: push
+        run: |
+          image_name="ghcr.io/${GITHUB_REPOSITORY,,}"
+          image_tag="${image_name}:sha-${GITHUB_SHA}"
+          docker --host unix:///var/run/docker.sock image tag psb-submission:ci "$image_tag"
+          docker --host unix:///var/run/docker.sock image push "$image_tag"
+          docker --host unix:///var/run/docker.sock image inspect "$image_tag" --format '{{json .RepoDigests}}' > candidate/repo-digests.json
+          IMAGE_NAME="$image_name" python3 - <<'PY'
+          import json
+          import os
+          from pathlib import Path
+          import re
+          name = os.environ["IMAGE_NAME"]
+          values = json.loads(Path("candidate/repo-digests.json").read_text())
+          matches = [value for value in values if value.startswith(name + "@sha256:")]
+          if len(matches) != 1 or not re.fullmatch(re.escape(name) + r"@sha256:[0-9a-f]{64}", matches[0]):
+              raise SystemExit("Registry digest is missing or ambiguous")
+          digest = matches[0].split("@", 1)[1]
+          with Path(os.environ["GITHUB_OUTPUT"]).open("a") as output:
+              output.write(f"image_name={name}\ndigest={digest}\n")
+          Path(os.environ["GITHUB_STEP_SUMMARY"]).write_text("Published checked image: `" + matches[0] + "`\n")
+          PY
+      - name: Attest provenance for the published digest using OIDC
+        uses: actions/attest@1e69f48acb82d1966a394da916b4c1698aa569d6 # v4.2.2
+        with:
+          subject-name: ${{ steps.push.outputs.image_name }}
+          subject-digest: ${{ steps.push.outputs.digest }}
+          push-to-registry: true
+          create-storage-record: false
+      - name: Attest the checked CycloneDX inventory for the same digest
+        uses: actions/attest@1e69f48acb82d1966a394da916b4c1698aa569d6 # v4.2.2
+        with:
+          subject-name: ${{ steps.push.outputs.image_name }}
+          subject-digest: ${{ steps.push.outputs.digest }}
+          sbom-path: candidate/image.sbom.cdx.json
+          push-to-registry: true
+          create-storage-record: false
