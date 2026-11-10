@@ -60,6 +60,9 @@ def read_docx(raw: bytes) -> str:
         infos = [i for i in archive.infolist() if i.filename == "word/document.xml"]
         if len(infos) != 1 or infos[0].file_size > 8 * 1024 * 1024:
             raise ValueError("invalid_docx_main_document")
+        # Reject unsupported semantic parts instead of silently discarding them.
+        if any(i.filename in {"word/footnotes.xml", "word/endnotes.xml"} for i in archive.infolist()):
+            raise ValueError("docx_notes_not_supported")
         xml = archive.read(infos[0])
     if b"<!DOCTYPE" in xml.upper() or b"<!ENTITY" in xml.upper():
         raise ValueError("docx_entities_not_allowed")
@@ -78,6 +81,8 @@ def read_docx(raw: bytes) -> str:
             raise ValueError("docx_structure_limit")
         stack.extend((child, depth + 1) for child in node)
     ns = "{http://schemas.openxmlformats.org/wordprocessingml/2006/main}"
+    if any(n.tag in {ns + "footnoteReference", ns + "endnoteReference", ns + "altChunk"} for n in root.iter()):
+        raise ValueError("docx_semantic_part_not_supported")
     paragraphs = []
     for p in root.iter(ns + "p"):
         parts = []
@@ -121,6 +126,8 @@ def load_corpus(path: Path, deadline: float | None = None) -> tuple[list[Documen
                 raise ValueError("corpus_size_limit")
             raw = archive.read(info)
             text = read_docx(raw) if p.suffix.lower() == ".docx" else raw.decode("utf-8-sig")
+            if not text.strip():
+                raise ValueError("empty_document")
             decoded_total += len(text)
             if decoded_total > MAX_TEXT:
                 raise ValueError("decoded_corpus_size_limit")
@@ -161,6 +168,19 @@ def load_corpus(path: Path, deadline: float | None = None) -> tuple[list[Documen
                     if end == match.end():
                         break
                     offset = end - match.start() - 180
+            lines = list(re.finditer(r"[^\n]+", text))
+            for i, line in enumerate(lines):
+                if not line.group().strip() or len(norm(line.group())) >= 12 or line.start() in banned_starts:
+                    continue
+                start = lines[max(0, i - 1)].start()
+                end = lines[min(len(lines) - 1, i + 1)].end()
+                if end - start > 2200 or any(a < end and b > start for a, b in banned):
+                    continue
+                if len(fragments) >= MAX_FRAGMENTS:
+                    raise ValueError("fragment_count_limit")
+                fid = hashlib.sha256(f"{name}:{digest}:{start}:{end}".encode()).hexdigest()[:20]
+                if not any(f.id == fid for f in fragments[-3:]):
+                    fragments.append(Fragment(fid, name, start, end, text[start:end], ""))
     if not documents or not fragments:
         raise ValueError("empty_corpus")
     if len({d.name for d in documents}) != len(documents):

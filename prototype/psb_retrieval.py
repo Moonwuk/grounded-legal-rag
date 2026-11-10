@@ -15,7 +15,7 @@ STOP = set("и в во на по с со у к ко из за от до для �
 def tokens(text: str) -> list[str]:
     result = []
     for word in re.findall(r"[а-яёa-z0-9]+", text.lower().replace("ё", "е")):
-        if word in STOP or len(word) < 2:
+        if word in STOP or (len(word) < 2 and not word.isdigit()):
             continue
         result.append(word)
         if len(word) >= 6:
@@ -35,7 +35,7 @@ def user_turns(question: str) -> list[str]:
 
 def identifiers(text: str) -> set[str]:
     return {re.sub(r"\s+", "", x).lower() for x in
-            re.findall(r"\b(?:ПТ|П|А)\s*[-–]\s*\d{2}\s*/\s*\d{4}\b", text, re.I)}
+            re.findall(r"\b[A-Za-zА-Яа-яЁё]{1,8}\s*[-–]\s*\d{1,8}\s*/\s*\d{4}\b", text, re.I)}
 
 
 class Retriever:
@@ -63,6 +63,8 @@ class Retriever:
         self.avg = sum(map(lambda c: sum(c.values()), self.counts)) / len(self.counts)
         self.idf = {w: math.log(1 + (len(fragments) - n + .5) / (n + .5)) for w, n in df.items()}
         self.doc_ids = {d.name: identifiers(d.text[:700]) for d in documents}
+        self.parties = {d.name: {x.casefold().replace(" ", "-") for x in
+                        re.findall(r"«([^»\n]{2,80})»", d.text[:1200])} for d in documents}
 
     def _scores(self, query):
         scores = defaultdict(float)
@@ -86,9 +88,12 @@ class Retriever:
             if not ids:
                 ids = identifiers(turn)
             if party is None:
-                matches = re.findall(r"альфа[- ]трейдинг\b|альфа[- ]трейд\b|северн\w*\s+склад\w*", turn, re.I)
+                known = set().union(*self.parties.values())
+                normalized = turn.casefold().replace(" ", "-")
+                matches = [name for name in known if re.search(r"(?<![а-яa-z])" + re.escape(name) + r"(?![а-яa-z])", normalized)]
                 if matches:
-                    party = matches[-1].lower().replace(" ", "-")
+                    party = max(matches, key=lambda name: normalized.rfind(name))
+        clause_numbers = re.findall(r"(?:пункт(?:а|е)?|п\.|статья|статьи)\s*(\d+(?:\.\d+)*)", current, re.I)
         scored = []
         clauses = re.split(r"\s+и\s+(?=(?:како|кто|где|сколь|до\s|нужно|можно))", current, flags=re.I)
         if len(clauses) > 16:
@@ -96,26 +101,23 @@ class Retriever:
         # IDs are strong entity features, but not useful when discovering a
         # separate document answering another part of the same question.
         lexical_queries = [Counter(t for t in tokens(re.sub(
-            r"\b(?:ПТ|П|А)\s*[-–]\s*\d{2}\s*/\s*\d{4}\b", "", clause, flags=re.I))
-            if not t.isdigit()) for clause in clauses]
+            r"\b[A-Za-zА-Яа-яЁё]{1,8}\s*[-–]\s*\d{1,8}\s*/\s*\d{4}\b", "", clause, flags=re.I))
+            ) for clause in clauses]
         lexical_scores = [[] for _ in lexical_queries]
         primary = self._scores(query)
         secondary = [self._scores(q) for q in lexical_queries]
         for index, f in enumerate(self.fragments):
             score = primary.get(index, 0.)
+            if any(re.match(r"(?:Статья\s+)?" + re.escape(n) + r"(?:[.\s)]|$)", f.text, re.I) for n in clause_numbers):
+                score += 25
             for j, scores in enumerate(secondary):
                 lexical_score = scores.get(index, 0.)
                 lexical_scores[j].append((lexical_score, f))
             if ids & self.doc_ids[f.document]:
                 score += 9
             name = f.document.lower()
-            if party:
-                if party == "альфа-трейд" and re.search(r"альфа-трейд(?:\.|\s|$)", name):
-                    score += 7
-                elif party == "альфа-трейдинг" and "альфа-трейдинг" in name:
-                    score += 7
-                elif party.startswith("северн") and "северный склад" in name:
-                    score += 7
+            if party and party in self.parties[f.document]:
+                score += 7
             scored.append((score, f))
         scored.sort(key=lambda x: (-x[0], x[1].document, x[1].start))
         hits = [f for score, f in scored if score > 0][:top_k * (2 if expanded else 1)]
@@ -140,7 +142,7 @@ class Retriever:
                 connected.update(n for n, d in self.documents.items()
                                  if not n.startswith("законы__") and "регламент" in d.text.lower())
         for name in connected:
-            if len(self.documents[name].text) <= 7500:
+            if len(self.documents[name].text) <= 7500 or name not in selected_docs:
                 selected.update((f.id, f) for f in self.by_doc[name])
         for hit in hits:
             siblings = self.by_doc[hit.document]
@@ -172,9 +174,9 @@ class Retriever:
             required.update(n for n in connected if self.doc_ids[name] & self.doc_ids[n])
             if "регламент согласования" in name.lower():
                 required.update(n for n in connected if "регламент" in self.documents[n].text.lower())
-        for name in sorted(required - kept):
-            if len(self.documents[name].text) <= 7500:
-                result.extend(self.by_doc[name])
+        for name in sorted(required):
+            existing_ids = {f.id for f in result}
+            result.extend(f for f in self.by_doc[name] if f.id not in existing_ids)
         # Never silently cut an exception or an amendment to satisfy a hard cap.
         if len(result) > 512 or sum(len(f.text) for f in result) > 100000:
             raise ValueError("evidence_size_limit")

@@ -57,20 +57,21 @@ def main():
             retriever = retrievers[case.get('unicode', False)] if case.get('synthetic') else base
             t = time.monotonic()
             text, status = answer_question(case['question'], retriever, ProxyClient(deadline))
+            claims_text = '\n'.join(line for line in text.splitlines() if not line.startswith('['))
             checks = {'status_expected': status in case['statuses'],
-                      'required_terms_present': all(v.casefold() in text.casefold() for v in case['contains']),
+                      'required_terms_present': all(v.casefold() in claims_text.casefold() for v in case['contains']),
                       'forbidden_terms_absent': not any(v.casefold() in text.casefold() for v in case['forbidden']),
                       'technical_error_absent': status not in ('technical_error','unverified')}
             return {**case, 'answer':text, 'status':status, 'seconds':round(time.monotonic()-t,3),
-                    'checks':checks, 'automatic_checks_pass':all(checks.values())}
+                    'checks':checks, 'surface_checks_pass':all(checks.values()), 'semantic_status':'NOT_REVIEWED'}
         results=[]
         with ThreadPoolExecutor(max_workers=2) as pool:
             for future in as_completed([pool.submit(run,c) for c in CASES]):
                 item=future.result()
                 results.append(item)
                 (out/'live_adversarial.json').write_text(json.dumps(results,ensure_ascii=False,indent=2))
-                print(json.dumps({'id':item['id'],'status':item['status'],'pass':item['automatic_checks_pass']},ensure_ascii=False),flush=True)
-        print(json.dumps({'cases':len(results),'automatic_passes':sum(r['automatic_checks_pass'] for r in results),
+                print(json.dumps({'id':item['id'],'status':item['status'],'surface_pass':item['surface_checks_pass']},ensure_ascii=False),flush=True)
+        print(json.dumps({'cases':len(results),'surface_passes':sum(r['surface_checks_pass'] for r in results),
               'seconds':round(time.monotonic()-started,3)},ensure_ascii=False),flush=True)
 
 if __name__ == '__main__':main()

@@ -1,0 +1,115 @@
+test_digit_references_generalize (test_audit_fixes.AuditFixes.test_digit_references_generalize) ... FAIL
+test_linked_context_over_limit_fails_explicitly (test_audit_fixes.AuditFixes.test_linked_context_over_limit_fails_explicitly) ... FAIL
+test_long_linked_change_at_end_is_preserved (test_audit_fixes.AuditFixes.test_long_linked_change_at_end_is_preserved) ... ok
+test_missing_user_date_does_not_expand (test_audit_fixes.AuditFixes.test_missing_user_date_does_not_expand) ... ok
+test_mixed_empty_document_rejected (test_audit_fixes.AuditFixes.test_mixed_empty_document_rejected) ... FAIL
+test_no_untyped_missing_gap_accepted (test_audit_fixes.AuditFixes.test_no_untyped_missing_gap_accepted) ... FAIL
+test_notes_rejected_and_plain_docx_keeps_working (test_audit_fixes.AuditFixes.test_notes_rejected_and_plain_docx_keeps_working) ... FAIL
+test_partial_document_gap_expands_and_keeps_verified_fallback (test_audit_fixes.AuditFixes.test_partial_document_gap_expands_and_keeps_verified_fallback) ... FAIL
+test_provider_error_logs_code_not_body (test_audit_fixes.AuditFixes.test_provider_error_logs_code_not_body) ... FAIL
+test_short_value_has_contiguous_citable_source (test_audit_fixes.AuditFixes.test_short_value_has_contiguous_citable_source) ... FAIL
+test_surface_oracle_excludes_references_and_is_not_semantic_pass (test_audit_fixes.AuditFixes.test_surface_oracle_excludes_references_and_is_not_semantic_pass) ... ok
+test_untrusted_paraphrase_never_published_even_with_positive_verdict (test_audit_fixes.AuditFixes.test_untrusted_paraphrase_never_published_even_with_positive_verdict) ... FAIL
+test_verifier_receives_published_wording (test_audit_fixes.AuditFixes.test_verifier_receives_published_wording) ... FAIL
+
+======================================================================
+FAIL: test_digit_references_generalize (test_audit_fixes.AuditFixes.test_digit_references_generalize)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/tmpypkdplpk/tests/test_audit_fixes.py", line 46, in test_digit_references_generalize
+    self.assertIn('9',tokens('пункт 9'))
+AssertionError: '9' not found in ['пункт']
+
+======================================================================
+FAIL: test_linked_context_over_limit_fails_explicitly (test_audit_fixes.AuditFixes.test_linked_context_over_limit_fails_explicitly)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/tmpypkdplpk/tests/test_audit_fixes.py", line 59, in test_linked_context_over_limit_fails_explicitly
+    with self.assertRaisesRegex(ValueError,'evidence_size_limit'):r.search('Оплата ZZ-403/2040')
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: ValueError not raised
+
+======================================================================
+FAIL: test_mixed_empty_document_rejected (test_audit_fixes.AuditFixes.test_mixed_empty_document_rejected)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/tmpypkdplpk/tests/test_audit_fixes.py", line 68, in test_mixed_empty_document_rejected
+    with self.assertRaisesRegex(ValueError,'empty_document'):
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: ValueError not raised
+
+======================================================================
+FAIL: test_no_untyped_missing_gap_accepted (test_audit_fixes.AuditFixes.test_no_untyped_missing_gap_accepted)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/tmpypkdplpk/tests/test_audit_fixes.py", line 78, in test_no_untyped_missing_gap_accepted
+    self.assertFalse(validate_candidate(c,[]))
+AssertionError: True is not false
+
+======================================================================
+FAIL: test_notes_rejected_and_plain_docx_keeps_working (test_audit_fixes.AuditFixes.test_notes_rejected_and_plain_docx_keeps_working)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/tmpypkdplpk/tests/test_audit_fixes.py", line 66, in test_notes_rejected_and_plain_docx_keeps_working
+    with self.assertRaisesRegex(ValueError,'notes_not_supported'):read_docx(raw.getvalue())
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: ValueError not raised
+
+======================================================================
+FAIL: test_partial_document_gap_expands_and_keeps_verified_fallback (test_audit_fixes.AuditFixes.test_partial_document_gap_expands_and_keeps_verified_fallback)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/tmpypkdplpk/tests/test_audit_fixes.py", line 38, in test_partial_document_gap_expands_and_keeps_verified_fallback
+    self.assertEqual(status,expected)
+AssertionError: 'partial' != 'answer'
+- partial
++ answer
+
+
+======================================================================
+FAIL: test_provider_error_logs_code_not_body (test_audit_fixes.AuditFixes.test_provider_error_logs_code_not_body)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/tmpypkdplpk/tests/test_audit_fixes.py", line 104, in test_provider_error_logs_code_not_body
+    self.assertIn('provider_error:',buf.getvalue());self.assertNotIn('sk-abcd',buf.getvalue())
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 'provider_error:' not found in ''
+
+======================================================================
+FAIL: test_short_value_has_contiguous_citable_source (test_audit_fixes.AuditFixes.test_short_value_has_contiguous_citable_source)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/tmpypkdplpk/tests/test_audit_fixes.py", line 73, in test_short_value_has_contiguous_citable_source
+    self.assertTrue(fs)
+AssertionError: [] is not true
+
+======================================================================
+FAIL: test_untrusted_paraphrase_never_published_even_with_positive_verdict (test_audit_fixes.AuditFixes.test_untrusted_paraphrase_never_published_even_with_positive_verdict)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/tmpypkdplpk/tests/test_audit_fixes.py", line 88, in test_untrusted_paraphrase_never_published_even_with_positive_verdict
+    self.assertNotIn(wrong,out);self.assertIn(fact,out)
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 'Оплата производится за 93 суток.' unexpectedly found in 'Оплата производится за 93 суток. [1]\n[1] D: «Оплата производится за 37 суток.».'
+
+======================================================================
+FAIL: test_verifier_receives_published_wording (test_audit_fixes.AuditFixes.test_verifier_receives_published_wording)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/tmpypkdplpk/tests/test_audit_fixes.py", line 97, in test_verifier_receives_published_wording
+    text,status=answer_question('Оплата?',r,ScriptedModel([bad,check]))
+                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/tmp/tmpypkdplpk/prototype/psb_policy.py", line 225, in answer_question
+    verdict = client.complete(VERIFY, {**payload, "candidate": candidate})
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/tmp/tmpypkdplpk/tests/test_baseline.py", line 32, in complete
+    return value(payload) if callable(value) else value
+           ^^^^^^^^^^^^^^
+  File "/tmp/tmpypkdplpk/tests/test_audit_fixes.py", line 94, in check
+    self.assertNotIn('93',p['candidate']['claims'][0]['text'])
+AssertionError: '93' unexpectedly found in 'Оплата только за 93 дня.'
+
+----------------------------------------------------------------------
+Ran 13 tests in 0.045s
+
+FAILED (failures=10)

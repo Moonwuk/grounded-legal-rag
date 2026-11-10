@@ -1,0 +1,182 @@
+{
+  "reviewer": "Codex manual reading of all 18 final outputs against provided corpus; not independent legal certification",
+  "counts": {
+    "PASS": 16,
+    "WARN": 1,
+    "TECHNICAL": 1
+  },
+  "per_question": {
+    "1": "PASS",
+    "2": "PASS",
+    "3": "PASS",
+    "4": "PASS",
+    "5": "TECHNICAL",
+    "6": "PASS",
+    "7": "PASS",
+    "8": "PASS",
+    "9": "PASS",
+    "10": "PASS",
+    "11": "PASS",
+    "12": "PASS",
+    "13": "WARN",
+    "14": "PASS",
+    "15": "PASS",
+    "16": "PASS",
+    "17": "PASS",
+    "18": "PASS"
+  },
+  "notes": {
+    "4": "450000 and separate utilities quoted; false exclusivity removed. Explanation is less direct than a synthesized correction; no inflation document inferred.",
+    "5": "Technical; truncated_model_output remains. It is not classified as correct or as absence of the norm.",
+    "8": "Act required by 6.2; separate quality-acceptance quote does not assert universal discovery deadline. Extra quote is unnecessary.",
+    "13": "WARN: provisions are true but absence of referenced grounds and limits on determining deletion obligations are not explicit.",
+    "14": "Correct seasonal condition; repeated quote is a style defect.",
+    "15": "Correct act requirement and condition of return; duplicate quote is a style defect.",
+    "16": "Correct source clause 2.1; no false refusal in this run.",
+    "17": "Manufacturer warranty and request for warranty card correct; no transferred 24-month term."
+  },
+  "quotes": [
+    {
+      "id": "1",
+      "number": 1,
+      "exact": true
+    },
+    {
+      "id": "1",
+      "number": 2,
+      "exact": true
+    },
+    {
+      "id": "2",
+      "number": 1,
+      "exact": true
+    },
+    {
+      "id": "2",
+      "number": 2,
+      "exact": true
+    },
+    {
+      "id": "4",
+      "number": 1,
+      "exact": true
+    },
+    {
+      "id": "4",
+      "number": 2,
+      "exact": true
+    },
+    {
+      "id": "6",
+      "number": 1,
+      "exact": true
+    },
+    {
+      "id": "6",
+      "number": 2,
+      "exact": true
+    },
+    {
+      "id": "7",
+      "number": 1,
+      "exact": true
+    },
+    {
+      "id": "7",
+      "number": 2,
+      "exact": true
+    },
+    {
+      "id": "8",
+      "number": 1,
+      "exact": true
+    },
+    {
+      "id": "8",
+      "number": 2,
+      "exact": true
+    },
+    {
+      "id": "9",
+      "number": 1,
+      "exact": true
+    },
+    {
+      "id": "9",
+      "number": 2,
+      "exact": true
+    },
+    {
+      "id": "10",
+      "number": 1,
+      "exact": true
+    },
+    {
+      "id": "10",
+      "number": 2,
+      "exact": true
+    },
+    {
+      "id": "11",
+      "number": 1,
+      "exact": true
+    },
+    {
+      "id": "12",
+      "number": 1,
+      "exact": true
+    },
+    {
+      "id": "13",
+      "number": 1,
+      "exact": true
+    },
+    {
+      "id": "13",
+      "number": 2,
+      "exact": true
+    },
+    {
+      "id": "14",
+      "number": 1,
+      "exact": true
+    },
+    {
+      "id": "14",
+      "number": 2,
+      "exact": true
+    },
+    {
+      "id": "15",
+      "number": 1,
+      "exact": true
+    },
+    {
+      "id": "16",
+      "number": 1,
+      "exact": true
+    },
+    {
+      "id": "17",
+      "number": 1,
+      "exact": true
+    },
+    {
+      "id": "17",
+      "number": 2,
+      "exact": true
+    },
+    {
+      "id": "18",
+      "number": 1,
+      "exact": true
+    },
+    {
+      "id": "18",
+      "number": 2,
+      "exact": true
+    }
+  ],
+  "all_quotes_exact": true,
+  "caveat": "Extractive wording prevents arbitrary new prose but not wrong choice of source, omitted conditions, stale version or incomplete coverage. No official Score improvement measured."
+}

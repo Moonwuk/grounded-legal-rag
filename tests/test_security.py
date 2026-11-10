@@ -169,13 +169,13 @@ class OutputValidationTests(unittest.TestCase):
             self.assertFalse(validate_candidate(c, EVIDENCE))
 
     def test_oversized_answer_never_silently_truncated(self):
+        # The length guard applies to published source wording, not discarded prose.
+        f = Fragment('long', 'contract.txt', 0, 2000, 'A' * 2000, '')
         c = deepcopy(CANDIDATE)
-        c['claims'] *= 12
-        for claim in c['claims']:
-            claim['text'] = 'A' * 1400
-        self.assertTrue(validate_candidate(c, EVIDENCE))
+        c['claims'] = [{'text':'A' * 1400, 'sources':[{'fragment_id':'long','quote':'A' * 2000}]} for _ in range(12)]
+        self.assertTrue(validate_candidate(c, [f]))
         with self.assertRaisesRegex(ProviderError, 'answer_length_limit'):
-            render(c, EVIDENCE)
+            render(c, [f])
 
     def test_long_question_not_sent_or_truncated(self):
         text, status = answer_question('A' * 32001, None, None)

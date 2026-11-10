@@ -1,0 +1,79 @@
+{
+  "id": "5",
+  "question": "Договор на 12 млн рублей заключали в августе 2024 года. Нужно ли было одобрение генерального директора?",
+  "answer": "Не удалось получить достаточно проверенных оснований для ответа по доступным документам. Уточните договор, дату события и условия задачи.",
+  "status": "unverified",
+  "seconds": 35.915,
+  "mode": "isolated provider-configuration experiment; thinking disabled in development HTTP adapter; default run retained",
+  "changes": "Development-only HTTP adapter adds thinking.type=disabled; submitted ZIP unchanged. Same question/corpus/token limit. This is a different provider configuration.",
+  "model": "deepseek-flash",
+  "thinking": "disabled",
+  "trace": [
+    {
+      "stage": "generate",
+      "expanded_search": false,
+      "evidence_count": 106,
+      "evidence_characters": 9864,
+      "result": {
+        "status": "clarify",
+        "claims": [],
+        "missing": [],
+        "clarification": "Уточните, пожалуйста, о каком договоре и о какой сумме идёт речь: в предоставленных документах договор поставки № П-17/2024 заключён 12 февраля 2024 г. с ориентировочной ценой 8 400 000 рублей, а сумма 12 млн рублей и заключение в августе 2024 года в документах не подтверждаются. Также уточните, требуется ли оценка по редакции регламента, действовавшей в августе 2024 года.",
+        "requested_facts": [
+          "contract",
+          "event_date"
+        ],
+        "issue": "ambiguous_entity"
+      },
+      "seconds": 9.786
+    },
+    {
+      "stage": "verify",
+      "expanded_search": false,
+      "evidence_count": 106,
+      "evidence_characters": 9864,
+      "result": {
+        "approved": false,
+        "complete": false,
+        "status": "clarify",
+        "claim_checks": [],
+        "reason": "Отказ неверен: в evidence есть договор П-17/2024 и регламент в редакции 2023, действовавший в августе 2024; вопрос о сумме 12 млн и дате августа 2024 позволяет применить п. 2.4 ред. 2023 (одобрение гендиректора свыше 10 млн). Issue ambiguous_entity не обоснован."
+      },
+      "seconds": 8.779
+    },
+    {
+      "stage": "generate",
+      "expanded_search": true,
+      "evidence_count": 169,
+      "evidence_characters": 15680,
+      "result": {
+        "status": "clarify",
+        "claims": [],
+        "missing": [],
+        "clarification": "Уточните, о каком договоре идёт речь: в материалах есть договор поставки № П-17/2024 с ООО «Альфа-Трейд» от 12.02.2024 (ориентировочная цена 8 400 000 руб.) и договор поставки № ПТ-05/2023 с ООО «Альфа-Трейдинг» от 20.06.2023. Какой из них вы имеете в виду и на какую дату заключения (август 2024 г.)?",
+        "requested_facts": [
+          "contract",
+          "counterparty"
+        ],
+        "issue": "ambiguous_entity"
+      },
+      "seconds": 8.846
+    },
+    {
+      "stage": "verify",
+      "expanded_search": true,
+      "evidence_count": 169,
+      "evidence_characters": 15680,
+      "result": {
+        "approved": false,
+        "complete": false,
+        "status": "clarify",
+        "claim_checks": [],
+        "reason": "Уточнение необоснованно: в материалах нет договора на 12 млн руб., а договор П-17/2024 от 12.02.2024 имеет ориентировочную цену 8,4 млн руб.; вопрос о договоре на 12 млн в августе 2024 не разрешается выбором между П-17/2024 и ПТ-05/2023. Кроме того, для августа 2024 действовала редакция регламента 2023 (утратила силу с 01.03.2025), по п. 2.4 которой одобрение гендиректора требовалось при сумме свыше 10 млн руб., — ассистент должен был ответить по существу, а не уточнять контрагента."
+      },
+      "seconds": 8.371
+    }
+  ],
+  "archive_sha256": "46257bf82a338e702fa85032ab3b41ee27aa027a95963992f3c504df5a611b31",
+  "interpretation": "35.915 seconds, but no verified answer: model treats hypothetical 12m/Aug2024 scenario as missing existing contract. Faster is not more correct; one case is not a benchmark."
+}

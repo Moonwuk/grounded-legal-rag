@@ -1,0 +1,172 @@
+{
+  "method": "Manually read all 18 final answers against the corpus already reviewed; exact quote checks supplementary.",
+  "counts": {
+    "PASS": 15,
+    "WARN": 1,
+    "FALSE_REFUSAL": 1,
+    "TECHNICAL": 1
+  },
+  "per_question": {
+    "1": "PASS",
+    "2": "PASS",
+    "3": "PASS",
+    "4": "PASS",
+    "5": "TECHNICAL",
+    "6": "PASS",
+    "7": "PASS",
+    "8": "PASS",
+    "9": "PASS",
+    "10": "PASS",
+    "11": "PASS",
+    "12": "PASS",
+    "13": "WARN",
+    "14": "PASS",
+    "15": "PASS",
+    "16": "FALSE_REFUSAL",
+    "17": "PASS",
+    "18": "PASS"
+  },
+  "notes": {
+    "4": "Correct source clauses 3.1 and 3.4 now appear; unsupported exclusivity removed. Explicit explanation of the false premise is less direct in extractive mode.",
+    "8": "Only required attachment under 6.2; invented universal discovery deadline removed.",
+    "5": "Technical; provider_error: truncated_model_output in log. No partial response published.",
+    "13": "True provisions and conditions quoted; absent referenced articles/applicability gap not clearly disclosed. No complete resolution of deletion obligations.",
+    "16": "Answerable under clause 2.1, but two passes failed to yield verified answer. Precise rejection stage unavailable in this batch log; do not infer that the source was missing.",
+    "14": "Repeated source wording is redundant; no false substantive claim found."
+  },
+  "quotes": [
+    {
+      "id": "1",
+      "reference": "1",
+      "exact": true
+    },
+    {
+      "id": "1",
+      "reference": "2",
+      "exact": true
+    },
+    {
+      "id": "2",
+      "reference": "1",
+      "exact": true
+    },
+    {
+      "id": "4",
+      "reference": "1",
+      "exact": true
+    },
+    {
+      "id": "4",
+      "reference": "2",
+      "exact": true
+    },
+    {
+      "id": "6",
+      "reference": "1",
+      "exact": true
+    },
+    {
+      "id": "6",
+      "reference": "2",
+      "exact": true
+    },
+    {
+      "id": "7",
+      "reference": "1",
+      "exact": true
+    },
+    {
+      "id": "7",
+      "reference": "2",
+      "exact": true
+    },
+    {
+      "id": "8",
+      "reference": "1",
+      "exact": true
+    },
+    {
+      "id": "9",
+      "reference": "1",
+      "exact": true
+    },
+    {
+      "id": "9",
+      "reference": "2",
+      "exact": true
+    },
+    {
+      "id": "10",
+      "reference": "1",
+      "exact": true
+    },
+    {
+      "id": "10",
+      "reference": "2",
+      "exact": true
+    },
+    {
+      "id": "10",
+      "reference": "3",
+      "exact": true
+    },
+    {
+      "id": "11",
+      "reference": "1",
+      "exact": true
+    },
+    {
+      "id": "12",
+      "reference": "1",
+      "exact": true
+    },
+    {
+      "id": "13",
+      "reference": "1",
+      "exact": true
+    },
+    {
+      "id": "13",
+      "reference": "2",
+      "exact": true
+    },
+    {
+      "id": "14",
+      "reference": "1",
+      "exact": true
+    },
+    {
+      "id": "14",
+      "reference": "2",
+      "exact": true
+    },
+    {
+      "id": "15",
+      "reference": "1",
+      "exact": true
+    },
+    {
+      "id": "17",
+      "reference": "1",
+      "exact": true
+    },
+    {
+      "id": "17",
+      "reference": "2",
+      "exact": true
+    },
+    {
+      "id": "18",
+      "reference": "1",
+      "exact": true
+    },
+    {
+      "id": "18",
+      "reference": "2",
+      "exact": true
+    }
+  ],
+  "all_quotes_exact": true,
+  "official_score_improvement": false,
+  "recommendation": "Do not replace the previously submitted build based only on these observations. Resolve token truncation and false refusal, evaluate synthesis/coverage on independent data."
+}

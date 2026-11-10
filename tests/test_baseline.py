@@ -126,7 +126,7 @@ class BaselineTests(unittest.TestCase):
         self.assertEqual(len(model.calls),2)
 
     def test_insufficient_gets_one_expansion(self):
-        insufficient={'status':'insufficient','claims':[],'missing':['нужный документ'],'clarification':''}
+        insufficient={'status':'insufficient','claims':[],'missing':['нужный документ'],'clarification':'','requested_facts':['document']}
         model=ScriptedModel([insufficient,insufficient,{'approved':True,'complete':False,'status':'insufficient','claim_checks':[]}])
         _,status=answer_question('Пособие по беременности',self.r,model)
         self.assertEqual(status,'insufficient')
