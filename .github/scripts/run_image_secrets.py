@@ -107,6 +107,10 @@ def invoke(binary, mode, target, config, directory):
     stdout_path, stderr_path = directory / "stdout.log", directory / "stderr.log"
     command = [str(binary), mode, "--config", "", "--ignorefile", "", "--secret-config", str(config),
                "--scanners", "secret", "--exit-code", "1", "--timeout", "5m", "--no-progress",
+               # SBOM package interpretation is unrelated to a secret-only scan.
+               # Keep raw file scanning, including SBOM JSON, enabled. The
+               # separate vulnerability and SBOM jobs retain this analyzer.
+               "--disabled-analyzers", "sbom",
                "--skip-version-check", "--offline-scan", "--skip-db-update", "--skip-java-db-update",
                "--cache-dir", str(directory / "cache"), "--format", "json", "--output", str(report)]
     if mode == "image":
@@ -152,11 +156,22 @@ def preflight(binary, config, directory):
     }
     for index, token in enumerate(values.values()):
         (fixtures / f"probe-{index}.txt").write_text(token, encoding="utf-8")
+    sbom_token = "sk" + "-" + digest("sbom")[:32]
+    sbom_path = fixtures / "probe.cdx.json"
+    sbom_path.write_text(json.dumps({"bomFormat": "CycloneDX", "specVersion": "1.5", "version": 1,
+        "components": [{"type": "library", "name": "synthetic-library", "version": "1",
+                        "properties": [{"name": "synthetic-credential", "value": sbom_token}]}]}), encoding="utf-8")
     records = invoke(binary, "fs", fixtures, config, directory / "preflight")
     found = {record["RuleID"] for record in records}
     if not {"psb-" + rule for rule in RULE_IDS}.issubset(found):
         raise ScanError("custom_secret_rules_not_exercised")
-    return 3
+    sbom_hash = hashlib.sha256(str(sbom_path).encode()).hexdigest()
+    # Trivy filesystem targets may be absolute or relative to the scan root.
+    sbom_hashes = {sbom_hash, hashlib.sha256(sbom_path.name.encode()).hexdigest()}
+    if not any(record["RuleID"] == "psb-ai-sk32-key-candidate" and record["FileSHA256"] in sbom_hashes
+               for record in records):
+        raise ScanError("sbom_file_secret_not_exercised")
+    return 4
 
 
 def main(argv=None):
@@ -194,3 +209,4 @@ def main(argv=None):
 
 if __name__ == "__main__":
     raise SystemExit(main())
+

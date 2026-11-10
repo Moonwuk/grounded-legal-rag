@@ -119,6 +119,20 @@ class ImageReportTests(unittest.TestCase):
 
 
 class ImageSecretTests(unittest.TestCase):
+    def test_unexpected_scanner_warning_still_blocks(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+
+            def run(command, **options):
+                path = Path(command[command.index("--output") + 1])
+                path.write_text(json.dumps({"SchemaVersion": 2, "ArtifactType": "container_image"}))
+                options["stderr"].write(b"2026-11-10T00:00:00Z\tWARN\tSynthetic incomplete scan\n")
+                return subprocess.CompletedProcess(command, 0)
+
+            with patch.object(secrets.subprocess, "run", side_effect=run):
+                with self.assertRaisesRegex(secrets.ScanError, "^unexpected_secret_diagnostics$"):
+                    secrets.invoke(root / "verified-trivy", "image", "synthetic-image", root / "config.json", root / "scan")
+
     def test_custom_config_is_required_and_preserves_all_three_rules(self):
         config = secrets.build_detector_config(ROOT / ".gitleaks.toml")
         self.assertEqual({rule["id"] for rule in config["rules"]}, {"psb-" + value for value in secrets.RULE_IDS})
@@ -211,3 +225,4 @@ class ImageSecretTests(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
