@@ -1,0 +1,29 @@
+test_ansible_guards (unittest.loader._FailedTest.test_ansible_guards) ... ERROR
+test_archival_supports_a_different_filesystem (test_run_batch.ManualRunnerTests.test_archival_supports_a_different_filesystem) ... ok
+test_compose_digest_and_security_boundaries_cannot_be_overridden (test_run_batch.ManualRunnerTests.test_compose_digest_and_security_boundaries_cannot_be_overridden) ... ok
+test_extra_environment_and_writable_input_are_rejected (test_run_batch.ManualRunnerTests.test_extra_environment_and_writable_input_are_rejected) ... ok
+test_host_must_enforce_each_resource_and_seccomp_boundary (test_run_batch.ManualRunnerTests.test_host_must_enforce_each_resource_and_seccomp_boundary) ... ok
+test_lock_does_not_follow_a_symlink (test_run_batch.ManualRunnerTests.test_lock_does_not_follow_a_symlink) ... ok
+test_lock_rejects_concurrent_run_and_releases_after_close (test_run_batch.ManualRunnerTests.test_lock_rejects_concurrent_run_and_releases_after_close) ... ok
+test_previous_output_symlink_is_rejected_without_reading_or_moving_target (test_run_batch.ManualRunnerTests.test_previous_output_symlink_is_rejected_without_reading_or_moving_target) ... ok
+test_prior_output_is_archived_before_new_result_can_exist (test_run_batch.ManualRunnerTests.test_prior_output_is_archived_before_new_result_can_exist) ... ok
+
+======================================================================
+ERROR: test_ansible_guards (unittest.loader._FailedTest.test_ansible_guards)
+----------------------------------------------------------------------
+ImportError: Failed to import test module: test_ansible_guards
+Traceback (most recent call last):
+  File "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/unittest/loader.py", line 396, in _find_test_path
+    module = self._get_module_from_name(name)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/unittest/loader.py", line 339, in _get_module_from_name
+    __import__(name)
+  File "/workspace/scratch/94557bdbb953/work/evidence-boundary-fix/infra/ansible/tests/test_ansible_guards.py", line 5, in <module>
+    from ansible.errors import AnsibleError
+ModuleNotFoundError: No module named 'ansible'
+
+
+----------------------------------------------------------------------
+Ran 9 tests in 0.003s
+
+FAILED (errors=1)

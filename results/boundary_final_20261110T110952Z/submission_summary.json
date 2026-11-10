@@ -1,0 +1,30 @@
+{
+  "started_utc": "20261110T110952Z",
+  "archive_sha256": "70ebed357c1a4ce041fcab1370d30f9a067ad2b92d049512598ae9cf9af96419",
+  "source_commit": "e8560fa8c8b1f99f0ccfa45f74bde299a148ca4d",
+  "corpus_sha256": "cea8ef2c8f6c8b9f498efacf705b97bf3da53cc78f366f9b1fef7a6de66327e0",
+  "questions_sha256": "e922cee1e155ed23f9f1c8f9758e396ed0e72e4309343dffe33824139bbf1423",
+  "model": "deepseek-flash",
+  "provider": "https://api.deepseek.com/v1",
+  "temperature": 0,
+  "max_workers": 2,
+  "top_k": 6,
+  "max_tokens": 8192,
+  "run_seconds": 800,
+  "mode": "real_model",
+  "golden_answers_passed_to_model": false,
+  "platform_submission": false,
+  "runtime_modified": false,
+  "seconds": 340.305,
+  "exit_code": 0,
+  "rows": 18,
+  "columns": [
+    "id",
+    "answer"
+  ],
+  "all_ids_match": true,
+  "unique_ids": 18,
+  "all_answers_valid": true,
+  "technical_answers": 0,
+  "unverified_answers": 0
+}

@@ -94,7 +94,8 @@ def proxy(mode='good'):
                 value = ({**VERDICT, 'status': 'out_of_scope', 'claim_checks': []}
                          if 'candidate' in payload else
                          {'status': 'out_of_scope', 'claims': [], 'missing': [], 'clarification': ''})
-                self.wfile.write(values.get(mode, envelope(value)))
+                effective = 'length' if mode == 'length_then_stop' and len(calls) == 1 else mode
+                self.wfile.write(values.get(effective, envelope(value)))
             except (OSError, ConnectionError):
                 pass
     server = ThreadingHTTPServer(('127.0.0.1', 0), Handler)
@@ -169,13 +170,14 @@ class OutputValidationTests(unittest.TestCase):
             self.assertFalse(validate_candidate(c, EVIDENCE))
 
     def test_oversized_answer_never_silently_truncated(self):
-        # The length guard applies to published source wording, not discarded prose.
-        f = Fragment('long', 'contract.txt', 0, 2000, 'A' * 2000, '')
+        # Distinct trusted source passages exceed the output contract. Repeated
+        # copies of the same citation are intentionally deduplicated.
+        evidence = [Fragment(str(i), 'contract.txt', 0, 2000, str(i) + 'A' * 2000, '') for i in range(12)]
         c = deepcopy(CANDIDATE)
-        c['claims'] = [{'text':'A' * 1400, 'sources':[{'fragment_id':'long','quote':'A' * 2000}]} for _ in range(12)]
-        self.assertTrue(validate_candidate(c, [f]))
+        c['claims'] = [{'text':f.text[:1400], 'sources':[{'fragment_id':f.id,'quote':f.text}]} for f in evidence]
+        self.assertTrue(validate_candidate(c, evidence))
         with self.assertRaisesRegex(ProviderError, 'answer_length_limit'):
-            render(c, [f])
+            render(c, evidence)
 
     def test_long_question_not_sent_or_truncated(self):
         text, status = answer_question('A' * 32001, None, None)
@@ -350,7 +352,7 @@ class ProxyTests(unittest.TestCase):
             with self.subTest(mode=mode), proxy(mode) as (_, calls):
                 with self.assertRaises(ProviderError):
                     ProxyClient(time.monotonic() + 10).complete('policy', {})
-                self.assertEqual(len(calls), 1)
+                self.assertEqual(len(calls), 2 if mode == 'length' else 1)
 
     def test_call_and_request_size_budgets(self):
         with proxy() as (_, calls):

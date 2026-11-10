@@ -1,0 +1,96 @@
+{
+  "method": "Codex manually read every emitted answer and compared to full provided/synthetic sources and pre-defined rubric. Exact-quote check is separate from semantic review.",
+  "verdicts": {
+    "S1": "PASS",
+    "S2": "PASS",
+    "S3": "PASS",
+    "S4": "PASS",
+    "S5": "PASS",
+    "S6": "PASS",
+    "S7": "WARN",
+    "S8": "PASS"
+  },
+  "counts": {
+    "PASS": 7,
+    "WARN": 1
+  },
+  "notes": {
+    "S1": "Full negation and written-consent condition preserved.",
+    "S2": "Only-with-written-consent preserved.",
+    "S3": "Consumables exclusion preserved.",
+    "S4": "41 days from correct Lotus Opt contract.",
+    "S5": "26 days from other Lotus Optik contract.",
+    "S6": "Partial includes application-owned missing article8 disclaimer in synthetic law987.",
+    "S7": "Correct insufficiency, but also asks for an irrelevant contract number; request is not fully useful.",
+    "S8": "Selected 2030 rule valid before2033 and threshold4m for hypothetical4.6m/2032, without demanding an existing contract."
+  },
+  "quotes": [
+    {
+      "id": "S1",
+      "reference": 1,
+      "exact": true
+    },
+    {
+      "id": "S1",
+      "reference": 2,
+      "exact": true
+    },
+    {
+      "id": "S2",
+      "reference": 1,
+      "exact": true
+    },
+    {
+      "id": "S2",
+      "reference": 2,
+      "exact": true
+    },
+    {
+      "id": "S3",
+      "reference": 1,
+      "exact": true
+    },
+    {
+      "id": "S3",
+      "reference": 2,
+      "exact": true
+    },
+    {
+      "id": "S4",
+      "reference": 1,
+      "exact": true
+    },
+    {
+      "id": "S4",
+      "reference": 2,
+      "exact": true
+    },
+    {
+      "id": "S5",
+      "reference": 1,
+      "exact": true
+    },
+    {
+      "id": "S5",
+      "reference": 2,
+      "exact": true
+    },
+    {
+      "id": "S6",
+      "reference": 1,
+      "exact": true
+    },
+    {
+      "id": "S8",
+      "reference": 1,
+      "exact": true
+    },
+    {
+      "id": "S8",
+      "reference": 2,
+      "exact": true
+    }
+  ],
+  "all_quotes_exact": true,
+  "not_official_score": true
+}

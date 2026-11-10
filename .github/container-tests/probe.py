@@ -18,9 +18,10 @@ import threading
 
 QUOTE = "Оплата производится в течение 30 календарных дней."
 CLAIM = "Срок оплаты — 30 календарных дней."
-# The application replaces a draft paraphrase with source wording before verification.
-VERIFIED_CLAIM = "«" + QUOTE + "»"
-EXPECTED_ANSWER = VERIFIED_CLAIM + " [1]\n[1] contract: «" + QUOTE + "»."
+# The complete trusted paragraph, including its clause number, reaches verification.
+SOURCE_TEXT = "1. " + QUOTE + "\n"
+VERIFIED_CLAIM = "«" + SOURCE_TEXT.strip() + "»"
+EXPECTED_ANSWER = VERIFIED_CLAIM + " [1]\n[1] contract: «" + SOURCE_TEXT.strip() + "»."
 QUESTION_ID = "0001"
 # Fixed container mount paths are observed; no shared host temporary files are opened.
 CONTAINER_TMP = "/tmp"  # nosec B108
@@ -46,7 +47,7 @@ def model_reply(payload: dict) -> dict:
     evidence = payload.get("evidence", [])
     matching = [item for item in evidence if isinstance(item, dict)
                 and isinstance(item.get("text"), str) and isinstance(item.get("id"), str)
-                and QUOTE in item["text"]]
+                and item["text"] == SOURCE_TEXT]
     if not matching:
         raise ValueError("fixture_evidence_mismatch")
     # Context expansion may legitimately repeat this quote in an overlapping fragment.
@@ -59,6 +60,7 @@ def model_reply(payload: dict) -> dict:
     if "candidate" not in payload:
         return candidate
     candidate["claims"][0]["text"] = VERIFIED_CLAIM
+    candidate["claims"][0]["sources"][0]["quote"] = SOURCE_TEXT
     if payload["candidate"] != candidate or payload.get("rendered_answer") != EXPECTED_ANSWER:
         raise ValueError("fixture_candidate_mismatch")
     return {
@@ -287,3 +289,4 @@ def main() -> int:
 
 if __name__ == "__main__":
     raise SystemExit(main())
+

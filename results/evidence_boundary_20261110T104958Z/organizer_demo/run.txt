@@ -1,0 +1,62 @@
+{"event": "model_response", "stage": "generate", "attempt": 1, "finish": "stop", "max_tokens": 8192, "completion_tokens": 586, "reasoning_tokens": 526}
+{"event": "model_response", "stage": "generate", "attempt": 1, "finish": "stop", "max_tokens": 8192, "completion_tokens": 1487, "reasoning_tokens": 1452}
+{"event": "model_response", "stage": "verify", "attempt": 1, "finish": "stop", "max_tokens": 8192, "completion_tokens": 286, "reasoning_tokens": 163}
+completed_position=0 status=answer
+{"event": "model_response", "stage": "generate", "attempt": 1, "finish": "stop", "max_tokens": 8192, "completion_tokens": 217, "reasoning_tokens": 192}
+{"event": "model_response", "stage": "verify", "attempt": 1, "finish": "stop", "max_tokens": 8192, "completion_tokens": 1122, "reasoning_tokens": 1029}
+completed_position=1 status=answer
+{"event": "model_response", "stage": "generate", "attempt": 1, "finish": "stop", "max_tokens": 8192, "completion_tokens": 249, "reasoning_tokens": 224}
+{"event": "model_response", "stage": "generate", "attempt": 1, "finish": "stop", "max_tokens": 8192, "completion_tokens": 420, "reasoning_tokens": 386}
+{"event": "model_response", "stage": "verify", "attempt": 1, "finish": "stop", "max_tokens": 8192, "completion_tokens": 1651, "reasoning_tokens": 1481}
+completed_position=2 status=insufficient
+{"event": "model_response", "stage": "generate", "attempt": 1, "finish": "stop", "max_tokens": 8192, "completion_tokens": 721, "reasoning_tokens": 675}
+{"event": "model_response", "stage": "verify", "attempt": 1, "finish": "stop", "max_tokens": 8192, "completion_tokens": 3630, "reasoning_tokens": 3554}
+completed_position=3 status=answer
+{"event": "model_response", "stage": "generate", "attempt": 1, "finish": "stop", "max_tokens": 8192, "completion_tokens": 598, "reasoning_tokens": 562}
+{"event": "model_response", "stage": "verify", "attempt": 1, "finish": "stop", "max_tokens": 8192, "completion_tokens": 244, "reasoning_tokens": 167}
+completed_position=5 status=answer
+{"event": "model_response", "stage": "generate", "attempt": 1, "finish": "stop", "max_tokens": 8192, "completion_tokens": 840, "reasoning_tokens": 790}
+{"event": "model_response", "stage": "verify", "attempt": 1, "finish": "stop", "max_tokens": 8192, "completion_tokens": 5090, "reasoning_tokens": 4992}
+{"event": "model_response", "stage": "verify", "attempt": 1, "finish": "stop", "max_tokens": 8192, "completion_tokens": 881, "reasoning_tokens": 756}
+completed_position=6 status=answer
+{"event": "model_response", "stage": "generate", "attempt": 1, "finish": "stop", "max_tokens": 8192, "completion_tokens": 1440, "reasoning_tokens": 1389}
+{"event": "model_response", "stage": "generate", "attempt": 1, "finish": "stop", "max_tokens": 8192, "completion_tokens": 413, "reasoning_tokens": 379}
+{"event": "model_response", "stage": "verify", "attempt": 1, "finish": "stop", "max_tokens": 8192, "completion_tokens": 424, "reasoning_tokens": 352}
+completed_position=7 status=answer
+{"event": "model_response", "stage": "generate", "attempt": 1, "finish": "stop", "max_tokens": 8192, "completion_tokens": 304, "reasoning_tokens": 254}
+{"event": "model_response", "stage": "verify", "attempt": 1, "finish": "stop", "max_tokens": 8192, "completion_tokens": 514, "reasoning_tokens": 415}
+completed_position=8 status=answer
+{"event": "model_response", "stage": "generate", "attempt": 1, "finish": "stop", "max_tokens": 8192, "completion_tokens": 495, "reasoning_tokens": 445}
+{"event": "model_response", "stage": "verify", "attempt": 1, "finish": "stop", "max_tokens": 8192, "completion_tokens": 698, "reasoning_tokens": 606}
+completed_position=9 status=answer
+{"event": "model_response", "stage": "generate", "attempt": 1, "finish": "stop", "max_tokens": 8192, "completion_tokens": 174, "reasoning_tokens": 138}
+{"event": "model_response", "stage": "verify", "attempt": 1, "finish": "stop", "max_tokens": 8192, "completion_tokens": 1251, "reasoning_tokens": 1151}
+completed_position=10 status=answer
+{"event": "model_response", "stage": "generate", "attempt": 1, "finish": "stop", "max_tokens": 8192, "completion_tokens": 330, "reasoning_tokens": 295}
+{"event": "model_response", "stage": "verify", "attempt": 1, "finish": "stop", "max_tokens": 8192, "completion_tokens": 266, "reasoning_tokens": 186}
+completed_position=11 status=answer
+{"event": "model_response", "stage": "generate", "attempt": 1, "finish": "stop", "max_tokens": 8192, "completion_tokens": 1290, "reasoning_tokens": 1244}
+{"event": "model_response", "stage": "verify", "attempt": 1, "finish": "stop", "max_tokens": 8192, "completion_tokens": 1913, "reasoning_tokens": 1789}
+{"event": "model_response", "stage": "generate", "attempt": 1, "finish": "stop", "max_tokens": 8192, "completion_tokens": 616, "reasoning_tokens": 580}
+provider_error: proxy_unavailable
+completed_position=4 status=technical_error
+{"event": "model_response", "stage": "generate", "attempt": 1, "finish": "stop", "max_tokens": 8192, "completion_tokens": 459, "reasoning_tokens": 425}
+{"event": "model_response", "stage": "verify", "attempt": 1, "finish": "stop", "max_tokens": 8192, "completion_tokens": 4045, "reasoning_tokens": 3929}
+completed_position=12 status=unverified
+{"event": "model_response", "stage": "generate", "attempt": 1, "finish": "stop", "max_tokens": 8192, "completion_tokens": 413, "reasoning_tokens": 375}
+{"event": "model_response", "stage": "verify", "attempt": 1, "finish": "stop", "max_tokens": 8192, "completion_tokens": 1151, "reasoning_tokens": 1061}
+completed_position=13 status=answer
+{"event": "model_response", "stage": "generate", "attempt": 1, "finish": "stop", "max_tokens": 8192, "completion_tokens": 527, "reasoning_tokens": 492}
+{"event": "model_response", "stage": "verify", "attempt": 1, "finish": "stop", "max_tokens": 8192, "completion_tokens": 562, "reasoning_tokens": 488}
+completed_position=14 status=answer
+{"event": "model_response", "stage": "generate", "attempt": 1, "finish": "stop", "max_tokens": 8192, "completion_tokens": 533, "reasoning_tokens": 463}
+{"event": "model_response", "stage": "verify", "attempt": 1, "finish": "stop", "max_tokens": 8192, "completion_tokens": 598, "reasoning_tokens": 481}
+completed_position=15 status=answer
+{"event": "model_response", "stage": "generate", "attempt": 1, "finish": "stop", "max_tokens": 8192, "completion_tokens": 479, "reasoning_tokens": 414}
+{"event": "model_response", "stage": "verify", "attempt": 1, "finish": "stop", "max_tokens": 8192, "completion_tokens": 2809, "reasoning_tokens": 2631}
+{"event": "model_response", "stage": "verify", "attempt": 1, "finish": "stop", "max_tokens": 8192, "completion_tokens": 2084, "reasoning_tokens": 1964}
+completed_position=17 status=answer
+{"event": "model_response", "stage": "generate", "attempt": 1, "finish": "stop", "max_tokens": 8192, "completion_tokens": 409, "reasoning_tokens": 353}
+{"event": "model_response", "stage": "verify", "attempt": 1, "finish": "stop", "max_tokens": 8192, "completion_tokens": 3086, "reasoning_tokens": 2975}
+completed_position=16 status=partial
+rows=18 elapsed_seconds=364.452
