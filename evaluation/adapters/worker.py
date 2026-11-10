@@ -16,12 +16,31 @@ from psb_policy import answer_question, approved
 from net_client import Client
 
 class TracedRetriever:
+    """Transparent observer of the production Retriever.
+
+    Only search() is recorded. Every other member (documents, evidence,
+    complete_sources, reference_gaps, ...) is forwarded unchanged, because the
+    policy enables code paths by hasattr/getattr. A partial interface would
+    silently measure a different algorithm than the submitted one.
+    """
     def __init__(self,retriever):self.r=retriever;self.calls=[]
     def search(self,*args,**kwargs):
         t=time.perf_counter();hits=self.r.search(*args,**kwargs)
         self.calls.append(dict(expanded=kwargs.get('expanded',False),fragments=[dataclasses.asdict(f) for f in hits],seconds=time.perf_counter()-t))
         return hits
-    def evidence(self,fragments):return self.r.evidence(fragments)
+    def __getattr__(self,name):
+        if name in {'r','calls'}:raise AttributeError(name)
+        return getattr(self.r,name)
+
+def cited_fragments(calls,candidate):
+    """Source addresses from the evidence the policy actually received.
+
+    search() restores complete source blocks under new IDs, so the loader
+    fragment list is not the address space of accepted citations.
+    """
+    seen={f['id']:f for call in calls for f in call['fragments']}
+    cited=list(dict.fromkeys(c['fragment_id'] for claim in (candidate or {}).get('claims',[]) for c in claim['sources']))
+    return [seen[i] for i in cited if i in seen],sorted(i for i in cited if i not in seen)
 
 class NullClient:
     """Integration-only model stub; never reads truth or invents a fact answer."""
@@ -75,8 +94,8 @@ def main():
                     if 'candidate' in p and p['rendered_answer']==answer and approved(p['candidate'],e['response']):
                         out.update(candidate=p['candidate'],rendered_answer=p['rendered_answer'])
             out['searches']=traced.calls
-            cited={c['fragment_id'] for claim in (out.get('candidate') or {}).get('claims',[]) for c in claim['sources']}
-            out['fragments']=[dataclasses.asdict(f) for f in frags if f.id in cited]
+            out['fragments'],unobserved=cited_fragments(traced.calls,out.get('candidate'))
+            if unobserved:out['unobserved_citations']=unobserved
             used={f['document'] for call in traced.calls for f in call['fragments']} | {f['document'] for f in rank}
             out['documents']=[d for d in out['documents'] if d['name'] in used]
     except Exception as exc:

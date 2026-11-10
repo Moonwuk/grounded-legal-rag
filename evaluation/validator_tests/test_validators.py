@@ -170,9 +170,27 @@ def calibration():
         c,g,r=fixture();r['candidate']['claims'][0]['text']=QUOTE.replace(old,new);bad.append(validate(c,g,r)['outcome'])
     for field,value in [('fragment_id','unknown'),('quote','другая цитата')]:
         c,g,r=fixture();r['candidate']['claims'][0]['sources'][0][field]=value;bad.append(validate(c,g,r)['outcome'])
+    # Published text: authentic claims are kept, only the visible answer changes.
+    def published(prose,visible):
+        c,g,r=fixture()
+        if prose is not None:r['candidate']['answer']=prose
+        r['answer']=r['rendered_answer']=visible;return validate(c,g,r)['outcome']
+    for prose in [QUOTE,'Объект TEST-D017: срок оплаты 45 календарных дней после подписания акта; условие: без исключений']:
+        good.append(published(prose,prose+'\nИсточник: a, п. 1.'))
+    wrong='Оплачивать товар вообще не требуется.'
+    for prose,visible in [(wrong,wrong),(None,wrong),(QUOTE.replace('45','90'),QUOTE.replace('45','90')),
+                          (QUOTE,'Срок оплаты 90 дней.\n'+QUOTE)]:
+        bad.append(published(prose,visible))
     return dict(validator_false_acceptance_rate=ratio(bad.count('pass'),len(bad)),
                 validator_false_rejection_rate=ratio(good.count('fail'),len(good)),
                 permitted_not_evaluated=good.count('not_evaluated'),bad_outcomes=bad,good_outcomes=good,
                 scope='Finite handwritten anchor mutations; not a universal semantic accuracy claim')
+
+class CalibrationTests(unittest.TestCase):
+    def test_no_labelled_bad_answer_passes_and_no_good_answer_fails(self):
+        result=calibration()
+        self.assertEqual(result['validator_false_acceptance_rate']['numerator'],0,result['bad_outcomes'])
+        self.assertEqual(result['validator_false_rejection_rate']['numerator'],0,result['good_outcomes'])
+        self.assertEqual(result['permitted_not_evaluated'],0,result['good_outcomes'])
 
 if __name__=='__main__':unittest.main()
