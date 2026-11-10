@@ -29,7 +29,8 @@ def main():
                      'all_required_found':all(matched) if req else None,
                      'missing':[e for e,ok in zip(req,matched) if not ok],
                      'selected_documents':list(by_doc),'context_characters':sum(len(f.text) for f in hits),
-                     'retrieval_seconds':elapsed})
+                     'retrieval_seconds':elapsed,
+                     'evidence_json_characters':len(json.dumps(retriever.evidence(hits),ensure_ascii=False))})
     eligible=[r for r in rows if r['required']]
     report={'scope':'Offline retrieval coverage on an author-labelled development set. NOT answer accuracy, NOT a blind benchmark, NOT competition score.',
             'documents':len(docs),'fragments':len(frags),'quarantined_lines':sum(len(d.quarantined) for d in docs),
@@ -38,6 +39,8 @@ def main():
             'span_recall':sum(r['found'] for r in eligible)/sum(r['required'] for r in eligible),
             'median_context_characters':statistics.median(r['context_characters'] for r in rows),
             'max_context_characters':max(r['context_characters'] for r in rows),
+            'median_retrieval_ms':statistics.median(r['retrieval_seconds'] for r in rows)*1000,
+            'median_evidence_json_characters':statistics.median(r['evidence_json_characters'] for r in rows),
             'rows':rows}
     out=ROOT/'results';out.mkdir(exist_ok=True)
     (out/'retrieval_audit.json').write_text(json.dumps(report,ensure_ascii=False,indent=2))

@@ -1,0 +1,11 @@
+{
+  "max_tokens": 8192,
+  "questions": 9,
+  "seconds": 177.854,
+  "statuses": {
+    "answer": 7,
+    "insufficient": 1,
+    "partial": 1
+  },
+  "note": "Selective rerun of failed cases; not an independent full run."
+}

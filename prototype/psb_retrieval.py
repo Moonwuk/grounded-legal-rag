@@ -55,7 +55,7 @@ class Retriever:
         self.idf = {w: math.log(1 + (len(fragments) - n + .5) / (n + .5)) for w, n in df.items()}
         self.doc_ids = {d.name: identifiers(d.text[:700]) for d in documents}
 
-    def search(self, question: str, top_k: int = 12, expanded: bool = False) -> list[Fragment]:
+    def search(self, question: str, top_k: int = 6, expanded: bool = False) -> list[Fragment]:
         turns = user_turns(question)
         current = turns[-1]
         query = Counter(tokens(current))
@@ -161,4 +161,4 @@ class Retriever:
         return result
 
     def evidence(self, fragments: list[Fragment]) -> list[dict]:
-        return [asdict(f) for f in fragments]
+        return [{"id": f.id, "document": f.document, "text": f.text} for f in fragments]

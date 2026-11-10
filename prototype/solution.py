@@ -63,7 +63,7 @@ def main() -> int:
     except (ProviderError, ValueError, OSError) as error:
         print("configuration_error: " + type(error).__name__, file=sys.stderr)
         return 2
-    top_k = integer("TOP_K", 12, 1, 40)
+    top_k = integer("TOP_K", 6, 1, 40)
     workers = integer("MAX_WORKERS", 2, 1, 8)
 
     def work(index):

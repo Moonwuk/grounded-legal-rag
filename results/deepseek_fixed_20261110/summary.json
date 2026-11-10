@@ -1,0 +1,39 @@
+{
+  "run_type": "full run of extracted submission ZIP, real public DeepSeek API",
+  "exit_code": 0,
+  "elapsed_seconds": 268.74,
+  "model": "deepseek-flash",
+  "max_tokens": 8192,
+  "top_k": 6,
+  "max_workers": 2,
+  "platform_submission": false,
+  "logs": [
+    "completed_position=0 status=answer",
+    "completed_position=1 status=answer",
+    "completed_position=3 status=answer",
+    "completed_position=2 status=insufficient",
+    "completed_position=5 status=answer",
+    "completed_position=6 status=answer",
+    "completed_position=7 status=answer",
+    "completed_position=8 status=answer",
+    "completed_position=9 status=answer",
+    "completed_position=10 status=answer",
+    "completed_position=11 status=answer",
+    "completed_position=4 status=answer",
+    "completed_position=12 status=answer",
+    "completed_position=13 status=answer",
+    "completed_position=14 status=answer",
+    "completed_position=15 status=answer",
+    "completed_position=16 status=partial",
+    "completed_position=17 status=answer",
+    "rows=18 elapsed_seconds=268.635"
+  ],
+  "archive_sha256": "c6e3ceb840edbd322c2e26f25b020dbc8d67ab6b86e747950e7d65d489138367",
+  "statuses": {
+    "answer": 16,
+    "partial": 1,
+    "insufficient": 1
+  },
+  "csv_contract": "18 unique IDs; nonempty; each answer <= 10000 characters",
+  "semantic_review": "Manual comparison against supplied corpus/demo answers; not competition score or independent evaluation"
+}

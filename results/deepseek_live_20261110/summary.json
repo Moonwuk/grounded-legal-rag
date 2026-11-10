@@ -1,0 +1,16 @@
+{
+  "provider": "DeepSeek public API",
+  "model": "deepseek-flash",
+  "source_commit": "aa2681ba68c5b66e7b42c78f60a0636f4b1c14f1",
+  "questions": 18,
+  "elapsed_seconds": 245.183,
+  "max_workers": 2,
+  "max_tokens": 2000,
+  "statuses": {
+    "answer": 8,
+    "partial": 1,
+    "technical_error": 9
+  },
+  "platform_submission": false,
+  "semantic_accuracy": "not scored; manual review pending"
+}

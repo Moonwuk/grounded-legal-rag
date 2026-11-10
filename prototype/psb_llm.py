@@ -60,7 +60,7 @@ class ProxyClient:
             "messages": [{"role": "system", "content": system},
                          {"role": "user", "content": json.dumps(payload, ensure_ascii=False)}],
             "temperature": temperature,
-            "max_tokens": integer("MAX_TOKENS", 2000, 256, 8192),
+            "max_tokens": integer("MAX_TOKENS", 8192, 256, 8192),
         }, ensure_ascii=False).encode()
         for attempt in range(3):
             remaining = self.deadline - time.monotonic()

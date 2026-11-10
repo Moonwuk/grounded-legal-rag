@@ -3,6 +3,23 @@ from __future__ import annotations
 from psb_corpus import Fragment, norm
 from psb_llm import ProviderError
 
+FOLLOWUPS = {
+    "contract": "номер договора",
+    "counterparty": "точное наименование контрагента",
+    "event_date": "дата события",
+    "specification_date": "дата подписания спецификации",
+    "warranty_document": "гарантийный талон на конкретный товар",
+    "document": "документ с условиями, необходимыми для ответа",
+    "facts": "обстоятельства конкретного случая",
+}
+
+
+def followup(candidate: dict) -> str:
+    # Only application-owned text can leave the non-evidence channel.
+    labels = [FOLLOWUPS[k] for k in dict.fromkeys(candidate.get("requested_facts", []))]
+    return "Уточните или предоставьте: " + "; ".join(labels) + "." if labels else ""
+
+
 STATUSES = {"answer", "partial", "clarify", "insufficient", "out_of_scope", "disallowed"}
 TECHNICAL = "Не удалось проверить ответ из-за технической ошибки. Это не означает, что нужных сведений нет в базе знаний. Повторите запрос позже."
 UNVERIFIED = "Не удалось получить достаточно проверенных оснований для ответа по доступным документам. Уточните договор, дату события и условия задачи."
@@ -28,10 +45,19 @@ SYSTEM = """Ты юридический ассистент по предоста
 {"status":"answer|partial|clarify|insufficient|out_of_scope|disallowed",
  "claims":[{"text":"тезис", "sources":[{"fragment_id":"id","quote":"точная цитата"}]}],
  "missing":["какого конкретного документа или факта не хватает"],
- "clarification":"вопрос пользователю, только если нужен"}
+ "clarification":"вопрос пользователю, только если нужен",
+ "requested_facts":[]}
 При answer нужны claims, missing должен быть пуст. При partial нужны claims и
 missing; включай только независимо обоснованные части, не делай общего вывода
 по неполному набору условий. При других статусах claims пуст.
+Допустимые requested_facts: contract, counterparty, event_date, specification_date,
+warranty_document, document, facts. Это список только нужных кодов, без свободного
+текста. При answer оставь его пустым. Все правовые сведения, включая объяснение
+пробела, разрешены только в claims с цитатами. Не называй отсутствующие в evidence
+законы, статьи, реквизиты или правила расчёта даже в missing и clarification.
+Отвечай непосредственно на вопрос, обычно 1–3 тезиса. Не перечисляй реквизиты
+сторон, ИНН, даты договора, редакционные примечания и соседние условия, если они
+не нужны для ответа. Цитируй минимальные достаточные отрывки с условиями и исключениями.
 Старайся уложить тезисы в 100 слов, чтобы оставить место ссылкам. Не добавляй
 юридических утверждений в missing или clarification. Не вставляй собственные
 номера ссылок: их добавляет приложение. Отказ при достаточных основаниях ошибочен.
@@ -57,6 +83,11 @@ VERIFY = """Ты проверяющий юридического ответа. Q
 
 def validate_candidate(candidate: dict, evidence: list[Fragment]) -> bool:
     if candidate.get("status") not in STATUSES:
+        return False
+    requested = candidate.get("requested_facts", [])
+    if not isinstance(requested, list) or len(requested) > len(FOLLOWUPS):
+        return False
+    if any(not isinstance(k, str) or k not in FOLLOWUPS for k in requested):
         return False
     claims, missing = candidate.get("claims"), candidate.get("missing")
     if not isinstance(claims, list) or not isinstance(missing, list):
@@ -124,9 +155,10 @@ def render(candidate: dict, evidence: list[Fragment]) -> str:
     if status == "disallowed":
         return "Я не могу помогать совершать противоправные действия. Могу разобрать требования и правовые последствия на основании документов базы."
     if status == "clarify":
-        return candidate["clarification"].strip()
+        return followup(candidate) or "Уточните, пожалуйста, договор, контрагента и обстоятельства вопроса."
     if status == "insufficient":
-        return "В найденных документах недостаточно оснований для ответа. Не хватает: " + "; ".join(candidate["missing"]) + "."
+        return ("В найденных документах недостаточно оснований для ответа по существу. " +
+                (followup(candidate) or "Нужен документ, содержащий сведения по этому вопросу."))
     by_id = {f.id: f for f in evidence}
     references, numbers, lines = [], {}, []
     for claim in candidate["claims"]:
@@ -136,19 +168,20 @@ def render(candidate: dict, evidence: list[Fragment]) -> str:
             if key not in numbers:
                 numbers[key] = len(numbers) + 1
                 f = by_id[key[0]]
-                name = f.document.split("__")[-1].removesuffix(".txt").replace("_", " ")
+                name = f.document.split("__")[-1].removesuffix(".txt").removesuffix(".md").removesuffix(".docx").replace("_", " ")
                 references.append(f'[{numbers[key]}] {name}: «{key[1]}».')
             used.append(f"[{numbers[key]}]")
         lines.append(claim["text"].strip() + " " + " ".join(used))
     if candidate["missing"]:
-        lines.append("Для остальных выводов не хватает: " + "; ".join(candidate["missing"]) + ".")
+        lines.append("Приведённые документы подтверждают только указанную часть ответа. " +
+                     (followup(candidate) or "Для полного ответа нужны дополнительные документы или сведения об обстоятельствах."))
     answer = "\n".join(lines + references)
     if len(answer) > 10000:
         raise ProviderError("answer_length_limit")
     return answer
 
 
-def answer_question(question: str, retriever, client, top_k: int = 12) -> tuple[str, str]:
+def answer_question(question: str, retriever, client, top_k: int = 6) -> tuple[str, str]:
     try:
         for expanded in (False, True):
             evidence = retriever.search(question, top_k=top_k, expanded=expanded)
