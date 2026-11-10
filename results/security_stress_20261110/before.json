@@ -1,0 +1,17 @@
+{
+  "status_array": {
+    "uncaught": "TypeError"
+  },
+  "status_object": {
+    "uncaught": "TypeError"
+  },
+  "candidate_array": {
+    "uncaught": "AttributeError"
+  },
+  "candidate_null": {
+    "uncaught": "AttributeError"
+  },
+  "utf16_dtd": {
+    "returned": "DTD_ACCEPTED"
+  }
+}

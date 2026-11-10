@@ -1,0 +1,8 @@
+Traceback (most recent call last):
+  File "/workspace/scratch/94557bdbb953/repos/grounded-legal-rag/eval/run_submission_live.py", line 48, in <module>
+    if __name__=='__main__':main()
+                            ^^^^^^
+  File "/workspace/scratch/94557bdbb953/repos/grounded-legal-rag/eval/run_submission_live.py", line 40, in main
+    'all_ids_match':[r['id'] for r in expected]==[r['id'] for r in rows],
+                     ~^^^^^^
+KeyError: 'id'

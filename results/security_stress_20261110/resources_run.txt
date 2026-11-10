@@ -1,0 +1,49 @@
+{
+  "synthetic_scaling": [
+    {
+      "documents": 100,
+      "fragments": 796,
+      "archive_bytes": 29479,
+      "create_load_index_seconds": 0.028,
+      "search_p50_ms": 1.284,
+      "search_p95_ms": 1.823,
+      "max_rss_mib": 17.12,
+      "address_space_limit_mib": 512
+    },
+    {
+      "documents": 1000,
+      "fragments": 7996,
+      "archive_bytes": 298028,
+      "create_load_index_seconds": 0.296,
+      "search_p50_ms": 20.136,
+      "search_p95_ms": 44.869,
+      "max_rss_mib": 48.62,
+      "address_space_limit_mib": 512
+    },
+    {
+      "documents": 4000,
+      "fragments": 31990,
+      "archive_bytes": 1202735,
+      "create_load_index_seconds": 1.176,
+      "search_p50_ms": 275.396,
+      "search_p95_ms": 335.45,
+      "max_rss_mib": 150.59,
+      "address_space_limit_mib": 512
+    }
+  ],
+  "batch": {
+    "questions": 1000,
+    "http_calls": 2000,
+    "seconds": 5.232,
+    "exit_code": 0,
+    "all_rows_complete": true,
+    "generator": "local HTTP stub, no model inference; 8 workers"
+  },
+  "differential": {
+    "queries": 74,
+    "identical_evidence_order": 74,
+    "old_p50_ms": 14.825,
+    "new_p50_ms": 1.685
+  },
+  "limitations": "Synthetic corpora, one machine, lexical search only; no 16 GiB/8 CPU platform environment or production SLA verified."
+}

@@ -1,0 +1,13 @@
+{
+  "archive_sha256": "ce9dcb126ea7467eddbc2017e707d6f0b045123cdc7342bc0e1c5e7439494add",
+  "model": "deepseek-flash",
+  "seconds": 261.997,
+  "exit_code": 0,
+  "rows": 18,
+  "unique_ids": 18,
+  "all_ids_match": true,
+  "all_answers_valid": true,
+  "technical_answers": 0,
+  "unverified_answers": 0,
+  "platform_submission": false
+}

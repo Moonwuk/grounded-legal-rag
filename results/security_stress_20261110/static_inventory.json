@@ -1,0 +1,167 @@
+{
+  "runtime_imports": [
+    {
+      "file": "solution.py",
+      "import": "__future__"
+    },
+    {
+      "file": "solution.py",
+      "import": "concurrent.futures"
+    },
+    {
+      "file": "solution.py",
+      "import": "pathlib"
+    },
+    {
+      "file": "solution.py",
+      "import": "csv"
+    },
+    {
+      "file": "solution.py",
+      "import": "os"
+    },
+    {
+      "file": "solution.py",
+      "import": "sys"
+    },
+    {
+      "file": "solution.py",
+      "import": "time"
+    },
+    {
+      "file": "solution.py",
+      "import": "threading"
+    },
+    {
+      "file": "solution.py",
+      "import": "zipfile"
+    },
+    {
+      "file": "solution.py",
+      "import": "psb_corpus"
+    },
+    {
+      "file": "solution.py",
+      "import": "psb_retrieval"
+    },
+    {
+      "file": "solution.py",
+      "import": "psb_llm"
+    },
+    {
+      "file": "solution.py",
+      "import": "psb_policy"
+    },
+    {
+      "file": "psb_policy.py",
+      "import": "__future__"
+    },
+    {
+      "file": "psb_policy.py",
+      "import": "psb_corpus"
+    },
+    {
+      "file": "psb_policy.py",
+      "import": "psb_llm"
+    },
+    {
+      "file": "psb_corpus.py",
+      "import": "__future__"
+    },
+    {
+      "file": "psb_corpus.py",
+      "import": "dataclasses"
+    },
+    {
+      "file": "psb_corpus.py",
+      "import": "pathlib"
+    },
+    {
+      "file": "psb_corpus.py",
+      "import": "io"
+    },
+    {
+      "file": "psb_corpus.py",
+      "import": "xml.etree"
+    },
+    {
+      "file": "psb_corpus.py",
+      "import": "hashlib"
+    },
+    {
+      "file": "psb_corpus.py",
+      "import": "re"
+    },
+    {
+      "file": "psb_corpus.py",
+      "import": "stat"
+    },
+    {
+      "file": "psb_corpus.py",
+      "import": "zipfile"
+    },
+    {
+      "file": "psb_corpus.py",
+      "import": "time"
+    },
+    {
+      "file": "psb_llm.py",
+      "import": "__future__"
+    },
+    {
+      "file": "psb_llm.py",
+      "import": "json"
+    },
+    {
+      "file": "psb_llm.py",
+      "import": "os"
+    },
+    {
+      "file": "psb_llm.py",
+      "import": "socket"
+    },
+    {
+      "file": "psb_llm.py",
+      "import": "time"
+    },
+    {
+      "file": "psb_llm.py",
+      "import": "http.client"
+    },
+    {
+      "file": "psb_llm.py",
+      "import": "urllib.error"
+    },
+    {
+      "file": "psb_llm.py",
+      "import": "urllib.parse"
+    },
+    {
+      "file": "psb_llm.py",
+      "import": "urllib.request"
+    },
+    {
+      "file": "psb_retrieval.py",
+      "import": "__future__"
+    },
+    {
+      "file": "psb_retrieval.py",
+      "import": "collections"
+    },
+    {
+      "file": "psb_retrieval.py",
+      "import": "math"
+    },
+    {
+      "file": "psb_retrieval.py",
+      "import": "re"
+    },
+    {
+      "file": "psb_retrieval.py",
+      "import": "psb_corpus"
+    }
+  ],
+  "dynamic_code_calls": [],
+  "secret_pattern_matched_paths": [],
+  "python_version": "3.12.14"
+}

@@ -4,6 +4,7 @@ import json
 import os
 import socket
 import time
+from http.client import HTTPException
 from urllib.error import HTTPError, URLError
 from urllib.parse import urlparse
 from urllib.request import Request, build_opener, HTTPRedirectHandler
@@ -33,6 +34,19 @@ class NoRedirect(HTTPRedirectHandler):
         raise ProviderError("redirect_not_allowed")
 
 
+def strict_json(raw):
+    def pairs(items):
+        result = {}
+        for key, value in items:
+            if key in result:
+                raise ValueError("duplicate_json_key")
+            result[key] = value
+        return result
+    def constant(value):
+        raise ValueError("nonfinite_json_number")
+    return json.loads(raw, object_pairs_hook=pairs, parse_constant=constant)
+
+
 class ProxyClient:
     def __init__(self, deadline: float):
         self.base = env("LLM_BASE_URL", "OPENAI_BASE_URL").rstrip("/")
@@ -44,6 +58,8 @@ class ProxyClient:
             raise ProviderError("missing_proxy_configuration")
         if parsed.username or parsed.password or parsed.query or parsed.fragment:
             raise ProviderError("invalid_proxy_url")
+        if len(self.base) > 2048 or len(self.model) > 256 or any(ord(c) < 32 for c in self.base + self.key + self.model):
+            raise ProviderError("invalid_proxy_configuration")
         self.opener = build_opener(NoRedirect())
         self.calls = 0
 
@@ -62,6 +78,8 @@ class ProxyClient:
             "temperature": temperature,
             "max_tokens": integer("MAX_TOKENS", 8192, 256, 8192),
         }, ensure_ascii=False).encode()
+        if len(body) > 512000:
+            raise ProviderError("request_size_limit")
         for attempt in range(3):
             remaining = self.deadline - time.monotonic()
             if remaining <= 1:
@@ -72,29 +90,41 @@ class ProxyClient:
             delay = 1 + attempt
             try:
                 with self.opener.open(request, timeout=min(45., remaining)) as response:
-                    raw = response.read(2_000_001)
-                if len(raw) > 2_000_000:
-                    raise ProviderError("response_size_limit")
-                result = json.loads(raw)
+                    chunks, size = [], 0
+                    while True:
+                        if time.monotonic() >= self.deadline:
+                            raise ProviderError("run_deadline")
+                        chunk = response.read1(min(65536, 2_000_001 - size))
+                        if not chunk:
+                            break
+                        chunks.append(chunk)
+                        size += len(chunk)
+                        if size > 2_000_000:
+                            raise ProviderError("response_size_limit")
+                result = strict_json(b"".join(chunks))
                 choice = result["choices"][0]
                 if choice.get("finish_reason") == "length":
                     raise ProviderError("truncated_model_output")
+                if choice.get("finish_reason") != "stop":
+                    raise ProviderError("unsupported_model_finish")
                 content = choice["message"]["content"].strip()
                 if content.startswith("```") and content.endswith("```"):
                     content = content.split("\n", 1)[1].rsplit("```", 1)[0].strip()
-                value = json.loads(content)
+                value = strict_json(content)
                 if not isinstance(value, dict):
                     raise ValueError("expected_object")
                 return value
             except HTTPError as exc:
-                if exc.code not in {429, 500, 502, 503, 504}:
-                    raise ProviderError("http_" + str(exc.code)) from None
+                code = exc.code
                 retry = exc.headers.get("Retry-After", "")
-                if retry.isdigit():
+                exc.close()
+                if code not in {429, 500, 502, 503, 504}:
+                    raise ProviderError("http_" + str(code)) from None
+                if len(retry) <= 6 and retry.isascii() and retry.isdigit():
                     delay = min(30, int(retry))
-            except (URLError, socket.timeout, TimeoutError):
+            except (URLError, socket.timeout, TimeoutError, HTTPException, ConnectionError):
                 pass
-            except (ValueError, KeyError, IndexError, TypeError, AttributeError):
+            except (ValueError, KeyError, IndexError, TypeError, AttributeError, RecursionError):
                 raise ProviderError("invalid_model_response") from None
             if attempt == 2:
                 break

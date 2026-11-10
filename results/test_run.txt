@@ -20,8 +20,42 @@ test_safe_zip_loader_rejects_traversal_without_writing (test_baseline.BaselineTe
 test_semantic_negative_verdict_rejected (test_baseline.BaselineTests.test_semantic_negative_verdict_rejected) ... ok
 test_technical_failure_not_legal_absence (test_baseline.BaselineTests.test_technical_failure_not_legal_absence) ... ok
 test_untrusted_missing_and_clarification_never_render (test_baseline.BaselineTests.test_untrusted_missing_and_clarification_never_render) ... ok
+test_archive_attack_paths (test_security.ArchiveTests.test_archive_attack_paths) ... ok
+test_broken_and_duplicate_docx_xml (test_security.ArchiveTests.test_broken_and_duplicate_docx_xml) ... ok
+test_compressed_bomb_is_bounded_before_read (test_security.ArchiveTests.test_compressed_bomb_is_bounded_before_read) ... ok
+test_deep_docx_xml_is_bounded (test_security.ArchiveTests.test_deep_docx_xml_is_bounded) ... ok
+test_document_count_is_bounded (test_security.ArchiveTests.test_document_count_is_bounded) ... ok
+test_empty_unknown_format_and_invalid_encoding (test_security.ArchiveTests.test_empty_unknown_format_and_invalid_encoding) ... ok
+test_fragment_explosion_is_bounded (test_security.ArchiveTests.test_fragment_explosion_is_bounded) ... ok
+test_symlink_and_duplicates_rejected (test_security.ArchiveTests.test_symlink_and_duplicates_rejected) ... ok
+test_utf16_dtd_rejected (test_security.ArchiveTests.test_utf16_dtd_rejected) ... ok
+test_bom_quoted_lines_and_exact_ids (test_security.CSVTests.test_bom_quoted_lines_and_exact_ids) ... ok
+test_failed_output_write_preserves_last_complete_file (test_security.CSVTests.test_failed_output_write_preserves_last_complete_file) ... ok
+test_malformed_csv_and_duplicate_ids (test_security.CSVTests.test_malformed_csv_and_duplicate_ids) ... ok
+test_concurrent_batch_and_no_cross_id_history (test_security.EntrypointTests.test_concurrent_batch_and_no_cross_id_history) ... ok
+test_corrupted_corpus_preserves_csv_and_generic_error (test_security.EntrypointTests.test_corrupted_corpus_preserves_csv_and_generic_error) ... ok
+test_slow_header_and_body_respect_whole_run_deadline (test_security.EntrypointTests.test_slow_header_and_body_respect_whole_run_deadline) ... ok
+test_answer_cannot_hide_an_unresolved_issue (test_security.OutputValidationTests.test_answer_cannot_hide_an_unresolved_issue) ... ok
+test_candidate_type_fuzz (test_security.OutputValidationTests.test_candidate_type_fuzz) ... ok
+test_fake_quote_and_unknown_source (test_security.OutputValidationTests.test_fake_quote_and_unknown_source) ... ok
+test_long_question_not_sent_or_truncated (test_security.OutputValidationTests.test_long_question_not_sent_or_truncated) ... ok
+test_nested_candidate_type_fuzz (test_security.OutputValidationTests.test_nested_candidate_type_fuzz) ... ok
+test_oversized_answer_never_silently_truncated (test_security.OutputValidationTests.test_oversized_answer_never_silently_truncated) ... ok
+test_seeded_json_shape_fuzz (test_security.OutputValidationTests.test_seeded_json_shape_fuzz) ... ok
+test_strict_json_rejects_duplicates_nan_and_infinity (test_security.OutputValidationTests.test_strict_json_rejects_duplicates_nan_and_infinity) ... ok
+test_surrogate_and_null_claims_rejected (test_security.OutputValidationTests.test_surrogate_and_null_claims_rejected) ... ok
+test_typed_issue_explains_invalid_date_without_model_free_text (test_security.OutputValidationTests.test_typed_issue_explains_invalid_date_without_model_free_text) ... ok
+test_verdict_types_and_indexes (test_security.OutputValidationTests.test_verdict_types_and_indexes) ... ok
+test_auth_failure_not_retried_and_not_leaked (test_security.ProxyTests.test_auth_failure_not_retried_and_not_leaked) ... ok
+test_call_and_request_size_budgets (test_security.ProxyTests.test_call_and_request_size_budgets) ... ok
+test_connection_drop_has_bounded_retries (test_security.ProxyTests.test_connection_drop_has_bounded_retries) ... ok
+test_environment_aliases_and_untrusted_text_cannot_select_endpoint (test_security.ProxyTests.test_environment_aliases_and_untrusted_text_cannot_select_endpoint) ... ok
+test_hostile_model_responses_fail_closed (test_security.ProxyTests.test_hostile_model_responses_fail_closed) ... ok
+test_invalid_trusted_configuration_fails_before_network (test_security.ProxyTests.test_invalid_trusted_configuration_fails_before_network) ... ok
+test_recovery_and_transient_retry_bound (test_security.ProxyTests.test_recovery_and_transient_retry_bound) ... ok
+test_redirect_does_not_forward_authorization (test_security.ProxyTests.test_redirect_does_not_forward_authorization) ... ok
 
 ----------------------------------------------------------------------
-Ran 22 tests in 0.861s
+Ran 56 tests in 15.862s
 
 OK

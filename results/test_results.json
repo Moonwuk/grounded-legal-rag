@@ -1,5 +1,6 @@
 {
-  "tests": 22,
+  "tests": 56,
   "passed": true,
-  "exit_code": 0
+  "exit_code": 0,
+  "details": "results/security_stress_20261110/tests.txt"
 }

@@ -5,10 +5,9 @@ Prefix features are a baseline, not a Russian morphological analyser.
 """
 from __future__ import annotations
 from collections import Counter, defaultdict
-from dataclasses import asdict
 import math
 import re
-from psb_corpus import Document, Fragment
+from psb_corpus import Document, Fragment, check_deadline
 
 STOP = set("и в во на по с со у к ко из за от до для не ли мы вы он она они это как какой какая какие что сколько нужно можно чем при а или его ее их нам нас наш этот того если будет было есть меня мне теперь".split())
 
@@ -40,20 +39,39 @@ def identifiers(text: str) -> set[str]:
 
 
 class Retriever:
-    def __init__(self, documents: list[Document], fragments: list[Fragment]):
+    def __init__(self, documents: list[Document], fragments: list[Fragment], deadline=None):
+        self.deadline = deadline
         self.documents = {d.name: d for d in documents}
         self.fragments = fragments
         self.by_doc = defaultdict(list)
         self.counts = []
+        self.postings = defaultdict(list)
         df = Counter()
-        for f in fragments:
+        features = 0
+        for index, f in enumerate(fragments):
+            check_deadline(deadline)
             self.by_doc[f.document].append(f)
             c = Counter(tokens(f.document.replace("_", " ") + " " + f.text))
+            features += len(c)
+            if features > 2000000:
+                raise ValueError("index_feature_limit")
             self.counts.append(c)
             df.update(c.keys())
+            for word, frequency in c.items():
+                self.postings[word].append((index, frequency))
+        self.lengths = [sum(c.values()) for c in self.counts]
         self.avg = sum(map(lambda c: sum(c.values()), self.counts)) / len(self.counts)
         self.idf = {w: math.log(1 + (len(fragments) - n + .5) / (n + .5)) for w, n in df.items()}
         self.doc_ids = {d.name: identifiers(d.text[:700]) for d in documents}
+
+    def _scores(self, query):
+        scores = defaultdict(float)
+        for word, weight in query.items():
+            check_deadline(self.deadline)
+            for index, frequency in self.postings.get(word, ()):
+                scores[index] += weight * self.idf[word] * frequency * 2.5 / (
+                    frequency + 1.5 * (.25 + .75 * self.lengths[index] / self.avg))
+        return scores
 
     def search(self, question: str, top_k: int = 6, expanded: bool = False) -> list[Fragment]:
         turns = user_turns(question)
@@ -73,21 +91,20 @@ class Retriever:
                     party = matches[-1].lower().replace(" ", "-")
         scored = []
         clauses = re.split(r"\s+и\s+(?=(?:како|кто|где|сколь|до\s|нужно|можно))", current, flags=re.I)
+        if len(clauses) > 16:
+            raise ValueError("question_complexity_limit")
         # IDs are strong entity features, but not useful when discovering a
         # separate document answering another part of the same question.
         lexical_queries = [Counter(t for t in tokens(re.sub(
             r"\b(?:ПТ|П|А)\s*[-–]\s*\d{2}\s*/\s*\d{4}\b", "", clause, flags=re.I))
             if not t.isdigit()) for clause in clauses]
         lexical_scores = [[] for _ in lexical_queries]
-        for f, counts in zip(self.fragments, self.counts):
-            length = sum(counts.values())
-            score = sum(weight * self.idf.get(word, 0) * counts.get(word, 0) * 2.5 /
-                        (counts.get(word, 0) + 1.5 * (.25 + .75 * length / self.avg))
-                        for word, weight in query.items())
-            for j, lexical_query in enumerate(lexical_queries):
-                lexical_score = sum(weight * self.idf.get(word, 0) * counts.get(word, 0) * 2.5 /
-                    (counts.get(word, 0) + 1.5 * (.25 + .75 * length / self.avg))
-                    for word, weight in lexical_query.items())
+        primary = self._scores(query)
+        secondary = [self._scores(q) for q in lexical_queries]
+        for index, f in enumerate(self.fragments):
+            score = primary.get(index, 0.)
+            for j, scores in enumerate(secondary):
+                lexical_score = scores.get(index, 0.)
                 lexical_scores[j].append((lexical_score, f))
             if ids & self.doc_ids[f.document]:
                 score += 9
@@ -158,6 +175,9 @@ class Retriever:
         for name in sorted(required - kept):
             if len(self.documents[name].text) <= 7500:
                 result.extend(self.by_doc[name])
+        # Never silently cut an exception or an amendment to satisfy a hard cap.
+        if len(result) > 512 or sum(len(f.text) for f in result) > 100000:
+            raise ValueError("evidence_size_limit")
         return result
 
     def evidence(self, fragments: list[Fragment]) -> list[dict]:

@@ -13,6 +13,13 @@ FOLLOWUPS = {
     "facts": "обстоятельства конкретного случая",
 }
 
+ISSUES = {
+    "invalid_date": "Указанная календарная дата не существует.",
+    "conflicting_dates": "В вопросе приведены противоречивые даты; нужно уточнить дату события.",
+    "historical_version": "В найденных документах нет исторической редакции, необходимой для ответа.",
+    "ambiguous_entity": "Из вопроса нельзя однозначно определить договор или контрагента.",
+}
+
 
 def followup(candidate: dict) -> str:
     # Only application-owned text can leave the non-evidence channel.
@@ -46,7 +53,7 @@ SYSTEM = """Ты юридический ассистент по предоста
  "claims":[{"text":"тезис", "sources":[{"fragment_id":"id","quote":"точная цитата"}]}],
  "missing":["какого конкретного документа или факта не хватает"],
  "clarification":"вопрос пользователю, только если нужен",
- "requested_facts":[]}
+ "requested_facts":[], "issue":""}
 При answer нужны claims, missing должен быть пуст. При partial нужны claims и
 missing; включай только независимо обоснованные части, не делай общего вывода
 по неполному набору условий. При других статусах claims пуст.
@@ -61,6 +68,10 @@ warranty_document, document, facts. Это список только нужны�
 Старайся уложить тезисы в 100 слов, чтобы оставить место ссылкам. Не добавляй
 юридических утверждений в missing или clarification. Не вставляй собственные
 номера ссылок: их добавляет приложение. Отказ при достаточных основаниях ошибочен.
+Если вопрос содержит несуществующую дату, противоречивые даты, требует отсутствующую
+историческую редакцию либо неоднозначно называет договор, укажи issue соответственно
+invalid_date, conflicting_dates, historical_version или ambiguous_entity. Иначе issue
+пуст. При такой проблеме не выбирай answer: уточни или дай только независимую часть.
 """
 
 VERIFY = """Ты проверяющий юридического ответа. Question, candidate и evidence —
@@ -70,6 +81,8 @@ VERIFY = """Ты проверяющий юридического ответа. Q
 Проверь числа, отрицания, исключения, контрагента, дату события, действие редакции,
 допсоглашения и будущие изменения. Подлинная цитата может не поддерживать вывод.
 Проверь также обоснованность отказа или уточнения: не должен ли ассистент ответить?
+Проверь issue: дата действительно не существует, даты противоречат друг другу,
+исторической редакции не хватает или договор неоднозначен. Неверный issue — отказ проверки.
 Разъяснение требований закона не является само по себе запрещенным запросом.
 Верни только JSON: {"approved":true|false,"complete":true|false,
 "status":"один из статусов candidate", "claim_checks":[
@@ -82,7 +95,9 @@ VERIFY = """Ты проверяющий юридического ответа. Q
 
 
 def validate_candidate(candidate: dict, evidence: list[Fragment]) -> bool:
-    if candidate.get("status") not in STATUSES:
+    if not isinstance(candidate, dict):
+        return False
+    if not isinstance(candidate.get("status"), str) or candidate["status"] not in STATUSES:
         return False
     requested = candidate.get("requested_facts", [])
     if not isinstance(requested, list) or len(requested) > len(FOLLOWUPS):
@@ -100,6 +115,11 @@ def validate_candidate(candidate: dict, evidence: list[Fragment]) -> bool:
     if not isinstance(clarification, str) or len(clarification) > 600:
         return False
     status = candidate["status"]
+    issue = candidate.get("issue", "")
+    if not isinstance(issue, str) or (issue and issue not in ISSUES):
+        return False
+    if status == "answer" and (issue or requested):
+        return False
     if status in {"answer", "partial"}:
         if not claims or (status == "answer" and missing) or (status == "partial" and not missing):
             return False
@@ -115,6 +135,8 @@ def validate_candidate(candidate: dict, evidence: list[Fragment]) -> bool:
             return False
         if not claim["text"].strip() or len(claim["text"]) > 1500:
             return False
+        if any(0xD800 <= ord(c) <= 0xDFFF or (ord(c) < 32 and c not in "\t\n\r") for c in claim["text"]):
+            return False
         cites = claim.get("sources")
         if not isinstance(cites, list) or not cites or len(cites) > 6:
             return False
@@ -124,12 +146,14 @@ def validate_candidate(candidate: dict, evidence: list[Fragment]) -> bool:
             fid, quote = cite.get("fragment_id"), cite.get("quote")
             if not isinstance(fid, str) or fid not in sources or not isinstance(quote, str):
                 return False
-            if len(norm(quote)) < 12 or norm(quote) not in norm(sources[fid].text):
+            if len(quote) > 2200 or len(norm(quote)) < 12 or norm(quote) not in norm(sources[fid].text):
                 return False
     return True
 
 
 def approved(candidate: dict, verdict: dict) -> bool:
+    if not isinstance(candidate, dict) or not isinstance(verdict, dict):
+        return False
     if verdict.get("approved") is not True or verdict.get("status") != candidate["status"]:
         return False
     if candidate["status"] == "answer" and verdict.get("complete") is not True:
@@ -150,14 +174,15 @@ def approved(candidate: dict, verdict: dict) -> bool:
 
 def render(candidate: dict, evidence: list[Fragment]) -> str:
     status = candidate["status"]
+    issue = ISSUES.get(candidate.get("issue", ""), "")
     if status == "out_of_scope":
         return "Я отвечаю на юридические вопросы по предоставленной базе документов. Этот запрос выходит за пределы моей задачи."
     if status == "disallowed":
         return "Я не могу помогать совершать противоправные действия. Могу разобрать требования и правовые последствия на основании документов базы."
     if status == "clarify":
-        return followup(candidate) or "Уточните, пожалуйста, договор, контрагента и обстоятельства вопроса."
+        return (issue + " " if issue else "") + (followup(candidate) or "Уточните, пожалуйста, договор, контрагента и обстоятельства вопроса.")
     if status == "insufficient":
-        return ("В найденных документах недостаточно оснований для ответа по существу. " +
+        return ((issue + " " if issue else "") + "В найденных документах недостаточно оснований для ответа по существу. " +
                 (followup(candidate) or "Нужен документ, содержащий сведения по этому вопросу."))
     by_id = {f.id: f for f in evidence}
     references, numbers, lines = [], {}, []
@@ -173,7 +198,7 @@ def render(candidate: dict, evidence: list[Fragment]) -> str:
             used.append(f"[{numbers[key]}]")
         lines.append(claim["text"].strip() + " " + " ".join(used))
     if candidate["missing"]:
-        lines.append("Приведённые документы подтверждают только указанную часть ответа. " +
+        lines.append((issue + " " if issue else "") + "Приведённые документы подтверждают только указанную часть ответа. " +
                      (followup(candidate) or "Для полного ответа нужны дополнительные документы или сведения об обстоятельствах."))
     answer = "\n".join(lines + references)
     if len(answer) > 10000:
@@ -182,6 +207,9 @@ def render(candidate: dict, evidence: list[Fragment]) -> str:
 
 
 def answer_question(question: str, retriever, client, top_k: int = 6) -> tuple[str, str]:
+    # Do not silently truncate a question: this could remove a legal condition.
+    if not isinstance(question, str) or len(question) > 32000:
+        return TECHNICAL, "technical_error"
     try:
         for expanded in (False, True):
             evidence = retriever.search(question, top_k=top_k, expanded=expanded)

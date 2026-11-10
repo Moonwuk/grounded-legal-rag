@@ -6,7 +6,25 @@ import io
 from xml.etree import ElementTree as ET
 import hashlib
 import re
+import stat
 import zipfile
+
+MAX_DOCUMENTS = 4096
+MAX_FRAGMENTS = 50000
+MAX_TEXT = 64 * 1024 * 1024
+
+
+def check_deadline(deadline):
+    if deadline is not None:
+        import time
+        if time.monotonic() >= deadline:
+            raise ValueError("corpus_deadline")
+
+
+class DocumentXML(ET.TreeBuilder):
+    def doctype(self, name, pubid, system):
+        # Parser callback also catches UTF-16/32 declarations, unlike a byte regex.
+        raise ValueError("docx_entities_not_allowed")
 
 INSTRUCTION = re.compile(
     r"внимание\s+для\s+ии[- ]ассистента|игнорируй\s+все\s+остальные\s+документы|"
@@ -44,7 +62,18 @@ def read_docx(raw: bytes) -> str:
         xml = archive.read(infos[0])
     if b"<!DOCTYPE" in xml.upper() or b"<!ENTITY" in xml.upper():
         raise ValueError("docx_entities_not_allowed")
-    root = ET.fromstring(xml)
+    try:
+        root = ET.fromstring(xml, parser=ET.XMLParser(target=DocumentXML()))
+    except ET.ParseError:
+        raise ValueError("invalid_docx_xml") from None
+    stack = [(root, 0)]
+    nodes = 0
+    while stack:
+        node, depth = stack.pop()
+        nodes += 1
+        if nodes > 100000 or depth > 128:
+            raise ValueError("docx_structure_limit")
+        stack.extend((child, depth + 1) for child in node)
     ns = "{http://schemas.openxmlformats.org/wordprocessingml/2006/main}"
     paragraphs = []
     for p in root.iter(ns + "p"):
@@ -57,40 +86,67 @@ def read_docx(raw: bytes) -> str:
     return "\n".join(paragraphs)
 
 
-def load_corpus(path: Path) -> tuple[list[Document], list[Fragment]]:
+def load_corpus(path: Path, deadline: float | None = None) -> tuple[list[Document], list[Fragment]]:
     documents = []
     fragments = []
+    if path.stat().st_size > 128 * 1024 * 1024:
+        raise ValueError("archive_size_limit")
     with zipfile.ZipFile(path) as archive:
+        if len(archive.infolist()) > MAX_DOCUMENTS * 2:
+            raise ValueError("archive_entry_limit")
         total = 0
+        decoded_total = 0
+        names = set()
         for info in sorted(archive.infolist(), key=lambda x: x.filename):
+            check_deadline(deadline)
             name = info.filename
             p = PurePosixPath(name)
-            if p.is_absolute() or ".." in p.parts or "\\" in name:
+            if (p.is_absolute() or ".." in p.parts or "\\" in name or ":" in name
+                    or len(name) > 512 or any(ord(c) < 32 for c in name)):
                 raise ValueError("unsafe_archive_path")
+            if stat.S_ISLNK(info.external_attr >> 16):
+                raise ValueError("archive_symlink")
             if info.is_dir() or name.startswith("__MACOSX/"):
                 continue
             if p.suffix.lower() not in {".txt", ".md", ".docx"}:
                 raise ValueError("unsupported_document_format")
+            if name in names or len(names) >= MAX_DOCUMENTS:
+                raise ValueError("duplicate_document_or_count_limit")
+            names.add(name)
             total += info.file_size
             if total > 64 * 1024 * 1024 or info.file_size > 8 * 1024 * 1024:
                 raise ValueError("corpus_size_limit")
             raw = archive.read(info)
             text = read_docx(raw) if p.suffix.lower() == ".docx" else raw.decode("utf-8-sig")
+            decoded_total += len(text)
+            if decoded_total > MAX_TEXT:
+                raise ValueError("decoded_corpus_size_limit")
             digest = hashlib.sha256(raw).hexdigest()
-            banned = tuple((m.start(), m.end()) for m in re.finditer(r"[^\n]+", text)
-                           if INSTRUCTION.search(m.group()))
+            quarantined = []
+            for m in re.finditer(r"[^\n]+", text):
+                check_deadline(deadline)
+                if INSTRUCTION.search(m.group()):
+                    if len(quarantined) >= MAX_FRAGMENTS:
+                        raise ValueError("quarantine_count_limit")
+                    quarantined.append((m.start(), m.end()))
+            banned = tuple(quarantined)
+            banned_starts = {a for a, _ in banned}
             documents.append(Document(name, text, digest, banned))
             # Every source line remains addressable. Long paragraphs are split
             # with overlap; surrounding paragraphs are restored during retrieval.
             heading = ""
             for match in re.finditer(r"[^\n]+", text):
+                check_deadline(deadline)
                 line = match.group()
-                if not line.strip() or any(a <= match.start() < b for a, b in banned):
+                if not line.strip() or match.start() in banned_starts:
                     continue
                 if re.match(r"(?:Статья\s+\d|\d+(?:\.\d+)*\.\s)", line):
                     heading = line[:160]
                 offset = 0
                 while offset < len(line):
+                    check_deadline(deadline)
+                    if len(fragments) >= MAX_FRAGMENTS:
+                        raise ValueError("fragment_count_limit")
                     start = match.start() + offset
                     end = min(match.end(), start + 2200)
                     if end < match.end():

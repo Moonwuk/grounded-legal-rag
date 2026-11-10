@@ -1,10 +1,17 @@
 {
-  "root_imports": "passed",
-  "no_api_run_exit_code": 2,
-  "csv_rows": 18,
-  "csv_columns": [
-    "id",
-    "answer"
+  "entries": [
+    "solution.py",
+    "psb_corpus.py",
+    "psb_retrieval.py",
+    "psb_policy.py",
+    "psb_llm.py",
+    "requirements.txt"
   ],
-  "answers": "technical messages, NOT generated legal answers"
+  "root_files_only": true,
+  "archive_integrity": true,
+  "forbidden_key_patterns": false,
+  "runtime_third_party_imports": [],
+  "errors": [],
+  "entrypoint_subprocess_test": "python -S from extracted ZIP; good/corrupt/deadline/batch cases passed",
+  "platform_execution": "not performed"
 }
