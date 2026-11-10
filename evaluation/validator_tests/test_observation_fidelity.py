@@ -21,7 +21,7 @@ from psb_corpus import load_corpus
 from psb_retrieval import Retriever
 from psb_policy import answer_question
 import worker
-from evaluation.validator_tests.test_validators import fixture,QUOTE
+from evaluation.validators.calibration import fixture,QUOTE,block_case,TABLE,PROTOCOL,DUTY,STORE,LIMIT,F_DUTY,F_STORE,F_LIMIT
 from evaluation.validators.core import validate
 
 # Two independent variants of one defect class: a value that the contract
@@ -168,5 +168,36 @@ class PublishedTextTests(unittest.TestCase):
         self.assertNotEqual(v['outcome'],'pass');self.assertIn('published_text_not_bound_to_candidate',v['not_evaluated'])
         c,g,r=fixture();r['answer']=r['rendered_answer']='«'+QUOTE+'» [1]\n[1] a.'
         self.assertEqual(validate(c,g,r)['outcome'],'pass')
+
+class RestoredBlockTests(unittest.TestCase):
+    """Smoke d0a0658 fact-0000/fact-0001: correct source-only answers whose
+    cited block also carries a heading or a neighbouring provision."""
+    def test_neighbouring_provision_in_cited_table_is_context(self):
+        v=validate(*block_case(TABLE,{'p1':(STORE,F_STORE),'p2':(DUTY,F_DUTY)},['p2']))
+        self.assertEqual(v['outcome'],'pass',v);self.assertEqual(v['counts']['context_facts'],1)
+        self.assertTrue(v['checks']['completeness'])
+
+    def test_heading_around_cited_decision_is_context(self):
+        v=validate(*block_case(PROTOCOL,{'p1':(LIMIT,F_LIMIT)},['p1']))
+        self.assertEqual(v['outcome'],'pass',v);self.assertNotIn('free_text_semantics',v['not_evaluated'])
+
+    def test_block_without_required_provision_is_incomplete(self):
+        # The required provision exists only in another document.
+        only=TABLE.replace('| 2 | '+DUTY+' |\n','')
+        case,gold,out=block_case(only,{'p1':(STORE,F_STORE)},[])
+        gold['sources']['p2']=dict(id='p2',document='other.txt',start=0,end=len(DUTY),quote=DUTY,document_sha256='0'*64,revision='base',fact=F_DUTY)
+        case['expected']['required_claims']=[dict(fact=F_DUTY,acceptable_evidence_sets=[['p2']])]
+        v=validate(case,gold,out)
+        self.assertEqual(v['outcome'],'fail');self.assertIn('incomplete_answer',v['failures'])
+
+    def test_forbidden_provision_in_cited_block_still_fails(self):
+        v=validate(*block_case(TABLE,{'p1':(STORE,F_STORE),'p2':(DUTY,F_DUTY)},['p2'],forbidden=[F_STORE]))
+        self.assertEqual(v['outcome'],'fail');self.assertIn('generation_failure',v['failures'])
+
+    def test_rewritten_quote_is_not_context(self):
+        case,gold,out=block_case(TABLE,{'p1':(STORE,F_STORE),'p2':(DUTY,F_DUTY)},['p2'])
+        out['candidate']['claims'][0]['text']=out['candidate']['claims'][0]['text'].replace('9 рабочих','90 рабочих')
+        out['answer']=out['rendered_answer']=out['candidate']['claims'][0]['text']
+        self.assertNotEqual(validate(case,gold,out)['outcome'],'pass')
 
 if __name__=='__main__':unittest.main()

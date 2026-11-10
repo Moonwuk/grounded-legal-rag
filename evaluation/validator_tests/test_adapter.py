@@ -61,6 +61,37 @@ class AdapterTests(unittest.TestCase):
                 self.assertNotIn('SYNTHETIC_LOCAL_TOKEN',json.dumps(calls))
                 self.assertNotIn('gold',json.dumps(calls))
         finally:server.shutdown();server.server_close();thread.join(2)
+    def test_runtime_generation_defaults_and_settled_budget(self):
+        # Smoke d0a0658: the workbench forced MAX_TOKENS=2048 (runtime default
+        # 8192) and kept byte-based token reservations as if they were spent.
+        bodies=[]
+        class Handler(BaseHTTPRequestHandler):
+            def log_message(self,*args):pass
+            def do_POST(self):
+                bodies.append(json.loads(self.rfile.read(int(self.headers['Content-Length']))))
+                self.send_response(200);self.end_headers()
+                self.wfile.write(json.dumps(dict(choices=[dict(finish_reason='stop',message=dict(content='{"ok":true}'))],usage=dict(prompt_tokens=30,completion_tokens=7,total_tokens=37))).encode())
+        server=ThreadingHTTPServer(('127.0.0.1',0),Handler);thread=threading.Thread(target=server.serve_forever,daemon=True);thread.start()
+        try:
+            env=dict(DEEPSEEK_BASE_URL=f'http://127.0.0.1:{server.server_port}/v1',DEEPSEEK_API_KEY='SYNTHETIC_LOCAL_TOKEN',DEEPSEEK_MODEL='test-model',MAX_TOKENS='2048',TEMPERATURE='1.3')
+            with tempfile.TemporaryDirectory() as tmp,patch.dict(os.environ,env):
+                p=str(Path(tmp)/'b.sqlite');database(p)
+                c=Client(time.monotonic()+10,dict(budget_db=p,max_requests=9,max_token_bound=10**7,timeout=None,max_tokens=None,temperature=None))
+                self.assertEqual(c.complete('Return JSON.',{'x':1}),{'ok':True})
+                self.assertEqual(bodies[-1]['max_tokens'],8192);self.assertEqual(bodies[-1]['temperature'],0)
+                with closing(sqlite3.connect(p)) as db:
+                    self.assertEqual(db.execute('SELECT requests,tokens_reserved FROM budget').fetchone(),(1,37))
+                c=Client(time.monotonic()+10,dict(budget_db=p,max_requests=9,max_token_bound=10**7,max_tokens=512,temperature=0.5))
+                c.complete('Return JSON.',{'x':2})
+                self.assertEqual((bodies[-1]['max_tokens'],bodies[-1]['temperature']),(512,0.5))
+        finally:server.shutdown();server.server_close();thread.join(2)
+    def test_budget_keeps_reservation_without_valid_usage(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            p=str(Path(tmp)/'b.sqlite');database(p);b=Budget(p,dict(max_requests=9,max_token_bound=10**6))
+            reserved=b.reserve(1000,500)
+            for actual in (None,'37',-1,reserved+1):b.settle(reserved,actual)
+            with closing(sqlite3.connect(p)) as db:
+                self.assertEqual(db.execute('SELECT tokens_reserved FROM budget').fetchone()[0],1500)
     def test_solution_uses_synthetic_archive_and_preserves_contract(self):
         captured=[]
         class Handler(BaseHTTPRequestHandler):

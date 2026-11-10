@@ -83,6 +83,16 @@ def parse_claim(text,sources):
     rest=re.sub(r'[«»"\s;.]+','',rest)
     return found, bool(rest)
 
+def verbatim_quotes(claim,cites):
+    """True when the claim text is exactly the published wording of its sources.
+
+    The runtime publishes each cited block as one «quoted» line; nothing else.
+    """
+    lines=[l.strip() for l in claim.get('text','').split('\n') if l.strip()]
+    quotes={norm(c['quote']) for c in cites if isinstance(c.get('quote'),str) and c['quote'].strip()}
+    shown={norm(l[1:-1] if l.startswith('«') and l.endswith('»') else l) for l in lines}
+    return bool(quotes) and shown==quotes
+
 def prose_check(case,expected,sources,prose,unknown):
     """True/False only for prose fully inside the bounded grammar; else None.
 
@@ -120,7 +130,7 @@ def validate(case,gold,result):
     fragments={f['id']:f for f in result.get('fragments',[])}
     documents={d['name']:d for d in result.get('documents',[])}
     checks={};failures=[];unknown=[];counts={'citations':0,'valid_sources':0,'valid_quotes':0,'valid_citations':0,'claims':0,'correct_claims':0,
-                                             'required':len(expected['required_claims']),'covered':0,'supported_citations':0,'support_evaluated':0}
+                                             'required':len(expected['required_claims']),'covered':0,'supported_citations':0,'support_evaluated':0,'context_facts':0}
     checks['refusal']=status in expected['allowed_statuses']
     if not checks['refusal']:
         failures.append('false_refusal' if 'answer' in expected['allowed_statuses'] and status not in {'answer','partial'} else 'generation_failure')
@@ -143,9 +153,11 @@ def validate(case,gold,result):
                 if pos>=0: citefrags.append(dict(document=f['document'],start=pos,end=pos+len(q),text=q))
                 else: unknown.append('quote_whitespace_offsets_not_resolved')
         extracted,unparsed=parse_claim(claim.get('text',''),sources)
-        if unparsed or not extracted: unknown.append('free_text_semantics')
+        quoted=valid and verbatim_quotes(claim,cites)
+        # A verbatim quote of the cited block may carry a heading or table
+        # markup; that remainder is authenticated source text, not assertion.
+        if (unparsed and not quoted) or not extracted: unknown.append('free_text_semantics')
         for f in extracted:
-            counts['claims']+=1;allfacts.append(f)
             matches=[r for r in expected['required_claims'] if fact_equal(f,r['fact'])]
             contextual=expected.get('issue')=='conflict' or 'event_date' in expected.get('missing',[])
             if contextual and not matches:
@@ -155,6 +167,11 @@ def validate(case,gold,result):
                 matches=[dict(fact=s['fact'],acceptable_evidence_sets=[[sid]]) for sid,s in sources.items()
                          if fact_equal(s['fact'],f)]
                 if matches:unknown.append('conditional_or_conflict_explanation_requires_manual_review')
+            if quoted and not matches and not any(fact_equal(f,bad) for bad in expected['forbidden_claims']):
+                # Neighbouring provision restored with the cited block: shown as
+                # source context, not asserted as the answer. Forbidden ones still fail.
+                counts['context_facts']+=1;continue
+            counts['claims']+=1;allfacts.append(f)
             time_ok=applicable(f,case.get('event_date')) if f['predicate']=='payment_term' else True
             if f['predicate']=='payment_term' and matches and not contextual:
                 time_ok=time_ok and any(applicable(r['fact'],case.get('event_date')) for r in matches)

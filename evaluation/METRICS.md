@@ -26,4 +26,8 @@ Latency: median/p95 wall time worker, не очередь. Отдельно elap
 
 `checks.prose`: True/False — связный текст модели полностью разобран и совпал/не совпал с эталоном; None — prose не публиковался либо его смысл вне грамматики (`published_prose_semantics` в not_evaluated). `published_text_not_bound_to_candidate` — видимый ответ не связан с проверенным кандидатом. `adapter_unobserved_citation` — дефект наблюдения стенда, не ошибка решения; такой кейс не входит ни в один знаменатель ответа.
 
+`counts.context_facts` — подлинные положения, показанные вместе с дословно процитированным блоком, но не запрошенные; они не считаются утверждениями ответа и не входят в fact_accuracy. Запрещённые эталоном положения в цитате остаются generation_failure.
+
+validator_false_acceptance_rate/validator_false_rejection_rate в каждом отчёте пересчитываются `validators/calibration.py` для валидатора того же коммита; `reports/validator_calibration.json` — исторический файл b5ecfdc.
+
 `unverified` production не приравнивается к истинному отсутствию сведений. `technical_error` → system_error. `clarify` → clarification, `insufficient` → insufficient_evidence. out_of_scope/disallowed сохранены как дополнительные внутренние статусы для непрофильных запросов. Заранее разрешённые альтернативы статусов и evidence sets хранятся в gold, не выбираются ответившей моделью.

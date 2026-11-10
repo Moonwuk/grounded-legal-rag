@@ -1,10 +1,10 @@
 {
   "top_k": 6,
   "workers": 2,
-  "timeout": 30,
+  "timeout": null,
   "case_seconds": 240,
-  "max_tokens": 2048,
-  "temperature": 0,
+  "max_tokens": null,
+  "temperature": null,
   "max_requests": 60,
   "max_token_bound": 3000000,
   "max_cost": null,
@@ -13,5 +13,5 @@
   "save_responses": true,
   "bm25_k1": 1.5,
   "bm25_b": 0.75,
-  "note": "No prices guessed. Set both unit prices to enforce monetary cap. Token bound reserves UTF-8 request bytes plus max_tokens per HTTP attempt; conservative, not billing."
+  "note": "timeout/max_tokens/temperature null = runtime defaults (no override), as on the platform. No prices guessed. Set both unit prices to enforce monetary cap. Token bound reserves UTF-8 request bytes plus max_tokens per HTTP attempt, then settles to provider-reported total_tokens; not billing."
 }

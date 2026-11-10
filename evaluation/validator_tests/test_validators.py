@@ -10,20 +10,7 @@ from evaluation.validators.core import validate,fact_equal,applicable,retrieval,
 from evaluation.generate_corpus import generate
 from evaluation.analyze_results import summarize,ratio
 
-# Independently handwritten anchor: these numbers/dates are not computed by generator.
-QUOTE='Для объекта TEST-D017 срок оплаты составляет 45 календарных дней; условие: без исключений; событие отсчёта: подписание акта начиная с 2026-07-01 включительно.'
-FACT=dict(subject_id='TEST-D017',predicate='payment_term',value=45,unit='calendar_days',condition='без исключений',start_event='подписание акта',valid_from='2026-07-01',valid_until=None)
-
-def fixture():
-    src=dict(id='a:p1',document='a.txt',start=0,end=len(QUOTE),quote=QUOTE,document_sha256=digest(QUOTE.encode()),revision='amendment',fact=FACT)
-    gold=dict(corpus_id='anchor',sources={'a:p1':src})
-    req=dict(fact={**FACT,'event_date':'2026-07-10'},acceptable_evidence_sets=[['a:p1']])
-    case=dict(case_id='anchor',category='temporal',event_date='2026-07-10',expected=dict(allowed_statuses=['answer'],required_claims=[req],forbidden_claims=[{**FACT,'value':90}],missing=[],issue=''))
-    c=dict(status='answer',claims=[dict(text=QUOTE,sources=[dict(fragment_id='f',quote=QUOTE)])],missing=[],requested_facts=[])
-    out=dict(status='answer',candidate=c,answer=QUOTE,rendered_answer=QUOTE,mode='stub',
-        documents=[dict(name='a.txt',text=QUOTE,sha256=digest(QUOTE.encode()),text_sha256=digest(QUOTE.encode()),revision='amendment')],
-        fragments=[dict(id='f',document='a.txt',start=0,end=len(QUOTE),text=QUOTE)])
-    return copy.deepcopy((case,gold,out))
+from evaluation.validators.calibration import QUOTE,FACT,fixture,calibration
 
 class ValidatorTests(unittest.TestCase):
     def test_correct_whole_fact(self):
@@ -161,32 +148,17 @@ class GeneratorTests(unittest.TestCase):
                 for s in g['sources'].values():
                     t=z.read(s['document']).decode();self.assertEqual(t[s['start']:s['end']],s['quote'])
 
-def calibration():
-    """Labelled answer mutations. FAR/FRR only for this finite suite."""
-    good=[];bad=[]
-    for text in [QUOTE,'«'+QUOTE+'»',QUOTE.replace(' ','  '),'Объект TEST-D017: срок оплаты 45 календарных дней после подписания акта; условие: без исключений']:
-        c,g,r=fixture();r['candidate']['claims'][0]['text']=text;good.append(validate(c,g,r)['outcome'])
-    for old,new in [('45','90'),('TEST-D017','WRONG'),('календарных','рабочих'),('подписание акта','поставка'),('без исключений','другое')]:
-        c,g,r=fixture();r['candidate']['claims'][0]['text']=QUOTE.replace(old,new);bad.append(validate(c,g,r)['outcome'])
-    for field,value in [('fragment_id','unknown'),('quote','другая цитата')]:
-        c,g,r=fixture();r['candidate']['claims'][0]['sources'][0][field]=value;bad.append(validate(c,g,r)['outcome'])
-    # Published text: authentic claims are kept, only the visible answer changes.
-    def published(prose,visible):
-        c,g,r=fixture()
-        if prose is not None:r['candidate']['answer']=prose
-        r['answer']=r['rendered_answer']=visible;return validate(c,g,r)['outcome']
-    for prose in [QUOTE,'Объект TEST-D017: срок оплаты 45 календарных дней после подписания акта; условие: без исключений']:
-        good.append(published(prose,prose+'\nИсточник: a, п. 1.'))
-    wrong='Оплачивать товар вообще не требуется.'
-    for prose,visible in [(wrong,wrong),(None,wrong),(QUOTE.replace('45','90'),QUOTE.replace('45','90')),
-                          (QUOTE,'Срок оплаты 90 дней.\n'+QUOTE)]:
-        bad.append(published(prose,visible))
-    return dict(validator_false_acceptance_rate=ratio(bad.count('pass'),len(bad)),
-                validator_false_rejection_rate=ratio(good.count('fail'),len(good)),
-                permitted_not_evaluated=good.count('not_evaluated'),bad_outcomes=bad,good_outcomes=good,
-                scope='Finite handwritten anchor mutations; not a universal semantic accuracy claim')
-
 class CalibrationTests(unittest.TestCase):
+    def test_report_calibrates_current_validator_not_stale_file(self):
+        from evaluation.analyze_results import report
+        with tempfile.TemporaryDirectory() as tmp:
+            stale=dict(validator_false_acceptance_rate=ratio(0,7),validator_false_rejection_rate=ratio(0,4))
+            write(Path(tmp)/'validator_calibration.json',stale)
+            value=report(Path(tmp)/'run',dict(corpus_id='x'),[])
+            current=calibration()
+            self.assertEqual(value['metrics']['validator_false_acceptance_rate'],current['validator_false_acceptance_rate'])
+            self.assertEqual(value['metrics']['validator_false_rejection_rate'],current['validator_false_rejection_rate'])
+            self.assertNotEqual(current['validator_false_acceptance_rate']['denominator'],7)
     def test_no_labelled_bad_answer_passes_and_no_good_answer_fails(self):
         result=calibration()
         self.assertEqual(result['validator_false_acceptance_rate']['numerator'],0,result['bad_outcomes'])

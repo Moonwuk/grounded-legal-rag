@@ -56,10 +56,13 @@ def sum_counter(items):
 
 def report(out,manifest,rows):
     out=Path(out);summary=summarize(rows)
-    calibration=out.parent/'validator_calibration.json'
-    if calibration.exists():
-        c=read(calibration)
-        for name in ('validator_false_acceptance_rate','validator_false_rejection_rate'):summary['metrics'][name]=c[name]
+    # Calibrate the validator of this very commit; an older calibration file
+    # describes another validator and must not be reported as current.
+    from evaluation.validators.calibration import calibration
+    c=calibration()
+    for name in ('validator_false_acceptance_rate','validator_false_rejection_rate'):summary['metrics'][name]=c[name]
+    summary['validator_calibration']=dict(bad_outcomes=c['bad_outcomes'],good_outcomes=c['good_outcomes'],
+                                          permitted_not_evaluated=c['permitted_not_evaluated'],scope=c['scope'])
     value={**manifest,**summary,'cases_completed':len(rows),'scope':'Local experiment, not official competition Score. Raw BM25 rank is a separate diagnostic from production grouped context.'}
     write(out/'summary.json',value)
     lines=['# Результаты испытаний','',value['scope'],'','```json',__import__('json').dumps(manifest,ensure_ascii=False,indent=2),'```','',

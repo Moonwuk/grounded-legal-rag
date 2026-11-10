@@ -14,11 +14,13 @@ from psb_llm import ProxyClient, ProviderError, strict_json
 class Budget:
     def __init__(self,path,config):self.path=path;self.config=config
 
+    def price(self,tokens):
+        return tokens*max(self.config.get('input_price_per_million',0),self.config.get('output_price_per_million',0))/1e6
+
     def reserve(self,input_bytes,output_tokens):
-        # UTF-8 bytes are a conservative token bound, not a billing estimate.
+        # UTF-8 bytes are a conservative pre-request bound, not a billing estimate.
         tokens=input_bytes+output_tokens
-        price=max(self.config.get('input_price_per_million',0),self.config.get('output_price_per_million',0))
-        cost=tokens*price/1e6
+        cost=self.price(tokens)
         with closing(sqlite3.connect(self.path,timeout=30)) as db, db:
             db.execute('BEGIN IMMEDIATE')
             requests,reserved,spent=db.execute('SELECT requests,tokens_reserved,cost_reserved FROM budget WHERE id=1').fetchone()
@@ -29,8 +31,19 @@ class Budget:
             db.execute('UPDATE budget SET requests=?,tokens_reserved=?,cost_reserved=? WHERE id=1',(requests+1,reserved+tokens,spent+cost))
         return tokens
 
+    def settle(self,reserved,actual):
+        """Replace a request's bound by the provider-reported total tokens.
+
+        Without a valid usage report the conservative reservation stays.
+        """
+        if type(actual) is not int or not 0<=actual<=reserved:return
+        with closing(sqlite3.connect(self.path,timeout=30)) as db, db:
+            db.execute('BEGIN IMMEDIATE')
+            db.execute('UPDATE budget SET tokens_reserved=tokens_reserved-?,cost_reserved=cost_reserved-? WHERE id=1',
+                       (reserved-actual,self.price(reserved)-self.price(actual)))
+
 class RecordingResponse:
-    def __init__(self,response,owner):self.response=response;self.owner=owner;self.parts=[]
+    def __init__(self,response,owner,reserved=0):self.response=response;self.owner=owner;self.parts=[];self.reserved=reserved
     def __enter__(self):self.response.__enter__();return self
     def read1(self,n):
         b=self.response.read1(n);self.parts.append(b);return b
@@ -38,7 +51,8 @@ class RecordingResponse:
         try:
             data=json.loads(b''.join(self.parts));usage=data.get('usage',{})
             self.owner.usage.append({k:v for k,v in usage.items() if k in {'prompt_tokens','completion_tokens','total_tokens','prompt_cache_hit_tokens','prompt_cache_miss_tokens'} and type(v) is int})
-        except (ValueError,TypeError): pass
+            self.owner.budget.settle(self.reserved,usage.get('total_tokens'))
+        except (ValueError,TypeError,AttributeError): pass
         return self.response.__exit__(*args)
 
 class RecordingOpener:
@@ -46,11 +60,13 @@ class RecordingOpener:
     def open(self,request,timeout):
         body=request.data or b''
         bound=json.loads(body).get('max_tokens',0) if body else 0
-        self.owner.budget.reserve(len(body),bound)
+        reserved=self.owner.budget.reserve(len(body),bound)
         self.owner.attempts+=1
         try:
-            r=self.opener.open(request,timeout=min(timeout,self.config['timeout']))
-            return RecordingResponse(r,self.owner)
+            # null keeps the runtime's own transport timeout.
+            limit=self.config.get('timeout')
+            r=self.opener.open(request,timeout=timeout if limit is None else min(timeout,limit))
+            return RecordingResponse(r,self.owner,reserved)
         except Exception as exc:
             self.owner.errors.append('http_'+str(exc.code) if hasattr(exc,'code') else type(exc).__name__)
             raise
@@ -63,8 +79,11 @@ class Client(ProxyClient):
             if suffix=='BASE_URL' and not value:value='https://api.deepseek.com/v1'
             os.environ['LLM_'+suffix]=value
         super().__init__(deadline)
-        os.environ['MAX_TOKENS']=str(config.get('max_tokens',2048))
-        os.environ['TEMPERATURE']=str(config.get('temperature',0))
+        # Generation settings default to the runtime's own defaults. Overriding
+        # them would measure a different configuration than the submission.
+        for key,name in (('max_tokens','MAX_TOKENS'),('temperature','TEMPERATURE')):
+            if config.get(key) is None:os.environ.pop(name,None)
+            else:os.environ[name]=str(config[key])
         self.attempts=0;self.errors=[];self.usage=[];self.events=[]
         self.budget=Budget(config['budget_db'],config)
         self.opener=RecordingOpener(self.opener,self,config)
