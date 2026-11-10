@@ -1,0 +1,29 @@
+{
+  "model": "deepseek-v4-pro",
+  "answer_assessment_status": "NOT_REVIEWED",
+  "initial_prepare": {
+    "finish": "stop",
+    "completion_tokens": 5625,
+    "reasoning_tokens": 5208,
+    "result": "invalid_evaluation_schema",
+    "calibration_results_validated": false
+  },
+  "retry_prepare": {
+    "provider_failures": [
+      {
+        "kind": "timeout",
+        "elapsed_ms": 50522
+      },
+      {
+        "kind": "timeout",
+        "elapsed_ms": 49683
+      },
+      {
+        "kind": "timeout",
+        "elapsed_ms": 49807
+      }
+    ],
+    "result": "proxy_unavailable"
+  },
+  "limits": "No raw provider response, hidden reasoning, key, or request body is saved. No preparation result counts as successful answer evaluation."
+}

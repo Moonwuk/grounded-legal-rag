@@ -10,5 +10,12 @@
     "psb_llm.py",
     "requirements.txt"
   ],
-  "platform_execution": "NOT RUN; proxy credentials unavailable in this session"
+  "platform_execution": "NOT RUN; organizer proxy not tested",
+  "development_execution": {
+    "provider": "DeepSeek public API",
+    "model": "deepseek-flash",
+    "report": "docs/structural_live_review.md",
+    "run": "results/structural_live_20261110T121135Z",
+    "runtime_modified": false
+  }
 }

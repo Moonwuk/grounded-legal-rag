@@ -1,0 +1,149 @@
+{
+  "basis": "Manual review of actual final CSV against supplied source text; exact quotes separately verified.",
+  "development_demo_not_blind": true,
+  "not_official_score": true,
+  "rubric": "PASS: grounded core answer adequately conveyed, including justified partial/refusal. WARN: core sources present but gap description, direct application, or relevance of output needs work. These counts are not directly comparable with older support-only ratings.",
+  "answer_quality_counts": {
+    "PASS": 14,
+    "WARN": 4
+  },
+  "material_unsupported_claims_found": 0,
+  "limits": "No independent legal expert review; no proof of generalization or organizer API compatibility.",
+  "items": [
+    {
+      "id": "1",
+      "support_review": "no_material_unsupported_claim_found",
+      "answer_quality": "PASS",
+      "issues": [],
+      "note": "Размер, НДС и срок оплаты совпадают с пунктами 3.1–3.2; дополнительное условие индексации подлинное."
+    },
+    {
+      "id": "2",
+      "support_review": "no_material_unsupported_claim_found",
+      "answer_quality": "PASS",
+      "issues": [],
+      "note": "Найдён предел шесть месяцев для главного бухгалтера с оговоркой федерального закона."
+    },
+    {
+      "id": "3",
+      "support_review": "no_material_unsupported_claim_found",
+      "answer_quality": "WARN",
+      "issues": [
+        "generic_missing_document"
+      ],
+      "note": "Отказ по существу оправдан отсутствием нормы о размере пособия; название недостающего документа не конкретизировано."
+    },
+    {
+      "id": "4",
+      "support_review": "no_material_unsupported_claim_found",
+      "answer_quality": "PASS",
+      "issues": [],
+      "note": "Цитата опровергает сумму 500000, указывая 450000; неподтверждённое повышение не придумано."
+    },
+    {
+      "id": "5",
+      "support_review": "no_material_unsupported_claim_found",
+      "answer_quality": "WARN",
+      "issues": [
+        "implicit_application_to_user_facts"
+      ],
+      "note": "Приведены редакция 2023 и порог свыше 10 млн; прямого вывода «12 млн превышает порог, одобрение требовалось» нет."
+    },
+    {
+      "id": "6",
+      "support_review": "no_material_unsupported_claim_found",
+      "answer_quality": "PASS",
+      "issues": [],
+      "note": "Ответ на последнюю реплику: пять рабочих дней, дата поставки через подписание УПД."
+    },
+    {
+      "id": "7",
+      "support_review": "no_material_unsupported_claim_found",
+      "answer_quality": "PASS",
+      "issues": [],
+      "note": "Круглосуточный доступ арендатора и его транспорта подтверждён; лишняя цитата предмета аренды."
+    },
+    {
+      "id": "8",
+      "support_review": "no_material_unsupported_claim_found",
+      "answer_quality": "PASS",
+      "issues": [],
+      "note": "Нужен акт о недостатках; дополнительно процитирована приёмка без объявления срока пресекательным."
+    },
+    {
+      "id": "9",
+      "support_review": "no_material_unsupported_claim_found",
+      "answer_quality": "PASS",
+      "issues": [],
+      "note": "Предоплата по соглашению сторон, размер в счёте; общий срок 45 дней относится к правильному контрагенту."
+    },
+    {
+      "id": "10",
+      "support_review": "no_material_unsupported_claim_found",
+      "answer_quality": "PASS",
+      "issues": [],
+      "note": "Указан инициатор — руководитель заинтересованного подразделения; нет абсолютного запрета юротделу инициировать собственный договор."
+    },
+    {
+      "id": "11",
+      "support_review": "no_material_unsupported_claim_found",
+      "answer_quality": "WARN",
+      "issues": [
+        "implicit_application_to_user_facts",
+        "irrelevant_source_bulk"
+      ],
+      "note": "Подлинная норма содержит максимум три рабочих дня. Вместо прямого запрета четырёх дней выдан весь служебный блок дважды."
+    },
+    {
+      "id": "12",
+      "support_review": "no_material_unsupported_claim_found",
+      "answer_quality": "PASS",
+      "issues": [],
+      "note": "Подтверждено действие трудовых правил в период испытания."
+    },
+    {
+      "id": "13",
+      "support_review": "no_material_unsupported_claim_found",
+      "answer_quality": "PASS",
+      "issues": [],
+      "note": "Части 2–3 процитированы, отсутствие отсылочных статей 6/10/11 явно обозначено. Нет безусловного разрешения или срока удаления."
+    },
+    {
+      "id": "14",
+      "support_review": "no_material_unsupported_claim_found",
+      "answer_quality": "PASS",
+      "issues": [],
+      "note": "Вводная норма «Срочный трудовой договор заключается» и сезонное условие сохранены отдельно и совместно."
+    },
+    {
+      "id": "15",
+      "support_review": "no_material_unsupported_claim_found",
+      "answer_quality": "PASS",
+      "issues": [],
+      "note": "Подтверждены акт возврата и нормальный износ."
+    },
+    {
+      "id": "16",
+      "support_review": "no_material_unsupported_claim_found",
+      "answer_quality": "PASS",
+      "issues": [],
+      "note": "Доставка и упаковка включены. Допсоглашение меняет адрес, остальные условия сохраняет."
+    },
+    {
+      "id": "17",
+      "support_review": "no_material_unsupported_claim_found",
+      "answer_quality": "WARN",
+      "issues": [
+        "irrelevant_source_bulk"
+      ],
+      "note": "Правильно указан гарантийный талон, срок не выдуман; ненужные преамбула и предмет договора существенно раздувают ответ."
+    },
+    {
+      "id": "18",
+      "support_review": "no_material_unsupported_claim_found",
+      "answer_quality": "PASS",
+      "issues": [],
+      "note": "Юридический отдел, три рабочих дня именно с даты подписания."
+    }
+  ]
+}
