@@ -125,11 +125,14 @@ class ObservationFidelityTests(unittest.TestCase):
 
     def test_model_steps_explain_a_rejected_candidate(self):
         events=[dict(payload=dict(question='q',evidence=[],expanded_search=False),response=dict(status='answer',answer='Секретный текст',source_ids=['a','b'])),
-                dict(payload=dict(question='q',evidence=[],expanded_search=False,candidate=dict(status='answer',claims=[{},{}],answer='Секретный текст')),
+                dict(payload=dict(question='q',evidence=[dict(id='a',document='d1.txt',text='x'),dict(id='b',document='d2.txt',text='y')],expanded_search=False,
+                          candidate=dict(status='answer',claims=[dict(sources=[dict(fragment_id='a')]),dict(sources=[dict(fragment_id='b')])],answer='Секретный текст')),
                      response=dict(approved=True,complete=True,status='answer',claim_checks=[dict(index=0,supported=True,applicable=True),dict(index=1,supported=True,applicable=False)]))]
         steps=worker.model_steps(events)
         self.assertEqual(steps[0],dict(stage='generate',expanded=False,status='answer',selected=2,prose=True,retry_reason=None))
         self.assertFalse(steps[1]['approved']);self.assertEqual(steps[1]['rejected_claims'],[1])
+        self.assertEqual(steps[1]['inapplicable_claims'],[1]);self.assertEqual(steps[1]['unsupported_claims'],[])
+        self.assertEqual(steps[1]['claim_documents'],[['d1.txt'],['d2.txt']])
         self.assertNotIn('Секретный',json.dumps(steps,ensure_ascii=False))
 
     def test_unobserved_citation_is_not_scored_as_runtime_failure(self):

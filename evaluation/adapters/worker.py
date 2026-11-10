@@ -66,10 +66,17 @@ def model_steps(events):
         r=r if isinstance(r,dict) else {}
         if 'candidate' in p:
             c=p['candidate'];checks=r.get('claim_checks') if isinstance(r.get('claim_checks'),list) else []
+            # Corpus file names of each selected provision (no text) to see which one was rejected.
+            where={f.get('id'):f.get('document') for f in p.get('evidence',[]) if isinstance(f,dict)}
+            documents=[sorted({where.get(x.get('fragment_id'),'?') for x in claim.get('sources',[]) if isinstance(x,dict)})
+                       for claim in c.get('claims',[]) if isinstance(claim,dict)]
             steps.append(dict(stage='verify',expanded=p.get('expanded_search') is True,candidate_status=c.get('status'),
                 prose=bool(c.get('answer')),approved=approved(c,r),verdict_status=code(r.get('status'),statuses),
                 complete=r.get('complete') is True,answer_supported=r.get('answer_supported') is True,
-                rejected_claims=[i for i,x in enumerate(checks[:12]) if not isinstance(x,dict) or x.get('supported') is not True or x.get('applicable') is not True]))
+                rejected_claims=[i for i,x in enumerate(checks[:12]) if not isinstance(x,dict) or x.get('supported') is not True or x.get('applicable') is not True],
+                unsupported_claims=[i for i,x in enumerate(checks[:12]) if isinstance(x,dict) and x.get('supported') is not True],
+                inapplicable_claims=[i for i,x in enumerate(checks[:12]) if isinstance(x,dict) and x.get('applicable') is not True],
+                claim_documents=documents))
         elif 'compatibility_probe' not in p:
             ids=r.get('source_ids')
             steps.append(dict(stage='generate',expanded=p.get('expanded_search') is True,status=code(r.get('status'),statuses),
