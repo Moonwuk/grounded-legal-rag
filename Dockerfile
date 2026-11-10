@@ -1,4 +1,4 @@
-FROM python:3.12.16-alpine3.24@sha256:a61cbd76a882645de7f91423329fe43a67eed60d7da24f9e5331414bb3618b20
+FROM python:3.15.0-alpine3.24@sha256:2699b90f4d562a22e2dd076c82f964032f64814204bff36d271a54ba4cc2c7e2
 
 LABEL org.opencontainers.image.title="PSB grounded legal RAG batch runner" \
       org.opencontainers.image.source="https://github.com/Moonwuk/grounded-legal-rag"
