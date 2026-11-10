@@ -1,0 +1,41 @@
+test_negation_and_conditions_survive_every_crop (test_evidence_boundary.EvidenceBoundaryTests.test_negation_and_conditions_survive_every_crop) ... FAIL
+test_positive_stub_cannot_release_opposite_wording (test_evidence_boundary.EvidenceBoundaryTests.test_positive_stub_cannot_release_opposite_wording) ... FAIL
+test_wrapped_negation_and_condition_stay_in_the_source_block (test_evidence_boundary.EvidenceBoundaryTests.test_wrapped_negation_and_condition_stay_in_the_source_block) ... FAIL
+
+======================================================================
+FAIL: test_negation_and_conditions_survive_every_crop (test_evidence_boundary.EvidenceBoundaryTests.test_negation_and_conditions_survive_every_crop)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/tmpjygmfw47/tests/test_evidence_boundary.py", line 25, in test_negation_and_conditions_survive_every_crop
+    self.assertIn('«'+source+'»',render(c,[f]))
+AssertionError: '«Арендатор не вправе передавать помещение третьим лицам.»' not found in 'вправе передавать помещение третьим лицам. [1]\n[1] conditions: «вправе передавать помещение третьим лицам.».'
+
+======================================================================
+FAIL: test_positive_stub_cannot_release_opposite_wording (test_evidence_boundary.EvidenceBoundaryTests.test_positive_stub_cannot_release_opposite_wording)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/tmpjygmfw47/tests/test_evidence_boundary.py", line 38, in test_positive_stub_cannot_release_opposite_wording
+    text,status=answer_question('Можно передать помещение?',r,ScriptedModel([malicious,approving]))
+                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/tmp/tmpjygmfw47/prototype/psb_policy.py", line 253, in answer_question
+    verdict = client.complete(VERIFY, {**payload, "candidate": candidate,
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/tmp/tmpjygmfw47/tests/test_baseline.py", line 32, in complete
+    return value(payload) if callable(value) else value
+           ^^^^^^^^^^^^^^
+  File "/tmp/tmpjygmfw47/tests/test_evidence_boundary.py", line 35, in approving
+    self.assertIn('не вправе',p['candidate']['claims'][0]['text'])
+AssertionError: 'не вправе' not found in 'вправе передавать помещение третьим лицам.'
+
+======================================================================
+FAIL: test_wrapped_negation_and_condition_stay_in_the_source_block (test_evidence_boundary.EvidenceBoundaryTests.test_wrapped_negation_and_condition_stay_in_the_source_block)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/tmpjygmfw47/tests/test_evidence_boundary.py", line 55, in test_wrapped_negation_and_condition_stay_in_the_source_block
+    self.assertTrue(all(f.text==source for f in hits))
+AssertionError: False is not true
+
+----------------------------------------------------------------------
+Ran 3 tests in 0.004s
+
+FAILED (failures=3)

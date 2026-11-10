@@ -1,0 +1,71 @@
+test_negative_intro_cannot_be_omitted (test_structural_dependencies.StructuralDependencies.test_negative_intro_cannot_be_omitted) ... FAIL
+test_new_section_is_not_a_list_continuation (test_structural_dependencies.StructuralDependencies.test_new_section_is_not_a_list_continuation) ... {"event": "policy_verdict", "position": null, "expanded": false, "candidate_status": "answer", "approved": true, "verdict_status": "answer", "check_count": 1, "source_gap_count": 0, "failed_claim_positions": []}
+ok
+test_numbered_and_bulleted_lists_preserve_condition (test_structural_dependencies.StructuralDependencies.test_numbered_and_bulleted_lists_preserve_condition) ... {"event": "policy_verdict", "position": null, "expanded": false, "candidate_status": "answer", "approved": true, "verdict_status": "answer", "check_count": 1, "source_gap_count": 0, "failed_claim_positions": []}
+{"event": "policy_verdict", "position": null, "expanded": false, "candidate_status": "answer", "approved": true, "verdict_status": "answer", "check_count": 1, "source_gap_count": 0, "failed_claim_positions": []}
+{"event": "policy_verdict", "position": null, "expanded": false, "candidate_status": "answer", "approved": true, "verdict_status": "answer", "check_count": 1, "source_gap_count": 0, "failed_claim_positions": []}
+ok
+test_quarantine_breaks_dependency_scope (test_structural_dependencies.StructuralDependencies.test_quarantine_breaks_dependency_scope) ... {"event": "policy_verdict", "position": null, "expanded": false, "candidate_status": "answer", "approved": true, "verdict_status": "answer", "check_count": 1, "source_gap_count": 0, "failed_claim_positions": []}
+ok
+test_real_seasonal_child_requires_its_intro (test_structural_dependencies.StructuralDependencies.test_real_seasonal_child_requires_its_intro) ... FAIL
+test_second_list_does_not_inherit_first_rule (test_structural_dependencies.StructuralDependencies.test_second_list_does_not_inherit_first_rule) ... FAIL
+
+======================================================================
+FAIL: test_negative_intro_cannot_be_omitted (test_structural_dependencies.StructuralDependencies.test_negative_intro_cannot_be_omitted)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/scratch/94557bdbb953/work/structural-dependencies/tests/test_structural_dependencies.py", line 32, in test_negative_intro_cannot_be_omitted
+    self.run_case('Передача имущества запрещена без согласия в следующих случаях:\n\nпри передаче станка подрядчику;\n\nпри передаче компрессора арендатору.', 'компрессора', ['запрещена без согласия', 'компрессора'], ['станка'])
+  File "/workspace/scratch/94557bdbb953/work/structural-dependencies/tests/test_structural_dependencies.py", line 26, in run_case
+    answer, status = answer_question(needle, r, ScriptedModel([select, check]))
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/scratch/94557bdbb953/work/structural-dependencies/prototype/psb_policy.py", line 289, in answer_question
+    verdict = client.complete(VERIFY, {**payload, "candidate": candidate,
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/scratch/94557bdbb953/work/structural-dependencies/tests/test_baseline.py", line 32, in complete
+    return value(payload) if callable(value) else value
+           ^^^^^^^^^^^^^^
+  File "/workspace/scratch/94557bdbb953/work/structural-dependencies/tests/test_structural_dependencies.py", line 21, in check
+    self.assertIn(part, payload['rendered_answer'])
+AssertionError: 'запрещена без согласия' not found in '«при передаче компрессора арендатору.» [1]\n[1] rules: «при передаче компрессора арендатору.».'
+
+======================================================================
+FAIL: test_real_seasonal_child_requires_its_intro (test_structural_dependencies.StructuralDependencies.test_real_seasonal_child_requires_its_intro)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/scratch/94557bdbb953/work/structural-dependencies/tests/test_structural_dependencies.py", line 59, in test_real_seasonal_child_requires_its_intro
+    _, status = answer_question('Можно оформить срочный трудовой договор на сезонные работы?', r, ScriptedModel([select, check]))
+                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/scratch/94557bdbb953/work/structural-dependencies/prototype/psb_policy.py", line 289, in answer_question
+    verdict = client.complete(VERIFY, {**payload, "candidate": candidate,
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/scratch/94557bdbb953/work/structural-dependencies/tests/test_baseline.py", line 32, in complete
+    return value(payload) if callable(value) else value
+           ^^^^^^^^^^^^^^
+  File "/workspace/scratch/94557bdbb953/work/structural-dependencies/tests/test_structural_dependencies.py", line 57, in check
+    self.assertIn('Срочный трудовой договор заключается:', payload['rendered_answer'])
+AssertionError: 'Срочный трудовой договор заключается:' not found in '«для выполнения сезонных работ, когда в силу природных условий работа может производиться только в течение определенного периода (сезона);» [1]\n[1] ТК ст59 действующая: «для выполнения сезонных работ, когда в силу природных условий работа может производиться только в течение определенного периода (сезона);».'
+
+======================================================================
+FAIL: test_second_list_does_not_inherit_first_rule (test_structural_dependencies.StructuralDependencies.test_second_list_does_not_inherit_first_rule)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/scratch/94557bdbb953/work/structural-dependencies/tests/test_structural_dependencies.py", line 35, in test_second_list_does_not_inherit_first_rule
+    self.run_case('Предоплата запрещена:\n\nпри покупке оборудования.\n\nПредоплата разрешена при письменном согласии:\n\nпри покупке упаковки;\n\nпри покупке кабеля.', 'кабеля', ['разрешена при письменном согласии', 'кабеля'], ['Предоплата запрещена', 'упаковки'])
+  File "/workspace/scratch/94557bdbb953/work/structural-dependencies/tests/test_structural_dependencies.py", line 26, in run_case
+    answer, status = answer_question(needle, r, ScriptedModel([select, check]))
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/scratch/94557bdbb953/work/structural-dependencies/prototype/psb_policy.py", line 289, in answer_question
+    verdict = client.complete(VERIFY, {**payload, "candidate": candidate,
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/scratch/94557bdbb953/work/structural-dependencies/tests/test_baseline.py", line 32, in complete
+    return value(payload) if callable(value) else value
+           ^^^^^^^^^^^^^^
+  File "/workspace/scratch/94557bdbb953/work/structural-dependencies/tests/test_structural_dependencies.py", line 21, in check
+    self.assertIn(part, payload['rendered_answer'])
+AssertionError: 'разрешена при письменном согласии' not found in '«при покупке кабеля.» [1]\n[1] rules: «при покупке кабеля.».'
+
+----------------------------------------------------------------------
+Ran 6 tests in 0.151s
+
+FAILED (failures=3)

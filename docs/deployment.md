@@ -22,7 +22,7 @@ Docker Compose описывает runtime, Ansible подготавливает 
 
 ## Границы контейнера
 
-Образ рассчитан на `linux/amd64`. Базовый `python:3.12.16-alpine3.24` закреплён digest конкретного amd64 manifest. Обновление версии или digest проходит тот же CI, что и изменение кода. Приложение использует стандартную библиотеку; pip/ensurepip и установщики пакетов Python удалены из runtime. Единственная сетевая установка при сборке — обновление `zlib=1.4-r0` из подписанного репозитория Alpine; версия проверяется также по inventory собранного образа.
+Образ рассчитан на `linux/amd64`. Базовый `python:3.15.0-alpine3.24` закреплён digest конкретного amd64 manifest. Обновление версии или digest проходит тот же CI, что и изменение кода. Приложение использует стандартную библиотеку; pip/ensurepip и установщики пакетов Python удалены из runtime. Каталог стандартной библиотеки определяется через `sysconfig` установленного интерпретатора, поэтому очистка не зависит от номера Python в пути. Полный набор регрессий выполняется также на Python 3.15. Единственная сетевая установка при сборке — обновление `zlib=1.4-r0` из подписанного репозитория Alpine; версия проверяется также по inventory собранного образа.
 
 Ненужные приложению SQLite, curses, readline, native UUID и Tk-модули удалены. ELF-зависимости оставшихся Python-модулей пересчитываются по схеме официального Python image; `apk` удаляет освободившиеся библиотеки и обновляет ведомость пакетов. CI дополнительно запрещает возвращение шести удалённых пакетов. Это устраняет известные уязвимые компоненты физически, не исключает их из отчёта.
 
@@ -121,6 +121,7 @@ CI проверяет синтаксис и политику IaC, реальну
 - [Trivy: image CLI](https://trivy.dev/docs/latest/references/configuration/cli/trivy_image/)
 - [Trivy: secret scan limitations](https://github.com/aquasecurity/trivy/blob/v0.76.2/docs/guide/scanner/secret.md)
 - [Ansible lint](https://docs.ansible.com/projects/lint/usage/)
-- [Официальная сборка Python Alpine](https://github.com/docker-library/python/blob/master/3.12/alpine3.24/Dockerfile)
+- [Официальная сборка Python Alpine](https://github.com/docker-library/python)
 - [Alpine: закреплённая сборка zlib 1.4-r0](https://github.com/alpinelinux/aports/blob/bdf501c870a92a05c097857401f69c48c4810384/main/zlib/APKBUILD)
 - [zlib 1.4: исправления upstream](https://github.com/madler/zlib/blob/v1.4/ChangeLog)
+

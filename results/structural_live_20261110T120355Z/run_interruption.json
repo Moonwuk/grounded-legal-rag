@@ -1,0 +1,7 @@
+{
+  "status": "interrupted_before_results",
+  "reason": "execution_tool_reported_network_policy_block_to_api.deepseek.com",
+  "submission_saved": false,
+  "quality_not_evaluated": true,
+  "later_attempt_separate": "structural_live_20261110T121135Z"
+}

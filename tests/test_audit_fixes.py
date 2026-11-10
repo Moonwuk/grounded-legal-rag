@@ -98,8 +98,9 @@ class AuditFixes(unittest.TestCase):
             self.assertEqual(status,'answer');self.assertNotIn('93',text)
     def test_separate_excerpts_are_not_glued_into_a_new_sentence(self):
         from psb_policy import source_wording
-        c={'text':'Обобщённый вывод.', 'sources':[{'quote':'Изменить условия по перечню:'},{'quote':'Остальные условия остаются без изменений.'}]}
-        out=source_wording(c)
+        a='Изменить условия по перечню:';b='Остальные условия остаются без изменений.'
+        c={'text':'Обобщённый вывод.', 'sources':[{'fragment_id':'a','quote':a},{'fragment_id':'b','quote':b}]}
+        out=source_wording(c,[Fragment('a','D',0,len(a),a,''),Fragment('b','D',0,len(b),b,'')])
         self.assertEqual(out,'«Изменить условия по перечню:»\n«Остальные условия остаются без изменений.»')
     def test_provider_error_logs_code_not_body(self):
         with corpus({'A.txt':'Срок оплаты составляет 37 календарных дней.'}) as r:

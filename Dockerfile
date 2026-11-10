@@ -6,23 +6,24 @@ LABEL org.opencontainers.image.title="PSB grounded legal RAG batch runner" \
 # apk verifies repository signatures. Only the security-fixed zlib package is
 # updated; application dependencies, data and credentials are never downloaded.
 SHELL ["/bin/ash", "-eo", "pipefail", "-c"]
-RUN apk add --no-cache zlib=1.4-r0 \
+RUN python_stdlib="$(python -I -c 'import sysconfig; print(sysconfig.get_path("stdlib"))')" \
+    && apk add --no-cache zlib=1.4-r0 \
     && addgroup -g 10001 -S psb \
     && adduser -u 10001 -S -D -H -G psb -h /nonexistent -s /sbin/nologin psb \
     && install -d -o 10001 -g 10001 -m 0700 /output \
     && install -d -o root -g root -m 0755 /app /opt/psb /data /run/secrets \
-    && rm -rf /usr/local/lib/python3.12/site-packages/pip* \
-       /usr/local/lib/python3.12/site-packages/setuptools* \
-       /usr/local/lib/python3.12/site-packages/wheel* \
-       /usr/local/lib/python3.12/ensurepip /usr/local/lib/python3.12/test \
+    && rm -rf "$python_stdlib"/site-packages/pip* \
+       "$python_stdlib"/site-packages/setuptools* \
+       "$python_stdlib"/site-packages/wheel* \
+       "$python_stdlib"/ensurepip "$python_stdlib"/test \
        /usr/local/bin/pip* \
-       /usr/local/lib/python3.12/sqlite3 /usr/local/lib/python3.12/curses \
-       /usr/local/lib/python3.12/tkinter \
-    && rm -f /usr/local/lib/python3.12/lib-dynload/_sqlite3*.so \
-       /usr/local/lib/python3.12/lib-dynload/readline*.so \
-       /usr/local/lib/python3.12/lib-dynload/_curses*.so \
-       /usr/local/lib/python3.12/lib-dynload/_uuid*.so \
-       /usr/local/lib/python3.12/lib-dynload/_tkinter*.so \
+       "$python_stdlib"/sqlite3 "$python_stdlib"/curses \
+       "$python_stdlib"/tkinter \
+    && rm -f "$python_stdlib"/lib-dynload/_sqlite3*.so \
+       "$python_stdlib"/lib-dynload/readline*.so \
+       "$python_stdlib"/lib-dynload/_curses*.so \
+       "$python_stdlib"/lib-dynload/_uuid*.so \
+       "$python_stdlib"/lib-dynload/_tkinter*.so \
     && find /usr -xdev -type f \( -perm -4000 -o -perm -2000 \) -exec chmod a-s {} +
 
 # Recompute the official Python image's ELF runtime dependencies after removing
@@ -52,3 +53,4 @@ STOPSIGNAL SIGTERM
 # A finite batch task has no HTTP listener or long-running health endpoint.
 HEALTHCHECK NONE
 ENTRYPOINT ["python", "-I", "-B", "-u", "/opt/psb/entrypoint.py"]
+

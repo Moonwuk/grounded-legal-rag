@@ -36,16 +36,21 @@ class ContainerFixtureTests(unittest.TestCase):
             probe.model_reply({"evidence": [{"id": "f", "text": "Договор не содержит срока оплаты."}]})
         payload = {"evidence": [
             {"id": "context", "text": "Договор С-1/2026\n1. " + probe.QUOTE},
-            {"id": "f", "text": "1. " + probe.QUOTE},
+            {"id": "f", "text": probe.SOURCE_TEXT},
         ]}
         candidate = probe.model_reply(payload)
         self.assertEqual(candidate["claims"][0]["sources"][0]["fragment_id"], "f")
         candidate["claims"][0]["text"] = probe.VERIFIED_CLAIM
+        candidate["claims"][0]["sources"][0]["quote"] = probe.SOURCE_TEXT
         verified = {**payload, "candidate": candidate, "rendered_answer": probe.EXPECTED_ANSWER}
         self.assertTrue(probe.model_reply(verified)["approved"])
         with self.assertRaises(ValueError):
             probe.model_reply({**verified, "rendered_answer": "Неподтвержденный ответ: 90 дней."})
         candidate["claims"][0]["text"] = "Срок оплаты — 90 дней."
+        with self.assertRaises(ValueError):
+            probe.model_reply(verified)
+        candidate["claims"][0]["text"] = probe.VERIFIED_CLAIM
+        candidate["claims"][0]["sources"][0]["quote"] = probe.QUOTE
         with self.assertRaises(ValueError):
             probe.model_reply(verified)
 
@@ -134,3 +139,4 @@ class ContainerFixtureTests(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+

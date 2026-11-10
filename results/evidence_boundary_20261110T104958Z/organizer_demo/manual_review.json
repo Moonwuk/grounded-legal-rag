@@ -1,0 +1,158 @@
+{
+  "method": "Codex manually read every emitted answer and compared to full provided/synthetic sources and pre-defined rubric. Exact-quote check is separate from semantic review.",
+  "verdicts": {
+    "1": "PASS",
+    "2": "PASS",
+    "3": "PASS",
+    "4": "PASS",
+    "5": "TECHNICAL",
+    "6": "WARN",
+    "7": "PASS",
+    "8": "PASS",
+    "9": "PASS",
+    "10": "PASS",
+    "11": "PASS",
+    "12": "PASS",
+    "13": "FALSE_REFUSAL",
+    "14": "WARN",
+    "15": "PASS",
+    "16": "PASS",
+    "17": "PASS",
+    "18": "PASS"
+  },
+  "counts": {
+    "PASS": 14,
+    "TECHNICAL": 1,
+    "WARN": 2,
+    "FALSE_REFUSAL": 1
+  },
+  "notes": {
+    "5": "Main batch failed with proxy_unavailable, not length; cause of the network failure is not established. Separate 90-second-timeout diagnostic succeeded, but both header waits were <45s, so it does not prove timeout45 was the cause.",
+    "6": "Five working days correctly quoted; delivery-date definition (buyer signing UPD) not included as in the pre-defined demo rubric.",
+    "13": "Catalog mechanism exists and synthetic control passes, but full batch returned unverified on an answerable partial question. Separate diagnostic gave correct partial with missing 6,10,11; original failure retained.",
+    "14": "Seasonal condition quoted correctly, but source header about fixed-term employment not included. The displayed fragment is less self-contained; no invented rule found.",
+    "4": "450000 quoted; no false claim about exclusive amendment route.",
+    "8": "Act requirement quoted; no invented discovery deadline.",
+    "11": "Correct source content, but whole source block includes unasked storage details.",
+    "18": "Correct time limit and storage destination; lengthy block adds unnecessary detail."
+  },
+  "quotes": [
+    {
+      "id": "1",
+      "reference": 1,
+      "exact": true
+    },
+    {
+      "id": "1",
+      "reference": 2,
+      "exact": true
+    },
+    {
+      "id": "1",
+      "reference": 3,
+      "exact": true
+    },
+    {
+      "id": "2",
+      "reference": 1,
+      "exact": true
+    },
+    {
+      "id": "4",
+      "reference": 1,
+      "exact": true
+    },
+    {
+      "id": "6",
+      "reference": 1,
+      "exact": true
+    },
+    {
+      "id": "7",
+      "reference": 1,
+      "exact": true
+    },
+    {
+      "id": "7",
+      "reference": 2,
+      "exact": true
+    },
+    {
+      "id": "8",
+      "reference": 1,
+      "exact": true
+    },
+    {
+      "id": "9",
+      "reference": 1,
+      "exact": true
+    },
+    {
+      "id": "9",
+      "reference": 2,
+      "exact": true
+    },
+    {
+      "id": "10",
+      "reference": 1,
+      "exact": true
+    },
+    {
+      "id": "10",
+      "reference": 2,
+      "exact": true
+    },
+    {
+      "id": "11",
+      "reference": 1,
+      "exact": true
+    },
+    {
+      "id": "12",
+      "reference": 1,
+      "exact": true
+    },
+    {
+      "id": "14",
+      "reference": 1,
+      "exact": true
+    },
+    {
+      "id": "15",
+      "reference": 1,
+      "exact": true
+    },
+    {
+      "id": "16",
+      "reference": 1,
+      "exact": true
+    },
+    {
+      "id": "17",
+      "reference": 1,
+      "exact": true
+    },
+    {
+      "id": "17",
+      "reference": 2,
+      "exact": true
+    },
+    {
+      "id": "18",
+      "reference": 1,
+      "exact": true
+    },
+    {
+      "id": "18",
+      "reference": 2,
+      "exact": true
+    },
+    {
+      "id": "18",
+      "reference": 3,
+      "exact": true
+    }
+  ],
+  "all_quotes_exact": true,
+  "not_official_score": true
+}

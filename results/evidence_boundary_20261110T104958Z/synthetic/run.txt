@@ -1,0 +1,26 @@
+{"event": "model_response", "stage": "generate", "attempt": 1, "finish": "stop", "max_tokens": 8192, "completion_tokens": 315, "reasoning_tokens": 265}
+{"event": "model_response", "stage": "generate", "attempt": 1, "finish": "stop", "max_tokens": 8192, "completion_tokens": 306, "reasoning_tokens": 260}
+{"event": "model_response", "stage": "verify", "attempt": 1, "finish": "stop", "max_tokens": 8192, "completion_tokens": 587, "reasoning_tokens": 470}
+completed_position=1 status=answer
+{"event": "model_response", "stage": "verify", "attempt": 1, "finish": "stop", "max_tokens": 8192, "completion_tokens": 648, "reasoning_tokens": 535}
+completed_position=0 status=answer
+{"event": "model_response", "stage": "generate", "attempt": 1, "finish": "stop", "max_tokens": 8192, "completion_tokens": 360, "reasoning_tokens": 316}
+{"event": "model_response", "stage": "verify", "attempt": 1, "finish": "stop", "max_tokens": 8192, "completion_tokens": 567, "reasoning_tokens": 467}
+completed_position=2 status=answer
+{"event": "model_response", "stage": "generate", "attempt": 1, "finish": "stop", "max_tokens": 8192, "completion_tokens": 152, "reasoning_tokens": 102}
+{"event": "model_response", "stage": "verify", "attempt": 1, "finish": "stop", "max_tokens": 8192, "completion_tokens": 231, "reasoning_tokens": 126}
+completed_position=4 status=answer
+{"event": "model_response", "stage": "generate", "attempt": 1, "finish": "stop", "max_tokens": 8192, "completion_tokens": 1894, "reasoning_tokens": 1851}
+{"event": "model_response", "stage": "generate", "attempt": 2, "finish": "stop", "max_tokens": 8192, "completion_tokens": 231, "reasoning_tokens": 184}
+{"event": "model_response", "stage": "verify", "attempt": 1, "finish": "stop", "max_tokens": 8192, "completion_tokens": 2262, "reasoning_tokens": 2175}
+completed_position=5 status=partial
+{"event": "model_response", "stage": "verify", "attempt": 1, "finish": "stop", "max_tokens": 8192, "completion_tokens": 233, "reasoning_tokens": 117}
+completed_position=3 status=answer
+{"event": "model_response", "stage": "generate", "attempt": 1, "finish": "stop", "max_tokens": 8192, "completion_tokens": 243, "reasoning_tokens": 198}
+{"event": "model_response", "stage": "generate", "attempt": 1, "finish": "stop", "max_tokens": 8192, "completion_tokens": 368, "reasoning_tokens": 341}
+{"event": "model_response", "stage": "generate", "attempt": 1, "finish": "stop", "max_tokens": 8192, "completion_tokens": 204, "reasoning_tokens": 177}
+{"event": "model_response", "stage": "verify", "attempt": 1, "finish": "stop", "max_tokens": 8192, "completion_tokens": 687, "reasoning_tokens": 580}
+completed_position=7 status=answer
+{"event": "model_response", "stage": "verify", "attempt": 1, "finish": "stop", "max_tokens": 8192, "completion_tokens": 1051, "reasoning_tokens": 994}
+completed_position=6 status=insufficient
+rows=8 elapsed_seconds=111.501

@@ -1,0 +1,1093 @@
+{
+  "base": "64e65ff1c853c73d8977d0260a7ddf9c9ef2942f",
+  "runtime_commit": "d6cd6693c665121378c83d2cf25599c6b0d76b2c",
+  "offline_tests": 156,
+  "targeted_old_runtime_tests": {
+    "tests": 3,
+    "failures": 3,
+    "errors": 0
+  },
+  "positive_development_retrieval": "32/32",
+  "runs": {
+    "organizer_demo": {
+      "run": {
+        "zip_sha256": "99c6639d7b3069569e122b45e0e49a836e9833688c8e4553e4c7dcbcd0aa05a3",
+        "base_commit": "64e65ff1c853c73d8977d0260a7ddf9c9ef2942f",
+        "model": "deepseek-flash",
+        "mode": "real_provider",
+        "platform_submission": false,
+        "input": "organizer_demo",
+        "rows": 18,
+        "exit_code": 0,
+        "seconds": 364.567,
+        "all_ids_match": true,
+        "columns": [
+          "id",
+          "answer"
+        ],
+        "all_answers_valid": true,
+        "technical_answers": 1,
+        "unverified_answers": 1,
+        "request_events": [
+          {
+            "event": "model_response",
+            "stage": "generate",
+            "attempt": 1,
+            "finish": "stop",
+            "max_tokens": 8192,
+            "completion_tokens": 586,
+            "reasoning_tokens": 526
+          },
+          {
+            "event": "model_response",
+            "stage": "generate",
+            "attempt": 1,
+            "finish": "stop",
+            "max_tokens": 8192,
+            "completion_tokens": 1487,
+            "reasoning_tokens": 1452
+          },
+          {
+            "event": "model_response",
+            "stage": "verify",
+            "attempt": 1,
+            "finish": "stop",
+            "max_tokens": 8192,
+            "completion_tokens": 286,
+            "reasoning_tokens": 163
+          },
+          {
+            "event": "model_response",
+            "stage": "generate",
+            "attempt": 1,
+            "finish": "stop",
+            "max_tokens": 8192,
+            "completion_tokens": 217,
+            "reasoning_tokens": 192
+          },
+          {
+            "event": "model_response",
+            "stage": "verify",
+            "attempt": 1,
+            "finish": "stop",
+            "max_tokens": 8192,
+            "completion_tokens": 1122,
+            "reasoning_tokens": 1029
+          },
+          {
+            "event": "model_response",
+            "stage": "generate",
+            "attempt": 1,
+            "finish": "stop",
+            "max_tokens": 8192,
+            "completion_tokens": 249,
+            "reasoning_tokens": 224
+          },
+          {
+            "event": "model_response",
+            "stage": "generate",
+            "attempt": 1,
+            "finish": "stop",
+            "max_tokens": 8192,
+            "completion_tokens": 420,
+            "reasoning_tokens": 386
+          },
+          {
+            "event": "model_response",
+            "stage": "verify",
+            "attempt": 1,
+            "finish": "stop",
+            "max_tokens": 8192,
+            "completion_tokens": 1651,
+            "reasoning_tokens": 1481
+          },
+          {
+            "event": "model_response",
+            "stage": "generate",
+            "attempt": 1,
+            "finish": "stop",
+            "max_tokens": 8192,
+            "completion_tokens": 721,
+            "reasoning_tokens": 675
+          },
+          {
+            "event": "model_response",
+            "stage": "verify",
+            "attempt": 1,
+            "finish": "stop",
+            "max_tokens": 8192,
+            "completion_tokens": 3630,
+            "reasoning_tokens": 3554
+          },
+          {
+            "event": "model_response",
+            "stage": "generate",
+            "attempt": 1,
+            "finish": "stop",
+            "max_tokens": 8192,
+            "completion_tokens": 598,
+            "reasoning_tokens": 562
+          },
+          {
+            "event": "model_response",
+            "stage": "verify",
+            "attempt": 1,
+            "finish": "stop",
+            "max_tokens": 8192,
+            "completion_tokens": 244,
+            "reasoning_tokens": 167
+          },
+          {
+            "event": "model_response",
+            "stage": "generate",
+            "attempt": 1,
+            "finish": "stop",
+            "max_tokens": 8192,
+            "completion_tokens": 840,
+            "reasoning_tokens": 790
+          },
+          {
+            "event": "model_response",
+            "stage": "verify",
+            "attempt": 1,
+            "finish": "stop",
+            "max_tokens": 8192,
+            "completion_tokens": 5090,
+            "reasoning_tokens": 4992
+          },
+          {
+            "event": "model_response",
+            "stage": "verify",
+            "attempt": 1,
+            "finish": "stop",
+            "max_tokens": 8192,
+            "completion_tokens": 881,
+            "reasoning_tokens": 756
+          },
+          {
+            "event": "model_response",
+            "stage": "generate",
+            "attempt": 1,
+            "finish": "stop",
+            "max_tokens": 8192,
+            "completion_tokens": 1440,
+            "reasoning_tokens": 1389
+          },
+          {
+            "event": "model_response",
+            "stage": "generate",
+            "attempt": 1,
+            "finish": "stop",
+            "max_tokens": 8192,
+            "completion_tokens": 413,
+            "reasoning_tokens": 379
+          },
+          {
+            "event": "model_response",
+            "stage": "verify",
+            "attempt": 1,
+            "finish": "stop",
+            "max_tokens": 8192,
+            "completion_tokens": 424,
+            "reasoning_tokens": 352
+          },
+          {
+            "event": "model_response",
+            "stage": "generate",
+            "attempt": 1,
+            "finish": "stop",
+            "max_tokens": 8192,
+            "completion_tokens": 304,
+            "reasoning_tokens": 254
+          },
+          {
+            "event": "model_response",
+            "stage": "verify",
+            "attempt": 1,
+            "finish": "stop",
+            "max_tokens": 8192,
+            "completion_tokens": 514,
+            "reasoning_tokens": 415
+          },
+          {
+            "event": "model_response",
+            "stage": "generate",
+            "attempt": 1,
+            "finish": "stop",
+            "max_tokens": 8192,
+            "completion_tokens": 495,
+            "reasoning_tokens": 445
+          },
+          {
+            "event": "model_response",
+            "stage": "verify",
+            "attempt": 1,
+            "finish": "stop",
+            "max_tokens": 8192,
+            "completion_tokens": 698,
+            "reasoning_tokens": 606
+          },
+          {
+            "event": "model_response",
+            "stage": "generate",
+            "attempt": 1,
+            "finish": "stop",
+            "max_tokens": 8192,
+            "completion_tokens": 174,
+            "reasoning_tokens": 138
+          },
+          {
+            "event": "model_response",
+            "stage": "verify",
+            "attempt": 1,
+            "finish": "stop",
+            "max_tokens": 8192,
+            "completion_tokens": 1251,
+            "reasoning_tokens": 1151
+          },
+          {
+            "event": "model_response",
+            "stage": "generate",
+            "attempt": 1,
+            "finish": "stop",
+            "max_tokens": 8192,
+            "completion_tokens": 330,
+            "reasoning_tokens": 295
+          },
+          {
+            "event": "model_response",
+            "stage": "verify",
+            "attempt": 1,
+            "finish": "stop",
+            "max_tokens": 8192,
+            "completion_tokens": 266,
+            "reasoning_tokens": 186
+          },
+          {
+            "event": "model_response",
+            "stage": "generate",
+            "attempt": 1,
+            "finish": "stop",
+            "max_tokens": 8192,
+            "completion_tokens": 1290,
+            "reasoning_tokens": 1244
+          },
+          {
+            "event": "model_response",
+            "stage": "verify",
+            "attempt": 1,
+            "finish": "stop",
+            "max_tokens": 8192,
+            "completion_tokens": 1913,
+            "reasoning_tokens": 1789
+          },
+          {
+            "event": "model_response",
+            "stage": "generate",
+            "attempt": 1,
+            "finish": "stop",
+            "max_tokens": 8192,
+            "completion_tokens": 616,
+            "reasoning_tokens": 580
+          },
+          {
+            "event": "model_response",
+            "stage": "generate",
+            "attempt": 1,
+            "finish": "stop",
+            "max_tokens": 8192,
+            "completion_tokens": 459,
+            "reasoning_tokens": 425
+          },
+          {
+            "event": "model_response",
+            "stage": "verify",
+            "attempt": 1,
+            "finish": "stop",
+            "max_tokens": 8192,
+            "completion_tokens": 4045,
+            "reasoning_tokens": 3929
+          },
+          {
+            "event": "model_response",
+            "stage": "generate",
+            "attempt": 1,
+            "finish": "stop",
+            "max_tokens": 8192,
+            "completion_tokens": 413,
+            "reasoning_tokens": 375
+          },
+          {
+            "event": "model_response",
+            "stage": "verify",
+            "attempt": 1,
+            "finish": "stop",
+            "max_tokens": 8192,
+            "completion_tokens": 1151,
+            "reasoning_tokens": 1061
+          },
+          {
+            "event": "model_response",
+            "stage": "generate",
+            "attempt": 1,
+            "finish": "stop",
+            "max_tokens": 8192,
+            "completion_tokens": 527,
+            "reasoning_tokens": 492
+          },
+          {
+            "event": "model_response",
+            "stage": "verify",
+            "attempt": 1,
+            "finish": "stop",
+            "max_tokens": 8192,
+            "completion_tokens": 562,
+            "reasoning_tokens": 488
+          },
+          {
+            "event": "model_response",
+            "stage": "generate",
+            "attempt": 1,
+            "finish": "stop",
+            "max_tokens": 8192,
+            "completion_tokens": 533,
+            "reasoning_tokens": 463
+          },
+          {
+            "event": "model_response",
+            "stage": "verify",
+            "attempt": 1,
+            "finish": "stop",
+            "max_tokens": 8192,
+            "completion_tokens": 598,
+            "reasoning_tokens": 481
+          },
+          {
+            "event": "model_response",
+            "stage": "generate",
+            "attempt": 1,
+            "finish": "stop",
+            "max_tokens": 8192,
+            "completion_tokens": 479,
+            "reasoning_tokens": 414
+          },
+          {
+            "event": "model_response",
+            "stage": "verify",
+            "attempt": 1,
+            "finish": "stop",
+            "max_tokens": 8192,
+            "completion_tokens": 2809,
+            "reasoning_tokens": 2631
+          },
+          {
+            "event": "model_response",
+            "stage": "verify",
+            "attempt": 1,
+            "finish": "stop",
+            "max_tokens": 8192,
+            "completion_tokens": 2084,
+            "reasoning_tokens": 1964
+          },
+          {
+            "event": "model_response",
+            "stage": "generate",
+            "attempt": 1,
+            "finish": "stop",
+            "max_tokens": 8192,
+            "completion_tokens": 409,
+            "reasoning_tokens": 353
+          },
+          {
+            "event": "model_response",
+            "stage": "verify",
+            "attempt": 1,
+            "finish": "stop",
+            "max_tokens": 8192,
+            "completion_tokens": 3086,
+            "reasoning_tokens": 2975
+          }
+        ],
+        "thinking": "provider default; not overridden",
+        "temperature_requested": 0,
+        "max_tokens": 8192,
+        "questions_sha256": "e922cee1e155ed23f9f1c8f9758e396ed0e72e4309343dffe33824139bbf1423",
+        "corpus_sha256": "cea8ef2c8f6c8b9f498efacf705b97bf3da53cc78f366f9b1fef7a6de66327e0"
+      },
+      "manual": {
+        "method": "Codex manually read every emitted answer and compared to full provided/synthetic sources and pre-defined rubric. Exact-quote check is separate from semantic review.",
+        "verdicts": {
+          "1": "PASS",
+          "2": "PASS",
+          "3": "PASS",
+          "4": "PASS",
+          "5": "TECHNICAL",
+          "6": "WARN",
+          "7": "PASS",
+          "8": "PASS",
+          "9": "PASS",
+          "10": "PASS",
+          "11": "PASS",
+          "12": "PASS",
+          "13": "FALSE_REFUSAL",
+          "14": "WARN",
+          "15": "PASS",
+          "16": "PASS",
+          "17": "PASS",
+          "18": "PASS"
+        },
+        "counts": {
+          "PASS": 14,
+          "TECHNICAL": 1,
+          "WARN": 2,
+          "FALSE_REFUSAL": 1
+        },
+        "notes": {
+          "5": "Main batch failed with proxy_unavailable, not length; cause of the network failure is not established. Separate 90-second-timeout diagnostic succeeded, but both header waits were <45s, so it does not prove timeout45 was the cause.",
+          "6": "Five working days correctly quoted; delivery-date definition (buyer signing UPD) not included as in the pre-defined demo rubric.",
+          "13": "Catalog mechanism exists and synthetic control passes, but full batch returned unverified on an answerable partial question. Separate diagnostic gave correct partial with missing 6,10,11; original failure retained.",
+          "14": "Seasonal condition quoted correctly, but source header about fixed-term employment not included. The displayed fragment is less self-contained; no invented rule found.",
+          "4": "450000 quoted; no false claim about exclusive amendment route.",
+          "8": "Act requirement quoted; no invented discovery deadline.",
+          "11": "Correct source content, but whole source block includes unasked storage details.",
+          "18": "Correct time limit and storage destination; lengthy block adds unnecessary detail."
+        },
+        "quotes": [
+          {
+            "id": "1",
+            "reference": 1,
+            "exact": true
+          },
+          {
+            "id": "1",
+            "reference": 2,
+            "exact": true
+          },
+          {
+            "id": "1",
+            "reference": 3,
+            "exact": true
+          },
+          {
+            "id": "2",
+            "reference": 1,
+            "exact": true
+          },
+          {
+            "id": "4",
+            "reference": 1,
+            "exact": true
+          },
+          {
+            "id": "6",
+            "reference": 1,
+            "exact": true
+          },
+          {
+            "id": "7",
+            "reference": 1,
+            "exact": true
+          },
+          {
+            "id": "7",
+            "reference": 2,
+            "exact": true
+          },
+          {
+            "id": "8",
+            "reference": 1,
+            "exact": true
+          },
+          {
+            "id": "9",
+            "reference": 1,
+            "exact": true
+          },
+          {
+            "id": "9",
+            "reference": 2,
+            "exact": true
+          },
+          {
+            "id": "10",
+            "reference": 1,
+            "exact": true
+          },
+          {
+            "id": "10",
+            "reference": 2,
+            "exact": true
+          },
+          {
+            "id": "11",
+            "reference": 1,
+            "exact": true
+          },
+          {
+            "id": "12",
+            "reference": 1,
+            "exact": true
+          },
+          {
+            "id": "14",
+            "reference": 1,
+            "exact": true
+          },
+          {
+            "id": "15",
+            "reference": 1,
+            "exact": true
+          },
+          {
+            "id": "16",
+            "reference": 1,
+            "exact": true
+          },
+          {
+            "id": "17",
+            "reference": 1,
+            "exact": true
+          },
+          {
+            "id": "17",
+            "reference": 2,
+            "exact": true
+          },
+          {
+            "id": "18",
+            "reference": 1,
+            "exact": true
+          },
+          {
+            "id": "18",
+            "reference": 2,
+            "exact": true
+          },
+          {
+            "id": "18",
+            "reference": 3,
+            "exact": true
+          }
+        ],
+        "all_quotes_exact": true,
+        "not_official_score": true
+      }
+    },
+    "synthetic": {
+      "run": {
+        "zip_sha256": "99c6639d7b3069569e122b45e0e49a836e9833688c8e4553e4c7dcbcd0aa05a3",
+        "base_commit": "64e65ff1c853c73d8977d0260a7ddf9c9ef2942f",
+        "model": "deepseek-flash",
+        "mode": "real_provider",
+        "platform_submission": false,
+        "input": "synthetic",
+        "rows": 8,
+        "exit_code": 0,
+        "seconds": 111.595,
+        "all_ids_match": true,
+        "columns": [
+          "id",
+          "answer"
+        ],
+        "all_answers_valid": true,
+        "technical_answers": 0,
+        "unverified_answers": 0,
+        "request_events": [
+          {
+            "event": "model_response",
+            "stage": "generate",
+            "attempt": 1,
+            "finish": "stop",
+            "max_tokens": 8192,
+            "completion_tokens": 315,
+            "reasoning_tokens": 265
+          },
+          {
+            "event": "model_response",
+            "stage": "generate",
+            "attempt": 1,
+            "finish": "stop",
+            "max_tokens": 8192,
+            "completion_tokens": 306,
+            "reasoning_tokens": 260
+          },
+          {
+            "event": "model_response",
+            "stage": "verify",
+            "attempt": 1,
+            "finish": "stop",
+            "max_tokens": 8192,
+            "completion_tokens": 587,
+            "reasoning_tokens": 470
+          },
+          {
+            "event": "model_response",
+            "stage": "verify",
+            "attempt": 1,
+            "finish": "stop",
+            "max_tokens": 8192,
+            "completion_tokens": 648,
+            "reasoning_tokens": 535
+          },
+          {
+            "event": "model_response",
+            "stage": "generate",
+            "attempt": 1,
+            "finish": "stop",
+            "max_tokens": 8192,
+            "completion_tokens": 360,
+            "reasoning_tokens": 316
+          },
+          {
+            "event": "model_response",
+            "stage": "verify",
+            "attempt": 1,
+            "finish": "stop",
+            "max_tokens": 8192,
+            "completion_tokens": 567,
+            "reasoning_tokens": 467
+          },
+          {
+            "event": "model_response",
+            "stage": "generate",
+            "attempt": 1,
+            "finish": "stop",
+            "max_tokens": 8192,
+            "completion_tokens": 152,
+            "reasoning_tokens": 102
+          },
+          {
+            "event": "model_response",
+            "stage": "verify",
+            "attempt": 1,
+            "finish": "stop",
+            "max_tokens": 8192,
+            "completion_tokens": 231,
+            "reasoning_tokens": 126
+          },
+          {
+            "event": "model_response",
+            "stage": "generate",
+            "attempt": 1,
+            "finish": "stop",
+            "max_tokens": 8192,
+            "completion_tokens": 1894,
+            "reasoning_tokens": 1851
+          },
+          {
+            "event": "model_response",
+            "stage": "generate",
+            "attempt": 2,
+            "finish": "stop",
+            "max_tokens": 8192,
+            "completion_tokens": 231,
+            "reasoning_tokens": 184
+          },
+          {
+            "event": "model_response",
+            "stage": "verify",
+            "attempt": 1,
+            "finish": "stop",
+            "max_tokens": 8192,
+            "completion_tokens": 2262,
+            "reasoning_tokens": 2175
+          },
+          {
+            "event": "model_response",
+            "stage": "verify",
+            "attempt": 1,
+            "finish": "stop",
+            "max_tokens": 8192,
+            "completion_tokens": 233,
+            "reasoning_tokens": 117
+          },
+          {
+            "event": "model_response",
+            "stage": "generate",
+            "attempt": 1,
+            "finish": "stop",
+            "max_tokens": 8192,
+            "completion_tokens": 243,
+            "reasoning_tokens": 198
+          },
+          {
+            "event": "model_response",
+            "stage": "generate",
+            "attempt": 1,
+            "finish": "stop",
+            "max_tokens": 8192,
+            "completion_tokens": 368,
+            "reasoning_tokens": 341
+          },
+          {
+            "event": "model_response",
+            "stage": "generate",
+            "attempt": 1,
+            "finish": "stop",
+            "max_tokens": 8192,
+            "completion_tokens": 204,
+            "reasoning_tokens": 177
+          },
+          {
+            "event": "model_response",
+            "stage": "verify",
+            "attempt": 1,
+            "finish": "stop",
+            "max_tokens": 8192,
+            "completion_tokens": 687,
+            "reasoning_tokens": 580
+          },
+          {
+            "event": "model_response",
+            "stage": "verify",
+            "attempt": 1,
+            "finish": "stop",
+            "max_tokens": 8192,
+            "completion_tokens": 1051,
+            "reasoning_tokens": 994
+          }
+        ],
+        "thinking": "provider default; not overridden",
+        "temperature_requested": 0,
+        "max_tokens": 8192,
+        "questions_sha256": "acd8e95a2cbc54eadda3ab2f09619be74dd6eb3c4437cb049131490901777eaf",
+        "corpus_sha256": "0ad8e88911363ea648c0811a4f4a8e42bbf5a07da54379ab8955c891c057c41e"
+      },
+      "manual": {
+        "method": "Codex manually read every emitted answer and compared to full provided/synthetic sources and pre-defined rubric. Exact-quote check is separate from semantic review.",
+        "verdicts": {
+          "S1": "PASS",
+          "S2": "PASS",
+          "S3": "PASS",
+          "S4": "PASS",
+          "S5": "PASS",
+          "S6": "PASS",
+          "S7": "WARN",
+          "S8": "PASS"
+        },
+        "counts": {
+          "PASS": 7,
+          "WARN": 1
+        },
+        "notes": {
+          "S1": "Full negation and written-consent condition preserved.",
+          "S2": "Only-with-written-consent preserved.",
+          "S3": "Consumables exclusion preserved.",
+          "S4": "41 days from correct Lotus Opt contract.",
+          "S5": "26 days from other Lotus Optik contract.",
+          "S6": "Partial includes application-owned missing article8 disclaimer in synthetic law987.",
+          "S7": "Correct insufficiency, but also asks for an irrelevant contract number; request is not fully useful.",
+          "S8": "Selected 2030 rule valid before2033 and threshold4m for hypothetical4.6m/2032, without demanding an existing contract."
+        },
+        "quotes": [
+          {
+            "id": "S1",
+            "reference": 1,
+            "exact": true
+          },
+          {
+            "id": "S1",
+            "reference": 2,
+            "exact": true
+          },
+          {
+            "id": "S2",
+            "reference": 1,
+            "exact": true
+          },
+          {
+            "id": "S2",
+            "reference": 2,
+            "exact": true
+          },
+          {
+            "id": "S3",
+            "reference": 1,
+            "exact": true
+          },
+          {
+            "id": "S3",
+            "reference": 2,
+            "exact": true
+          },
+          {
+            "id": "S4",
+            "reference": 1,
+            "exact": true
+          },
+          {
+            "id": "S4",
+            "reference": 2,
+            "exact": true
+          },
+          {
+            "id": "S5",
+            "reference": 1,
+            "exact": true
+          },
+          {
+            "id": "S5",
+            "reference": 2,
+            "exact": true
+          },
+          {
+            "id": "S6",
+            "reference": 1,
+            "exact": true
+          },
+          {
+            "id": "S8",
+            "reference": 1,
+            "exact": true
+          },
+          {
+            "id": "S8",
+            "reference": 2,
+            "exact": true
+          }
+        ],
+        "all_quotes_exact": true,
+        "not_official_score": true
+      }
+    },
+    "final_exact_zip": {
+      "run": {
+        "started_utc": "20261110T110952Z",
+        "archive_sha256": "70ebed357c1a4ce041fcab1370d30f9a067ad2b92d049512598ae9cf9af96419",
+        "source_commit": "e8560fa8c8b1f99f0ccfa45f74bde299a148ca4d",
+        "corpus_sha256": "cea8ef2c8f6c8b9f498efacf705b97bf3da53cc78f366f9b1fef7a6de66327e0",
+        "questions_sha256": "e922cee1e155ed23f9f1c8f9758e396ed0e72e4309343dffe33824139bbf1423",
+        "model": "deepseek-flash",
+        "provider": "https://api.deepseek.com/v1",
+        "temperature": 0,
+        "max_workers": 2,
+        "top_k": 6,
+        "max_tokens": 8192,
+        "run_seconds": 800,
+        "mode": "real_model",
+        "golden_answers_passed_to_model": false,
+        "platform_submission": false,
+        "runtime_modified": false,
+        "seconds": 340.305,
+        "exit_code": 0,
+        "rows": 18,
+        "columns": [
+          "id",
+          "answer"
+        ],
+        "all_ids_match": true,
+        "unique_ids": 18,
+        "all_answers_valid": true,
+        "technical_answers": 0,
+        "unverified_answers": 0
+      },
+      "manual": {
+        "method": "Codex read all 18 answers and compared with supplied source corpus and existing rubric. Quote identity is checked separately from meaning. This is an internal manual review, not the organizer judge.",
+        "verdicts": {
+          "1": "PASS",
+          "2": "PASS",
+          "3": "PASS",
+          "4": "PASS",
+          "5": "PASS",
+          "6": "PASS",
+          "7": "PASS",
+          "8": "PASS",
+          "9": "PASS",
+          "10": "PASS",
+          "11": "PASS",
+          "12": "PASS",
+          "13": "PASS",
+          "14": "WARN",
+          "15": "PASS",
+          "16": "PASS",
+          "17": "PASS",
+          "18": "PASS"
+        },
+        "counts": {
+          "PASS": 17,
+          "WARN": 1
+        },
+        "notes": {
+          "5": "Complete historical 2023 validity block and pre-signing approval threshold10m support approval for12m in August2024; answer remains quotations without explicit arithmetic conclusion.",
+          "6": "Both5workingdays and UPD delivery-date definition now included.",
+          "13": "Partial answer explains absent same-law articles6,10,11. First verdict was rejected, expanded pass approved a narrower single block. Earlier failed run retained.",
+          "14": "Seasonal condition is authentic, but introductory fixed-term-employment heading is absent in output. Incomplete standalone explanation; no fabricated fact found.",
+          "7": "Correct24hour access but contains unnecessary premises/party details.",
+          "11": "Correct3workingday limit and application requirement, but unrelated archive facts make answer verbose.",
+          "17": "Warranty duration not invented; correctly requests product warranty certificate."
+        },
+        "quotes": [
+          {
+            "id": "1",
+            "reference": 1,
+            "exact": true
+          },
+          {
+            "id": "1",
+            "reference": 2,
+            "exact": true
+          },
+          {
+            "id": "2",
+            "reference": 1,
+            "exact": true
+          },
+          {
+            "id": "2",
+            "reference": 2,
+            "exact": true
+          },
+          {
+            "id": "4",
+            "reference": 1,
+            "exact": true
+          },
+          {
+            "id": "5",
+            "reference": 1,
+            "exact": true
+          },
+          {
+            "id": "5",
+            "reference": 2,
+            "exact": true
+          },
+          {
+            "id": "6",
+            "reference": 1,
+            "exact": true
+          },
+          {
+            "id": "6",
+            "reference": 2,
+            "exact": true
+          },
+          {
+            "id": "7",
+            "reference": 1,
+            "exact": true
+          },
+          {
+            "id": "7",
+            "reference": 2,
+            "exact": true
+          },
+          {
+            "id": "7",
+            "reference": 3,
+            "exact": true
+          },
+          {
+            "id": "8",
+            "reference": 1,
+            "exact": true
+          },
+          {
+            "id": "9",
+            "reference": 1,
+            "exact": true
+          },
+          {
+            "id": "9",
+            "reference": 2,
+            "exact": true
+          },
+          {
+            "id": "10",
+            "reference": 1,
+            "exact": true
+          },
+          {
+            "id": "10",
+            "reference": 2,
+            "exact": true
+          },
+          {
+            "id": "11",
+            "reference": 1,
+            "exact": true
+          },
+          {
+            "id": "12",
+            "reference": 1,
+            "exact": true
+          },
+          {
+            "id": "13",
+            "reference": 1,
+            "exact": true
+          },
+          {
+            "id": "14",
+            "reference": 1,
+            "exact": true
+          },
+          {
+            "id": "15",
+            "reference": 1,
+            "exact": true
+          },
+          {
+            "id": "16",
+            "reference": 1,
+            "exact": true
+          },
+          {
+            "id": "17",
+            "reference": 1,
+            "exact": true
+          },
+          {
+            "id": "18",
+            "reference": 1,
+            "exact": true
+          },
+          {
+            "id": "18",
+            "reference": 2,
+            "exact": true
+          }
+        ],
+        "all_quotes_exact": true,
+        "not_official_score": true,
+        "over150word_ids": [
+          "7",
+          "11",
+          "13"
+        ],
+        "limits": [
+          "No external blind corpus benchmark",
+          "The organizer API was not used",
+          "No competition score prediction",
+          "Earlier transport failure root cause remains unconfirmed"
+        ]
+      }
+    }
+  },
+  "ci": {
+    "run": "https://github.com/Moonwuk/grounded-legal-rag/actions/runs/42803119878",
+    "conclusion": "success",
+    "applies_to": "Initial runtime commit only, before integration of new container/IaC main"
+  },
+  "do_not_submit_yet": true,
+  "remaining": [
+    "Self-contained concise explanation: demo14 lacks introductory fixed-term heading",
+    "Historical transport failure not proven resolved by one successful rerun",
+    "Organizer API untested",
+    "Final web UI/source viewer/PDF not implemented in this PR; main now contains batch Docker and IaC"
+  ],
+  "final_archive": {
+    "sha256": "70ebed357c1a4ce041fcab1370d30f9a067ad2b92d049512598ae9cf9af96419",
+    "bytes": 20678,
+    "tests": 156,
+    "live_run": "18 demo on exact final ZIP: 17 PASS, 1 WARN, 0 technical, 0 unverified; earlier attempts retained"
+  },
+  "integrated_main": "ab3bd08bc00631532669abce1bd1cdefc0da06d2",
+  "container_harness_tests": 5,
+  "integration_ci": {
+    "initial_run": "https://github.com/Moonwuk/grounded-legal-rag/actions/runs/42805000109",
+    "initial_failure": "Old container fixture expected a cropped quote; reproduced locally, updated to assert full source block",
+    "latest": "pending"
+  },
+  "local_iac_test": "8 runner tests passed; Ansible guard module cannot import locally because required ansible-core2.22/Python3.13 environment is absent. CI is authoritative for IaC validation."
+}
