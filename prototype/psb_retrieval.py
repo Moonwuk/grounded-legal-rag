@@ -83,6 +83,37 @@ class Retriever:
             # must never reintroduce a removed instruction line.
             self.paragraph_boundaries[d.name] = sorted(set(boundaries) |
                 {offset for span in d.quarantined for offset in span})
+        # Explicit flat lists only: a colon introduces items terminated by
+        # semicolons and a final period. No semantic relations are guessed.
+        self.list_parents = {}
+        for d in documents:
+            parent, style = None, None
+            boundaries = self.paragraph_boundaries[d.name]
+            links = {}
+            for start, end in zip(boundaries, boundaries[1:]):
+                check_deadline(deadline)
+                value = d.text[start:end].strip()
+                if any(a < end and b > start for a, b in d.quarantined):
+                    parent, style = None, None
+                    continue
+                if not value:
+                    continue
+                if value.endswith(":"):
+                    parent, style = (start, end), None
+                    continue
+                marker = re.match(r"(?:([-•])\s+|(\d+[.)])\s+|([а-яa-z][)])\s+)", value)
+                current_style = ("bullet" if marker.group(1) else
+                                 "number" + marker.group(2)[-1] if marker.group(2) else "letter") if marker else "plain"
+                item = bool(marker) or value[0].islower()
+                if (parent is not None and item and value.endswith((";", "."))
+                        and (style is None or style == current_style)):
+                    links[(start, end)] = parent
+                    style = current_style
+                    if value.endswith("."):
+                        parent, style = None, None
+                else:
+                    parent, style = None, None
+            self.list_parents[d.name] = links
         self.article_catalog = defaultdict(set)
         self.law_by_doc = {}
         for d in documents:
@@ -221,10 +252,41 @@ class Retriever:
             fid = hashlib.sha256(f"{doc.name}:{doc.sha256}:{start}:{end}".encode()).hexdigest()[:20]
             complete[fid] = Fragment(fid, doc.name, start, end, doc.text[start:end], f.heading)
         result = list(complete.values())
+        # Restore dependency sources even when a narrow search window omitted
+        # the introduction. They keep independent exact source coordinates.
+        for f in list(result):
+            for parent in self.dependencies(f):
+                complete[parent.id] = parent
+        result = list(complete.values())
         # Never silently cut an exception or an amendment to satisfy a hard cap.
         if len(result) > 512 or sum(len(f.text) for f in result) > 100000:
             raise ValueError("evidence_size_limit")
         return result
+
+    def dependencies(self, fragment):
+        """Return source-owned introductions required by a selected list item."""
+        doc = self.documents[fragment.document]
+        spans = {parent for (start, end), parent in self.list_parents[doc.name].items()
+                 if start < fragment.end and end > fragment.start
+                 and not (fragment.start <= parent[0] and fragment.end >= parent[1])}
+        result = []
+        for start, end in sorted(spans):
+            fid = hashlib.sha256(f"{doc.name}:{doc.sha256}:{start}:{end}".encode()).hexdigest()[:20]
+            result.append(Fragment(fid, doc.name, start, end, doc.text[start:end], ""))
+        return result
+
+    def complete_sources(self, sources, evidence):
+        """Close a selected source set before semantic verification/publication."""
+        by_id = {f.id: f for f in evidence}
+        selected = {}
+        for cite in sources:
+            f = by_id[cite["fragment_id"]]
+            for parent in self.dependencies(f):
+                if parent.id not in by_id:
+                    raise ValueError("missing_structural_source")
+                selected[parent.id] = parent
+            selected[f.id] = f
+        return [{"fragment_id":f.id, "quote":f.text} for f in selected.values()]
 
     def evidence(self, fragments: list[Fragment]) -> list[dict]:
         return [{"id": f.id, "document": f.document, "text": f.text} for f in fragments]
