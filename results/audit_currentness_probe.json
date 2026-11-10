@@ -1,0 +1,35 @@
+{
+  "purpose": "new deterministic linked-context probe; no API calls",
+  "source_base": "main d67c837dcba83439f594623aa506d8550ebd0f6a; retrieval unchanged in PR12",
+  "construction": "All files share one contract identifier; 13 full clauses per file.",
+  "not_original_benchmark": true,
+  "not_minimal_reproducer": true,
+  "results": [
+    {
+      "documents": 1,
+      "input_characters": 3089,
+      "indexed_fragments": 14,
+      "top_k": 6,
+      "status": "context",
+      "context_fragments": 14,
+      "context_characters": 3089
+    },
+    {
+      "documents": 20,
+      "input_characters": 61780,
+      "indexed_fragments": 280,
+      "top_k": 6,
+      "status": "context",
+      "context_fragments": 280,
+      "context_characters": 61780
+    },
+    {
+      "documents": 60,
+      "input_characters": 185340,
+      "indexed_fragments": 840,
+      "top_k": 6,
+      "status": "guard_exception",
+      "error_code": "evidence_size_limit"
+    }
+  ]
+}

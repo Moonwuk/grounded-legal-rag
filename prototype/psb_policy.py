@@ -529,11 +529,16 @@ def expand_selection(value, evidence):
             or len(set(ids))!=len(ids)):
         return {}
     status = value.get("status")
+    requested = value.get("requested_facts", [])
+    if status == "insufficient" and requested == [] and not value.get("issue"):
+        # The status already declares a document-evidence gap. Supply only the
+        # application-owned generic type; unknown/invalid codes still fail.
+        requested = ["document"]
     return {"status":status, "claims":[{"text":by_id[i].text,
              "sources":[{"fragment_id":i,"quote":by_id[i].text}]} for i in ids],
             "missing":["source_gap"] if status in {"partial","insufficient"} else [],
             "clarification":"clarify" if status=="clarify" else "",
-            "requested_facts":value.get("requested_facts",[]),"issue":value.get("issue",""),
+            "requested_facts":requested,"issue":value.get("issue",""),
             "answer":value.get("answer","")}
 
 

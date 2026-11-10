@@ -33,6 +33,24 @@ class WarnRootCauses(unittest.TestCase):
         self.assertNotIn('900', text)
         self.assertNotIn('Какие документы', text)
 
+    def test_insufficient_with_an_empty_fact_code_gets_a_document_request_not_an_unverified_output(self):
+        def absent(payload):
+            return {'status':'insufficient', 'answer':'Нужен документ о компенсации.',
+                    'source_ids':[], 'requested_facts':[]}
+        text, status, model, _ = run('Каков размер компенсации за проезд?', [absent, absent, confirm()])
+        self.assertEqual(status, 'insufficient')
+        self.assertIn('«Каков размер компенсации за проезд?»', text)
+        self.assertEqual(model.calls[-1][1]['candidate']['requested_facts'], ['document'])
+        self.assertNotIn('Нужен документ о компенсации.', text)
+
+    def test_an_unknown_fact_code_is_not_repaired_into_an_approved_refusal(self):
+        def absent(payload):
+            return {'status':'insufficient', 'source_ids':[], 'requested_facts':['invented_code']}
+        text, status, model, _ = run('Каков размер компенсации?', [absent, absent])
+        self.assertEqual(status, 'unverified')
+        self.assertEqual(len(model.calls), 2)
+        self.assertNotIn('invented_code', text)
+
     def test_refusal_scope_does_not_reflect_roles_links_or_control_characters(self):
         def absent(payload):
             return {'status': 'insufficient', 'source_ids': [], 'requested_facts': ['document']}
