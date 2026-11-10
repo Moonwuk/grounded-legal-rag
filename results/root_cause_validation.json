@@ -1,0 +1,306 @@
+{
+  "base_commit": "995b9cb9947b8a1b5965f25e8d83b9e66f74724e",
+  "runtime_code_commit": "132942cfe143de71e515f952529642cbe59276b3",
+  "offline_tests": 111,
+  "synthetic_regression_tests": 14,
+  "before_after_comparison": {
+    "subset_tests": 13,
+    "old_runtime_failures": 10,
+    "fixed_runtime_failures": 0
+  },
+  "positive_development_retrieval": "32/32",
+  "runs_in_order": [
+    {
+      "started_utc": "20261110T091720Z",
+      "archive_sha256": "9dbc80d7aa84144ee8af3c2be8d3bea3116e216939db7a7a224314abc85d882c",
+      "base_commit": "995b9cb9947b8a1b5965f25e8d83b9e66f74724e",
+      "local_patch": "audit root-cause fixes",
+      "corpus_sha256": "cea8ef2c8f6c8b9f498efacf705b97bf3da53cc78f366f9b1fef7a6de66327e0",
+      "questions_sha256": "e922cee1e155ed23f9f1c8f9758e396ed0e72e4309343dffe33824139bbf1423",
+      "model": "deepseek-flash",
+      "provider": "https://api.deepseek.com/v1",
+      "temperature": 0,
+      "max_workers": 2,
+      "top_k": 6,
+      "max_tokens": 8192,
+      "run_seconds": 800,
+      "mode": "real_model",
+      "golden_answers_passed_to_model": false,
+      "platform_submission": false,
+      "runtime_modified": false,
+      "seconds": 376.393,
+      "exit_code": 0,
+      "rows": 18,
+      "columns": [
+        "id",
+        "answer"
+      ],
+      "all_ids_match": true,
+      "unique_ids": 18,
+      "all_answers_valid": true,
+      "technical_answers": 0,
+      "unverified_answers": 2
+    },
+    {
+      "started_utc": "20261110T092122Z",
+      "archive_sha256": "5f4152d8a7a7e562f6f5659103167fee92116814323f50b96a72b381411f5f04",
+      "base_commit": "995b9cb9947b8a1b5965f25e8d83b9e66f74724e",
+      "local_patch": "audit root-cause fixes",
+      "corpus_sha256": "cea8ef2c8f6c8b9f498efacf705b97bf3da53cc78f366f9b1fef7a6de66327e0",
+      "questions_sha256": "e922cee1e155ed23f9f1c8f9758e396ed0e72e4309343dffe33824139bbf1423",
+      "model": "deepseek-flash",
+      "provider": "https://api.deepseek.com/v1",
+      "temperature": 0,
+      "max_workers": 2,
+      "top_k": 6,
+      "max_tokens": 8192,
+      "run_seconds": 800,
+      "mode": "real_model",
+      "golden_answers_passed_to_model": false,
+      "platform_submission": false,
+      "runtime_modified": false,
+      "seconds": 400.067,
+      "exit_code": 0,
+      "rows": 18,
+      "columns": [
+        "id",
+        "answer"
+      ],
+      "all_ids_match": true,
+      "unique_ids": 18,
+      "all_answers_valid": true,
+      "technical_answers": 1,
+      "unverified_answers": 1
+    },
+    {
+      "started_utc": "20261110T093543Z",
+      "archive_sha256": "46257bf82a338e702fa85032ab3b41ee27aa027a95963992f3c504df5a611b31",
+      "base_commit": "995b9cb9947b8a1b5965f25e8d83b9e66f74724e",
+      "local_patch": "audit root-cause fixes",
+      "corpus_sha256": "cea8ef2c8f6c8b9f498efacf705b97bf3da53cc78f366f9b1fef7a6de66327e0",
+      "questions_sha256": "e922cee1e155ed23f9f1c8f9758e396ed0e72e4309343dffe33824139bbf1423",
+      "model": "deepseek-flash",
+      "provider": "https://api.deepseek.com/v1",
+      "temperature": 0,
+      "max_workers": 2,
+      "top_k": 6,
+      "max_tokens": 8192,
+      "run_seconds": 800,
+      "mode": "real_model",
+      "golden_answers_passed_to_model": false,
+      "platform_submission": false,
+      "runtime_modified": false,
+      "seconds": 357.066,
+      "exit_code": 0,
+      "rows": 18,
+      "columns": [
+        "id",
+        "answer"
+      ],
+      "all_ids_match": true,
+      "unique_ids": 18,
+      "all_answers_valid": true,
+      "technical_answers": 1,
+      "unverified_answers": 0
+    }
+  ],
+  "last_manual_review": {
+    "reviewer": "Codex manual reading of all 18 final outputs against provided corpus; not independent legal certification",
+    "counts": {
+      "PASS": 16,
+      "WARN": 1,
+      "TECHNICAL": 1
+    },
+    "per_question": {
+      "1": "PASS",
+      "2": "PASS",
+      "3": "PASS",
+      "4": "PASS",
+      "5": "TECHNICAL",
+      "6": "PASS",
+      "7": "PASS",
+      "8": "PASS",
+      "9": "PASS",
+      "10": "PASS",
+      "11": "PASS",
+      "12": "PASS",
+      "13": "WARN",
+      "14": "PASS",
+      "15": "PASS",
+      "16": "PASS",
+      "17": "PASS",
+      "18": "PASS"
+    },
+    "notes": {
+      "4": "450000 and separate utilities quoted; false exclusivity removed. Explanation is less direct than a synthesized correction; no inflation document inferred.",
+      "5": "Technical; truncated_model_output remains. It is not classified as correct or as absence of the norm.",
+      "8": "Act required by 6.2; separate quality-acceptance quote does not assert universal discovery deadline. Extra quote is unnecessary.",
+      "13": "WARN: provisions are true but absence of referenced grounds and limits on determining deletion obligations are not explicit.",
+      "14": "Correct seasonal condition; repeated quote is a style defect.",
+      "15": "Correct act requirement and condition of return; duplicate quote is a style defect.",
+      "16": "Correct source clause 2.1; no false refusal in this run.",
+      "17": "Manufacturer warranty and request for warranty card correct; no transferred 24-month term."
+    },
+    "quotes": [
+      {
+        "id": "1",
+        "number": 1,
+        "exact": true
+      },
+      {
+        "id": "1",
+        "number": 2,
+        "exact": true
+      },
+      {
+        "id": "2",
+        "number": 1,
+        "exact": true
+      },
+      {
+        "id": "2",
+        "number": 2,
+        "exact": true
+      },
+      {
+        "id": "4",
+        "number": 1,
+        "exact": true
+      },
+      {
+        "id": "4",
+        "number": 2,
+        "exact": true
+      },
+      {
+        "id": "6",
+        "number": 1,
+        "exact": true
+      },
+      {
+        "id": "6",
+        "number": 2,
+        "exact": true
+      },
+      {
+        "id": "7",
+        "number": 1,
+        "exact": true
+      },
+      {
+        "id": "7",
+        "number": 2,
+        "exact": true
+      },
+      {
+        "id": "8",
+        "number": 1,
+        "exact": true
+      },
+      {
+        "id": "8",
+        "number": 2,
+        "exact": true
+      },
+      {
+        "id": "9",
+        "number": 1,
+        "exact": true
+      },
+      {
+        "id": "9",
+        "number": 2,
+        "exact": true
+      },
+      {
+        "id": "10",
+        "number": 1,
+        "exact": true
+      },
+      {
+        "id": "10",
+        "number": 2,
+        "exact": true
+      },
+      {
+        "id": "11",
+        "number": 1,
+        "exact": true
+      },
+      {
+        "id": "12",
+        "number": 1,
+        "exact": true
+      },
+      {
+        "id": "13",
+        "number": 1,
+        "exact": true
+      },
+      {
+        "id": "13",
+        "number": 2,
+        "exact": true
+      },
+      {
+        "id": "14",
+        "number": 1,
+        "exact": true
+      },
+      {
+        "id": "14",
+        "number": 2,
+        "exact": true
+      },
+      {
+        "id": "15",
+        "number": 1,
+        "exact": true
+      },
+      {
+        "id": "16",
+        "number": 1,
+        "exact": true
+      },
+      {
+        "id": "17",
+        "number": 1,
+        "exact": true
+      },
+      {
+        "id": "17",
+        "number": 2,
+        "exact": true
+      },
+      {
+        "id": "18",
+        "number": 1,
+        "exact": true
+      },
+      {
+        "id": "18",
+        "number": 2,
+        "exact": true
+      }
+    ],
+    "all_quotes_exact": true,
+    "caveat": "Extractive wording prevents arbitrary new prose but not wrong choice of source, omitted conditions, stale version or incomplete coverage. No official Score improvement measured."
+  },
+  "ci": {
+    "url": "https://github.com/Moonwuk/grounded-legal-rag/actions/runs/42792110650",
+    "conclusion": "success"
+  },
+  "remaining": [
+    "provider output truncation",
+    "hypothetical user facts confused with document facts in non-thinking experiment",
+    "incomplete source-gap explanation",
+    "F09 branch protection needs administration"
+  ],
+  "provider_configuration_experiment": {
+    "question": "5",
+    "thinking": "disabled",
+    "seconds": 35.915,
+    "status": "unverified",
+    "conclusion": "Not adopted: faster did not produce a correct answer."
+  }
+}

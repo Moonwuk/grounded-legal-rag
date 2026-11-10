@@ -1,5 +1,6 @@
 """Run the actual submission ZIP against the environment-configured API."""
 from pathlib import Path
+from datetime import datetime, timezone
 import csv
 import hashlib
 import json
@@ -14,8 +15,9 @@ import zipfile
 ROOT = Path(__file__).resolve().parents[1]
 
 def main():
-    out = ROOT / 'results/security_stress_20261110/final'
-    out.mkdir(parents=True,exist_ok=True)
+    run_id = datetime.now(timezone.utc).strftime('%Y%m%dT%H%M%S%fZ')
+    out = ROOT / os.environ.get('PSB_AUDIT_OUT', 'results/live_submission_' + run_id)
+    out.mkdir(parents=True, exist_ok=False)
     path=ROOT/'dist/PSB_baseline_submission.zip'
     digest=hashlib.sha256(path.read_bytes()).hexdigest()
     with tempfile.TemporaryDirectory() as temp:
@@ -41,7 +43,7 @@ def main():
                 'all_answers_valid':all(r['answer'].strip() and len(r['answer'])<=10000 for r in rows),
                 'technical_answers':sum('технической ошибки' in r['answer'] for r in rows),
                 'unverified_answers':sum('достаточно проверенных оснований' in r['answer'] for r in rows),
-                'platform_submission':False}
+                'platform_submission':False, 'output_directory':str(out.relative_to(ROOT)) if out.is_relative_to(ROOT) else str(out)}
         (out/'submission_summary.json').write_text(json.dumps(report,ensure_ascii=False,indent=2))
         print(json.dumps(report,ensure_ascii=False,indent=2),flush=True)
 
