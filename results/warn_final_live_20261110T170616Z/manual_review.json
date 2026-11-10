@@ -1,0 +1,14 @@
+{
+  "mode": "internal source-based manual review; not independent benchmark",
+  "all_18_answers_read": true,
+  "original_warn_checks": {
+    "3": "PASS: current benefit question is explicit, no invented amount",
+    "10": "PASS: interested-unit initiator and legal review role, no exclusive role claim",
+    "13": "PASS:141words, complete clauses and missing-article notice",
+    "17": "PASS:full referral and direct request for warranty document"
+  },
+  "remaining_warning": {
+    "16": "163words after scope guard fallback; complete amendment is irrelevant to price inclusion. Kept as a separate intermediate run; follow-up supplies targeted neutral-rewording feedback."
+  },
+  "limits": "Semantic checks are internal; correctness outside this set is unproved."
+}

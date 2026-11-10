@@ -1,0 +1,25 @@
+test_a_neutral_role_statement_stays_a_direct_answer (test_warn_root_causes.WarnRootCauses.test_a_neutral_role_statement_stays_a_direct_answer) ... ok
+test_a_reference_does_not_force_a_document_for_an_unrelated_value (test_warn_root_causes.WarnRootCauses.test_a_reference_does_not_force_a_document_for_an_unrelated_value) ... ok
+test_an_approving_judge_cannot_authorize_an_added_exclusive_role (test_warn_root_causes.WarnRootCauses.test_an_approving_judge_cannot_authorize_an_added_exclusive_role) ... 
+  test_an_approving_judge_cannot_authorize_an_added_exclusive_role (test_warn_root_causes.WarnRootCauses.test_an_approving_judge_cannot_authorize_an_added_exclusive_role) (draft='Финансовый отдел не инициирует заявки.') ... FAIL
+test_an_external_value_requires_its_document_and_does_not_become_absent_terms (test_warn_root_causes.WarnRootCauses.test_an_external_value_requires_its_document_and_does_not_become_absent_terms) ... ok
+test_an_old_topic_does_not_make_a_new_value_question_incomplete (test_warn_root_causes.WarnRootCauses.test_an_old_topic_does_not_make_a_new_value_question_incomplete) ... ok
+test_article_gap_notice_is_not_duplicated_by_a_generic_partial_notice (test_warn_root_causes.WarnRootCauses.test_article_gap_notice_is_not_duplicated_by_a_generic_partial_notice) ... {"event": "policy_verdict", "position": null, "expanded": false, "candidate_status": "partial", "approved": true, "prose": "absent", "verdict_status": "partial", "check_count": 2, "source_gap_count": 3, "failed_claim_positions": []}
+ok
+test_forward_reference_is_not_a_gap_when_asking_who_sets_the_value (test_warn_root_causes.WarnRootCauses.test_forward_reference_is_not_a_gap_when_asking_who_sets_the_value) ... ok
+test_no_source_refusal_names_the_current_question_not_model_or_assistant_text (test_warn_root_causes.WarnRootCauses.test_no_source_refusal_names_the_current_question_not_model_or_assistant_text) ... ok
+test_refusal_scope_does_not_reflect_roles_links_or_control_characters (test_warn_root_causes.WarnRootCauses.test_refusal_scope_does_not_reflect_roles_links_or_control_characters) ... ok
+test_the_dependency_is_resolved_when_the_referenced_document_is_in_the_corpus (test_warn_root_causes.WarnRootCauses.test_the_dependency_is_resolved_when_the_referenced_document_is_in_the_corpus) ... ok
+
+======================================================================
+FAIL: test_an_approving_judge_cannot_authorize_an_added_exclusive_role (test_warn_root_causes.WarnRootCauses.test_an_approving_judge_cannot_authorize_an_added_exclusive_role) (draft='Финансовый отдел не инициирует заявки.')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/scratch/94557bdbb953/work/warn-fixes/tests/test_warn_root_causes.py", line 57, in test_an_approving_judge_cannot_authorize_an_added_exclusive_role
+    self.assertNotIn(draft, text)
+AssertionError: 'Финансовый отдел не инициирует заявки.' unexpectedly found in 'Финансовый отдел не инициирует заявки.\nИсточник: Регламент, п. 2.1.'
+
+----------------------------------------------------------------------
+Ran 10 tests in 0.145s
+
+FAILED (failures=1)

@@ -1,0 +1,22 @@
+{
+  "base_commit": "d67c837dcba83439f594623aa506d8550ebd0f6a",
+  "runtime_commit": "3a3627ac41f01579e043bad716c18b4682bd3e46",
+  "archive_sha256": "7f0fa1edeca490e380cf7622c106edc02b7c1d52c3bb89c723874a020051656f",
+  "identical_numeric_and_grounding_functions": [
+    "_word_numbers",
+    "_figures",
+    "prose_grounded",
+    "grounding_basis"
+  ],
+  "modified_functions": [
+    "expand_selection",
+    "gap_lines",
+    "render",
+    "answer_question"
+  ],
+  "new_functions": [
+    "request_scope",
+    "prose_scope_safe",
+    "value_dependencies"
+  ]
+}
