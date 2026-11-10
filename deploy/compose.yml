@@ -1,0 +1,60 @@
+name: psb
+
+services:
+  psb:
+    image: ${PSB_IMAGE:?Set the verified ghcr.io image by sha256 digest}
+    user: "10001:10001"
+    working_dir: /output
+    init: true
+    restart: "no"
+    read_only: true
+    cap_drop:
+      - ALL
+    security_opt:
+      - no-new-privileges:true
+    pids_limit: 128
+    mem_limit: ${PSB_MEMORY_LIMIT:-2g}
+    cpus: ${PSB_CPUS:-2.0}
+    tmpfs:
+      - /tmp:rw,noexec,nosuid,nodev,size=128m,mode=1777
+    environment:
+      DATA_DIR: /data
+      LLM_API_KEY_FILE: /run/secrets/llm_api_key
+      LLM_BASE_URL: ${LLM_BASE_URL:?Set the trusted HTTPS proxy endpoint}
+      LLM_MODEL: ${LLM_MODEL:?Set the model supplied by the proxy operator}
+      MAX_WORKERS: ${MAX_WORKERS:-2}
+      TOP_K: ${TOP_K:-6}
+      MAX_TOKENS: ${MAX_TOKENS:-8192}
+      TEMPERATURE: ${TEMPERATURE:-0}
+      PSB_RUN_SECONDS: ${PSB_RUN_SECONDS:-1100}
+    volumes:
+      - type: bind
+        source: ${PSB_DATA_DIR:?Set an absolute directory with the input files}
+        target: /data
+        read_only: true
+        bind:
+          create_host_path: false
+      - type: bind
+        source: ${PSB_OUTPUT_DIR:?Set a dedicated absolute output directory}
+        target: /output
+        bind:
+          create_host_path: false
+      - type: bind
+        source: ${PSB_LLM_KEY_FILE:?Set an existing absolute secret-file path}
+        target: /run/secrets/llm_api_key
+        read_only: true
+        bind:
+          create_host_path: false
+    networks:
+      - egress
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+networks:
+  # This bridge permits outbound traffic. A destination allowlist must be
+  # enforced separately by the operator's host/network/proxy policy.
+  egress:
+    driver: bridge

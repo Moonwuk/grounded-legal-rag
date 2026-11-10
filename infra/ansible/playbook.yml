@@ -1,0 +1,8 @@
+---
+- name: Prepare a verified PSB batch release on an existing Docker host
+  hosts: psb
+  gather_facts: false
+  become: true
+  any_errors_fatal: true
+  roles:
+    - role: psb

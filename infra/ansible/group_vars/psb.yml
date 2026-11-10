@@ -1,0 +1,20 @@
+---
+# Override these nonsecret values in a private inventory or an extra-vars file.
+# Empty image/source and the example endpoint deliberately fail preflight.
+psb_image: ""
+psb_source_commit: ""
+psb_llm_base_url: https://proxy.example.invalid/v1
+psb_llm_model: CHANGE_ME
+
+psb_install_dir: /srv/psb
+psb_data_dir: /var/lib/psb/data
+psb_output_dir: /var/lib/psb/output
+psb_llm_key_file: /etc/psb/llm_api_key
+
+psb_cpus: 2.0
+psb_memory_mb: 2048
+psb_max_workers: 2
+psb_top_k: 6
+psb_max_tokens: 8192
+psb_temperature: 0
+psb_run_seconds: 1100

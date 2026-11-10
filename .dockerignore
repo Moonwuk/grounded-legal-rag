@@ -1,0 +1,9 @@
+# Allow only the runtime source and its container bootstrap into build context.
+**
+!Dockerfile
+!.dockerignore
+!prototype/
+!prototype/*.py
+!prototype/requirements.txt
+!containers/
+!containers/entrypoint.py

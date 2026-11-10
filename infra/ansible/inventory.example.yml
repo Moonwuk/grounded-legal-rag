@@ -1,0 +1,10 @@
+---
+all:
+  children:
+    psb:
+      hosts:
+        psb.example.invalid:
+          ansible_host: psb.example.invalid
+          ansible_user: deploy
+          # SSH credentials and privilege escalation are configured out of band.
+          # Do not put passwords, tokens, or private-key contents in inventory.
