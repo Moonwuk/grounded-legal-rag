@@ -161,7 +161,11 @@ def validate_candidate(candidate: dict, evidence: list[Fragment]) -> bool:
             fid, quote = cite.get("fragment_id"), cite.get("quote")
             if not isinstance(fid, str) or fid not in sources or not isinstance(quote, str):
                 return False
-            if len(quote) > 10000 or len(norm(quote)) < 12 or norm(quote) not in norm(sources[fid].text):
+            quoted, original = norm(quote), norm(sources[fid].text)
+            # A complete short source (e.g. a prohibitive list introduction)
+            # is meaningful; arbitrary tiny substrings remain inadmissible.
+            if (len(quote) > 10000 or not quoted or quoted not in original
+                    or (len(quoted) < 12 and quoted != original)):
                 return False
     return True
 
@@ -274,6 +278,16 @@ def answer_question(question: str, retriever, client, top_k: int = 6) -> tuple[s
                 continue
             if candidate["status"] == "insufficient" and not expanded:
                 continue
+            # Source structure, not the model, determines mandatory list context.
+            if hasattr(retriever, "complete_sources"):
+                try:
+                    candidate = {**candidate, "claims":[{**claim, "sources":
+                        retriever.complete_sources(claim["sources"], evidence)}
+                        for claim in candidate["claims"]]}
+                except ValueError:
+                    raise ProviderError("missing_structural_source") from None
+                if not validate_candidate(candidate, evidence):
+                    raise ProviderError("structural_source_limit")
             # Verify exactly the wording that may be published, not a discarded draft.
             by_id = {f.id:f for f in evidence}
             selected = [by_id[cite["fragment_id"]] for c in candidate["claims"] for cite in c["sources"]]

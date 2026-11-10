@@ -1,7 +1,7 @@
 {
   "file": "PSB_baseline_submission.zip",
-  "bytes": 20678,
-  "sha256": "70ebed357c1a4ce041fcab1370d30f9a067ad2b92d049512598ae9cf9af96419",
+  "bytes": 21686,
+  "sha256": "ebd036874510430a1e1f5f3f115d89e17c65ba73ae4aa1c6129bf2e945f7bc53",
   "entries": [
     "solution.py",
     "psb_corpus.py",
@@ -10,5 +10,12 @@
     "psb_llm.py",
     "requirements.txt"
   ],
-  "platform_execution": "NOT RUN; proxy credentials unavailable in this session"
+  "platform_execution": "NOT RUN; organizer proxy not tested",
+  "development_execution": {
+    "provider": "DeepSeek public API",
+    "model": "deepseek-flash",
+    "report": "docs/structural_live_review.md",
+    "run": "results/structural_live_20261110T121135Z",
+    "runtime_modified": false
+  }
 }
