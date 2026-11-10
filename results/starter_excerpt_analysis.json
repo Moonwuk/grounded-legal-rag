@@ -1,0 +1,28 @@
+{
+  "scope": "Upper-bound coverage of first 1200 source characters, before any document selection. NOT a comparison to the hidden judge baseline.",
+  "cases": [
+    "demo_1",
+    "demo_2",
+    "demo_4",
+    "demo_6",
+    "demo_7",
+    "demo_8",
+    "demo_9",
+    "demo_13",
+    "demo_15",
+    "demo_17",
+    "demo_18",
+    "delivery_30",
+    "delivery_1",
+    "delivery_2",
+    "payment_after_change",
+    "injection_archive_payment",
+    "pressure_history",
+    "compliance_20",
+    "compliance_21",
+    "guarantee_exception",
+    "template_exception",
+    "lawful_consequences"
+  ],
+  "count": 22
+}

@@ -1,0 +1,36 @@
+{
+  "retrieved_on": "2026-11-10",
+  "source_folder": "https://drive.google.com/drive/folders/1lendasLVlcKUcuM8mOrWKHD-C2dWtm9F",
+  "files": [
+    {
+      "name": "knowledge-base.zip",
+      "bytes": 83695,
+      "sha256": "cea8ef2c8f6c8b9f498efacf705b97bf3da53cc78f366f9b1fef7a6de66327e0"
+    },
+    {
+      "name": "demo_questions.csv",
+      "bytes": 4469,
+      "sha256": "e922cee1e155ed23f9f1c8f9758e396ed0e72e4309343dffe33824139bbf1423"
+    },
+    {
+      "name": "demo_output.csv",
+      "bytes": 8413,
+      "sha256": "cf73e808c2c0071e616c61a965b8cd01713b62d150ec1c9c1c2c7dcb3206115b"
+    },
+    {
+      "name": "requirements.txt",
+      "bytes": 463,
+      "sha256": "54e0542fa9f9917d39c51ecf80ea3077b2135eb924ac7328dfad6aa5e3780b12"
+    },
+    {
+      "name": "sample_submission.zip",
+      "bytes": 6832,
+      "sha256": "99227787858dd5106b1902d5c44ae2399f37efb63beae20683fe467f898d640f"
+    },
+    {
+      "name": "technical_regulations_text.md",
+      "bytes": 16136,
+      "sha256": "1c01822c46b03c3db33134fdf6533b8d599408420fe0bcf21f210728b7a029c1"
+    }
+  ]
+}

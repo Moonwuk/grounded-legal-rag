@@ -1,0 +1,8 @@
+{
+  "tests_run": 17,
+  "failures": 0,
+  "errors": 0,
+  "successful": true,
+  "real_organizer_model_tested": false,
+  "http_integration": "local stub only"
+}

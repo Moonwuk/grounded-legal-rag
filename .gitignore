@@ -1,0 +1,11 @@
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+.env
+.env.*
+!.env.example
+submission.csv
+submission.csv.tmp
+.pytest_cache/
+.DS_Store
