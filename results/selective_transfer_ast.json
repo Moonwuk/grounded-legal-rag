@@ -1,0 +1,18 @@
+{
+  "base_commit": "3d9027836929825976c3497ddc163a584f5bb7e7",
+  "runtime_commit": "7c33af4f86e03190f8ab0ef93a338a9b149e19bf",
+  "changed_top_level_definitions": [
+    "FOLLOWUPS",
+    "SYSTEM",
+    "render",
+    "validate_candidate"
+  ],
+  "identical_functions": [
+    "_word_numbers",
+    "_figures",
+    "prose_grounded",
+    "grounding_basis",
+    "answer_question"
+  ],
+  "limits": "AST equality for listed functions; prompt/rendering changes can still change model behavior."
+}

@@ -1,0 +1,43 @@
+{
+  "id": "demo3",
+  "status": "unverified",
+  "final_answer": "Не удалось получить достаточно проверенных оснований для ответа по доступным документам. Уточните договор, дату события и условия задачи.",
+  "events": [
+    {
+      "stage": "generate",
+      "status": "insufficient",
+      "requested_facts": [
+        "document"
+      ],
+      "source_count": 0
+    },
+    {
+      "stage": "generate",
+      "status": "insufficient",
+      "requested_facts": [
+        "document"
+      ],
+      "source_count": 0
+    },
+    {
+      "stage": "verify",
+      "status": "insufficient",
+      "approved": false,
+      "complete": false,
+      "answer_supported": true,
+      "requested_facts": [
+        "document"
+      ],
+      "reason_labels": [
+        "clarification_mentioned",
+        "absence_mentioned",
+        "grounding_mentioned",
+        "benefit_mentioned",
+        "document_mentioned"
+      ],
+      "claim_checks_all_positive": true
+    }
+  ],
+  "mode": "separate diagnostic repeat; not replacement for full run",
+  "source_commit": "8ce3c467d2f75f3d041641d519faf3ff3ed40df3"
+}
