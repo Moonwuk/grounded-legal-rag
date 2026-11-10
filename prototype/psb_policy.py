@@ -95,6 +95,10 @@ partial: дай подтверждённую часть и назови, как�
 answer_numbers_not_in_sources — в тексте были числа или номера пунктов, которых нет
 в выбранных положениях и в вопросе; answer_not_supported — текст не подтверждён
 выбранными положениями. Исправь именно это.
+Если retry_scope_guard=true, приложение заблокировало добавленную ограничительную
+формулировку. Переформулируй ответ положительно по исходным положениям, без «лишь»,
+«только», «исключительно» и отрицания иных функций. Не повторяй необязательные
+соседние выводы; существенные условия и исключения источника сохраняй полностью.
 При partial/insufficient/clarify назови конкретный тип недостающих сведений в requested_facts:
 contract, counterparty, event_date, specification_date, warranty_document, document,
 facts, referenced_documents. При answer requested_facts пуст.
@@ -624,6 +628,7 @@ def answer_question(question: str, retriever, client, top_k: int = 6) -> tuple[s
         return TECHNICAL, "technical_error"
     fallback = None
     retry_reason = ""
+    retry_scope_guard = False
     try:
         for expanded in (False, True):
             evidence = retriever.search(question, top_k=top_k, expanded=expanded)
@@ -632,6 +637,8 @@ def answer_question(question: str, retriever, client, top_k: int = 6) -> tuple[s
             if retry_reason:
                 # Application-owned code only; verifier prose never reaches the generator.
                 payload["retry_reason"] = retry_reason
+                if retry_scope_guard:
+                    payload["retry_scope_guard"] = True
             generated = client.complete(SYSTEM, payload)
             candidate = expand_selection(generated, evidence)
             if not validate_candidate(candidate, evidence):
@@ -670,7 +677,7 @@ def answer_question(question: str, retriever, client, top_k: int = 6) -> tuple[s
             # Known restrictive units retain the source-only boundary even when
             # a semantic verifier incorrectly approves a contradictory draft.
             source_only = bool(value_gaps) or any(_SOURCE_ONLY.search(norm(f.text)) for f in selected)
-            scope_blocked = bool(draft and selected and not prose_scope_safe(draft, selected))
+            scope_blocked = bool(draft and selected and not source_only and not prose_scope_safe(draft, selected))
             prose = draft if draft and selected and not source_only and not scope_blocked and prose_grounded(draft, grounding_basis(
                 question, selected, getattr(retriever, "documents", {}))) else ""
             prose_state = ('checked' if prose else 'source_only' if draft and source_only else 'rejected' if scope_blocked else
@@ -701,12 +708,15 @@ def answer_question(question: str, retriever, client, top_k: int = 6) -> tuple[s
                          if not isinstance(c,dict) or c.get("supported") is not True or c.get("applicable") is not True]
                          if isinstance(checks,list) else []}
             print(json.dumps(event), file=sys.stderr)
+            if scope_blocked and not expanded:
+                retry_reason, retry_scope_guard = "answer_not_supported", True
             if allowed:
                 if prose_state in {"ungrounded", "rejected"} and not expanded:
                     # Keep the verified provisions and give the text one more attempt.
                     fallback = (rendered, candidate["status"])
                     retry_reason = ("answer_numbers_not_in_sources" if prose_state == "ungrounded"
                                     else "answer_not_supported")
+                    retry_scope_guard = scope_blocked
                     continue
                 # Missing user facts cannot be found by another retrieval pass.
                 document_gap = bool(set(candidate.get("requested_facts", [])) &

@@ -79,6 +79,17 @@ class WarnRootCauses(unittest.TestCase):
                     self.assertNotIn(draft, payload['rendered_answer'])
                     self.assertNotIn('answer', payload['candidate'])
 
+    def test_scope_guard_retry_requests_a_neutral_statement(self):
+        source = '2.1. Финансовый отдел согласует проект заявки.'
+        neutral = 'Финансовый отдел согласует проект заявки (п. 2.1).'
+        def generate(payload):
+            draft = neutral if payload.get('retry_scope_guard') is True else 'Финансовый отдел лишь согласует проект заявки.'
+            return select('2.1.', draft)(payload)
+        text, status, model, _ = run('Кто согласует заявку?', repeated(generate), {'Регламент.txt': source})
+        self.assertEqual(status, 'answer')
+        self.assertTrue(text.startswith(neutral))
+        self.assertIs(model.calls[2][1].get('retry_scope_guard'), True)
+
     def test_a_neutral_role_statement_stays_a_direct_answer(self):
         source = '2.1. Финансовый отдел согласует проект заявки.'
         draft = 'Финансовый отдел согласует проект заявки (п. 2.1).'
