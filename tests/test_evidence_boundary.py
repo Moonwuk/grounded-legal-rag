@@ -115,3 +115,18 @@ class CompactSelectionTests(unittest.TestCase):
         selected=[f for f in r.search('Отзыв согласия на обработку персональных данных') if f.text.startswith('2. Согласие')]
         gaps=r.reference_gaps(selected)
         self.assertEqual(set(gaps[0]['articles']),{'6','10','11'})
+
+class SafeTelemetryTests(unittest.TestCase):
+    def test_provider_failure_has_safe_kind_and_position(self):
+        import io,json,time
+        from contextlib import redirect_stderr
+        from test_security import proxy,TEST_KEY
+        from psb_llm import ProxyClient,ProviderError
+        with proxy('401') as (_,calls):
+            log=io.StringIO()
+            with redirect_stderr(log),self.assertRaises(ProviderError):
+                ProxyClient(time.monotonic()+10,position=7).complete('policy',{})
+            event=json.loads(log.getvalue())
+            self.assertEqual(event['kind'],'http_401')
+            self.assertEqual(event['position'],7)
+            self.assertNotIn(TEST_KEY,log.getvalue())

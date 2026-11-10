@@ -1,6 +1,7 @@
 """Application-controlled response policy; semantic judgements remain fallible."""
 from __future__ import annotations
 import re
+import json
 import sys
 from psb_corpus import Fragment, norm
 from psb_llm import ProviderError
@@ -288,7 +289,20 @@ def answer_question(question: str, retriever, client, top_k: int = 6) -> tuple[s
             verdict = client.complete(VERIFY, {**payload, "candidate": candidate,
                                                "rendered_answer": rendered,
                                                "source_gaps":source_gaps})
-            if approved(candidate, verdict):
+            allowed = approved(candidate, verdict)
+            checks = verdict.get("claim_checks") if isinstance(verdict, dict) else None
+            vstatus = verdict.get("status") if isinstance(verdict, dict) else None
+            position = getattr(client, "position", None)
+            event = {"event":"policy_verdict", "position":position if type(position) is int else None,
+                     "expanded":expanded, "candidate_status":candidate["status"], "approved":allowed,
+                     "verdict_status":vstatus if isinstance(vstatus,str) and vstatus in STATUSES else "invalid",
+                     "check_count":len(checks) if isinstance(checks,list) else -1,
+                     "source_gap_count":sum(len(g["articles"]) for g in source_gaps),
+                     "failed_claim_positions":[i for i, c in enumerate(checks[:12])
+                         if not isinstance(c,dict) or c.get("supported") is not True or c.get("applicable") is not True]
+                         if isinstance(checks,list) else []}
+            print(json.dumps(event), file=sys.stderr)
+            if allowed:
                 # Missing user facts cannot be found by another retrieval pass.
                 document_gap = bool(set(candidate.get("requested_facts", [])) &
                                     {"document", "referenced_documents", "warranty_document"})

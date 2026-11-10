@@ -86,7 +86,7 @@ def main() -> int:
 
     def work(index):
         try:
-            text, status = answer_question(questions[index][1], retriever, ProxyClient(deadline), top_k)
+            text, status = answer_question(questions[index][1], retriever, ProxyClient(deadline, position=index), top_k)
             return index, text, status
         except Exception as error:
             # Never log prompts, source bodies, API response bodies or secrets.

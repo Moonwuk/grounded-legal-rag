@@ -1,0 +1,179 @@
+{
+  "zip_sha256": "99c6639d7b3069569e122b45e0e49a836e9833688c8e4553e4c7dcbcd0aa05a3",
+  "base_commit": "64e65ff1c853c73d8977d0260a7ddf9c9ef2942f",
+  "model": "deepseek-flash",
+  "mode": "real_provider",
+  "platform_submission": false,
+  "input": "synthetic",
+  "rows": 8,
+  "exit_code": 0,
+  "seconds": 111.595,
+  "all_ids_match": true,
+  "columns": [
+    "id",
+    "answer"
+  ],
+  "all_answers_valid": true,
+  "technical_answers": 0,
+  "unverified_answers": 0,
+  "request_events": [
+    {
+      "event": "model_response",
+      "stage": "generate",
+      "attempt": 1,
+      "finish": "stop",
+      "max_tokens": 8192,
+      "completion_tokens": 315,
+      "reasoning_tokens": 265
+    },
+    {
+      "event": "model_response",
+      "stage": "generate",
+      "attempt": 1,
+      "finish": "stop",
+      "max_tokens": 8192,
+      "completion_tokens": 306,
+      "reasoning_tokens": 260
+    },
+    {
+      "event": "model_response",
+      "stage": "verify",
+      "attempt": 1,
+      "finish": "stop",
+      "max_tokens": 8192,
+      "completion_tokens": 587,
+      "reasoning_tokens": 470
+    },
+    {
+      "event": "model_response",
+      "stage": "verify",
+      "attempt": 1,
+      "finish": "stop",
+      "max_tokens": 8192,
+      "completion_tokens": 648,
+      "reasoning_tokens": 535
+    },
+    {
+      "event": "model_response",
+      "stage": "generate",
+      "attempt": 1,
+      "finish": "stop",
+      "max_tokens": 8192,
+      "completion_tokens": 360,
+      "reasoning_tokens": 316
+    },
+    {
+      "event": "model_response",
+      "stage": "verify",
+      "attempt": 1,
+      "finish": "stop",
+      "max_tokens": 8192,
+      "completion_tokens": 567,
+      "reasoning_tokens": 467
+    },
+    {
+      "event": "model_response",
+      "stage": "generate",
+      "attempt": 1,
+      "finish": "stop",
+      "max_tokens": 8192,
+      "completion_tokens": 152,
+      "reasoning_tokens": 102
+    },
+    {
+      "event": "model_response",
+      "stage": "verify",
+      "attempt": 1,
+      "finish": "stop",
+      "max_tokens": 8192,
+      "completion_tokens": 231,
+      "reasoning_tokens": 126
+    },
+    {
+      "event": "model_response",
+      "stage": "generate",
+      "attempt": 1,
+      "finish": "stop",
+      "max_tokens": 8192,
+      "completion_tokens": 1894,
+      "reasoning_tokens": 1851
+    },
+    {
+      "event": "model_response",
+      "stage": "generate",
+      "attempt": 2,
+      "finish": "stop",
+      "max_tokens": 8192,
+      "completion_tokens": 231,
+      "reasoning_tokens": 184
+    },
+    {
+      "event": "model_response",
+      "stage": "verify",
+      "attempt": 1,
+      "finish": "stop",
+      "max_tokens": 8192,
+      "completion_tokens": 2262,
+      "reasoning_tokens": 2175
+    },
+    {
+      "event": "model_response",
+      "stage": "verify",
+      "attempt": 1,
+      "finish": "stop",
+      "max_tokens": 8192,
+      "completion_tokens": 233,
+      "reasoning_tokens": 117
+    },
+    {
+      "event": "model_response",
+      "stage": "generate",
+      "attempt": 1,
+      "finish": "stop",
+      "max_tokens": 8192,
+      "completion_tokens": 243,
+      "reasoning_tokens": 198
+    },
+    {
+      "event": "model_response",
+      "stage": "generate",
+      "attempt": 1,
+      "finish": "stop",
+      "max_tokens": 8192,
+      "completion_tokens": 368,
+      "reasoning_tokens": 341
+    },
+    {
+      "event": "model_response",
+      "stage": "generate",
+      "attempt": 1,
+      "finish": "stop",
+      "max_tokens": 8192,
+      "completion_tokens": 204,
+      "reasoning_tokens": 177
+    },
+    {
+      "event": "model_response",
+      "stage": "verify",
+      "attempt": 1,
+      "finish": "stop",
+      "max_tokens": 8192,
+      "completion_tokens": 687,
+      "reasoning_tokens": 580
+    },
+    {
+      "event": "model_response",
+      "stage": "verify",
+      "attempt": 1,
+      "finish": "stop",
+      "max_tokens": 8192,
+      "completion_tokens": 1051,
+      "reasoning_tokens": 994
+    }
+  ],
+  "thinking": "provider default; not overridden",
+  "temperature_requested": 0,
+  "max_tokens": 8192,
+  "questions_sha256": "acd8e95a2cbc54eadda3ab2f09619be74dd6eb3c4437cb049131490901777eaf",
+  "corpus_sha256": "0ad8e88911363ea648c0811a4f4a8e42bbf5a07da54379ab8955c891c057c41e"
+}

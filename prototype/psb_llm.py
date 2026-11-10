@@ -49,11 +49,12 @@ def strict_json(raw):
 
 
 class ProxyClient:
-    def __init__(self, deadline: float):
+    def __init__(self, deadline: float, position: int | None = None):
         self.base = env("LLM_BASE_URL", "OPENAI_BASE_URL").rstrip("/")
         self.key = env("LLM_API_KEY", "OPENAI_API_KEY")
         self.model = env("LLM_MODEL", "OPENAI_MODEL", "GEN_MODEL")
         self.deadline = deadline
+        self.position = position if type(position) is int and 0 <= position <= 50000 else None
         parsed = urlparse(self.base)
         if not self.key or not self.model or parsed.scheme not in {"http", "https"} or not parsed.hostname:
             raise ProviderError("missing_proxy_configuration")
@@ -96,6 +97,7 @@ class ProxyClient:
                               headers={"Authorization": "Bearer " + self.key,
                                        "Content-Type": "application/json"})
             delay = 1 + attempt
+            request_started = time.monotonic()
             try:
                 with self.opener.open(request, timeout=min(45., remaining)) as response:
                     chunks, size = [], 0
@@ -113,7 +115,7 @@ class ProxyClient:
                 choice = result["choices"][0]
                 finish = choice.get("finish_reason")
                 event = {"event":"model_response", "stage":"verify" if "candidate" in payload else "generate",
-                         "attempt":attempt + 1, "finish":finish if finish in {"stop","length"} else "other",
+                         "attempt":attempt + 1, "position":self.position, "logical_call":self.calls, "finish":finish if finish in {"stop","length"} else "other",
                          "max_tokens":request_body["max_tokens"]}
                 usage = result.get("usage")
                 if isinstance(usage,dict):
@@ -150,14 +152,23 @@ class ProxyClient:
                 return value
             except HTTPError as exc:
                 code = exc.code
+                print(json.dumps({"event":"provider_failure", "stage":"verify" if "candidate" in payload else "generate",
+                    "position":self.position, "logical_call":self.calls, "attempt":attempt + 1,
+                    "kind":"http_" + str(code) if type(code) is int and 100 <= code <= 599 else "http_other",
+                    "elapsed_ms":round((time.monotonic() - request_started) * 1000)}), file=sys.stderr)
                 retry = exc.headers.get("Retry-After", "")
                 exc.close()
                 if code not in {429, 500, 502, 503, 504}:
                     raise ProviderError("http_" + str(code)) from None
                 if len(retry) <= 6 and retry.isascii() and retry.isdigit():
                     delay = min(30, int(retry))
-            except (URLError, socket.timeout, TimeoutError, HTTPException, ConnectionError):
-                pass
+            except (URLError, socket.timeout, TimeoutError, HTTPException, ConnectionError) as error:
+                reason = getattr(error, "reason", None)
+                kind = "timeout" if isinstance(error, (socket.timeout, TimeoutError)) or isinstance(reason, (socket.timeout, TimeoutError)) else (
+                    "connection" if isinstance(error, ConnectionError) else "protocol" if isinstance(error, HTTPException) else "network")
+                print(json.dumps({"event":"provider_failure", "stage":"verify" if "candidate" in payload else "generate",
+                    "position":self.position, "logical_call":self.calls, "attempt":attempt + 1, "kind":kind,
+                    "elapsed_ms":round((time.monotonic() - request_started) * 1000)}), file=sys.stderr)
             except (ValueError, KeyError, IndexError, TypeError, AttributeError, RecursionError):
                 raise ProviderError("invalid_model_response") from None
             if attempt == 2:
