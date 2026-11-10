@@ -3,11 +3,11 @@ FROM python:3.15.0-alpine3.24@sha256:2699b90f4d562a22e2dd076c82f964032f64814204b
 LABEL org.opencontainers.image.title="PSB grounded legal RAG batch runner" \
       org.opencontainers.image.source="https://github.com/Moonwuk/grounded-legal-rag"
 
-# apk verifies repository signatures. Only the security-fixed zlib package is
-# updated; application dependencies, data and credentials are never downloaded.
+# apk verifies repository signatures. Security-fixed runtime libraries are
+# pinned; application dependencies, data and credentials are never downloaded.
 SHELL ["/bin/ash", "-eo", "pipefail", "-c"]
 RUN python_stdlib="$(python -I -c 'import sysconfig; print(sysconfig.get_path("stdlib"))')" \
-    && apk add --no-cache zlib=1.4-r0 \
+    && apk add --no-cache zlib=1.4-r0 musl=1.2.6-r3 musl-utils=1.2.6-r3 \
     && addgroup -g 10001 -S psb \
     && adduser -u 10001 -S -D -H -G psb -h /nonexistent -s /sbin/nologin psb \
     && install -d -o 10001 -g 10001 -m 0700 /output \
