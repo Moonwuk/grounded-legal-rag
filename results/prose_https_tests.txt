@@ -1,0 +1,18 @@
+test_docker_context_cannot_redirect_fixture_helpers (test_probe.ContainerFixtureTests.test_docker_context_cannot_redirect_fixture_helpers) ... ok
+test_image_user_entrypoint_and_probe_contract_are_enforced (test_probe.ContainerFixtureTests.test_image_user_entrypoint_and_probe_contract_are_enforced) ... ok
+test_real_application_uses_trusted_https_and_produces_grounded_csv (test_probe.ContainerFixtureTests.test_real_application_uses_trusted_https_and_produces_grounded_csv) ... FAIL
+test_stub_requires_real_retrieved_quote_and_exact_candidate (test_probe.ContainerFixtureTests.test_stub_requires_real_retrieved_quote_and_exact_candidate) ... ok
+test_technical_fallback_and_wrong_id_do_not_pass_csv_gate (test_probe.ContainerFixtureTests.test_technical_fallback_and_wrong_id_do_not_pass_csv_gate) ... ok
+
+======================================================================
+FAIL: test_real_application_uses_trusted_https_and_produces_grounded_csv (test_probe.ContainerFixtureTests.test_real_application_uses_trusted_https_and_produces_grounded_csv)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/scratch/94557bdbb953/work/prose-fix/.github/container-tests/test_probe.py", line 137, in test_real_application_uses_trusted_https_and_produces_grounded_csv
+    self.assertTrue(all(checks.values()), [name for name, passed in checks.items() if not passed])
+AssertionError: False is not true : ['https-provider-requests', 'answer-csv-grounded', 'runtime-cwd-import-isolation']
+
+----------------------------------------------------------------------
+Ran 5 tests in 0.679s
+
+FAILED (failures=1)

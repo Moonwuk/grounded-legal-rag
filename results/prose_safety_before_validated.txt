@@ -1,0 +1,149 @@
+test_conditional_permission_cannot_lose_its_condition (test_prose_safety.ProseSafetyTests.test_conditional_permission_cannot_lose_its_condition) ... FAIL
+test_huge_number_in_user_facts_preserves_verified_source_fallback (test_prose_safety.ProseSafetyTests.test_huge_number_in_user_facts_preserves_verified_source_fallback) ... ERROR
+test_huge_scaled_number_is_rejected_without_raising (test_prose_safety.ProseSafetyTests.test_huge_scaled_number_is_rejected_without_raising) ... ERROR
+test_negative_permissions_use_source_wording_even_if_verifier_approves (test_prose_safety.ProseSafetyTests.test_negative_permissions_use_source_wording_even_if_verifier_approves) ... 
+  test_negative_permissions_use_source_wording_even_if_verifier_approves (test_prose_safety.ProseSafetyTests.test_negative_permissions_use_source_wording_even_if_verifier_approves) (provision='4.2. Арендатор не вправе сдавать помещение без письменного согласия.') ... FAIL
+  test_negative_permissions_use_source_wording_even_if_verifier_approves (test_prose_safety.ProseSafetyTests.test_negative_permissions_use_source_wording_even_if_verifier_approves) (provision='4.2. Передача оборудования запрещена.') ... FAIL
+test_no_source_free_legal_text_can_escape_as_a_refusal (test_prose_safety.ProseSafetyTests.test_no_source_free_legal_text_can_escape_as_a_refusal) ... FAIL
+test_reference_numbers_do_not_replace_missing_basis_notice (test_prose_safety.ProseSafetyTests.test_reference_numbers_do_not_replace_missing_basis_notice) ... FAIL
+test_scaled_amount_does_not_use_binary_floating_point (test_prose_safety.ProseSafetyTests.test_scaled_amount_does_not_use_binary_floating_point) ... FAIL
+test_word_numerals_are_checked_as_quantities (test_prose_safety.ProseSafetyTests.test_word_numerals_are_checked_as_quantities) ... 
+  test_word_numerals_are_checked_as_quantities (test_prose_safety.ProseSafetyTests.test_word_numerals_are_checked_as_quantities) (wrong='девяноста') ... FAIL
+  test_word_numerals_are_checked_as_quantities (test_prose_safety.ProseSafetyTests.test_word_numerals_are_checked_as_quantities) (wrong='девяносто') ... FAIL
+  test_word_numerals_are_checked_as_quantities (test_prose_safety.ProseSafetyTests.test_word_numerals_are_checked_as_quantities) (wrong='сто двадцать') ... FAIL
+  test_word_numerals_are_checked_as_quantities (test_prose_safety.ProseSafetyTests.test_word_numerals_are_checked_as_quantities) (wrong='тридцать пять') ... FAIL
+  test_word_numerals_are_checked_as_quantities (test_prose_safety.ProseSafetyTests.test_word_numerals_are_checked_as_quantities) (wrong='ноль') ... FAIL
+
+======================================================================
+ERROR: test_huge_number_in_user_facts_preserves_verified_source_fallback (test_prose_safety.ProseSafetyTests.test_huge_number_in_user_facts_preserves_verified_source_fallback)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/scratch/94557bdbb953/work/prose-review-patch/tests/test_prose_safety.py", line 39, in test_huge_number_in_user_facts_preserves_verified_source_fallback
+    text, status, _, _ = run('Срок оплаты? ' + '9' * 5000,
+                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/scratch/94557bdbb953/work/prose-review-patch/tests/test_prose_answers.py", line 43, in run
+    text, status = answer_question(question, r, model)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/scratch/94557bdbb953/work/prose-review-patch/prototype/psb_policy.py", line 533, in answer_question
+    prose = draft if draft and prose_grounded(draft, grounding_basis(
+                               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/scratch/94557bdbb953/work/prose-review-patch/prototype/psb_policy.py", line 288, in prose_grounded
+    need, have = _figures(text, True), _figures(basis, False)
+                                       ^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/scratch/94557bdbb953/work/prose-review-patch/prototype/psb_policy.py", line 240, in _figures
+    atoms.update(str(int(x)) for x in re.findall(r"\d+", text))
+  File "/workspace/scratch/94557bdbb953/work/prose-review-patch/prototype/psb_policy.py", line 240, in <genexpr>
+    atoms.update(str(int(x)) for x in re.findall(r"\d+", text))
+                     ^^^^^^
+ValueError: Exceeds the limit (4300 digits) for integer string conversion: value has 5000 digits; use sys.set_int_max_str_digits() to increase the limit
+
+======================================================================
+ERROR: test_huge_scaled_number_is_rejected_without_raising (test_prose_safety.ProseSafetyTests.test_huge_scaled_number_is_rejected_without_raising)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/scratch/94557bdbb953/work/prose-review-patch/tests/test_prose_safety.py", line 45, in test_huge_scaled_number_is_rejected_without_raising
+    self.assertFalse(prose_grounded('Сумма ' + '9' * 310 + ' млн рублей.', 'Сумма — 37 рублей.'))
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/scratch/94557bdbb953/work/prose-review-patch/prototype/psb_policy.py", line 288, in prose_grounded
+    need, have = _figures(text, True), _figures(basis, False)
+                 ^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/scratch/94557bdbb953/work/prose-review-patch/prototype/psb_policy.py", line 236, in _figures
+    text = _SCALED.sub(scaled, text)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/scratch/94557bdbb953/work/prose-review-patch/prototype/psb_policy.py", line 232, in scaled
+    if value == int(value):
+                ^^^^^^^^^^
+OverflowError: cannot convert float infinity to integer
+
+======================================================================
+FAIL: test_conditional_permission_cannot_lose_its_condition (test_prose_safety.ProseSafetyTests.test_conditional_permission_cannot_lose_its_condition)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/scratch/94557bdbb953/work/prose-review-patch/tests/test_prose_safety.py", line 70, in test_conditional_permission_cannot_lose_its_condition
+    self.assertNotIn(false_text, text)
+AssertionError: 'Вывоз оборудования допускается без ограничений.' unexpectedly found in 'Вывоз оборудования допускается без ограничений.\nИсточник: Положение, п. 2.1.'
+
+======================================================================
+FAIL: test_negative_permissions_use_source_wording_even_if_verifier_approves (test_prose_safety.ProseSafetyTests.test_negative_permissions_use_source_wording_even_if_verifier_approves) (provision='4.2. Арендатор не вправе сдавать помещение без письменного согласия.')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/scratch/94557bdbb953/work/prose-review-patch/tests/test_prose_safety.py", line 61, in test_negative_permissions_use_source_wording_even_if_verifier_approves
+    self.assertNotIn(false_text, text)
+AssertionError: 'Да. Арендатор вправе сдавать помещение без письменного согласия.' unexpectedly found in 'Да. Арендатор вправе сдавать помещение без письменного согласия.\nИсточник: Договор, п. 4.2.'
+
+======================================================================
+FAIL: test_negative_permissions_use_source_wording_even_if_verifier_approves (test_prose_safety.ProseSafetyTests.test_negative_permissions_use_source_wording_even_if_verifier_approves) (provision='4.2. Передача оборудования запрещена.')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/scratch/94557bdbb953/work/prose-review-patch/tests/test_prose_safety.py", line 61, in test_negative_permissions_use_source_wording_even_if_verifier_approves
+    self.assertNotIn(false_text, text)
+AssertionError: 'Передача оборудования разрешена.' unexpectedly found in 'Передача оборудования разрешена.\nИсточник: Договор, п. 4.2.'
+
+======================================================================
+FAIL: test_no_source_free_legal_text_can_escape_as_a_refusal (test_prose_safety.ProseSafetyTests.test_no_source_free_legal_text_can_escape_as_a_refusal)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/scratch/94557bdbb953/work/prose-review-patch/tests/test_prose_safety.py", line 79, in test_no_source_free_legal_text_can_escape_as_a_refusal
+    self.assertNotIn('можно продолжать без согласия', text)
+AssertionError: 'можно продолжать без согласия' unexpectedly found in 'В базе нет договора. Обработку персональных данных можно продолжать без согласия.'
+
+======================================================================
+FAIL: test_reference_numbers_do_not_replace_missing_basis_notice (test_prose_safety.ProseSafetyTests.test_reference_numbers_do_not_replace_missing_basis_notice)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/scratch/94557bdbb953/work/prose-review-patch/tests/test_prose_safety.py", line 26, in test_reference_numbers_do_not_replace_missing_basis_notice
+    self.assertIn('В предоставленной базе не найдены тексты отсылочных статей 6, 10, 11', text)
+AssertionError: 'В предоставленной базе не найдены тексты отсылочных статей 6, 10, 11' not found in 'Согласие можно отозвать. Продолжение обработки допускается при основаниях статей 6, 10 и 11; наличие оснований доказывает оператор.\nИсточник: 152ФЗ ст9 действующая.'
+
+======================================================================
+FAIL: test_scaled_amount_does_not_use_binary_floating_point (test_prose_safety.ProseSafetyTests.test_scaled_amount_does_not_use_binary_floating_point)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/scratch/94557bdbb953/work/prose-review-patch/tests/test_prose_safety.py", line 48, in test_scaled_amount_does_not_use_binary_floating_point
+    self.assertTrue(prose_grounded('Лимит 123456789012345678.901 млн рублей.',
+AssertionError: False is not true
+
+======================================================================
+FAIL: test_word_numerals_are_checked_as_quantities (test_prose_safety.ProseSafetyTests.test_word_numerals_are_checked_as_quantities) (wrong='девяноста')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/scratch/94557bdbb953/work/prose-review-patch/tests/test_prose_safety.py", line 32, in test_word_numerals_are_checked_as_quantities
+    self.assertFalse(prose_grounded('Срок оплаты — ' + wrong + ' дней.', basis))
+AssertionError: True is not false
+
+======================================================================
+FAIL: test_word_numerals_are_checked_as_quantities (test_prose_safety.ProseSafetyTests.test_word_numerals_are_checked_as_quantities) (wrong='девяносто')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/scratch/94557bdbb953/work/prose-review-patch/tests/test_prose_safety.py", line 32, in test_word_numerals_are_checked_as_quantities
+    self.assertFalse(prose_grounded('Срок оплаты — ' + wrong + ' дней.', basis))
+AssertionError: True is not false
+
+======================================================================
+FAIL: test_word_numerals_are_checked_as_quantities (test_prose_safety.ProseSafetyTests.test_word_numerals_are_checked_as_quantities) (wrong='сто двадцать')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/scratch/94557bdbb953/work/prose-review-patch/tests/test_prose_safety.py", line 32, in test_word_numerals_are_checked_as_quantities
+    self.assertFalse(prose_grounded('Срок оплаты — ' + wrong + ' дней.', basis))
+AssertionError: True is not false
+
+======================================================================
+FAIL: test_word_numerals_are_checked_as_quantities (test_prose_safety.ProseSafetyTests.test_word_numerals_are_checked_as_quantities) (wrong='тридцать пять')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/scratch/94557bdbb953/work/prose-review-patch/tests/test_prose_safety.py", line 32, in test_word_numerals_are_checked_as_quantities
+    self.assertFalse(prose_grounded('Срок оплаты — ' + wrong + ' дней.', basis))
+AssertionError: True is not false
+
+======================================================================
+FAIL: test_word_numerals_are_checked_as_quantities (test_prose_safety.ProseSafetyTests.test_word_numerals_are_checked_as_quantities) (wrong='ноль')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/scratch/94557bdbb953/work/prose-review-patch/tests/test_prose_safety.py", line 32, in test_word_numerals_are_checked_as_quantities
+    self.assertFalse(prose_grounded('Срок оплаты — ' + wrong + ' дней.', basis))
+AssertionError: True is not false
+
+----------------------------------------------------------------------
+Ran 8 tests in 1.346s
+
+FAILED (failures=11, errors=2)

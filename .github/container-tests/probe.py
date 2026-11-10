@@ -21,7 +21,7 @@ CLAIM = "Срок оплаты — 30 календарных дней."
 # The complete trusted paragraph, including its clause number, reaches verification.
 SOURCE_TEXT = "1. " + QUOTE + "\n"
 VERIFIED_CLAIM = "«" + SOURCE_TEXT.strip() + "»"
-EXPECTED_ANSWER = VERIFIED_CLAIM + " [1]\n[1] contract: «" + SOURCE_TEXT.strip() + "»."
+EXPECTED_ANSWER = CLAIM + "\nИсточник: contract."
 QUESTION_ID = "0001"
 # Fixed container mount paths are observed; no shared host temporary files are opened.
 CONTAINER_TMP = "/tmp"  # nosec B108
@@ -54,6 +54,7 @@ def model_reply(payload: dict) -> dict:
     source = min(matching, key=lambda item: (len(item["text"]), item["id"]))
     candidate = {
         "status": "answer",
+        "answer": CLAIM,
         "claims": [{"text": CLAIM, "sources": [{"fragment_id": source["id"], "quote": QUOTE}]}],
         "missing": [], "clarification": "", "requested_facts": [], "issue": "",
     }
@@ -65,6 +66,7 @@ def model_reply(payload: dict) -> dict:
         raise ValueError("fixture_candidate_mismatch")
     return {
         "approved": True, "complete": True, "status": "answer",
+        "answer_supported": True,
         "claim_checks": [{"index": 0, "supported": True, "applicable": True}],
         "reason": "Synthetic fixture matches the supplied source.",
     }
