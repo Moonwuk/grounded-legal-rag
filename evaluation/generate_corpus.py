@@ -38,7 +38,7 @@ def render_document(spec):
     elif family == 'table_appendix':
         body = 'Приложение А. Таблица условий\n| Положение | Содержание |\n|---|---|\n' + '\n'.join(f'| {i+1} | {s} |' for i,s in enumerate(clauses))
     elif family == 'letter_with_footnote':
-        body = 'Коллеги, направляем согласованную редакцию условий.\n' + '\n'.join(clauses) + '\nПримечание [1]: электронная копия используется для ознакомления; условия не изменяет.'
+        body = 'Коллеги, направляем согласованную редакцию условий.\n' + '\n'.join(clauses) + '\nПримечание [1]: нумерация приложений приведена по реестру отправки.'
     elif family == 'protocol_resolution':
         body = 'ПРОТОКОЛ. Повестка: установление условий.\nСЛУШАЛИ: предложения учебной комиссии.\nРЕШИЛИ:\n' + '\n'.join(clauses) + '\nОсобое мнение: порядок согласования текста не изменяет его содержание.'
     elif family == 'long_embedded_clause':
@@ -102,7 +102,9 @@ def generate(out=EVAL, name='synthetic', documents=1000, questions=500, seed=202
             clause=wording(f); start=text.index(clause)
             sources[sid]=dict(id=sid,document=spec['name'],start=start,end=start+len(clause),
                 quote=clause,document_sha256=digest(text.encode()),revision=spec['role'],fact=f)
-    identity=digest(canonical(dict(version=VERSION,seed=seed,specs=specs)))[:16]
+    # Content-addressed: rendered texts, not ZIP bytes (those depend on zlib).
+    identity=digest(canonical(dict(version=VERSION,seed=seed,specs=specs,
+        texts={n:digest(t.encode()) for n,t in sorted(files.items())})))[:16]
     corpus_id=f'{name}-{identity}'
     def refs(g,pred,role=None):
         return [v for v in sources.values() if v['document'] in {x['name'] for x in by_group[g]}
