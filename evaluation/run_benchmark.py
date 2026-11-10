@@ -27,6 +27,19 @@ def execute(worker,inp):
         return json.loads(proc.stdout)
     except subprocess.TimeoutExpired:return dict(status='technical_error',error='worker_timeout',answer='')
 
+# Solution-side errors raised by production retrieval/policy code. They are
+# measured results of the solution, not provider/transport incompatibility.
+SOLUTION_ERRORS={'evidence_size_limit','question_complexity_limit'}
+
+def compatible_smoke(rows):
+    """A smoke proves API compatibility: >=10 cases, no API/transport error.
+
+    Any other system_error (truncation, HTTP, deadline, budget, worker crash,
+    unknown code) still blocks larger runs.
+    """
+    if len(rows)<10 or any(r.get('api_errors') for r in rows):return False
+    return all(r['validation']['outcome']!='system_error' or r.get('observed_error') in SOLUTION_ERRORS for r in rows)
+
 def run(args):
     started=time.perf_counter();config=read(args.config)
     config.update(engine=args.engine,top_k=args.top_k or config['top_k'])
@@ -155,7 +168,7 @@ def run(args):
                 isolation='fresh subprocess per case; only copied runtime, corpus and public question; no gold/specs copied',
                 api_status='not_requested' if args.engine!='deepseek' else 'executed')
     value=report(out,info,sorted(rows,key=lambda r:r['case_id']))
-    if args.engine=='deepseek' and args.mode=='smoke' and len(rows)>=10 and not any(r['validation']['outcome']=='system_error' for r in rows):
+    if args.engine=='deepseek' and args.mode=='smoke' and compatible_smoke(rows):
         write(EVAL/'reports'/f'smoke-{manifest["corpus_id"]}.json',info)
     print(json.dumps(dict(cases=len(rows),outcomes=value['outcomes'],output=str(out)),ensure_ascii=False))
 

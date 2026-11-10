@@ -92,6 +92,14 @@ class AdapterTests(unittest.TestCase):
             for actual in (None,'37',-1,reserved+1):b.settle(reserved,actual)
             with closing(sqlite3.connect(p)) as db:
                 self.assertEqual(db.execute('SELECT tokens_reserved FROM budget').fetchone()[0],1500)
+    def test_smoke_gate_blocks_api_failures_not_solution_errors(self):
+        from evaluation.run_benchmark import compatible_smoke
+        ok=lambda:dict(validation=dict(outcome='pass'),api_errors=[],observed_error=None)
+        err=lambda code,api=():dict(validation=dict(outcome='system_error'),api_errors=list(api),observed_error=code)
+        self.assertTrue(compatible_smoke([ok()]*10+[err('evidence_size_limit')]*2))
+        for bad in [err('truncated_model_output'),err('worker_timeout'),err('benchmark_budget_exhausted'),err(None),err('evidence_size_limit',['http_500'])]:
+            self.assertFalse(compatible_smoke([ok()]*11+[bad]),bad)
+        self.assertFalse(compatible_smoke([ok()]*9))
     def test_solution_uses_synthetic_archive_and_preserves_contract(self):
         captured=[]
         class Handler(BaseHTTPRequestHandler):
