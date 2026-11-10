@@ -24,7 +24,7 @@ Jobs выполняются параллельно. `Security gate` требуе
 | actionlint 1.7.12 | GitHub Actions YAML и встроенные shell-команды | Синтаксические ошибки и ошибки workflow |
 | zizmor 1.32.0, offline | Workflow и Dependabot | Обнаруженные небезопасные настройки; используется JSON с ненулевым exit code при находках |
 | Hadolint 2.15.1 / Trivy 0.76.2 config | Dockerfile | Hadolint warning/error; Trivy MEDIUM/HIGH/CRITICAL; ошибка или пустой анализ |
-| Trivy image | Реально собранный образ и image config | HIGH/CRITICAL CVE, включая unfixed; EOL ОС; секреты любой severity; ошибка сканера |
+| Trivy image | Реально собранный образ и image config | HIGH/CRITICAL CVE из доступной БД; EOL ОС; секреты любой severity; ошибка сканера; нарушение профиля пакетов |
 | Ansible / Compose policy | Фактические конфигурации `infra/ansible/` и `deploy/compose.yml` | Syntax/lint/policy errors; ослабление обязательных runtime-ограничений |
 | Container smoke | Реальный запуск образа с локальным HTTPS LLM stub | Ошибка изоляции, секретов, исходников или конкретного цитируемого CSV-ответа |
 | unittest / упаковка | Python 3.11, 3.12, 3.13; локальный HTTP stub | Любой провал теста, аудит поиска с ошибкой или неверный состав/содержимое ZIP |

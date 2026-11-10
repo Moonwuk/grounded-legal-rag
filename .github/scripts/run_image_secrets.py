@@ -22,7 +22,8 @@ class ScanError(RuntimeError):
     """Only fixed reason codes, never scanner output or source text."""
 
 
-def secret_config(path):
+def build_detector_config(path):
+    """Build public detector rules from committed regexes, never credential values."""
     if not path.is_file():
         raise ScanError("missing_custom_rules")
     with path.open("rb") as handle:
@@ -62,8 +63,24 @@ def sanitized_report(path, artifact_type):
         raise ScanError("invalid_secret_results")
     records = []
     for result in results:
-        if not isinstance(result, dict) or result.get("Class") != "secret" or not isinstance(result.get("Target"), str):
+        if not isinstance(result, dict) or not isinstance(result.get("Target"), str):
             raise ScanError("invalid_secret_result")
+        if result.get("Class") != "secret":
+            # Trivy 0.76 JSON includes package inventory even for secret-only
+            # image scans. Accept only the observed inventory schema: a
+            # Secrets/other finding field here must fail, never be skipped.
+            inventory_types = {"os-pkgs": {"none", "alpine"}, "lang-pkgs": {"python-pkg"}}
+            packages = result.get("Packages")
+            if (artifact_type != "container_image" or result.get("Class") not in inventory_types
+                    or result.get("Type") not in inventory_types[result["Class"]]
+                    or set(result) != {"Class", "Type", "Target", "Packages"}
+                    or not isinstance(packages, list)
+                    or any(not isinstance(package, dict)
+                           or not isinstance(package.get("Name"), str) or not package["Name"]
+                           or not isinstance(package.get("Version"), str) or not package["Version"]
+                           for package in packages)):
+                raise ScanError("invalid_secret_inventory")
+            continue
         findings = result.get("Secrets", [])
         if findings is None:
             findings = []
@@ -151,7 +168,7 @@ def main(argv=None):
     args = parser.parse_args(argv)
     records, checks, reason = [], 0, None
     try:
-        configuration = secret_config(args.config)
+        configuration = build_detector_config(args.config)
         with tempfile.TemporaryDirectory(prefix="psb-image-secrets-") as temporary:
             base = Path(temporary).resolve()
             if base == ROOT or ROOT in base.parents:

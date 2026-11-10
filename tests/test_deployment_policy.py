@@ -43,6 +43,24 @@ class DeploymentPolicyTests(unittest.TestCase):
         self.assertEqual(policy.validate_compose(compose()), [])
         self.assertEqual(policy.validate_ansible(*ansible()), [])
 
+    def test_canonical_compose_defaults_preserve_runtime_boundaries(self):
+        document = compose()
+        service = document["services"]["psb"]
+        service.update(command=None, entrypoint=None)
+        for volume in service["volumes"]:
+            volume["bind"] = {}
+        self.assertEqual(policy.validate_compose(document), [])
+        service["volumes"][0]["bind"]["create_host_path"] = True
+        self.assertIn("compose_existing_mount", policy.validate_compose(document))
+
+    def test_empty_command_overrides_are_not_inherited_defaults(self):
+        for field in ("command", "entrypoint"):
+            for value in ([], "", ["sh"]):
+                with self.subTest(field=field, value=value):
+                    document = compose()
+                    document["services"]["psb"][field] = value
+                    self.assertIn("compose_forbidden_" + field, policy.validate_compose(document))
+
     def test_host_privilege_and_entrypoint_bypasses_are_rejected(self):
         for field, value in (("privileged", True), ("cap_add", ["SYS_ADMIN"]), ("user", "0:0"),
                              ("read_only", False), ("network_mode", "host"), ("pid", "host"),

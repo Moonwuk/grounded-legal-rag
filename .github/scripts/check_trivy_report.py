@@ -5,6 +5,11 @@ import argparse
 import hashlib
 import json
 from pathlib import Path
+import re
+
+
+APPROVED_ZLIB = "1.4-r0"
+REMOVED_APK_PACKAGES = {"sqlite-libs", "libuuid", "libncursesw", "libpanelw", "ncurses-terminfo-base", "readline"}
 
 
 def check(report, kind):
@@ -33,20 +38,32 @@ def check(report, kind):
             raise ValueError("invalid_dockerfile_check")
         return len(checks), sum(item.get("Status") == "FAIL" and item.get("Severity") in {"MEDIUM", "HIGH", "CRITICAL"}
                                 for item in checks)
-    if report.get("ArtifactType") != "container_image" or report.get("Metadata", {}).get("OS", {}).get("Family") != "debian":
+    metadata = report.get("Metadata")
+    os_metadata = metadata.get("OS") if isinstance(metadata, dict) else None
+    if (report.get("ArtifactType") != "container_image" or not isinstance(os_metadata, dict)
+            or os_metadata.get("Family") != "alpine" or not isinstance(os_metadata.get("Name"), str)
+            or re.fullmatch(r"3\.24\.[0-9]+", os_metadata["Name"]) is None):
         raise ValueError("supported_image_os_missing")
-    if type(report["Metadata"]["OS"].get("EOSL", False)) is not bool or report["Metadata"]["OS"].get("EOSL") is True:
+    if type(os_metadata.get("EOSL", False)) is not bool or os_metadata.get("EOSL") is True:
         raise ValueError("end_of_life_image_os")
     os_results = [result for result in results if result.get("Class") == "os-pkgs"]
-    packages = 0
-    for result in os_results:
-        inventory = result.get("Packages")
-        if not isinstance(inventory, list) or any(not isinstance(item, dict) or not item.get("Name") or not item.get("Version")
-                                                for item in inventory):
-            raise ValueError("invalid_os_inventory")
-        packages += len(inventory)
-    if not os_results or not packages:
+    if len(os_results) != 1 or os_results[0].get("Type") != "alpine":
         raise ValueError("os_package_inventory_missing")
+    inventory = os_results[0].get("Packages")
+    if (not isinstance(inventory, list) or not inventory
+            or any(not isinstance(item, dict)
+                   or not isinstance(item.get("Name"), str) or not item["Name"]
+                   or not isinstance(item.get("Version"), str) or not item["Version"] for item in inventory)):
+        raise ValueError("invalid_os_inventory")
+    package_versions = {item["Name"]: item["Version"] for item in inventory}
+    if len(package_versions) != len(inventory) or not {"musl", "zlib"}.issubset(package_versions):
+        raise ValueError("incomplete_or_ambiguous_alpine_inventory")
+    if REMOVED_APK_PACKAGES.intersection(package_versions):
+        raise ValueError("removed_runtime_packages_present")
+    # Alpine's security database does not cover all unresolved advisories. This
+    # reviewed fix is pinned independently; update it together with Dockerfile.
+    if package_versions["zlib"] != APPROVED_ZLIB:
+        raise ValueError("unapproved_zlib_version")
     blocked = 0
     for result in results:
         findings = result.get("Vulnerabilities", [])
@@ -58,7 +75,7 @@ def check(report, kind):
             if not isinstance(item, dict) or item.get("Severity") not in {"UNKNOWN", "LOW", "MEDIUM", "HIGH", "CRITICAL"}:
                 raise ValueError("invalid_vulnerability")
             blocked += item["Severity"] in {"HIGH", "CRITICAL"}
-    return packages, blocked
+    return len(inventory), blocked
 
 
 def sanitized_image(report):

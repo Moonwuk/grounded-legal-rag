@@ -22,7 +22,9 @@ Docker Compose описывает runtime, Ansible подготавливает 
 
 ## Границы контейнера
 
-Образ рассчитан на `linux/amd64`. Базовый `python:3.12.16-slim-trixie` закреплён digest конкретного amd64 manifest. Обновление версии или digest проходит тот же CI, что и изменение кода. В Dockerfile нет сетевых команд установки: приложение использует стандартную библиотеку; pip/ensurepip и установщики пакетов Python удалены из runtime.
+Образ рассчитан на `linux/amd64`. Базовый `python:3.12.16-alpine3.24` закреплён digest конкретного amd64 manifest. Обновление версии или digest проходит тот же CI, что и изменение кода. Приложение использует стандартную библиотеку; pip/ensurepip и установщики пакетов Python удалены из runtime. Единственная сетевая установка при сборке — обновление `zlib=1.4-r0` из подписанного репозитория Alpine; версия проверяется также по inventory собранного образа.
+
+Ненужные приложению SQLite, curses, readline, native UUID и Tk-модули удалены. ELF-зависимости оставшихся Python-модулей пересчитываются по схеме официального Python image; `apk` удаляет освободившиеся библиотеки и обновляет ведомость пакетов. CI дополнительно запрещает возвращение шести удалённых пакетов. Это устраняет известные уязвимые компоненты физически, не исключает их из отчёта.
 
 В контекст сборки разрешены только Dockerfile и runtime-исходники. Корпус, вопросы, результаты, тестовые эталоны, `.git`, `.env` и ключи в образ не копируются. Рабочие модули и bootstrap принадлежат root и недоступны приложению для изменения.
 
@@ -59,13 +61,15 @@ Bootstrap читает ключ уже внутри процесса и пере
 | --- | --- | --- |
 | Hadolint | Dockerfile | Warning/error, включая inline-подавления, которые CI не принимает |
 | Trivy config | Dockerfile | Ошибки безопасности MEDIUM/HIGH/CRITICAL или неполный анализ |
-| Trivy image | Собранный образ | HIGH/CRITICAL уязвимости, включая ещё не исправленные; завершение поддержки ОС; ошибка БД/анализа |
+| Trivy image | Собранный образ | HIGH/CRITICAL уязвимости из доступной БД; неподдерживаемая ОС; неполный анализ; нарушение закреплённого профиля пакетов |
 | Trivy secrets | Сканируемые слои и image config/history | Любая находка, включая дополнительные AI-форматы, или ошибка сканера |
 | Compose policy | Канонический Compose JSON | Нарушение обязательных ограничений, небезопасные mounts, mutable image, неожиданные сервисы/порты/права |
 | Ansible | Playbook, role и зависимости контроллера | Syntax/lint/policy errors, уязвимость dependency lock |
 | Container smoke | Реально запущенный образ | Нарушение изоляции, ошибка TLS/секрета/CSV или несоответствие runtime-исходников checkout |
 
 Проверки контейнера и IaC входят в общий `Security gate` вместе с прежними Gitleaks, SAST, CodeQL, зависимостями, workflow и регрессией. Ошибка сканера не считается чистым результатом. SBOM CycloneDX создаётся отдельным вызовом: сам по себе он не заменяет сканирование уязвимостей.
+
+У базы Alpine есть существенное [ограничение покрытия Trivy](https://trivy.dev/docs/latest/coverage/os/alpine/): её security database может ещё не содержать уязвимости без опубликованного исправления. `--ignore-unfixed` не используется, но это не добавляет отсутствующие записи в БД. Поэтому нулевой отчёт Trivy не означает отсутствие всех известных проблем. При выборе базы отдельно проверены upstream-исправления zlib и физическое удаление SQLite с известными CVE, ещё отсутствовавшими в Alpine secdb; пакетные проверки CI закрепляют эти решения. CPython, собранный из исходников в официальном image, не является APK-пакетом: этот отчёт не заменяет проверку обновлений самого Python.
 
 Тест контейнера использует искусственные входные данные, искусственный ключ и локальную HTTPS-заглушку. Он проверяет непривилегированный процесс, реальные filesystem/capabilities/seccomp ограничения, успешный цитируемый ответ и отказ при непригодном секрете. Настоящие API провайдеров в CI не вызываются.
 
@@ -117,3 +121,6 @@ CI проверяет синтаксис и политику IaC, реальну
 - [Trivy: image CLI](https://trivy.dev/docs/latest/references/configuration/cli/trivy_image/)
 - [Trivy: secret scan limitations](https://github.com/aquasecurity/trivy/blob/v0.76.2/docs/guide/scanner/secret.md)
 - [Ansible lint](https://docs.ansible.com/projects/lint/usage/)
+- [Официальная сборка Python Alpine](https://github.com/docker-library/python/blob/master/3.12/alpine3.24/Dockerfile)
+- [Alpine: закреплённая сборка zlib 1.4-r0](https://github.com/alpinelinux/aports/blob/bdf501c870a92a05c097857401f69c48c4810384/main/zlib/APKBUILD)
+- [zlib 1.4: исправления upstream](https://github.com/madler/zlib/blob/v1.4/ChangeLog)

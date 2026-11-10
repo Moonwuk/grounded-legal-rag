@@ -413,7 +413,7 @@ jobs:
       - name: Build the candidate image once
         id: build
         run: |
-          docker --host unix:///var/run/docker.sock build --platform linux/amd64 --network none --pull \
+          docker --host unix:///var/run/docker.sock build --platform linux/amd64 --pull \
             --tag "$CHECKED_IMAGE" --file Dockerfile .
       - name: Lint the Dockerfile with Hadolint
         run: |
@@ -427,7 +427,7 @@ jobs:
             --severity MEDIUM,HIGH,CRITICAL --exit-code 1 --format json \
             --output reports/dockerfile-config.json Dockerfile
           python .github/scripts/check_trivy_report.py config reports/dockerfile-config.json
-      - name: Scan OS and language vulnerabilities including unfixed issues
+      - name: Scan OS and language vulnerabilities and enforce the runtime package profile
         if: ${{ !cancelled() && steps.build.outcome == 'success' }}
         run: |
           "$RUNNER_TEMP/container-tools/trivy" image --cache-dir "$RUNNER_TEMP/trivy-cache" --config '' --ignorefile '' \

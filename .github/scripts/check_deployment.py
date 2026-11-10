@@ -52,6 +52,7 @@ def validate_compose(document):
     if not isinstance(service, dict):
         return errors + ["compose_service_missing"]
     allowed_service = {"image", "user", "working_dir", "read_only", "init", "restart", "cap_drop", "security_opt",
+                       "command", "entrypoint",
                        "cpus", "mem_limit", "pids_limit", "networks", "tmpfs", "logging", "volumes", "environment"}
     require(not (set(service) - allowed_service), "compose_unknown_service_field")
     image = service.get("image", "")
@@ -65,8 +66,12 @@ def validate_compose(document):
     require(service.get("restart") == "no", "compose_batch_restart_policy")
     require(service.get("cap_drop") == ["ALL"], "compose_drop_capabilities")
     require(service.get("security_opt") == ["no-new-privileges:true"], "compose_no_new_privileges")
+    # Canonical Compose JSON includes null for inherited image commands. An
+    # empty string/list instead clears the image default and is not equivalent.
+    for field in ("command", "entrypoint"):
+        require(service.get(field) is None, "compose_forbidden_" + field)
     for field in ("privileged", "cap_add", "devices", "device_cgroup_rules", "ports", "expose",
-                  "network_mode", "pid", "ipc", "userns_mode", "volumes_from", "entrypoint", "command",
+                  "network_mode", "pid", "ipc", "userns_mode", "volumes_from",
                   "build", "extra_hosts", "env_file", "oom_kill_disable", "use_api_socket"):
         require(not service.get(field), "compose_forbidden_" + field)
     require(bounded_number(service.get("cpus"), 0.1, 8), "compose_cpu_limit")
@@ -100,7 +105,11 @@ def validate_compose(document):
             require(target in expected and target not in sources, "compose_mount_scope")
             require(volume.get("type") == "bind" and isinstance(source, str), "compose_bind_mount")
             require(volume.get("read_only", False) is expected.get(target), "compose_mount_write_scope")
-            require(volume.get("bind", {}).get("create_host_path") is False, "compose_existing_mount")
+            # Compose 2.38 omits the false bool in canonical long-syntax bind
+            # options; short syntax and explicit creation serialize true.
+            bind = volume.get("bind", {})
+            require(isinstance(bind, dict) and bind.get("create_host_path", False) is False,
+                    "compose_existing_mount")
             if isinstance(source, str):
                 path = PurePosixPath(source)
                 require(path.is_absolute() and ".." not in path.parts and len(path.parts) >= 3
