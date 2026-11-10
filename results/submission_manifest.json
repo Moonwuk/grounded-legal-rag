@@ -1,7 +1,7 @@
 {
   "file": "PSB_baseline_submission.zip",
-  "bytes": 27721,
-  "sha256": "ae36a1883bcf738887b2862f2c38cca279447aa13e280e8a641d4054939c6af7",
+  "bytes": 27861,
+  "sha256": "f179e6bf5763eb6db099241bc8f8004e35f648420e25ed42225c15af85b08fd6",
   "entries": [
     "solution.py",
     "psb_corpus.py",
@@ -10,5 +10,5 @@
     "psb_llm.py",
     "requirements.txt"
   ],
-  "platform_execution": "NOT RUN; organizer API not tested"
+  "platform_execution": "NOT RUN; proxy credentials unavailable in this session"
 }

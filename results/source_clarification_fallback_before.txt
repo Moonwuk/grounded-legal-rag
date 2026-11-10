@@ -1,0 +1,28 @@
+test_changed_number_in_clarification_falls_back_to_question_and_source (test_sourced_clarifications.SourcedClarifications.test_changed_number_in_clarification_falls_back_to_question_and_source) ... ok
+test_clarification_can_cite_the_condition_it_explains (test_sourced_clarifications.SourcedClarifications.test_clarification_can_cite_the_condition_it_explains) ... ok
+test_clarification_without_sources_still_uses_fixed_application_wording (test_sourced_clarifications.SourcedClarifications.test_clarification_without_sources_still_uses_fixed_application_wording) ... ok
+test_empty_fact_code_asks_about_the_cited_condition_not_an_unrelated_contract (test_sourced_clarifications.SourcedClarifications.test_empty_fact_code_asks_about_the_cited_condition_not_an_unrelated_contract) ... FAIL
+test_missing_prose_verdict_does_not_publish_the_clarification_draft (test_sourced_clarifications.SourcedClarifications.test_missing_prose_verdict_does_not_publish_the_clarification_draft) ... ok
+test_protected_condition_is_kept_in_a_source_backed_clarification (test_sourced_clarifications.SourcedClarifications.test_protected_condition_is_kept_in_a_source_backed_clarification) ... FAIL
+test_rejected_prose_keeps_the_cited_condition (test_sourced_clarifications.SourcedClarifications.test_rejected_prose_keeps_the_cited_condition) ... ok
+
+======================================================================
+FAIL: test_empty_fact_code_asks_about_the_cited_condition_not_an_unrelated_contract (test_sourced_clarifications.SourcedClarifications.test_empty_fact_code_asks_about_the_cited_condition_not_an_unrelated_contract)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/scratch/94557bdbb953/work/prose-transfer/tests/test_sourced_clarifications.py", line 49, in test_empty_fact_code_asks_about_the_cited_condition_not_an_unrelated_contract
+    self.assertIn('приведённые ниже условия', text)
+AssertionError: 'приведённые ниже условия' not found in 'Уточните, пожалуйста, договор, контрагента и обстоятельства вопроса.\n«1.1. Вывоз оборудования допускается только при наличии письменного разрешения собственника.» [1]\n[1] Порядок вывоза.'
+
+======================================================================
+FAIL: test_protected_condition_is_kept_in_a_source_backed_clarification (test_sourced_clarifications.SourcedClarifications.test_protected_condition_is_kept_in_a_source_backed_clarification)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/scratch/94557bdbb953/work/prose-transfer/tests/test_sourced_clarifications.py", line 39, in test_protected_condition_is_kept_in_a_source_backed_clarification
+    self.assertIn('условия', text)
+AssertionError: 'условия' not found in 'Уточните или предоставьте: обстоятельства конкретного случая.\n«2.1. Вывоз оборудования допускается только при наличии письменного согласия собственника.» [1]\n[1] Положение.'
+
+----------------------------------------------------------------------
+Ran 7 tests in 0.008s
+
+FAILED (failures=2)

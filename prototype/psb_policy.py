@@ -9,7 +9,7 @@ from psb_llm import ProviderError
 from psb_retrieval import user_turns
 
 FOLLOWUPS = {
-    "contract": "номер договора",
+    "contract": "номер договора или его текст",
     "counterparty": "точное наименование контрагента",
     "event_date": "дата события",
     "specification_date": "дата подписания спецификации",
@@ -95,7 +95,7 @@ partial: дай подтверждённую часть и назови, как�
 answer_numbers_not_in_sources — в тексте были числа или номера пунктов, которых нет
 в выбранных положениях и в вопросе; answer_not_supported — текст не подтверждён
 выбранными положениями. Исправь именно это.
-При partial/insufficient назови конкретный тип недостающих сведений в requested_facts:
+При partial/insufficient/clarify назови конкретный тип недостающих сведений в requested_facts:
 contract, counterparty, event_date, specification_date, warranty_document, document,
 facts, referenced_documents. При answer requested_facts пуст.
 Факты события и суммы, прямо заданные пользователем, считай условиями сценария,
@@ -501,7 +501,13 @@ def render(candidate: dict, evidence: list[Fragment], source_gaps=(), prose: str
         return "Я не могу помогать совершать противоправные действия. Могу разобрать требования и правовые последствия на основании документов базы."
     clarification_line = ""
     if status == "clarify":
-        clarification_line = (issue + " " if issue else "") + (followup(candidate) or "Уточните, пожалуйста, договор, контрагента и обстоятельства вопроса.")
+        requested = set(candidate.get("requested_facts", []))
+        if candidate["claims"] and requested <= {"facts"}:
+            # The selected source is the condition to clarify. Missing or
+            # generic fact codes must not invent an unrelated contract/date.
+            clarification_line = (issue + " " if issue else "") + "Уточните, выполнены ли приведённые ниже условия в вашем случае."
+        else:
+            clarification_line = (issue + " " if issue else "") + (followup(candidate) or "Уточните, пожалуйста, договор, контрагента и обстоятельства вопроса.")
         if not candidate["claims"]:
             return clarification_line
     if status == "insufficient":

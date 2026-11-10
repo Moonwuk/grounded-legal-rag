@@ -36,9 +36,19 @@ class SourcedClarifications(unittest.TestCase):
             {'Положение.txt': source})
         self.assertEqual(status, 'clarify')
         self.assertNotIn(false_text, text)
-        self.assertIn('обстоятельства', text)
+        self.assertIn('условия', text)
         self.assertIn('«' + source + '» [1]', text)
         self.assertIn('[1] Положение.', text)
+
+    def test_empty_fact_code_asks_about_the_cited_condition_not_an_unrelated_contract(self):
+        source = '1.1. Вывоз оборудования допускается только при наличии письменного разрешения собственника.'
+        response = select('1.1.', 'Получено ли письменное разрешение?', status='clarify', requested_facts=[])
+        text, status, _, _ = run('Что нужно уточнить перед вывозом оборудования?', exchange(response),
+                                 {'Порядок вывоза.txt': source})
+        self.assertEqual(status, 'clarify')
+        self.assertIn('приведённые ниже условия', text)
+        self.assertNotIn('договор, контрагента', text)
+        self.assertIn(source, text)
 
     def test_changed_number_in_clarification_falls_back_to_question_and_source(self):
         source = '2.1. Срок оплаты составляет 37 календарных дней с даты получения накладной.'
@@ -69,6 +79,15 @@ class SourcedClarifications(unittest.TestCase):
         self.assertEqual(status, 'clarify')
         self.assertNotIn('аренду можно не платить', text)
         self.assertIn('номер договора', text)
+
+    def test_missing_contract_request_can_ask_for_its_text(self):
+        def response(payload):
+            return {'status': 'clarify', 'answer': 'Предоставьте отсутствующий договор.',
+                    'source_ids': [], 'requested_facts': ['contract']}
+        text, status, _, _ = run('Моего договора в базе нет. Какой в нём адрес доставки?', exchange(response))
+        self.assertEqual(status, 'clarify')
+        self.assertIn('номер договора', text)
+        self.assertIn('текст', text)
 
     def test_rejected_prose_keeps_the_cited_condition(self):
         source = '2.1. Оплата производится в течение 37 дней с даты накладной.'

@@ -1,0 +1,252 @@
+test_digit_references_generalize (test_audit_fixes.AuditFixes.test_digit_references_generalize) ... ok
+test_linked_context_over_limit_fails_explicitly (test_audit_fixes.AuditFixes.test_linked_context_over_limit_fails_explicitly) ... ok
+test_long_linked_change_at_end_is_preserved (test_audit_fixes.AuditFixes.test_long_linked_change_at_end_is_preserved) ... ok
+test_missing_user_date_does_not_expand (test_audit_fixes.AuditFixes.test_missing_user_date_does_not_expand) ... {"event": "policy_verdict", "position": null, "expanded": false, "candidate_status": "partial", "approved": true, "prose": "absent", "verdict_status": "partial", "check_count": 1, "source_gap_count": 0, "failed_claim_positions": []}
+ok
+test_mixed_empty_document_rejected (test_audit_fixes.AuditFixes.test_mixed_empty_document_rejected) ... ok
+test_no_untyped_missing_gap_accepted (test_audit_fixes.AuditFixes.test_no_untyped_missing_gap_accepted) ... ok
+test_notes_rejected_and_plain_docx_keeps_working (test_audit_fixes.AuditFixes.test_notes_rejected_and_plain_docx_keeps_working) ... ok
+test_partial_document_gap_expands_and_keeps_verified_fallback (test_audit_fixes.AuditFixes.test_partial_document_gap_expands_and_keeps_verified_fallback) ... {"event": "policy_verdict", "position": null, "expanded": false, "candidate_status": "partial", "approved": true, "prose": "absent", "verdict_status": "partial", "check_count": 1, "source_gap_count": 0, "failed_claim_positions": []}
+{"event": "policy_verdict", "position": null, "expanded": true, "candidate_status": "answer", "approved": true, "prose": "absent", "verdict_status": "answer", "check_count": 1, "source_gap_count": 0, "failed_claim_positions": []}
+{"event": "policy_verdict", "position": null, "expanded": false, "candidate_status": "partial", "approved": true, "prose": "absent", "verdict_status": "partial", "check_count": 1, "source_gap_count": 0, "failed_claim_positions": []}
+provider_error: http_503
+ok
+test_provider_error_logs_code_not_body (test_audit_fixes.AuditFixes.test_provider_error_logs_code_not_body) ... ok
+test_separate_excerpts_are_not_glued_into_a_new_sentence (test_audit_fixes.AuditFixes.test_separate_excerpts_are_not_glued_into_a_new_sentence) ... ok
+test_short_value_has_contiguous_citable_source (test_audit_fixes.AuditFixes.test_short_value_has_contiguous_citable_source) ... ok
+test_surface_oracle_excludes_references_and_is_not_semantic_pass (test_audit_fixes.AuditFixes.test_surface_oracle_excludes_references_and_is_not_semantic_pass) ... ok
+test_untrusted_paraphrase_never_published_even_with_positive_verdict (test_audit_fixes.AuditFixes.test_untrusted_paraphrase_never_published_even_with_positive_verdict) ... ok
+test_verifier_receives_published_wording (test_audit_fixes.AuditFixes.test_verifier_receives_published_wording) ... {"event": "policy_verdict", "position": null, "expanded": false, "candidate_status": "answer", "approved": true, "prose": "absent", "verdict_status": "answer", "check_count": 1, "source_gap_count": 0, "failed_claim_positions": []}
+ok
+test_changed_number_in_quote_rejected (test_baseline.BaselineTests.test_changed_number_in_quote_rejected) ... ok
+test_corpus_source_offsets_are_exact (test_baseline.BaselineTests.test_corpus_source_offsets_are_exact) ... ok
+test_csv_quotes_newlines_and_id_preserved (test_baseline.BaselineTests.test_csv_quotes_newlines_and_id_preserved) ... ok
+test_docx_and_txt_corpus_preserves_source_offsets (test_baseline.BaselineTests.test_docx_and_txt_corpus_preserves_source_offsets) ... ok
+test_docx_entities_rejected (test_baseline.BaselineTests.test_docx_entities_rejected) ... ok
+test_duplicate_ids_rejected (test_baseline.BaselineTests.test_duplicate_ids_rejected) ... ok
+test_failed_verification_never_releases_bad_claim (test_baseline.BaselineTests.test_failed_verification_never_releases_bad_claim) ... {"event": "policy_verdict", "position": null, "expanded": false, "candidate_status": "answer", "approved": false, "prose": "absent", "verdict_status": "answer", "check_count": 1, "source_gap_count": 0, "failed_claim_positions": []}
+{"event": "policy_verdict", "position": null, "expanded": true, "candidate_status": "answer", "approved": false, "prose": "absent", "verdict_status": "answer", "check_count": 1, "source_gap_count": 0, "failed_claim_positions": []}
+ok
+test_false_string_is_not_boolean (test_baseline.BaselineTests.test_false_string_is_not_boolean) ... ok
+test_followup_codes_cannot_carry_model_text (test_baseline.BaselineTests.test_followup_codes_cannot_carry_model_text) ... ok
+test_injected_line_quarantined_but_archival_rule_survives (test_baseline.BaselineTests.test_injected_line_quarantined_but_archival_rule_survives) ... ok
+test_insufficient_gets_one_expansion (test_baseline.BaselineTests.test_insufficient_gets_one_expansion) ... {"event": "policy_verdict", "position": null, "expanded": true, "candidate_status": "insufficient", "approved": true, "prose": "absent", "verdict_status": "insufficient", "check_count": 0, "source_gap_count": 0, "failed_claim_positions": []}
+ok
+test_linked_amendment_not_lost (test_baseline.BaselineTests.test_linked_amendment_not_lost) ... ok
+test_missing_semantic_check_rejected (test_baseline.BaselineTests.test_missing_semantic_check_rejected) ... ok
+test_multi_document_retrieval (test_baseline.BaselineTests.test_multi_document_retrieval) ... ok
+test_nonexistent_citation_rejected (test_baseline.BaselineTests.test_nonexistent_citation_rejected) ... ok
+test_partial_preserves_cited_claim_and_drops_untrusted_gap (test_baseline.BaselineTests.test_partial_preserves_cited_claim_and_drops_untrusted_gap) ... ok
+test_pipeline_renders_only_cited_claims (test_baseline.BaselineTests.test_pipeline_renders_only_cited_claims) ... {"event": "policy_verdict", "position": null, "expanded": false, "candidate_status": "answer", "approved": true, "prose": "absent", "verdict_status": "answer", "check_count": 1, "source_gap_count": 0, "failed_claim_positions": []}
+ok
+test_proxy_contract_with_stub_http_and_root_modules (test_baseline.BaselineTests.test_proxy_contract_with_stub_http_and_root_modules) ... ok
+test_safe_zip_loader_rejects_traversal_without_writing (test_baseline.BaselineTests.test_safe_zip_loader_rejects_traversal_without_writing) ... ok
+test_semantic_negative_verdict_rejected (test_baseline.BaselineTests.test_semantic_negative_verdict_rejected) ... ok
+test_technical_failure_not_legal_absence (test_baseline.BaselineTests.test_technical_failure_not_legal_absence) ... provider_error: unavailable
+ok
+test_untrusted_missing_and_clarification_never_render (test_baseline.BaselineTests.test_untrusted_missing_and_clarification_never_render) ... ok
+test_empty_oversize_and_header_injection_rejected (test_container_entrypoint.ContainerBootstrapTests.test_empty_oversize_and_header_injection_rejected) ... ok
+test_group_or_world_readable_secret_rejected (test_container_entrypoint.ContainerBootstrapTests.test_group_or_world_readable_secret_rejected) ... ok
+test_https_configuration_and_fixed_mounts (test_container_entrypoint.ContainerBootstrapTests.test_https_configuration_and_fixed_mounts) ... ok
+test_other_owner_rejected (test_container_entrypoint.ContainerBootstrapTests.test_other_owner_rejected) ... ok
+test_private_secret_file_is_read_without_echo (test_container_entrypoint.ContainerBootstrapTests.test_private_secret_file_is_read_without_echo) ... ok
+test_symlink_and_fifo_rejected_without_blocking (test_container_entrypoint.ContainerBootstrapTests.test_symlink_and_fifo_rejected_without_blocking) ... ok
+test_all_dtds_rejected_after_decoding (test_corpus_security.DocxSecurityTests.test_all_dtds_rejected_after_decoding) ... ok
+test_malformed_xml_is_a_controlled_error (test_corpus_security.DocxSecurityTests.test_malformed_xml_is_a_controlled_error) ... ok
+test_utf32_dtds_fail_closed (test_corpus_security.DocxSecurityTests.test_utf32_dtds_fail_closed) ... ok
+test_valid_text_and_predefined_entities_in_supported_encodings (test_corpus_security.DocxSecurityTests.test_valid_text_and_predefined_entities_in_supported_encodings) ... ok
+test_failure_does_not_publish_success_output (test_dependency_policy.DependencyPolicyTests.test_failure_does_not_publish_success_output) ... ok
+test_incomplete_runtime_scope_and_stale_lock_fail (test_dependency_policy.DependencyPolicyTests.test_incomplete_runtime_scope_and_stale_lock_fail) ... ok
+test_lock_missing_unhashed_or_mismatched_fails (test_dependency_policy.DependencyPolicyTests.test_lock_missing_unhashed_or_mismatched_fails) ... ok
+test_lock_rejects_extra_options_duplicates_and_truncated_continuation (test_dependency_policy.DependencyPolicyTests.test_lock_rejects_extra_options_duplicates_and_truncated_continuation) ... ok
+test_pinned_hashed_direct_and_transitive_inventory (test_dependency_policy.DependencyPolicyTests.test_pinned_hashed_direct_and_transitive_inventory) ... ok
+test_requirement_directives_ranges_urls_markers_extras_and_noncanonical_names_rejected (test_dependency_policy.DependencyPolicyTests.test_requirement_directives_ranges_urls_markers_extras_and_noncanonical_names_rejected) ... ok
+test_stdlib_report_and_actions_output_without_importing_runtime (test_dependency_policy.DependencyPolicyTests.test_stdlib_report_and_actions_output_without_importing_runtime) ... ok
+test_third_party_import_with_empty_requirements_fails (test_dependency_policy.DependencyPolicyTests.test_third_party_import_with_empty_requirements_fails) ... ok
+test_bounded_batch_deployment_is_accepted (test_deployment_policy.DeploymentPolicyTests.test_bounded_batch_deployment_is_accepted) ... ok
+test_canonical_compose_defaults_preserve_runtime_boundaries (test_deployment_policy.DeploymentPolicyTests.test_canonical_compose_defaults_preserve_runtime_boundaries) ... ok
+test_credential_under_writable_output_is_rejected (test_deployment_policy.DeploymentPolicyTests.test_credential_under_writable_output_is_rejected) ... ok
+test_empty_command_overrides_are_not_inherited_defaults (test_deployment_policy.DeploymentPolicyTests.test_empty_command_overrides_are_not_inherited_defaults) ... ok
+test_env_template_cannot_show_configuration_in_diffs (test_deployment_policy.DeploymentPolicyTests.test_env_template_cannot_show_configuration_in_diffs) ... ok
+test_host_privilege_and_entrypoint_bypasses_are_rejected (test_deployment_policy.DeploymentPolicyTests.test_host_privilege_and_entrypoint_bypasses_are_rejected) ... ok
+test_inline_credentials_and_http_are_rejected (test_deployment_policy.DeploymentPolicyTests.test_inline_credentials_and_http_are_rejected) ... ok
+test_mutable_or_placeholder_images_are_rejected (test_deployment_policy.DeploymentPolicyTests.test_mutable_or_placeholder_images_are_rejected) ... ok
+test_required_attestation_cannot_be_conditionally_skipped (test_deployment_policy.DeploymentPolicyTests.test_required_attestation_cannot_be_conditionally_skipped) ... ok
+test_socket_mounts_and_writable_input_are_rejected (test_deployment_policy.DeploymentPolicyTests.test_socket_mounts_and_writable_input_are_rejected) ... ok
+test_unbounded_resources_are_rejected (test_deployment_policy.DeploymentPolicyTests.test_unbounded_resources_are_rejected) ... ok
+test_unrequested_execution_and_hidden_failures_are_rejected (test_deployment_policy.DeploymentPolicyTests.test_unrequested_execution_and_hidden_failures_are_rejected) ... ok
+test_unverified_pull_and_weakened_signer_policy_are_rejected (test_deployment_policy.DeploymentPolicyTests.test_unverified_pull_and_weakened_signer_policy_are_rejected) ... ok
+test_catalog_gap_in_real_corpus_is_derived_not_named_in_code (test_evidence_boundary.CompactSelectionTests.test_catalog_gap_in_real_corpus_is_derived_not_named_in_code) ... ok
+test_configured_token_budget_is_not_silently_clamped_to_8192 (test_evidence_boundary.CompactSelectionTests.test_configured_token_budget_is_not_silently_clamped_to_8192) ... {"event": "model_response", "stage": "generate", "attempt": 1, "position": null, "logical_call": 1, "finish": "stop", "max_tokens": 16384}
+ok
+test_selector_cannot_inject_body_or_unknown_ids (test_evidence_boundary.CompactSelectionTests.test_selector_cannot_inject_body_or_unknown_ids) ... ok
+test_truncated_response_retries_once_then_recovers (test_evidence_boundary.CompactSelectionTests.test_truncated_response_retries_once_then_recovers) ... {"event": "model_response", "stage": "generate", "attempt": 1, "position": null, "logical_call": 1, "finish": "length", "max_tokens": 8192}
+{"event": "model_response", "stage": "generate", "attempt": 2, "position": null, "logical_call": 1, "finish": "stop", "max_tokens": 8192}
+ok
+test_long_source_paragraph_is_not_published_from_the_middle (test_evidence_boundary.EvidenceBoundaryTests.test_long_source_paragraph_is_not_published_from_the_middle) ... ok
+test_negation_and_conditions_survive_every_crop (test_evidence_boundary.EvidenceBoundaryTests.test_negation_and_conditions_survive_every_crop) ... ok
+test_other_law_does_not_satisfy_reference (test_evidence_boundary.EvidenceBoundaryTests.test_other_law_does_not_satisfy_reference) ... ok
+test_positive_stub_cannot_release_opposite_wording (test_evidence_boundary.EvidenceBoundaryTests.test_positive_stub_cannot_release_opposite_wording) ... {"event": "policy_verdict", "position": null, "expanded": false, "candidate_status": "answer", "approved": true, "prose": "absent", "verdict_status": "answer", "check_count": 1, "source_gap_count": 0, "failed_claim_positions": []}
+ok
+test_present_reference_is_not_reported_missing (test_evidence_boundary.EvidenceBoundaryTests.test_present_reference_is_not_reported_missing) ... ok
+test_selected_missing_same_law_reference_has_program_owned_disclaimer (test_evidence_boundary.EvidenceBoundaryTests.test_selected_missing_same_law_reference_has_program_owned_disclaimer) ... {"event": "policy_verdict", "position": null, "expanded": false, "candidate_status": "partial", "approved": true, "prose": "absent", "verdict_status": "partial", "check_count": 1, "source_gap_count": 1, "failed_claim_positions": []}
+ok
+test_wrapped_negation_and_condition_stay_in_the_source_block (test_evidence_boundary.EvidenceBoundaryTests.test_wrapped_negation_and_condition_stay_in_the_source_block) ... ok
+test_provider_failure_has_safe_kind_and_position (test_evidence_boundary.SafeTelemetryTests.test_provider_failure_has_safe_kind_and_position) ... ok
+test_alpine_branch_and_os_inventory_must_match (test_image_security.ImageReportTests.test_alpine_branch_and_os_inventory_must_match) ... ok
+test_medium_dockerfile_issue_blocks_and_empty_coverage_fails (test_image_security.ImageReportTests.test_medium_dockerfile_issue_blocks_and_empty_coverage_fails) ... ok
+test_missing_inventory_and_eol_do_not_pass (test_image_security.ImageReportTests.test_missing_inventory_and_eol_do_not_pass) ... ok
+test_removed_alpine_runtime_packages_cannot_return (test_image_security.ImageReportTests.test_removed_alpine_runtime_packages_cannot_return) ... ok
+test_required_runtime_packages_and_reviewed_zlib_fix (test_image_security.ImageReportTests.test_required_runtime_packages_and_reviewed_zlib_fix) ... ok
+test_sbom_is_inventory_and_not_a_vulnerability_scan (test_image_security.ImageReportTests.test_sbom_is_inventory_and_not_a_vulnerability_scan) ... ok
+test_unfixed_high_vulnerability_blocks (test_image_security.ImageReportTests.test_unfixed_high_vulnerability_blocks) ... ok
+test_vulnerability_artifact_drops_image_environment_history_and_paths (test_image_security.ImageReportTests.test_vulnerability_artifact_drops_image_environment_history_and_paths) ... ok
+test_cli_cannot_inherit_secret_filters_or_remote_docker (test_image_security.ImageSecretTests.test_cli_cannot_inherit_secret_filters_or_remote_docker) ... ok
+test_custom_config_is_required_and_preserves_all_three_rules (test_image_security.ImageSecretTests.test_custom_config_is_required_and_preserves_all_three_rules) ... ok
+test_image_inventory_scaffolding_does_not_hide_a_secret_finding (test_image_security.ImageSecretTests.test_image_inventory_scaffolding_does_not_hide_a_secret_finding) ... ok
+test_invalid_results_cannot_become_an_empty_scan (test_image_security.ImageSecretTests.test_invalid_results_cannot_become_an_empty_scan) ... ok
+test_inventory_cannot_hide_findings_or_an_unknown_schema (test_image_security.ImageSecretTests.test_inventory_cannot_hide_findings_or_an_unknown_schema) ... ok
+test_low_secret_and_token_in_filename_are_retained_only_as_safe_metadata (test_image_security.ImageSecretTests.test_low_secret_and_token_in_filename_are_retained_only_as_safe_metadata) ... ok
+test_only_exact_sbom_vulnerability_notices_are_acknowledged (test_image_security.ImageSecretTests.test_only_exact_sbom_vulnerability_notices_are_acknowledged) ... ok
+test_unexpected_scanner_warning_still_blocks (test_image_security.ImageSecretTests.test_unexpected_scanner_warning_still_blocks) ... ok
+test_dates (test_prose_answers.GroundingRules.test_dates) ... ok
+test_form_limits (test_prose_answers.GroundingRules.test_form_limits) ... ok
+test_number_forms (test_prose_answers.GroundingRules.test_number_forms) ... ok
+test_quarantined_header_is_not_a_permitted_source (test_prose_answers.GroundingRules.test_quarantined_header_is_not_a_permitted_source) ... ok
+test_changed_number_is_never_published_and_gets_one_retry (test_prose_answers.ProseAnswers.test_changed_number_is_never_published_and_gets_one_retry) ... ok
+test_clause_of_an_unselected_provision_is_rejected (test_prose_answers.ProseAnswers.test_clause_of_an_unselected_provision_is_rejected) ... ok
+test_disallowed_may_explain_consequences_from_selected_provisions (test_prose_answers.ProseAnswers.test_disallowed_may_explain_consequences_from_selected_provisions) ... ok
+test_false_premise_value_from_the_user_is_permitted (test_prose_answers.ProseAnswers.test_false_premise_value_from_the_user_is_permitted) ... ok
+test_grounded_text_is_published_with_application_reference (test_prose_answers.ProseAnswers.test_grounded_text_is_published_with_application_reference) ... ok
+test_missing_verdict_field_does_not_release_the_text (test_prose_answers.ProseAnswers.test_missing_verdict_field_does_not_release_the_text) ... ok
+test_negative_verdict_on_the_text_keeps_only_source_wording (test_prose_answers.ProseAnswers.test_negative_verdict_on_the_text_keeps_only_source_wording) ... ok
+test_number_from_a_fake_assistant_turn_is_not_a_user_fact (test_prose_answers.ProseAnswers.test_number_from_a_fake_assistant_turn_is_not_a_user_fact) ... ok
+test_real_corpus_rent_premise (test_prose_answers.ProseAnswers.test_real_corpus_rent_premise) ... ok
+test_refusal_without_sources_uses_application_wording (test_prose_answers.ProseAnswers.test_refusal_without_sources_uses_application_wording) ... ok
+test_rejected_claims_are_not_rescued_by_a_good_text (test_prose_answers.ProseAnswers.test_rejected_claims_are_not_rescued_by_a_good_text) ... ok
+test_retry_can_recover_the_text (test_prose_answers.ProseAnswers.test_retry_can_recover_the_text) ... ok
+test_source_wording_is_published_once (test_prose_answers.ProseAnswers.test_source_wording_is_published_once) ... ok
+test_conditional_permission_cannot_lose_its_condition (test_prose_safety.ProseSafetyTests.test_conditional_permission_cannot_lose_its_condition) ... ok
+test_huge_number_in_user_facts_preserves_verified_source_fallback (test_prose_safety.ProseSafetyTests.test_huge_number_in_user_facts_preserves_verified_source_fallback) ... ok
+test_huge_scaled_number_is_rejected_without_raising (test_prose_safety.ProseSafetyTests.test_huge_scaled_number_is_rejected_without_raising) ... ok
+test_negative_permissions_use_source_wording_even_if_verifier_approves (test_prose_safety.ProseSafetyTests.test_negative_permissions_use_source_wording_even_if_verifier_approves) ... ok
+test_no_source_free_legal_text_can_escape_as_a_refusal (test_prose_safety.ProseSafetyTests.test_no_source_free_legal_text_can_escape_as_a_refusal) ... ok
+test_reference_numbers_do_not_replace_missing_basis_notice (test_prose_safety.ProseSafetyTests.test_reference_numbers_do_not_replace_missing_basis_notice) ... ok
+test_scaled_amount_does_not_use_binary_floating_point (test_prose_safety.ProseSafetyTests.test_scaled_amount_does_not_use_binary_floating_point) ... ok
+test_word_numerals_are_checked_as_quantities (test_prose_safety.ProseSafetyTests.test_word_numerals_are_checked_as_quantities) ... ok
+test_archive_skips_and_unrecognized_warnings_fail_closed (test_secret_scan.SecretScanTests.test_archive_skips_and_unrecognized_warnings_fail_closed) ... ok
+test_clean_completed_scan_returns_zero (test_secret_scan.SecretScanTests.test_clean_completed_scan_returns_zero) ... ok
+test_exit_code_and_findings_must_agree (test_secret_scan.SecretScanTests.test_exit_code_and_findings_must_agree) ... ok
+test_expected_summary_must_be_exact_and_count_consistent (test_secret_scan.SecretScanTests.test_expected_summary_must_be_exact_and_count_consistent) ... ok
+test_findings_are_sanitized_and_expected_warning_is_allowed (test_secret_scan.SecretScanTests.test_findings_are_sanitized_and_expected_warning_is_allowed) ... ok
+test_findings_with_quiet_diagnostics_still_fail (test_secret_scan.SecretScanTests.test_findings_with_quiet_diagnostics_still_fail) ... ok
+test_flags_do_not_allow_baselines_or_inline_skips (test_secret_scan.SecretScanTests.test_flags_do_not_allow_baselines_or_inline_skips) ... ok
+test_invalid_metadata_is_rejected_but_valid_records_are_kept (test_secret_scan.SecretScanTests.test_invalid_metadata_is_rejected_but_valid_records_are_kept) ... ok
+test_launch_failure_is_reported_without_exception_details (test_secret_scan.SecretScanTests.test_launch_failure_is_reported_without_exception_details) ... ok
+test_missing_or_malformed_report_never_passes (test_secret_scan.SecretScanTests.test_missing_or_malformed_report_never_passes) ... ok
+test_nonempty_stdout_is_not_a_quiet_success (test_secret_scan.SecretScanTests.test_nonempty_stdout_is_not_a_quiet_success) ... ok
+test_timeout_retains_partial_findings_and_does_not_leak_exception_output (test_secret_scan.SecretScanTests.test_timeout_retains_partial_findings_and_does_not_leak_exception_output) ... ok
+test_token_in_filename_is_hashed_instead_of_published (test_secret_scan.SecretScanTests.test_token_in_filename_is_hashed_instead_of_published) ... ok
+test_tool_errors_preserve_sanitized_findings (test_secret_scan.SecretScanTests.test_tool_errors_preserve_sanitized_findings) ... ok
+test_archive_attack_paths (test_security.ArchiveTests.test_archive_attack_paths) ... ok
+test_broken_and_duplicate_docx_xml (test_security.ArchiveTests.test_broken_and_duplicate_docx_xml) ... ok
+test_compressed_bomb_is_bounded_before_read (test_security.ArchiveTests.test_compressed_bomb_is_bounded_before_read) ... ok
+test_deep_docx_xml_is_bounded (test_security.ArchiveTests.test_deep_docx_xml_is_bounded) ... ok
+test_document_count_is_bounded (test_security.ArchiveTests.test_document_count_is_bounded) ... ok
+test_empty_unknown_format_and_invalid_encoding (test_security.ArchiveTests.test_empty_unknown_format_and_invalid_encoding) ... ok
+test_fragment_explosion_is_bounded (test_security.ArchiveTests.test_fragment_explosion_is_bounded) ... ok
+test_symlink_and_duplicates_rejected (test_security.ArchiveTests.test_symlink_and_duplicates_rejected) ... ok
+test_utf16_dtd_rejected (test_security.ArchiveTests.test_utf16_dtd_rejected) ... ok
+test_bom_quoted_lines_and_exact_ids (test_security.CSVTests.test_bom_quoted_lines_and_exact_ids) ... ok
+test_failed_output_write_preserves_last_complete_file (test_security.CSVTests.test_failed_output_write_preserves_last_complete_file) ... ok
+test_malformed_csv_and_duplicate_ids (test_security.CSVTests.test_malformed_csv_and_duplicate_ids) ... ok
+test_concurrent_batch_and_no_cross_id_history (test_security.EntrypointTests.test_concurrent_batch_and_no_cross_id_history) ... ok
+test_corrupted_corpus_preserves_csv_and_generic_error (test_security.EntrypointTests.test_corrupted_corpus_preserves_csv_and_generic_error) ... ok
+test_slow_header_and_body_respect_whole_run_deadline (test_security.EntrypointTests.test_slow_header_and_body_respect_whole_run_deadline) ... ok
+test_answer_cannot_hide_an_unresolved_issue (test_security.OutputValidationTests.test_answer_cannot_hide_an_unresolved_issue) ... ok
+test_candidate_type_fuzz (test_security.OutputValidationTests.test_candidate_type_fuzz) ... ok
+test_fake_quote_and_unknown_source (test_security.OutputValidationTests.test_fake_quote_and_unknown_source) ... ok
+test_long_question_not_sent_or_truncated (test_security.OutputValidationTests.test_long_question_not_sent_or_truncated) ... ok
+test_nested_candidate_type_fuzz (test_security.OutputValidationTests.test_nested_candidate_type_fuzz) ... ok
+test_oversized_answer_never_silently_truncated (test_security.OutputValidationTests.test_oversized_answer_never_silently_truncated) ... ok
+test_seeded_json_shape_fuzz (test_security.OutputValidationTests.test_seeded_json_shape_fuzz) ... ok
+test_strict_json_rejects_duplicates_nan_and_infinity (test_security.OutputValidationTests.test_strict_json_rejects_duplicates_nan_and_infinity) ... ok
+test_surrogate_and_null_claims_rejected (test_security.OutputValidationTests.test_surrogate_and_null_claims_rejected) ... ok
+test_typed_issue_explains_invalid_date_without_model_free_text (test_security.OutputValidationTests.test_typed_issue_explains_invalid_date_without_model_free_text) ... ok
+test_verdict_types_and_indexes (test_security.OutputValidationTests.test_verdict_types_and_indexes) ... ok
+test_auth_failure_not_retried_and_not_leaked (test_security.ProxyTests.test_auth_failure_not_retried_and_not_leaked) ... {"event": "provider_failure", "stage": "generate", "position": null, "logical_call": 1, "attempt": 1, "kind": "http_401", "elapsed_ms": 1}
+ok
+test_call_and_request_size_budgets (test_security.ProxyTests.test_call_and_request_size_budgets) ... {"event": "model_response", "stage": "generate", "attempt": 1, "position": null, "logical_call": 1, "finish": "stop", "max_tokens": 8192}
+{"event": "model_response", "stage": "generate", "attempt": 1, "position": null, "logical_call": 2, "finish": "stop", "max_tokens": 8192}
+{"event": "model_response", "stage": "generate", "attempt": 1, "position": null, "logical_call": 3, "finish": "stop", "max_tokens": 8192}
+{"event": "model_response", "stage": "generate", "attempt": 1, "position": null, "logical_call": 4, "finish": "stop", "max_tokens": 8192}
+ok
+test_connection_drop_has_bounded_retries (test_security.ProxyTests.test_connection_drop_has_bounded_retries) ... {"event": "provider_failure", "stage": "generate", "position": null, "logical_call": 1, "attempt": 1, "kind": "connection", "elapsed_ms": 2}
+{"event": "provider_failure", "stage": "generate", "position": null, "logical_call": 1, "attempt": 2, "kind": "connection", "elapsed_ms": 1}
+{"event": "provider_failure", "stage": "generate", "position": null, "logical_call": 1, "attempt": 3, "kind": "connection", "elapsed_ms": 1}
+ok
+test_environment_aliases_and_untrusted_text_cannot_select_endpoint (test_security.ProxyTests.test_environment_aliases_and_untrusted_text_cannot_select_endpoint) ... {"event": "model_response", "stage": "generate", "attempt": 1, "position": null, "logical_call": 1, "finish": "stop", "max_tokens": 8192}
+ok
+test_hostile_model_responses_fail_closed (test_security.ProxyTests.test_hostile_model_responses_fail_closed) ... {"event": "model_response", "stage": "generate", "attempt": 1, "position": null, "logical_call": 1, "finish": "stop", "max_tokens": 8192}
+{"event": "model_response", "stage": "generate", "attempt": 1, "position": null, "logical_call": 1, "finish": "length", "max_tokens": 8192}
+{"event": "model_response", "stage": "generate", "attempt": 2, "position": null, "logical_call": 1, "finish": "length", "max_tokens": 8192}
+{"event": "model_response", "stage": "generate", "attempt": 1, "position": null, "logical_call": 1, "finish": "other", "max_tokens": 8192}
+ok
+test_invalid_trusted_configuration_fails_before_network (test_security.ProxyTests.test_invalid_trusted_configuration_fails_before_network) ... ok
+test_recovery_and_transient_retry_bound (test_security.ProxyTests.test_recovery_and_transient_retry_bound) ... {"event": "provider_failure", "stage": "generate", "position": null, "logical_call": 1, "attempt": 1, "kind": "http_429", "elapsed_ms": 1}
+{"event": "provider_failure", "stage": "generate", "position": null, "logical_call": 1, "attempt": 2, "kind": "http_429", "elapsed_ms": 1}
+{"event": "model_response", "stage": "generate", "attempt": 3, "position": null, "logical_call": 1, "finish": "stop", "max_tokens": 8192}
+{"event": "provider_failure", "stage": "generate", "position": null, "logical_call": 1, "attempt": 1, "kind": "http_429", "elapsed_ms": 1}
+{"event": "provider_failure", "stage": "generate", "position": null, "logical_call": 1, "attempt": 2, "kind": "http_429", "elapsed_ms": 1}
+{"event": "provider_failure", "stage": "generate", "position": null, "logical_call": 1, "attempt": 3, "kind": "http_429", "elapsed_ms": 1}
+{"event": "provider_failure", "stage": "generate", "position": null, "logical_call": 1, "attempt": 1, "kind": "http_503", "elapsed_ms": 1}
+{"event": "provider_failure", "stage": "generate", "position": null, "logical_call": 1, "attempt": 2, "kind": "http_503", "elapsed_ms": 1}
+{"event": "provider_failure", "stage": "generate", "position": null, "logical_call": 1, "attempt": 3, "kind": "http_503", "elapsed_ms": 0}
+ok
+test_redirect_does_not_forward_authorization (test_security.ProxyTests.test_redirect_does_not_forward_authorization) ... ok
+test_clean_report_passes (test_security_ci.CodeQLGateTests.test_clean_report_passes) ... ok
+test_every_report_and_run_is_checked (test_security_ci.CodeQLGateTests.test_every_report_and_run_is_checked) ... ok
+test_extension_rule_reference_is_resolved (test_security_ci.CodeQLGateTests.test_extension_rule_reference_is_resolved) ... ok
+test_failed_invocation_or_tool_error_blocks (test_security_ci.CodeQLGateTests.test_failed_invocation_or_tool_error_blocks) ... ok
+test_high_and_critical_block_at_exact_threshold (test_security_ci.CodeQLGateTests.test_high_and_critical_block_at_exact_threshold) ... ok
+test_invalid_extension_reference_fails_closed (test_security_ci.CodeQLGateTests.test_invalid_extension_reference_fails_closed) ... ok
+test_medium_is_reported_but_does_not_block (test_security_ci.CodeQLGateTests.test_medium_is_reported_but_does_not_block) ... ok
+test_missing_or_invalid_scan_output_is_not_clean (test_security_ci.CodeQLGateTests.test_missing_or_invalid_scan_output_is_not_clean) ... ok
+test_missing_security_score_or_invalid_values_fail_closed (test_security_ci.CodeQLGateTests.test_missing_security_score_or_invalid_values_fail_closed) ... ok
+test_no_rule_metadata_is_not_scan_coverage (test_security_ci.CodeQLGateTests.test_no_rule_metadata_is_not_scan_coverage) ... ok
+test_non_security_error_level_blocks (test_security_ci.CodeQLGateTests.test_non_security_error_level_blocks) ... ok
+test_report_messages_are_not_echoed_to_logs (test_security_ci.CodeQLGateTests.test_report_messages_are_not_echoed_to_logs) ... ok
+test_rule_id_without_index_is_resolved (test_security_ci.CodeQLGateTests.test_rule_id_without_index_is_resolved) ... ok
+test_suppressions_and_baseline_do_not_hide_findings (test_security_ci.CodeQLGateTests.test_suppressions_and_baseline_do_not_hide_findings) ... ok
+test_unknown_or_conflicting_rule_references_fail_closed (test_security_ci.CodeQLGateTests.test_unknown_or_conflicting_rule_references_fail_closed) ... ok
+test_changed_number_in_clarification_falls_back_to_question_and_source (test_sourced_clarifications.SourcedClarifications.test_changed_number_in_clarification_falls_back_to_question_and_source) ... ok
+test_clarification_can_cite_the_condition_it_explains (test_sourced_clarifications.SourcedClarifications.test_clarification_can_cite_the_condition_it_explains) ... ok
+test_clarification_without_sources_still_uses_fixed_application_wording (test_sourced_clarifications.SourcedClarifications.test_clarification_without_sources_still_uses_fixed_application_wording) ... ok
+test_empty_fact_code_asks_about_the_cited_condition_not_an_unrelated_contract (test_sourced_clarifications.SourcedClarifications.test_empty_fact_code_asks_about_the_cited_condition_not_an_unrelated_contract) ... ok
+test_missing_contract_request_can_ask_for_its_text (test_sourced_clarifications.SourcedClarifications.test_missing_contract_request_can_ask_for_its_text) ... ok
+test_missing_prose_verdict_does_not_publish_the_clarification_draft (test_sourced_clarifications.SourcedClarifications.test_missing_prose_verdict_does_not_publish_the_clarification_draft) ... ok
+test_protected_condition_is_kept_in_a_source_backed_clarification (test_sourced_clarifications.SourcedClarifications.test_protected_condition_is_kept_in_a_source_backed_clarification) ... ok
+test_rejected_prose_keeps_the_cited_condition (test_sourced_clarifications.SourcedClarifications.test_rejected_prose_keeps_the_cited_condition) ... ok
+test_distant_intro_is_restored_and_missing_dependency_rejected (test_structural_dependencies.StructuralDependencies.test_distant_intro_is_restored_and_missing_dependency_rejected) ... {"event": "policy_verdict", "position": null, "expanded": false, "candidate_status": "answer", "approved": true, "prose": "absent", "verdict_status": "answer", "check_count": 1, "source_gap_count": 0, "failed_claim_positions": []}
+ok
+test_negative_intro_cannot_be_omitted (test_structural_dependencies.StructuralDependencies.test_negative_intro_cannot_be_omitted) ... {"event": "policy_verdict", "position": null, "expanded": false, "candidate_status": "answer", "approved": true, "prose": "absent", "verdict_status": "answer", "check_count": 1, "source_gap_count": 0, "failed_claim_positions": []}
+ok
+test_new_section_is_not_a_list_continuation (test_structural_dependencies.StructuralDependencies.test_new_section_is_not_a_list_continuation) ... {"event": "policy_verdict", "position": null, "expanded": false, "candidate_status": "answer", "approved": true, "prose": "absent", "verdict_status": "answer", "check_count": 1, "source_gap_count": 0, "failed_claim_positions": []}
+ok
+test_numbered_and_bulleted_lists_preserve_condition (test_structural_dependencies.StructuralDependencies.test_numbered_and_bulleted_lists_preserve_condition) ... {"event": "policy_verdict", "position": null, "expanded": false, "candidate_status": "answer", "approved": true, "prose": "absent", "verdict_status": "answer", "check_count": 1, "source_gap_count": 0, "failed_claim_positions": []}
+{"event": "policy_verdict", "position": null, "expanded": false, "candidate_status": "answer", "approved": true, "prose": "absent", "verdict_status": "answer", "check_count": 1, "source_gap_count": 0, "failed_claim_positions": []}
+{"event": "policy_verdict", "position": null, "expanded": false, "candidate_status": "answer", "approved": true, "prose": "absent", "verdict_status": "answer", "check_count": 1, "source_gap_count": 0, "failed_claim_positions": []}
+ok
+test_quarantine_breaks_dependency_scope (test_structural_dependencies.StructuralDependencies.test_quarantine_breaks_dependency_scope) ... {"event": "policy_verdict", "position": null, "expanded": false, "candidate_status": "answer", "approved": true, "prose": "absent", "verdict_status": "answer", "check_count": 1, "source_gap_count": 0, "failed_claim_positions": []}
+ok
+test_real_seasonal_child_requires_its_intro (test_structural_dependencies.StructuralDependencies.test_real_seasonal_child_requires_its_intro) ... {"event": "policy_verdict", "position": null, "expanded": false, "candidate_status": "answer", "approved": true, "prose": "absent", "verdict_status": "answer", "check_count": 1, "source_gap_count": 0, "failed_claim_positions": []}
+ok
+test_second_list_does_not_inherit_first_rule (test_structural_dependencies.StructuralDependencies.test_second_list_does_not_inherit_first_rule) ... {"event": "policy_verdict", "position": null, "expanded": false, "candidate_status": "answer", "approved": true, "prose": "absent", "verdict_status": "answer", "check_count": 1, "source_gap_count": 0, "failed_claim_positions": []}
+ok
+test_short_prohibitive_intro_is_not_discarded (test_structural_dependencies.StructuralDependencies.test_short_prohibitive_intro_is_not_discarded) ... {"event": "policy_verdict", "position": null, "expanded": false, "candidate_status": "answer", "approved": true, "prose": "absent", "verdict_status": "answer", "check_count": 1, "source_gap_count": 0, "failed_claim_positions": []}
+ok
+
+----------------------------------------------------------------------
+Ran 199 tests in 18.739s
+
+OK
