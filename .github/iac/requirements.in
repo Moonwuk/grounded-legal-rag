@@ -1,0 +1,4 @@
+# IaC checks only; these packages are never included in the runtime image.
+# ansible-core 2.22 requires Python 3.13 or newer.
+ansible-core==2.22.0
+ansible-lint==26.11.0

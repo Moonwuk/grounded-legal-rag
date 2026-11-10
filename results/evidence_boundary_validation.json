@@ -1,7 +1,7 @@
 {
   "base": "64e65ff1c853c73d8977d0260a7ddf9c9ef2942f",
   "runtime_commit": "d6cd6693c665121378c83d2cf25599c6b0d76b2c",
-  "offline_tests": 123,
+  "offline_tests": 156,
   "targeted_old_runtime_tests": {
     "tests": 3,
     "failures": 3,
@@ -849,24 +849,245 @@
         "all_quotes_exact": true,
         "not_official_score": true
       }
+    },
+    "final_exact_zip": {
+      "run": {
+        "started_utc": "20261110T110952Z",
+        "archive_sha256": "70ebed357c1a4ce041fcab1370d30f9a067ad2b92d049512598ae9cf9af96419",
+        "source_commit": "e8560fa8c8b1f99f0ccfa45f74bde299a148ca4d",
+        "corpus_sha256": "cea8ef2c8f6c8b9f498efacf705b97bf3da53cc78f366f9b1fef7a6de66327e0",
+        "questions_sha256": "e922cee1e155ed23f9f1c8f9758e396ed0e72e4309343dffe33824139bbf1423",
+        "model": "deepseek-flash",
+        "provider": "https://api.deepseek.com/v1",
+        "temperature": 0,
+        "max_workers": 2,
+        "top_k": 6,
+        "max_tokens": 8192,
+        "run_seconds": 800,
+        "mode": "real_model",
+        "golden_answers_passed_to_model": false,
+        "platform_submission": false,
+        "runtime_modified": false,
+        "seconds": 340.305,
+        "exit_code": 0,
+        "rows": 18,
+        "columns": [
+          "id",
+          "answer"
+        ],
+        "all_ids_match": true,
+        "unique_ids": 18,
+        "all_answers_valid": true,
+        "technical_answers": 0,
+        "unverified_answers": 0
+      },
+      "manual": {
+        "method": "Codex read all 18 answers and compared with supplied source corpus and existing rubric. Quote identity is checked separately from meaning. This is an internal manual review, not the organizer judge.",
+        "verdicts": {
+          "1": "PASS",
+          "2": "PASS",
+          "3": "PASS",
+          "4": "PASS",
+          "5": "PASS",
+          "6": "PASS",
+          "7": "PASS",
+          "8": "PASS",
+          "9": "PASS",
+          "10": "PASS",
+          "11": "PASS",
+          "12": "PASS",
+          "13": "PASS",
+          "14": "WARN",
+          "15": "PASS",
+          "16": "PASS",
+          "17": "PASS",
+          "18": "PASS"
+        },
+        "counts": {
+          "PASS": 17,
+          "WARN": 1
+        },
+        "notes": {
+          "5": "Complete historical 2023 validity block and pre-signing approval threshold10m support approval for12m in August2024; answer remains quotations without explicit arithmetic conclusion.",
+          "6": "Both5workingdays and UPD delivery-date definition now included.",
+          "13": "Partial answer explains absent same-law articles6,10,11. First verdict was rejected, expanded pass approved a narrower single block. Earlier failed run retained.",
+          "14": "Seasonal condition is authentic, but introductory fixed-term-employment heading is absent in output. Incomplete standalone explanation; no fabricated fact found.",
+          "7": "Correct24hour access but contains unnecessary premises/party details.",
+          "11": "Correct3workingday limit and application requirement, but unrelated archive facts make answer verbose.",
+          "17": "Warranty duration not invented; correctly requests product warranty certificate."
+        },
+        "quotes": [
+          {
+            "id": "1",
+            "reference": 1,
+            "exact": true
+          },
+          {
+            "id": "1",
+            "reference": 2,
+            "exact": true
+          },
+          {
+            "id": "2",
+            "reference": 1,
+            "exact": true
+          },
+          {
+            "id": "2",
+            "reference": 2,
+            "exact": true
+          },
+          {
+            "id": "4",
+            "reference": 1,
+            "exact": true
+          },
+          {
+            "id": "5",
+            "reference": 1,
+            "exact": true
+          },
+          {
+            "id": "5",
+            "reference": 2,
+            "exact": true
+          },
+          {
+            "id": "6",
+            "reference": 1,
+            "exact": true
+          },
+          {
+            "id": "6",
+            "reference": 2,
+            "exact": true
+          },
+          {
+            "id": "7",
+            "reference": 1,
+            "exact": true
+          },
+          {
+            "id": "7",
+            "reference": 2,
+            "exact": true
+          },
+          {
+            "id": "7",
+            "reference": 3,
+            "exact": true
+          },
+          {
+            "id": "8",
+            "reference": 1,
+            "exact": true
+          },
+          {
+            "id": "9",
+            "reference": 1,
+            "exact": true
+          },
+          {
+            "id": "9",
+            "reference": 2,
+            "exact": true
+          },
+          {
+            "id": "10",
+            "reference": 1,
+            "exact": true
+          },
+          {
+            "id": "10",
+            "reference": 2,
+            "exact": true
+          },
+          {
+            "id": "11",
+            "reference": 1,
+            "exact": true
+          },
+          {
+            "id": "12",
+            "reference": 1,
+            "exact": true
+          },
+          {
+            "id": "13",
+            "reference": 1,
+            "exact": true
+          },
+          {
+            "id": "14",
+            "reference": 1,
+            "exact": true
+          },
+          {
+            "id": "15",
+            "reference": 1,
+            "exact": true
+          },
+          {
+            "id": "16",
+            "reference": 1,
+            "exact": true
+          },
+          {
+            "id": "17",
+            "reference": 1,
+            "exact": true
+          },
+          {
+            "id": "18",
+            "reference": 1,
+            "exact": true
+          },
+          {
+            "id": "18",
+            "reference": 2,
+            "exact": true
+          }
+        ],
+        "all_quotes_exact": true,
+        "not_official_score": true,
+        "over150word_ids": [
+          "7",
+          "11",
+          "13"
+        ],
+        "limits": [
+          "No external blind corpus benchmark",
+          "The organizer API was not used",
+          "No competition score prediction",
+          "Earlier transport failure root cause remains unconfirmed"
+        ]
+      }
     }
   },
   "ci": {
     "run": "https://github.com/Moonwuk/grounded-legal-rag/actions/runs/42803119878",
-    "conclusion": "success"
+    "conclusion": "success",
+    "applies_to": "Initial runtime commit only, before integration of new container/IaC main"
   },
   "do_not_submit_yet": true,
   "remaining": [
-    "API stability not established",
-    "partial-answer false refusals",
-    "self-contained concise explanation",
-    "organizer API untested",
-    "final UI/Docker missing"
+    "Self-contained concise explanation: demo14 lacks introductory fixed-term heading",
+    "Historical transport failure not proven resolved by one successful rerun",
+    "Organizer API untested",
+    "Final web UI/source viewer/PDF not implemented in this PR; main now contains batch Docker and IaC"
   ],
   "final_archive": {
     "sha256": "70ebed357c1a4ce041fcab1370d30f9a067ad2b92d049512598ae9cf9af96419",
     "bytes": 20678,
-    "tests": 123,
-    "live_run": "NOT REPEATED after diagnostic-only changes; earlier live hashes retained"
-  }
+    "tests": 156,
+    "live_run": "18 demo on exact final ZIP: 17 PASS, 1 WARN, 0 technical, 0 unverified; earlier attempts retained"
+  },
+  "integrated_main": "ab3bd08bc00631532669abce1bd1cdefc0da06d2",
+  "container_harness_tests": 5,
+  "integration_ci": {
+    "initial_run": "https://github.com/Moonwuk/grounded-legal-rag/actions/runs/42805000109",
+    "initial_failure": "Old container fixture expected a cropped quote; reproduced locally, updated to assert full source block",
+    "latest": "pending"
+  },
+  "local_iac_test": "8 runner tests passed; Ansible guard module cannot import locally because required ansible-core2.22/Python3.13 environment is absent. CI is authoritative for IaC validation."
 }

@@ -1,0 +1,181 @@
+{
+  "method": "Codex read all 18 answers and compared with supplied source corpus and existing rubric. Quote identity is checked separately from meaning. This is an internal manual review, not the organizer judge.",
+  "verdicts": {
+    "1": "PASS",
+    "2": "PASS",
+    "3": "PASS",
+    "4": "PASS",
+    "5": "PASS",
+    "6": "PASS",
+    "7": "PASS",
+    "8": "PASS",
+    "9": "PASS",
+    "10": "PASS",
+    "11": "PASS",
+    "12": "PASS",
+    "13": "PASS",
+    "14": "WARN",
+    "15": "PASS",
+    "16": "PASS",
+    "17": "PASS",
+    "18": "PASS"
+  },
+  "counts": {
+    "PASS": 17,
+    "WARN": 1
+  },
+  "notes": {
+    "5": "Complete historical 2023 validity block and pre-signing approval threshold10m support approval for12m in August2024; answer remains quotations without explicit arithmetic conclusion.",
+    "6": "Both5workingdays and UPD delivery-date definition now included.",
+    "13": "Partial answer explains absent same-law articles6,10,11. First verdict was rejected, expanded pass approved a narrower single block. Earlier failed run retained.",
+    "14": "Seasonal condition is authentic, but introductory fixed-term-employment heading is absent in output. Incomplete standalone explanation; no fabricated fact found.",
+    "7": "Correct24hour access but contains unnecessary premises/party details.",
+    "11": "Correct3workingday limit and application requirement, but unrelated archive facts make answer verbose.",
+    "17": "Warranty duration not invented; correctly requests product warranty certificate."
+  },
+  "quotes": [
+    {
+      "id": "1",
+      "reference": 1,
+      "exact": true
+    },
+    {
+      "id": "1",
+      "reference": 2,
+      "exact": true
+    },
+    {
+      "id": "2",
+      "reference": 1,
+      "exact": true
+    },
+    {
+      "id": "2",
+      "reference": 2,
+      "exact": true
+    },
+    {
+      "id": "4",
+      "reference": 1,
+      "exact": true
+    },
+    {
+      "id": "5",
+      "reference": 1,
+      "exact": true
+    },
+    {
+      "id": "5",
+      "reference": 2,
+      "exact": true
+    },
+    {
+      "id": "6",
+      "reference": 1,
+      "exact": true
+    },
+    {
+      "id": "6",
+      "reference": 2,
+      "exact": true
+    },
+    {
+      "id": "7",
+      "reference": 1,
+      "exact": true
+    },
+    {
+      "id": "7",
+      "reference": 2,
+      "exact": true
+    },
+    {
+      "id": "7",
+      "reference": 3,
+      "exact": true
+    },
+    {
+      "id": "8",
+      "reference": 1,
+      "exact": true
+    },
+    {
+      "id": "9",
+      "reference": 1,
+      "exact": true
+    },
+    {
+      "id": "9",
+      "reference": 2,
+      "exact": true
+    },
+    {
+      "id": "10",
+      "reference": 1,
+      "exact": true
+    },
+    {
+      "id": "10",
+      "reference": 2,
+      "exact": true
+    },
+    {
+      "id": "11",
+      "reference": 1,
+      "exact": true
+    },
+    {
+      "id": "12",
+      "reference": 1,
+      "exact": true
+    },
+    {
+      "id": "13",
+      "reference": 1,
+      "exact": true
+    },
+    {
+      "id": "14",
+      "reference": 1,
+      "exact": true
+    },
+    {
+      "id": "15",
+      "reference": 1,
+      "exact": true
+    },
+    {
+      "id": "16",
+      "reference": 1,
+      "exact": true
+    },
+    {
+      "id": "17",
+      "reference": 1,
+      "exact": true
+    },
+    {
+      "id": "18",
+      "reference": 1,
+      "exact": true
+    },
+    {
+      "id": "18",
+      "reference": 2,
+      "exact": true
+    }
+  ],
+  "all_quotes_exact": true,
+  "not_official_score": true,
+  "over150word_ids": [
+    "7",
+    "11",
+    "13"
+  ],
+  "limits": [
+    "No external blind corpus benchmark",
+    "The organizer API was not used",
+    "No competition score prediction",
+    "Earlier transport failure root cause remains unconfirmed"
+  ]
+}

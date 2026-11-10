@@ -23,6 +23,8 @@
 | Сборка ZIP для платформы | [build_submission.py](build_submission.py), [prototype/requirements.txt](prototype/requirements.txt) | [check_submission.py](.github/scripts/check_submission.py), [test_security_ci.py](tests/test_security_ci.py) |
 | CI, секреты, зависимости | [security.yml](.github/workflows/security.yml), [.github/scripts/](.github/scripts/), [.gitleaks.toml](.gitleaks.toml) | [security_pipeline.md](docs/security_pipeline.md), [test_secret_scan.py](tests/test_secret_scan.py), [test_dependency_policy.py](tests/test_dependency_policy.py) |
 | Архитектура и известные границы | [README.md](README.md), [security_review.md](docs/security_review.md) | [pre_submission_audit.md](docs/pre_submission_audit.md), [PSB_next_step_report.md](PSB_next_step_report.md) |
+| Batch Docker, секреты и изоляция | [Dockerfile](Dockerfile), [entrypoint.py](containers/entrypoint.py), [compose.yml](deploy/compose.yml) | [deployment.md](docs/deployment.md), [test_container_entrypoint.py](tests/test_container_entrypoint.py), [HTTPS fixture](.github/container-tests/test_probe.py) |
+| Развёртывание и ручной batch-запуск | [infra/ansible/](infra/ansible/), [run_batch.py](infra/ansible/roles/psb/files/run_batch.py) | [infra README](infra/ansible/README.md), [guards и runner tests](infra/ansible/tests/) |
 
 **Исполняемый код:** `prototype/solution.py` и модули `prototype/psb_*.py`. Сборщик переносит их в корень ZIP.
 `organizer/sample_submission/` — пример организаторов; `dist/` — результат сборки. Исправляй исходники и пересобирай архив; правка примера или готового ZIP не заменяет изменения рабочего кода.
