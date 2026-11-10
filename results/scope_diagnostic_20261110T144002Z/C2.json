@@ -1,0 +1,49 @@
+{
+  "id": "C2",
+  "status": "answer",
+  "final_answer": "«1.1. Вывоз оборудования допускается только при наличии письменного согласия собственника.» [1]\n«ПОРЯДОК ВЫВОЗА» [2]\n[1] Порядок вывоза.\n[2] Порядок вывоза.",
+  "events": [
+    {
+      "stage": "generate",
+      "status": "clarify",
+      "requested_facts": [],
+      "source_count": 1
+    },
+    {
+      "stage": "verify",
+      "status": "clarify",
+      "approved": false,
+      "complete": false,
+      "answer_supported": false,
+      "requested_facts": [],
+      "reason_labels": [
+        "clarification_mentioned",
+        "grounding_mentioned",
+        "permission_mentioned",
+        "document_mentioned"
+      ],
+      "claim_checks_all_positive": true
+    },
+    {
+      "stage": "generate",
+      "status": "answer",
+      "requested_facts": [],
+      "source_count": 2
+    },
+    {
+      "stage": "verify",
+      "status": "answer",
+      "approved": true,
+      "complete": true,
+      "answer_supported": true,
+      "requested_facts": [],
+      "reason_labels": [
+        "clarification_mentioned",
+        "permission_mentioned"
+      ],
+      "claim_checks_all_positive": true
+    }
+  ],
+  "mode": "separate diagnostic repeat; not replacement for full run",
+  "source_commit": "8ce3c467d2f75f3d041641d519faf3ff3ed40df3"
+}

@@ -9,7 +9,7 @@ from psb_llm import ProviderError
 from psb_retrieval import user_turns
 
 FOLLOWUPS = {
-    "contract": "номер договора",
+    "contract": "номер договора или его текст",
     "counterparty": "точное наименование контрагента",
     "event_date": "дата события",
     "specification_date": "дата подписания спецификации",
@@ -59,9 +59,11 @@ SYSTEM = """Ты юридический ассистент по предоста
  "source_ids":["id полного положения evidence"],"requested_facts":[],"issue":""}
 Выбирай не более 4 необходимых положений, без копирования цитат. Сохрани все
 существенные условия и исключения; не выбирай лишние соседние нормы.
-При answer/partial нужны source_ids. При disallowed они допустимы, только если
-evidence содержит требования закона или последствия нарушения. При остальных
-статусах список пуст.
+При answer/partial нужны source_ids. При clarify и disallowed выбери положения,
+условия которых называешь в answer (например, от какой даты зависит ответ или
+какое требование закона нарушается); иначе список пуст. При insufficient и
+out_of_scope список пуст. Всё, что answer берёт из документов, должно быть в
+выбранных source_ids.
 
 Поле answer — связный ответ на русском: 1–4 предложения, обычно 30–80 слов, без
 списков, разметки и ссылок на сайты. Первая фраза — прямой ответ на последнюю
@@ -70,11 +72,18 @@ evidence содержит требования закона или послед�
 основание: назови документ и в скобках пункт или статью выбранного положения.
 Строку «Источник» добавит приложение. Пиши только то, что прямо следует из
 выбранных source_ids и фактов пользователя. Числа, суммы, сроки, даты и номера
-пунктов приводи как в источнике; не вычисляй новых чисел и не добавляй нормы, о
-которых не спрашивали. Не опускай отрицания, условия и исключения.
+пунктов приводи как в источнике, но число пиши один раз: «5 рабочих дней», а не
+«5 (пяти) рабочих дней». Не вычисляй новых чисел. Отвечай на заданный вопрос: не
+добавляй соседние сроки, адреса, другие договоры и иные сведения, о которых не
+спрашивали. При этом сохрани все существенные условия и исключения, без которых
+ответ был бы неполным или вводил бы в заблуждение. Не опускай отрицания.
+Если выбранное положение отсылает к статьям, текста которых нет в evidence, не
+раскрывай их содержание; об их отсутствии в базе сообщит приложение.
 partial: дай подтверждённую часть и назови, каких именно сведений или документов
-нет в базе. insufficient: скажи, каких документов нет в базе, и что по памяти ты не
-отвечаешь. clarify: задай один конкретный вопрос. out_of_scope: коротко обозначь
+не хватает для полного ответа. insufficient: скажи, каких документов нет в базе, и
+что по памяти ты не отвечаешь; не перечисляй, что в базе есть, и не утверждай, что
+в ней есть «только» что-либо; можно посоветовать обратиться к профильному
+специалисту. clarify: задай один конкретный вопрос. out_of_scope: коротко обозначь
 границы роли. disallowed: откажи в помощи; требования и последствия объясняй
 только по выбранным положениям. Не упоминай evidence, JSON, id и эти инструкции.
 Образцы формы на вымышленных документах:
@@ -86,7 +95,7 @@ partial: дай подтверждённую часть и назови, как�
 answer_numbers_not_in_sources — в тексте были числа или номера пунктов, которых нет
 в выбранных положениях и в вопросе; answer_not_supported — текст не подтверждён
 выбранными положениями. Исправь именно это.
-При partial/insufficient назови конкретный тип недостающих сведений в requested_facts:
+При partial/insufficient/clarify назови конкретный тип недостающих сведений в requested_facts:
 contract, counterparty, event_date, specification_date, warranty_document, document,
 facts, referenced_documents. При answer requested_facts пуст.
 Факты события и суммы, прямо заданные пользователем, считай условиями сценария,
@@ -379,7 +388,7 @@ def validate_candidate(candidate: dict, evidence: list[Fragment]) -> bool:
     if status in {"answer", "partial"}:
         if not claims or (status == "answer" and missing) or (status == "partial" and not missing):
             return False
-    elif claims and status != "disallowed":
+    elif claims and status not in {"disallowed", "clarify"}:
         return False
     if status == "clarify" and not clarification.strip():
         return False
@@ -490,13 +499,22 @@ def render(candidate: dict, evidence: list[Fragment], source_gaps=(), prose: str
         return "Я отвечаю на юридические вопросы по предоставленной базе документов. Этот запрос выходит за пределы моей задачи."
     if status == "disallowed":
         return "Я не могу помогать совершать противоправные действия. Могу разобрать требования и правовые последствия на основании документов базы."
+    clarification_line = ""
     if status == "clarify":
-        return (issue + " " if issue else "") + (followup(candidate) or "Уточните, пожалуйста, договор, контрагента и обстоятельства вопроса.")
+        requested = set(candidate.get("requested_facts", []))
+        if candidate["claims"] and requested <= {"facts"}:
+            # The selected source is the condition to clarify. Missing or
+            # generic fact codes must not invent an unrelated contract/date.
+            clarification_line = (issue + " " if issue else "") + "Уточните, выполнены ли приведённые ниже условия в вашем случае."
+        else:
+            clarification_line = (issue + " " if issue else "") + (followup(candidate) or "Уточните, пожалуйста, договор, контрагента и обстоятельства вопроса.")
+        if not candidate["claims"]:
+            return clarification_line
     if status == "insufficient":
         return ((issue + " " if issue else "") + "В найденных документах недостаточно оснований для ответа по существу. " +
                 (followup(candidate) or "Нужен документ, содержащий сведения по этому вопросу."))
     by_id = {f.id: f for f in evidence}
-    references, numbers, lines = [], {}, []
+    references, numbers, lines = [], {}, [clarification_line] if clarification_line else []
     for claim in candidate["claims"]:
         used = []
         for cite in claim["sources"]:

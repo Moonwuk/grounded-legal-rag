@@ -1,7 +1,7 @@
 {
   "file": "PSB_baseline_submission.zip",
-  "bytes": 27346,
-  "sha256": "6cfa4565b408ea3691dbd3caa6ef8fd13bbd93497b78fda08be01736fbcb2cfc",
+  "bytes": 27861,
+  "sha256": "f179e6bf5763eb6db099241bc8f8004e35f648420e25ed42225c15af85b08fd6",
   "entries": [
     "solution.py",
     "psb_corpus.py",
@@ -10,12 +10,5 @@
     "psb_llm.py",
     "requirements.txt"
   ],
-  "platform_execution": "NOT RUN; proxy credentials unavailable in this session",
-  "development_execution": {
-    "model": "deepseek-flash",
-    "source_commit": "e982589ebf6bbdfb29920b257291d09f5c993881",
-    "demo_run": "results/prose_live_20261110T134809Z",
-    "synthetic_run": "results/prose_synthetic_20261110T135017Z",
-    "organizer_api_tested": false
-  }
+  "platform_execution": "NOT RUN; proxy credentials unavailable in this session"
 }

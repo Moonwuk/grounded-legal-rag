@@ -1,0 +1,6 @@
+{
+  "scenario": "demo3, scripted generator with insufficient/document, no provider call",
+  "same_verification_request": true,
+  "payload_sha256": "3212555ec35e75882a1a7770e59f598e837fa91835937c5bd956f26653f4609c",
+  "limits": "Proves unchanged deterministic request for this candidate, not identical provider behavior or all possible candidates."
+}
