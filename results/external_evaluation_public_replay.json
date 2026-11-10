@@ -1,0 +1,346 @@
+{
+  "source_commit": "3985d8d3ca13762c339f2ac1e8ae92cc3f5985d1",
+  "corpus": "public",
+  "mode": "all",
+  "archive_sha256": "24b8adf1546470b503ffc1d7f4171f2059a2ea1c17bae41ec644216884cb7641",
+  "gold_sha256": "9e99549f00f4f619f73a1758cc5d02f3714b782a16eb030e7f89975ee5846ecf",
+  "questions_sha256": "96bcf5d47c7d2a4f5f6e8c4cf449fded13e50364936d52e1ce64d4bbba62fd89",
+  "top_k": 6,
+  "documents": 135,
+  "indexed_fragments": 11332,
+  "questions": 20,
+  "source_spans_checked": 20,
+  "context_success": 20,
+  "guard_errors": 0,
+  "errors_by_code": {},
+  "required_questions": 20,
+  "required_completed": 20,
+  "required_sufficient": 20,
+  "raw_recall": {
+    "1": {
+      "numerator": 19.0,
+      "denominator": 20
+    },
+    "5": {
+      "numerator": 20.0,
+      "denominator": 20
+    },
+    "10": {
+      "numerator": 20.0,
+      "denominator": 20
+    }
+  },
+  "runtime_file_sha256": {
+    "psb_corpus.py": "0e8edfde588f34e3a4a543762e67cae6612cda584a79744d1d4b68fa1a3b93a8",
+    "psb_llm.py": "7642612cb2013eb398c547c36012bab88f8bf81cd970f10867bba3c6a5726e03",
+    "psb_policy.py": "7ee20bee5d93512eca3dc24864a57367392a2b7762702469f5820123be2d0d63",
+    "psb_retrieval.py": "d623320bf61bdaad7ccd946a059975dbfd42edcf23d9ecc14a29ae886cc667ff",
+    "solution.py": "d7956538586bed8e17fecbf75ff71e1c7e44c4a6d198480dedb00045ff8649ba"
+  },
+  "seconds": 2.366,
+  "api_calls": 0,
+  "answer_metrics": "NOT_EVALUATED: retrieval only",
+  "limits": "Reused one immutable index; original worker rebuilt it per case. Timing is not directly comparable. Gold was used only after search for span coverage; this is logical input separation, not an OS sandbox.",
+  "rows": [
+    {
+      "case_id": "public-000",
+      "category": "public_span_retrieval",
+      "split": "development",
+      "requires_evidence": true,
+      "recall": {
+        "1": 1.0,
+        "5": 1.0,
+        "10": 1.0
+      },
+      "status": "context",
+      "sufficient": true,
+      "context_fragments": 61,
+      "context_characters": 7954
+    },
+    {
+      "case_id": "public-001",
+      "category": "public_span_retrieval",
+      "split": "development",
+      "requires_evidence": true,
+      "recall": {
+        "1": 1.0,
+        "5": 1.0,
+        "10": 1.0
+      },
+      "status": "context",
+      "sufficient": true,
+      "context_fragments": 39,
+      "context_characters": 5575
+    },
+    {
+      "case_id": "public-002",
+      "category": "public_span_retrieval",
+      "split": "development",
+      "requires_evidence": true,
+      "recall": {
+        "1": 1.0,
+        "5": 1.0,
+        "10": 1.0
+      },
+      "status": "context",
+      "sufficient": true,
+      "context_fragments": 124,
+      "context_characters": 18328
+    },
+    {
+      "case_id": "public-003",
+      "category": "public_span_retrieval",
+      "split": "development",
+      "requires_evidence": true,
+      "recall": {
+        "1": 1.0,
+        "5": 1.0,
+        "10": 1.0
+      },
+      "status": "context",
+      "sufficient": true,
+      "context_fragments": 43,
+      "context_characters": 24016
+    },
+    {
+      "case_id": "public-004",
+      "category": "public_span_retrieval",
+      "split": "development",
+      "requires_evidence": true,
+      "recall": {
+        "1": 1.0,
+        "5": 1.0,
+        "10": 1.0
+      },
+      "status": "context",
+      "sufficient": true,
+      "context_fragments": 58,
+      "context_characters": 19610
+    },
+    {
+      "case_id": "public-005",
+      "category": "public_span_retrieval",
+      "split": "development",
+      "requires_evidence": true,
+      "recall": {
+        "1": 1.0,
+        "5": 1.0,
+        "10": 1.0
+      },
+      "status": "context",
+      "sufficient": true,
+      "context_fragments": 25,
+      "context_characters": 6255
+    },
+    {
+      "case_id": "public-006",
+      "category": "public_span_retrieval",
+      "split": "development",
+      "requires_evidence": true,
+      "recall": {
+        "1": 1.0,
+        "5": 1.0,
+        "10": 1.0
+      },
+      "status": "context",
+      "sufficient": true,
+      "context_fragments": 14,
+      "context_characters": 5855
+    },
+    {
+      "case_id": "public-007",
+      "category": "public_span_retrieval",
+      "split": "development",
+      "requires_evidence": true,
+      "recall": {
+        "1": 1.0,
+        "5": 1.0,
+        "10": 1.0
+      },
+      "status": "context",
+      "sufficient": true,
+      "context_fragments": 44,
+      "context_characters": 20111
+    },
+    {
+      "case_id": "public-008",
+      "category": "public_span_retrieval",
+      "split": "development",
+      "requires_evidence": true,
+      "recall": {
+        "1": 1.0,
+        "5": 1.0,
+        "10": 1.0
+      },
+      "status": "context",
+      "sufficient": true,
+      "context_fragments": 74,
+      "context_characters": 15885
+    },
+    {
+      "case_id": "public-009",
+      "category": "public_span_retrieval",
+      "split": "development",
+      "requires_evidence": true,
+      "recall": {
+        "1": 0.0,
+        "5": 1.0,
+        "10": 1.0
+      },
+      "status": "context",
+      "sufficient": true,
+      "context_fragments": 55,
+      "context_characters": 15724
+    },
+    {
+      "case_id": "public-010",
+      "category": "public_span_retrieval",
+      "split": "development",
+      "requires_evidence": true,
+      "recall": {
+        "1": 1.0,
+        "5": 1.0,
+        "10": 1.0
+      },
+      "status": "context",
+      "sufficient": true,
+      "context_fragments": 50,
+      "context_characters": 12656
+    },
+    {
+      "case_id": "public-011",
+      "category": "public_span_retrieval",
+      "split": "development",
+      "requires_evidence": true,
+      "recall": {
+        "1": 1.0,
+        "5": 1.0,
+        "10": 1.0
+      },
+      "status": "context",
+      "sufficient": true,
+      "context_fragments": 55,
+      "context_characters": 17726
+    },
+    {
+      "case_id": "public-012",
+      "category": "public_span_retrieval",
+      "split": "development",
+      "requires_evidence": true,
+      "recall": {
+        "1": 1.0,
+        "5": 1.0,
+        "10": 1.0
+      },
+      "status": "context",
+      "sufficient": true,
+      "context_fragments": 54,
+      "context_characters": 16488
+    },
+    {
+      "case_id": "public-013",
+      "category": "public_span_retrieval",
+      "split": "development",
+      "requires_evidence": true,
+      "recall": {
+        "1": 1.0,
+        "5": 1.0,
+        "10": 1.0
+      },
+      "status": "context",
+      "sufficient": true,
+      "context_fragments": 49,
+      "context_characters": 11916
+    },
+    {
+      "case_id": "public-014",
+      "category": "public_span_retrieval",
+      "split": "development",
+      "requires_evidence": true,
+      "recall": {
+        "1": 1.0,
+        "5": 1.0,
+        "10": 1.0
+      },
+      "status": "context",
+      "sufficient": true,
+      "context_fragments": 53,
+      "context_characters": 32908
+    },
+    {
+      "case_id": "public-015",
+      "category": "public_span_retrieval",
+      "split": "development",
+      "requires_evidence": true,
+      "recall": {
+        "1": 1.0,
+        "5": 1.0,
+        "10": 1.0
+      },
+      "status": "context",
+      "sufficient": true,
+      "context_fragments": 18,
+      "context_characters": 7541
+    },
+    {
+      "case_id": "public-016",
+      "category": "public_span_retrieval",
+      "split": "development",
+      "requires_evidence": true,
+      "recall": {
+        "1": 1.0,
+        "5": 1.0,
+        "10": 1.0
+      },
+      "status": "context",
+      "sufficient": true,
+      "context_fragments": 26,
+      "context_characters": 11229
+    },
+    {
+      "case_id": "public-017",
+      "category": "public_span_retrieval",
+      "split": "development",
+      "requires_evidence": true,
+      "recall": {
+        "1": 1.0,
+        "5": 1.0,
+        "10": 1.0
+      },
+      "status": "context",
+      "sufficient": true,
+      "context_fragments": 47,
+      "context_characters": 14129
+    },
+    {
+      "case_id": "public-018",
+      "category": "public_span_retrieval",
+      "split": "development",
+      "requires_evidence": true,
+      "recall": {
+        "1": 1.0,
+        "5": 1.0,
+        "10": 1.0
+      },
+      "status": "context",
+      "sufficient": true,
+      "context_fragments": 56,
+      "context_characters": 14891
+    },
+    {
+      "case_id": "public-019",
+      "category": "public_span_retrieval",
+      "split": "development",
+      "requires_evidence": true,
+      "recall": {
+        "1": 1.0,
+        "5": 1.0,
+        "10": 1.0
+      },
+      "status": "context",
+      "sufficient": true,
+      "context_fragments": 30,
+      "context_characters": 7548
+    }
+  ]
+}

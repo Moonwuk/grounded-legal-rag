@@ -1,0 +1,25 @@
+{
+  "mode": "scripted approving model; no real API call",
+  "source_commit": "3985d8d3ca13762c339f2ac1e8ae92cc3f5985d1",
+  "missing_forwarded_attributes": {
+    "documents": {
+      "direct": true,
+      "wrapped": false
+    },
+    "reference_gaps": {
+      "direct": true,
+      "wrapped": false
+    },
+    "complete_sources": {
+      "direct": true,
+      "wrapped": false
+    }
+  },
+  "direct_status": "answer",
+  "wrapped_status": "partial",
+  "direct_answer": "Срок сервисного обслуживания составляет 19 месяцев (п. 1.1).\nИсточники: Сервисный паспорт, п. 1.1; Договор, п. 7.2.",
+  "wrapped_answer": "«1.1. Срок сервисного обслуживания составляет 19 месяцев.» [1]\n«7.2. Срок сервисного обслуживания определяется изготовителем и указывается в сервисном паспорте.» [2]\nНайденное положение отсылает к отдельному документу: «указывается в сервисном паспорте». Предоставьте этот документ, чтобы определить запрошенное значение.\n[1] Сервисный паспорт.\n[2] Договор.",
+  "interpretation": "The original observation wrapper changes behavior: a present service passport becomes a requested missing document.",
+  "evaluation_zip_sha256": "49400703d3549c5c22f6228a83f97dc1561df81662e22a7fe398eeb98b577238",
+  "worker_sha256": "a01827e9828dc7bbfa0ee470e5a6de28c472db69b0b9cf2a23e143c1506641e3"
+}

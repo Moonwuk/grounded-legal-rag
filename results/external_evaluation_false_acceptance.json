@@ -1,0 +1,14 @@
+{
+  "mode": "negative evaluation-validator calibration; no model call or runtime bypass",
+  "baseline_outcome": "pass",
+  "mutated_visible_answer": "Оплачивать товар вообще не требуется.",
+  "claims_left_unchanged": true,
+  "rendered_equals_answer": true,
+  "candidate_answer_equals_visible": true,
+  "mutated_outcome": "pass",
+  "mutated_failures": [],
+  "not_evaluated": [],
+  "interpretation": "Existing source claims can make the validator pass while a new-format visible prose answer contradicts them. This proves an evaluator compatibility defect, not a demonstrated real-model output.",
+  "evaluation_zip_sha256": "49400703d3549c5c22f6228a83f97dc1561df81662e22a7fe398eeb98b577238",
+  "validator_sha256": "dac39c5aaefeab463fec33dec6065be1510fd0c1151f6d27414bdcf908fd060a"
+}
