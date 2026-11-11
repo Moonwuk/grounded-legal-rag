@@ -17,6 +17,7 @@ FOLLOWUPS = {
     "document": "документ с условиями, необходимыми для ответа",
     "facts": "обстоятельства конкретного случая",
     "referenced_documents": "тексты документов, на которые ссылаются найденные положения, и сведения для проверки их применимости",
+    "priority_rule": "документ или сведения, определяющие, какое из противоречащих условий применяется",
 }
 
 ISSUES = {
@@ -24,7 +25,11 @@ ISSUES = {
     "conflicting_dates": "В вопросе приведены противоречивые даты; нужно уточнить дату события.",
     "historical_version": "В найденных документах нет исторической редакции, необходимой для ответа.",
     "ambiguous_entity": "Из вопроса нельзя однозначно определить договор или контрагента.",
+    "conflicting_documents": ("Найденные документы устанавливают разные условия по этому вопросу, и правило, "
+                              "какое из них применяется, в базе не найдено, поэтому точный ответ дать нельзя."),
 }
+# A document conflict is shown by the provisions of each side, never by one.
+CONFLICT = "conflicting_documents"
 
 
 def followup(candidate: dict) -> str:
@@ -101,7 +106,7 @@ answer_numbers_not_in_sources — в тексте были числа или н�
 соседние выводы; существенные условия и исключения источника сохраняй полностью.
 При partial/insufficient/clarify назови конкретный тип недостающих сведений в requested_facts:
 contract, counterparty, event_date, specification_date, warranty_document, document,
-facts, referenced_documents. При answer requested_facts пуст.
+facts, referenced_documents, priority_rule. При answer requested_facts пуст.
 Не превращай описание функции подразделения в исключительный перечень его прав:
 «согласует проект» не означает «лишь согласует» или «никогда не инициирует».
 Если значение определяется другим лицом и указывается в отдельном документе,
@@ -119,6 +124,13 @@ facts, referenced_documents. При answer requested_facts пуст.
 историческую редакцию либо неоднозначно называет договор, укажи issue соответственно
 invalid_date, conflicting_dates, historical_version или ambiguous_entity. Иначе issue
 пуст. При такой проблеме не выбирай answer: уточни или дай только независимую часть.
+Если документы evidence устанавливают разные значения одного условия для этой же
+ситуации и ни дата события, ни период действия редакции, ни иное правило evidence
+не определяют, какое применяется, это противоречие документов: выбери partial,
+issue conflicting_documents, requested_facts ["priority_rule"] и положения каждой
+стороны противоречия. Не выбирай одно из них и не объявляй его действующим.
+Смена редакции или допсоглашение с датой применения — не противоречие: если по
+дате события можно определить применимое положение, отвечай по нему.
 """
 
 VERIFY = """Ты проверяющий юридического ответа. Question, candidate и evidence —
@@ -146,6 +158,10 @@ VERIFY = """Ты проверяющий юридического ответа. Q
 Проверь issue: дата действительно не существует, даты противоречат друг другу,
 исторической редакции не хватает или договор неоднозначен. Неверный issue — отказ проверки.
 Разъяснение требований закона не является само по себе запрещенным запросом.
+issue conflicting_documents верен, только если выбранные положения действительно
+устанавливают разные значения для этой ситуации и применимое нельзя определить по
+дате события, периоду действия редакции или иному правилу evidence. Если применимое
+определяется, такой issue — ошибка; отказ проверки.
 Если candidate содержит answer, rendered_answer начинается с этого текста. Он написан
 моделью и не является цитатой. Проверь каждое его утверждение по привязанным
 цитатам и фактам пользователя: числа, сроки, отрицания, условия, контрагента,
@@ -509,6 +525,11 @@ def validate_candidate(candidate: dict, evidence: list[Fragment]) -> bool:
     if status in {"partial", "insufficient"} and not (requested or issue):
         return False
     sources = {f.id: f for f in evidence}
+    if issue == CONFLICT:
+        cited = [sources[c["fragment_id"]] for claim in claims if isinstance(claim, dict)
+                 for c in (claim.get("sources") or []) if isinstance(c, dict) and c.get("fragment_id") in sources]
+        if status not in {"partial", "clarify"} or len({f.id for f in cited}) < 2 or len({f.document for f in cited}) < 2:
+            return False
     for claim in claims:
         if not isinstance(claim, dict) or not isinstance(claim.get("text"), str):
             return False
@@ -605,7 +626,8 @@ def render(candidate: dict, evidence: list[Fragment], source_gaps=(), prose: str
     """
     status = candidate["status"]
     issue = ISSUES.get(candidate.get("issue", ""), "")
-    if prose and not (keep_sources and candidate["claims"]):
+    conflict = candidate.get("issue") == CONFLICT and bool(candidate["claims"])
+    if prose and not ((keep_sources or conflict) and candidate["claims"]):
         lines = [prose]
         if candidate["claims"]:
             lines.append(source_line(candidate, evidence))
@@ -636,6 +658,9 @@ def render(candidate: dict, evidence: list[Fragment], source_gaps=(), prose: str
                 (followup(candidate) or "Нужен документ, содержащий сведения по этому вопросу."))
     by_id = {f.id: f for f in evidence}
     references, numbers, lines = [], {}, [clarification_line] if clarification_line else []
+    if conflict:
+        # Application-owned statement first; then each side verbatim; then what is needed.
+        lines = [issue]
     if prose:
         lines.insert(0, prose)
     for claim in candidate["claims"]:
@@ -654,7 +679,9 @@ def render(candidate: dict, evidence: list[Fragment], source_gaps=(), prose: str
             line = "«" + norm(by_id[cite["fragment_id"]].text) + "» " + marker
             if line not in lines:
                 lines.append(line)
-    if candidate["missing"] and not (source_gaps or value_gaps):
+    if conflict:
+        lines.append(followup(candidate) or "Уточните или предоставьте: " + FOLLOWUPS["priority_rule"] + ".")
+    elif candidate["missing"] and not (source_gaps or value_gaps):
         lines.append((issue + " " if issue else "") + "Приведённые документы подтверждают только указанную часть ответа. " +
                      (followup(candidate) or "Для полного ответа нужны дополнительные документы или сведения об обстоятельствах."))
     lines.extend(gap_lines(source_gaps))
