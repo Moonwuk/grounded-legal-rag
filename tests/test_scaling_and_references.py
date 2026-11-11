@@ -49,6 +49,38 @@ class FamilyExpansionTests(unittest.TestCase):
         self.assertIn('Акт сверки ВК-3-2031.txt', found)
         self.assertIn('Акт сверки ГН-8-2032.txt', found)
 
+class FamilyBudgetTests(unittest.TestCase):
+    """Linked documents were added after the budget, past it (synthetic
+    holdout: an off-topic question without an identifier raised
+    evidence_size_limit). A family now counts against the budget as a whole."""
+    @staticmethod
+    def dense(families, filler):
+        files = {}
+        for i in range(families):
+            number = f'ЛТ-{i + 1}/2034'
+            slug = number.replace('/', '-')
+            body = (f'Срок поставки партии составляет {10 + i} рабочих дней. ' + filler) * 30
+            files[f'Договор {slug}.txt'] = f'Договор № {number}\n2.1. {body}'
+            files[f'Доп соглашение к договору {slug}.txt'] = f'Дополнительное соглашение к договору № {number}\n1. {body}'
+            files[f'Спецификация {slug}.txt'] = f'Спецификация к договору № {number}\n1. {body}'
+        return files
+
+    def test_context_fits_the_budget_and_families_stay_whole(self):
+        for families, filler in ((30, 'Условие согласовано сторонами без изменений. '), (24, 'Поставка выполняется на склад покупателя. ')):
+            files = self.dense(families, filler)
+            with corpus(files) as r:
+                for expanded, budget in ((False, 42000), (True, 65000)):
+                    with self.subTest(families=families, expanded=expanded):
+                        hits = r.search('Какой срок поставки партии?', top_k=6, expanded=expanded)
+                        # Restored blocks may add a little; the budget is a document-boundary cap.
+                        self.assertLessEqual(sum(len(f.text) for f in hits), budget + 2500)
+                        docs = {f.document for f in hits}
+                        for i in range(families):
+                            slug = f'ЛТ-{i + 1}-2034'
+                            family = {f'Договор {slug}.txt', f'Доп соглашение к договору {slug}.txt', f'Спецификация {slug}.txt'}
+                            self.assertIn(len(docs & family), (0, 3), slug)
+
+
 class DelegatedValueTests(unittest.TestCase):
     CASES = [('6.1. Гарантийный срок на товар устанавливается производителем и указывается в гарантийном талоне.',
               'Гарантийный талон П-4-2032.txt', 'Гарантийный талон к договору № П-4/2032\n2.4. Гарантийный срок составляет 27 месяцев.',
