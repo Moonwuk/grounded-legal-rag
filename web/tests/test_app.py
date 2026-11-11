@@ -72,3 +72,14 @@ class WebTests(unittest.TestCase):
             {"role": "invalid", "text": "private_question_marker"}]})
         self.assertEqual(invalid.status_code, 422)
         self.assertNotIn("private_question_marker", invalid.text)
+
+    def test_missing_model_configuration_is_actionable(self):
+        with patch("web.app.ProxyClient", side_effect=ProviderError("missing_proxy_configuration")):
+            response = self.client.post("/api/chat", json={"messages": [
+                {"role": "user", "text": "Какова арендная плата?"}]})
+        self.assertEqual(response.status_code, 200)
+        result = response.json()
+        self.assertEqual(result["status"], "technical_error")
+        self.assertEqual(result["error_code"], "model_not_configured")
+        self.assertIn(".env", result["text"])
+        self.assertIn("LLM_API_KEY", result["text"])

@@ -109,9 +109,11 @@ async function loadDocuments() {
 function renderAnswer(node, answer, retry) {
   node.item.dataset.status = answer.status;
   node.content.textContent = answer.text;
+  const missingModel = answer.error_code === "model_not_configured";
   if (labels[answer.status]) {
     const status = document.createElement("strong");
-    status.textContent = labels[answer.status];
+    status.className = "message-status";
+    status.textContent = missingModel ? "Модель не настроена" : labels[answer.status];
     node.content.before(status);
   }
   for (const source of answer.sources || []) {
@@ -122,13 +124,13 @@ function renderAnswer(node, answer, retry) {
     button.addEventListener("click", () => openDocument(source.document_id, source));
     node.item.append(button);
   }
-  if (answer.status === "technical_error") {
+  if (answer.status === "technical_error" && !missingModel) {
     const button = document.createElement("button");
     button.type = "button";
     button.textContent = "Повторить";
     button.addEventListener("click", retry);
     node.item.append(button);
-  } else if (Number.isFinite(answer.elapsed_seconds)) {
+  } else if (answer.status !== "technical_error" && Number.isFinite(answer.elapsed_seconds)) {
     const duration = document.createElement("small");
     duration.textContent = new Intl.NumberFormat("ru-RU").format(answer.elapsed_seconds) + " с";
     node.item.append(duration);

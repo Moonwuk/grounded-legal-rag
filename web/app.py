@@ -19,7 +19,7 @@ STATIC = Path(__file__).with_name("static")
 sys.path.insert(0, str(ROOT / "prototype"))
 
 from psb_corpus import load_corpus
-from psb_llm import ProxyClient, integer
+from psb_llm import ProviderError, ProxyClient, integer
 from psb_policy import TECHNICAL, answer_structured, display_name
 from psb_retrieval import Retriever
 
@@ -76,13 +76,30 @@ def to_question(messages):
     return "\n".join(f"{LABELS[m.role]}: {m.text.strip()}" for m in messages)
 
 
+def model_client(deadline):
+    try:
+        return ProxyClient(deadline=deadline)
+    except ProviderError as error:
+        if str(error) == "missing_proxy_configuration":
+            return None
+        raise
+
+
 def answer(question, state):
     started = time.monotonic()
     if not state.slots.acquire(blocking=False):
         return dict(status="technical_error", text="Сервис занят. Повторите запрос через несколько секунд.",
                     sources=[], elapsed_seconds=0)
     try:
-        client = ProxyClient(deadline=started + 150)
+        client = model_client(deadline=started + 150)
+        if client is None:
+            return dict(
+                status="technical_error",
+                error_code="model_not_configured",
+                text="Заполните LLM_BASE_URL, LLM_API_KEY и LLM_MODEL в файле .env и перезапустите веб-сервис.",
+                sources=[],
+                elapsed_seconds=round(time.monotonic() - started, 1),
+            )
         result = answer_structured(question, state.retriever, client, top_k=integer("TOP_K", 6, 1, 40))
         sources = []
         for number, fragment in enumerate(result["sources"], 1):
