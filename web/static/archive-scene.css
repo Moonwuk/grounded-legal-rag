@@ -1,4 +1,4 @@
-/* 6 columns, 5 rows, 160 × 160 px per cell. Frame intervals are 1/30 s. */
+/* 6 columns, 5 rows, 160 × 160 px per cell. Frame intervals are 1/15 s. */
 .archive-scene {
   overflow: hidden;
   contain: paint;
@@ -23,19 +23,19 @@
 }
 .archive-scene[data-state="searching"] .archive-scene__frame {
   background-position: 20% 25%;
-  animation: archive-search calc(48s / 30) steps(1, end) infinite;
+  animation: archive-search calc(48s / 15) steps(1, end) infinite;
 }
 .archive-scene[data-state="found"] .archive-scene__frame {
   background-position: 0% 100%;
-  animation: archive-found calc(10s / 30) steps(1, end) 1 forwards;
+  animation: archive-found calc(10s / 15) steps(1, end) 1 forwards;
 }
 .archive-scene[data-state="error"] .archive-scene__frame {
   background-position: 100% 100%;
-  animation: archive-error calc(12s / 30) steps(1, end) 1 forwards;
+  animation: archive-error calc(12s / 15) steps(1, end) 1 forwards;
 }
 .archive-scene[data-state="refused"] .archive-scene__frame {
   background-position: 100% 100%;
-  animation: archive-refused calc(10s / 30) steps(1, end) 1 forwards;
+  animation: archive-refused calc(10s / 15) steps(1, end) 1 forwards;
 }
 @keyframes archive-search {
   0% { background-position: 0% 0%; }
