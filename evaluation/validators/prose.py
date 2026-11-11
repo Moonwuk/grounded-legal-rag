@@ -61,7 +61,7 @@ class Mention:
 
 _ABBREVIATION = re.compile(r'(?:^|[\s(«"])(?:п|пп|ст|ч|гл|разд|см|абз|подп)\.$', re.I)
 # A value named and then denied: "999 календарных дней не подтверждается".
-_DENIED_AFTER = re.compile(r'^[^.;:!?]{0,20}?\b(?:не\s+подтвержда\w*|не\s+соответству\w*|неверн\w*|ошибочн\w*)', re.I)
+_DENIED_AFTER = re.compile(r'^[^.;:!?]{0,20}?\b(?:не\s+подтвержда\w*|не\s+соответству\w*|не\s+согласова\w*|не\s+установлен\w*|неверн\w*|ошибочн\w*)', re.I)
 
 
 def _sentences(text):
