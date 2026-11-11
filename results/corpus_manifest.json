@@ -17,7 +17,7 @@
     "name": "документы компании__Договор поставки ПТ-05-2023 Альфа-Трейдинг.txt",
     "sha256": "8c2171e4c1bfe5a915a5d3cd7fdfb64ead0866858bf7914f8b84c67be618530d",
     "characters": 2770,
-    "fragments": 31,
+    "fragments": 32,
     "quarantined_source_spans": []
   },
   {
@@ -72,7 +72,7 @@
     "name": "законы__КоАП_ст13.11_действующая.txt",
     "sha256": "d982e1ebdc409e93fe4434ada02e7a0801971eacb9dfaad511186004628e097f",
     "characters": 18034,
-    "fragments": 77,
+    "fragments": 78,
     "quarantined_source_spans": []
   },
   {
@@ -107,7 +107,7 @@
     "name": "законы__НК_ст164_действующая.txt",
     "sha256": "90f7d1f6c472be5e5a89fc1fe9bcdc3a1b57171c475c772150bb463333bb7066",
     "characters": 78839,
-    "fragments": 292,
+    "fragments": 297,
     "quarantined_source_spans": []
   },
   {

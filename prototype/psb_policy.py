@@ -393,6 +393,10 @@ def prose_scope_safe(text: str, selected: list[Fragment]) -> bool:
             and not (_ROLE_NEGATION.search(text) and not _ROLE_NEGATION.search(source)))
 
 
+def _title_stems(text: str) -> set[str]:
+    return {w[:3 if len(w) <= 4 else 4] for w in re.findall(r"[а-яёa-z]+", text.lower().replace("ё", "е")) if len(w) >= 3}
+
+
 def value_dependencies(question: str, selected: list[Fragment], documents) -> list[str]:
     """Recognize explicit value-to-document references, not arbitrary legal links.
 
@@ -413,8 +417,11 @@ def value_dependencies(question: str, selected: list[Fragment], documents) -> li
             subject = {t for t in tokens(m['subject']) if t.startswith("^")} - generic
             if not subject & query:
                 continue
-            target = {t for t in tokens(m['document']) if t.startswith("^")}
-            present = any(target and target <= set(tokens(name + " " + document_header(d.text)))
+            # Compare by a short stem of every word (three letters for words of
+            # three or four, otherwise four): the search tokens stem only words of
+            # six letters, so "талоне" never matched the title word "талон".
+            target = _title_stems(m['document'])
+            present = any(target and target <= _title_stems(name + " " + document_header(d.text))
                           for name, d in documents.items())
             if not present and m['reference'] not in result:
                 result.append(m['reference'])

@@ -198,7 +198,10 @@ class Retriever:
         # clauses together with changes. The LLM still must assess applicability.
         connected = set(selected_docs)
         for name in selected_docs:
-            if self.doc_ids[name]:
+            # When the question names an identifier, only documents of that
+            # identifier bring their linked documents. A lexical hit about another
+            # contract stays a candidate itself but must not pull in its whole family.
+            if self.doc_ids[name] and (not ids or ids & self.doc_ids[name]):
                 connected.update(n for n, docids in self.doc_ids.items() if docids & self.doc_ids[name])
             if "регламент согласования" in name.lower():
                 connected.update(n for n, d in self.documents.items()
@@ -221,14 +224,30 @@ class Retriever:
         priority_docs = list(dict.fromkeys(f.document for f in hits))
         priority_docs += sorted(connected - set(priority_docs))
         ordered = sorted(selected.values(), key=lambda f: (priority_docs.index(f.document), f.start))
-        used, result = 0, []
+        def unit(name):
+            """A document with every document it must not be separated from."""
+            members = {name} | {n for n in connected if self.doc_ids[name] & self.doc_ids[n]}
+            if "регламент согласования" in name.lower():
+                members |= {n for n in connected if "регламент" in self.documents[n].text.lower()}
+            return members
+        # The budget counts a document together with its linked documents, so a
+        # family is kept whole or skipped whole; linked documents can no longer
+        # be added afterwards past the budget.
+        used, result, taken = 0, [], set()
         for name in priority_docs:
-            group = [f for f in ordered if f.document == name]
+            if name in taken:
+                continue
+            members = unit(name) - taken
+            group = [f for f in ordered if f.document in members]
+            group += [f for n in sorted(members) if n not in {g.document for g in group} for f in self.by_doc[n]]
             size = sum(len(f.text) for f in group)
             if used and used + size > budget:
                 continue
             result.extend(group)
+            taken |= members
             used += size
+        # Present kept documents in the original priority order.
+        result.sort(key=lambda f: (priority_docs.index(f.document) if f.document in priority_docs else len(priority_docs), f.start))
         # A linked supplement must not be silently dropped by the context budget.
         kept = {f.document for f in result}
         required = set()
