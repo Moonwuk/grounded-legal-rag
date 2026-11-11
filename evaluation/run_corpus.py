@@ -60,6 +60,9 @@ def run(args):
     out=EVAL/'reports'/args.run_id;out.mkdir(parents=True,exist_ok=True)
     env={k:v for k,v in os.environ.items() if not k.startswith(('LLM_','OPENAI_','GEN_'))}
     env.update(LLM_BASE_URL=os.environ.get('LLM_BASE_URL',''),LLM_API_KEY=os.environ.get('LLM_API_KEY',''),LLM_MODEL=os.environ.get('LLM_MODEL',''),PYTHONIOENCODING='utf-8')
+    # Generation settings the solution reads itself; passed only when set, and recorded.
+    settings={k:os.environ[k] for k in ('LLM_REASONING_EFFORT','MAX_TOKENS','MAX_WORKERS','TEMPERATURE') if os.environ.get(k)}
+    env.update(settings)
     if not all(env[k] for k in ('LLM_BASE_URL','LLM_API_KEY','LLM_MODEL')):raise SystemExit('LLM_BASE_URL, LLM_API_KEY and LLM_MODEL are required')
     started=time.perf_counter()
     with tempfile.TemporaryDirectory() as tmp:
@@ -76,7 +79,7 @@ def run(args):
     info=dict(git_commit=commit(),corpus_id=meta['corpus_id'],knowledge_base_sha256=meta['knowledge_base_sha256'],questions_sha256=meta['questions_sha256'],
         gold_sha256=digest(canonical(cases)),runtime_sha256=digest(canonical({p.name:digest(p.read_bytes()) for p in sorted((ROOT/'prototype').glob('*.py'))})),
         model=env['LLM_MODEL'],provider_base_url=env['LLM_BASE_URL'],returncode=proc.returncode,elapsed_seconds=time.perf_counter()-started,
-        tuning_note=meta.get('tuning_note'),scope='Local element check, not the official Score.')
+        generation_settings=settings,tuning_note=meta.get('tuning_note'),scope='Local element check, not the official Score.')
     summary={**info,**summarize(scored)}
     write(out/'summary.json',summary);write(out/'cases.json',scored)
     print(json.dumps({k:summary[k] for k in ('passed','total','outcomes','statuses','failures','not_evaluated','elapsed_seconds')},ensure_ascii=False))
