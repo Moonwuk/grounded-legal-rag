@@ -198,7 +198,10 @@ class Retriever:
         # clauses together with changes. The LLM still must assess applicability.
         connected = set(selected_docs)
         for name in selected_docs:
-            if self.doc_ids[name]:
+            # When the question names an identifier, only documents of that
+            # identifier bring their linked documents. A lexical hit about another
+            # contract stays a candidate itself but must not pull in its whole family.
+            if self.doc_ids[name] and (not ids or ids & self.doc_ids[name]):
                 connected.update(n for n, docids in self.doc_ids.items() if docids & self.doc_ids[name])
             if "регламент согласования" in name.lower():
                 connected.update(n for n, d in self.documents.items()
