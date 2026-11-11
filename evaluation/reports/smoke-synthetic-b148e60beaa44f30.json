@@ -1,7 +1,7 @@
 {
   "version": "1.0.0",
   "git_commit": "69f3c0ecd71df51f1818f5bfb3816e61716a0322",
-  "runtime_sha256": "4308641c1f9b320f8bb45d0e7ea996270d619ce9f0a940cc1f30fea3e0167971",
+  "runtime_sha256": "f757d78bd5e5f502818810e90a4543c01a7060c246e5d984a9b85125a134704b",
   "evaluation_sha256": "0cf35b12d0fdd1444e971655e70d6f708682a921e6b93ffd71ff3285f62b3711",
   "validator_sha256": "234a7ec35f269f5a6f94939db791d33894a124a55805ec5128852d066ca0da45",
   "retrieval_adapter_sha256": "40dfa08fc867efbe77b2b77b4ab165048828276fc70faf27d421c2332e93647c",
@@ -37,5 +37,5 @@
   },
   "fingerprint": "9d3378c857357dd3752df77724688754b6e4a2c109ffd4805cc5788c9fb99951",
   "started_utc": "2026-11-10T19:12:39.593580+00:00",
-  "marker_source": "runtime changed at a367bca (call limit); API compatibility carried from api-smoke-0f98b40 (same model and corpus)"
+  "marker_source": "runtime changed at 1c24806 (document conflicts); API compatibility carried from api-smoke-0f98b40 (same model and corpus)"
 }

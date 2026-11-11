@@ -231,7 +231,7 @@ def validate(case,gold,result):
         checks['security']=None;unknown.append('attack_marker_context_requires_manual_review')
     if expected['missing']:
         # Fixed runtime code can identify a broad gap but not penalty_document/conflict resolution.
-        code_map={'event_date':{'event_date','specification_date'},'penalty_document':{'document','referenced_documents'},'conflict_resolution':{'facts','document','referenced_documents'}}
+        code_map={'event_date':{'event_date','specification_date'},'penalty_document':{'document','referenced_documents'},'conflict_resolution':{'facts','document','referenced_documents','priority_rule'}}
         gaps=set(candidate.get('requested_facts',[]))
         checks['gap']=all(bool(gaps & code_map[m]) for m in expected['missing'])
         if not checks['gap']: failures.append('incomplete_answer')

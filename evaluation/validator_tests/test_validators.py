@@ -148,6 +148,13 @@ class GeneratorTests(unittest.TestCase):
                 for s in g['sources'].values():
                     t=z.read(s['document']).decode();self.assertEqual(t[s['start']:s['end']],s['quote'])
 
+class ConflictGapTests(unittest.TestCase):
+    def test_priority_rule_names_the_conflict_gap(self):
+        c,g,r=fixture();c['expected'].update(allowed_statuses=['partial','clarification'],required_claims=[],missing=['conflict_resolution'],issue='conflict')
+        r['status']='partial';r['candidate'].update(status='partial',requested_facts=['priority_rule'],issue='conflicting_documents')
+        self.assertTrue(validate(c,g,r)['checks']['gap'])
+        r['candidate']['requested_facts']=['event_date'];self.assertFalse(validate(c,g,r)['checks']['gap'])
+
 class CalibrationTests(unittest.TestCase):
     def test_report_calibrates_current_validator_not_stale_file(self):
         from evaluation.analyze_results import report
