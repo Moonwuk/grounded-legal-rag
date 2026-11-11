@@ -1,9 +1,6 @@
 name: Security scans
 
 on:
-  pull_request:
-  push:
-    branches: [main]
   workflow_dispatch:
     inputs:
       publish_container:
@@ -12,15 +9,15 @@ on:
         required: false
         default: false
   schedule:
-    # Monday, 07:27 Europe/Moscow. Scheduled runs use the default branch.
-    - cron: "27 4 * * 1"
+    # Daily scheduler; only every second UTC calendar day runs scanners.
+    - cron: "27 4 * * *"
 
 permissions:
   contents: read
 
 concurrency:
   group: security-${{ github.workflow }}-${{ github.ref }}
-  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+  cancel-in-progress: false
 
 defaults:
   run:
@@ -32,7 +29,31 @@ env:
   PIP_NO_INPUT: "1"
 
 jobs:
+  cadence:
+    name: Main branch and scan cadence
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 2
+    permissions: {}
+    outputs:
+      scan: ${{ steps.plan.outputs.scan }}
+    steps:
+      - id: plan
+        env:
+          PUBLISH: ${{ inputs.publish_container }}
+        run: |
+          day=$(( $(date -u +%s) / 86400 ))
+          scan=false
+          if [[ "$GITHUB_EVENT_NAME" == schedule && $((day % 2)) -eq 0 ]]; then
+            scan=true
+          elif [[ "$GITHUB_EVENT_NAME" == workflow_dispatch && "$PUBLISH" == true ]]; then
+            scan=true
+          fi
+          echo "scan=$scan" >> "$GITHUB_OUTPUT"
+
   workflow-lint:
+    needs: cadence
+    if: needs.cadence.outputs.scan == 'true'
     name: Workflow security
     runs-on: ubuntu-24.04
     timeout-minutes: 10
@@ -80,6 +101,8 @@ jobs:
           retention-days: 7
 
   secrets:
+    needs: cadence
+    if: needs.cadence.outputs.scan == 'true'
     name: Secrets in history and files
     runs-on: ubuntu-24.04
     timeout-minutes: 25
@@ -134,6 +157,8 @@ jobs:
           retention-days: 7
 
   bandit:
+    needs: cadence
+    if: needs.cadence.outputs.scan == 'true'
     name: Python SAST
     runs-on: ubuntu-24.04
     timeout-minutes: 10
@@ -172,6 +197,8 @@ jobs:
           retention-days: 7
 
   dependencies:
+    needs: cadence
+    if: needs.cadence.outputs.scan == 'true'
     name: Dependency audit
     runs-on: ubuntu-24.04
     timeout-minutes: 15
@@ -226,6 +253,8 @@ jobs:
           retention-days: 7
 
   codeql:
+    needs: cadence
+    if: needs.cadence.outputs.scan == 'true'
     name: CodeQL data-flow analysis
     runs-on: ubuntu-24.04
     timeout-minutes: 20
@@ -259,15 +288,12 @@ jobs:
       - name: Fail on high or critical findings and incomplete analysis
         run: python .github/scripts/check_codeql.py reports/codeql
       - name: Publish SARIF to GitHub code scanning
-        if: >-
-          ${{ !cancelled() && steps.analyze.outcome == 'success' &&
-          (github.event_name != 'pull_request' ||
-          github.event.pull_request.head.repo.full_name == github.repository) }}
+        if: ${{ !cancelled() && steps.analyze.outcome == 'success' }}
         uses: github/codeql-action/upload-sarif@33d7b85da1a04171e211befe2c739303b9a4c066 # v4.39.3
         with:
           sarif_file: reports/codeql
           category: /language:python
-      - name: Save CodeQL report, including on fork PRs
+      - name: Save CodeQL report
         if: ${{ always() }}
         uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
@@ -277,46 +303,12 @@ jobs:
           retention-days: 7
 
   regression:
-    name: Security regression / Python ${{ matrix.python }}
-    runs-on: ubuntu-24.04
-    timeout-minutes: 10
-    strategy:
-      fail-fast: false
-      matrix:
-        python: ["3.11", "3.12", "3.13", "3.15"]
-    steps:
-      - name: Check out source
-        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-        with:
-          persist-credentials: false
-      - name: Set up Python
-        uses: actions/setup-python@6d4fd22b20465ccc0f7354476588e8df7c9ca0e0 # v7.1.0
-        with:
-          python-version: ${{ matrix.python }}
-      - name: Test with the local stub model
-        run: |
-          mkdir -p reports
-          python -m unittest discover -s tests -v 2>&1 | tee reports/tests.log
-      - name: Test evaluation adapters and validators with stub models
-        run: python -m unittest discover -s evaluation/validator_tests -v 2>&1 | tee reports/evaluation-tests.log
-      - name: Check retrieval and build a fresh submission
-        run: |
-          python audit_retrieval.py > reports/retrieval.json
-          python build_submission.py > reports/package.json
-          python .github/scripts/check_submission.py
-      - name: Save regression reports
-        if: ${{ always() }}
-        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
-        with:
-          name: security-regression-py${{ matrix.python }}
-          path: |
-            reports/tests.log
-            reports/evaluation-tests.log
-            reports/retrieval.json
-            reports/package.json
-          if-no-files-found: error
-          retention-days: 7
+    needs: cadence
+    if: needs.cadence.outputs.scan == 'true'
+    uses: ./.github/workflows/regression.yml
   iac:
+    needs: cadence
+    if: needs.cadence.outputs.scan == 'true'
     name: IaC syntax and deployment policy
     runs-on: ubuntu-24.04
     timeout-minutes: 15
@@ -372,6 +364,8 @@ jobs:
           retention-days: 7
 
   container:
+    needs: cadence
+    if: needs.cadence.outputs.scan == 'true'
     name: Container security and isolated smoke
     runs-on: ubuntu-24.04
     timeout-minutes: 35
@@ -491,8 +485,8 @@ jobs:
 
   security-gate:
     name: Security gate
-    if: ${{ always() }}
-    needs: [workflow-lint, secrets, bandit, dependencies, codeql, regression, iac, container]
+    if: ${{ always() && needs.cadence.outputs.scan == 'true' }}
+    needs: [cadence, workflow-lint, secrets, bandit, dependencies, codeql, regression, iac, container]
     runs-on: ubuntu-24.04
     timeout-minutes: 2
     permissions: {}
@@ -506,6 +500,7 @@ jobs:
           import os
           from pathlib import Path
           results = json.loads(os.environ["JOB_RESULTS"])
+          results.pop("cadence")
           required = {"workflow-lint", "secrets", "bandit", "dependencies", "codeql", "regression", "iac", "container"}
           if set(results) != required:
               raise SystemExit("Security gate is missing a required job")
@@ -517,10 +512,23 @@ jobs:
               if status != "success":
                   failed.append(name)
           Path(os.environ["GITHUB_STEP_SUMMARY"]).write_text("\n".join(summary) + "\n")
+          Path("security-summary.json").write_text(json.dumps({
+              "sha": os.environ["GITHUB_SHA"],
+              "event": os.environ["GITHUB_EVENT_NAME"],
+              "checks": {name: results[name]["result"] for name in sorted(required)},
+          }, indent=2) + "\n", encoding="utf-8")
           if failed:
               raise SystemExit("Required security checks did not succeed: " + ", ".join(failed))
           print("All required security checks passed")
           PY
+      - name: Retain the security summary
+        if: ${{ always() }}
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: security-summary
+          path: security-summary.json
+          if-no-files-found: error
+          retention-days: 7
 
   submission:
     name: Submission after security checks

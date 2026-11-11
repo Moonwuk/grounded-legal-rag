@@ -51,14 +51,23 @@ Invoke-Locked {
         }
     }
 
-    foreach ($workflow in 'web-ci.yml','security.yml') {
-        $json = & gh run list --repo $GitHubRepository --workflow $workflow --branch main --commit $sha --event push --limit 1 --json status,conclusion
-        if ($LASTEXITCODE -ne 0) { throw "Could not verify $workflow." }
-        $runs = @((($json -join "`n") | ConvertFrom-Json))
-        if ($runs.Count -ne 1 -or $runs[0].status -ne 'completed' -or $runs[0].conclusion -ne 'success') {
-            Write-Waiting $sha "$workflow has not succeeded for $sha."
-            return
-        }
+    $query = '.[0] | select(.) | [.status,.conclusion] | @tsv'
+    $web = & gh run list --repo $GitHubRepository --workflow web-ci.yml --branch main --commit $sha --event push --limit 1 --json status,conclusion --jq $query
+    if ($LASTEXITCODE -ne 0) { throw 'Could not verify Web CI.' }
+    if ($web -ne "completed`tsuccess") { Write-Waiting $sha "Web CI has not succeeded for $sha."; return }
+
+    $runs = & gh run list --repo $GitHubRepository --workflow security.yml --branch main --commit $sha --event schedule --limit 5 --json databaseId --jq '.[].databaseId'
+    if ($LASTEXITCODE -ne 0) { throw 'Could not list scheduled scans.' }
+    $gate = $null
+    $query = '.jobs[] | select(.name == "Security gate" and .conclusion != "skipped") | [.status,.conclusion] | @tsv'
+    foreach ($run in $runs) {
+        $gate = & gh run view $run --repo $GitHubRepository --json jobs --jq $query
+        if ($LASTEXITCODE -ne 0) { throw "Could not verify scheduled scan $run." }
+        if ($gate) { break }
+    }
+    if ($gate -ne "completed`tsuccess") {
+        Write-Waiting $sha "Scheduled Security gate has not succeeded for $sha."
+        return
     }
     Publish-Release $sha $Port
     if (Test-Path -LiteralPath $WaitingPath) { Remove-Item -LiteralPath $WaitingPath }

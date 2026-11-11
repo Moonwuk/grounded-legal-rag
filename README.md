@@ -101,11 +101,11 @@ DATA_DIR=/absolute/path/to/data python3 prototype/solution.py
 
 ## Автоматические проверки безопасности
 
-[Security scans](.github/workflows/security.yml) запускается для PR, изменений `main`, вручную и еженедельно. Включены Gitleaks, Bandit, CodeQL `security-extended`, pip-audit, actionlint, zizmor, проверки IaC, Hadolint, Trivy для Dockerfile/образа и регрессионные тесты на Python 3.11–3.13 и 3.15. Контейнер проходит запуск с локальной HTTPS-заглушкой модели; настоящие ключи LLM не требуются.
+[Security scans](.github/workflows/security.yml) автоматически запускает сканеры только на `main` раз в два дня. На PR работают веб-проверки и регрессионные тесты. Ручное сканирование на main сопровождает явный выпуск подписанного пакетного образа. Включены Gitleaks, Bandit, CodeQL `security-extended`, pip-audit, actionlint, zizmor, проверки IaC, Hadolint, Trivy для Dockerfile/образа и регрессионные тесты на Python 3.11–3.13 и 3.15. Контейнер проходит запуск с локальной HTTPS-заглушкой модели; настоящие ключи LLM не требуются.
 
 Общий статус `Security gate` требует успеха всех обязательных проверок, включая ошибки самих сканеров. Только после него создаётся artifact `verified-submission` со свежим ZIP. Его название означает прохождение перечисленных CI-проверок; совместимость с API организаторов и юридическая точность требуют отдельной оценки.
 
-Области анализа, пороги, отчёты, ограничения и настройка обязательной проверки перед слиянием: [docs/security_pipeline.md](docs/security_pipeline.md).
+Области анализа, пороги, отчёты, ограничения и настройка проверок перед слиянием и перед выкладкой: [docs/security_pipeline.md](docs/security_pipeline.md).
 
 
 ## Граница выдачи полных исходных положений

@@ -190,7 +190,7 @@ update() {
     [[ -d $REPO ]] || git init --quiet --bare -- "$REPO" || die 'Could not initialize deployment repository.'
     git --git-dir="$REPO" fetch --quiet --no-tags "$REMOTE" refs/heads/main:refs/heads/reviewed-main ||
         die 'Could not fetch official main.'
-    local sha active pr author head reviews approved=0 wf result
+    local sha active pr author head reviews approved=0 result runs run gate=
     sha=$(git --git-dir="$REPO" rev-parse --verify refs/heads/reviewed-main) || die 'Could not resolve main.'
     valid_sha "$sha" || die 'Could not resolve main.'
     [[ $(git --git-dir="$REPO" cat-file -t "$sha") == commit ]] || die 'Official main did not resolve to a commit.'
@@ -221,12 +221,22 @@ update() {
         }
     fi
 
-    for wf in web-ci.yml security.yml; do
-        result=$(gh run list --repo "$GITHUB_REPOSITORY" --workflow "$wf" --branch main --commit "$sha" \
-            --event push --limit 1 --json status,conclusion --jq '.[0] | "\(.status) \(.conclusion)"') ||
-            die "Could not verify $wf."
-        [[ $result == 'completed success' ]] || { waiting "$sha" "$wf has not succeeded for $sha."; return 0; }
-    done
+    result=$(gh run list --repo "$GITHUB_REPOSITORY" --workflow web-ci.yml --branch main --commit "$sha" \
+        --event push --limit 1 --json status,conclusion --jq '.[0] | select(.) | [.status,.conclusion] | @tsv') ||
+        die 'Could not verify Web CI.'
+    [[ $result == $'completed\tsuccess' ]] || { waiting "$sha" "Web CI has not succeeded for $sha."; return 0; }
+
+    runs=$(gh run list --repo "$GITHUB_REPOSITORY" --workflow security.yml --branch main --commit "$sha" \
+        --event schedule --limit 5 --json databaseId --jq '.[].databaseId') ||
+        die 'Could not list scheduled scans.'
+    while IFS= read -r run; do
+        [[ -n $run ]] || continue
+        gate=$(gh run view "$run" --repo "$GITHUB_REPOSITORY" --json jobs \
+            --jq '.jobs[] | select(.name == "Security gate" and .conclusion != "skipped") | [.status,.conclusion] | @tsv') ||
+            die "Could not verify scheduled scan $run."
+        [[ -n $gate ]] && break
+    done <<<"$runs"
+    [[ $gate == $'completed\tsuccess' ]] || { waiting "$sha" "Scheduled Security gate has not succeeded for $sha."; return 0; }
     publish "$sha" "$PORT"
     rm -f -- "$WAITING"
 }
