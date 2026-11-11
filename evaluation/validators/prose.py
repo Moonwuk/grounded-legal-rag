@@ -59,9 +59,21 @@ class Mention:
     clause: str = ''     # the clause holding the value, citations in brackets removed
 
 
+_ABBREVIATION = re.compile(r'(?:^|[\s(«"])(?:п|пп|ст|ч|гл|разд|см|абз|подп)\.$', re.I)
+# A value named and then denied: "999 календарных дней не подтверждается".
+_DENIED_AFTER = re.compile(r'^[^.;:!?]{0,20}?\b(?:не\s+подтвержда\w*|не\s+соответству\w*|неверн\w*|ошибочн\w*)', re.I)
+
+
 def _sentences(text):
-    # Abbreviations such as "п. 1.1" are followed by a digit/lowercase and stay intact.
-    return [s for s in _SENTENCE.split(' '.join(text.split())) if s.strip()]
+    """Split on sentence ends; "п.", "ст." and similar abbreviations never end one."""
+    parts = [s for s in _SENTENCE.split(' '.join(text.split())) if s.strip()]
+    merged = []
+    for part in parts:
+        if merged and _ABBREVIATION.search(merged[-1]):
+            merged[-1] += ' ' + part
+        else:
+            merged.append(part)
+    return merged
 
 
 def _clauses(sentence):
@@ -115,6 +127,8 @@ def mentions(prose, required):
             if u:
                 unit = 'calendar_days' if u.group(1) else 'working_days' if u.group(2) else 'RUB'
             state = status(m.start())
+            if u and _DENIED_AFTER.search(sentence[u.end():]):
+                state = 'refuted'
             # A bare number is a value only when asserted by a verb/dash or refuted.
             if unit is None and state != 'refuted' and not _ASSERTING_VERB.search(sentence[max(0, m.start() - 14):m.start()]):
                 continue
