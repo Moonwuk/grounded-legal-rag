@@ -55,11 +55,14 @@ QUESTION_CALL_LIMIT = 4
 # Reasoning effort: measured on deepseek-flash, "low" kept accuracy on the demo
 # and the synthetic holdout and roughly halved the time. "default" omits the
 # parameter. A truncated reply whose reasoning used the token budget is retried
-# one level lower; a provider that rejects the parameter is retried without it,
+# at "low" when a higher level was used; a provider that rejects the parameter is retried without it,
 # and the parameter is not sent again in this run.
 EFFORTS = ("none", "low", "high", "max")
 DEFAULT_EFFORT = "low"
-LOWER_EFFORT = {None: "low", "max": "low", "high": "low", "low": "none"}
+# Never "none": on the demo it gave false refusals in generation, and as a
+# truncation retry it rejected a supported provision in verification (matrix
+# 5502269, question 5, both runs). A weak verifier is unsafe either way.
+LOWER_EFFORT = {None: "low", "max": "low", "high": "low"}
 REASONING_BUDGET_SHARE = 0.8
 
 
@@ -106,6 +109,7 @@ class ProxyClient:
         if len(body) > 512000:
             raise ProviderError("request_size_limit")
         truncation_retry = False
+        effort_dropped = False
         for attempt in range(3):
             remaining = self.deadline - time.monotonic()
             if remaining <= 1:
@@ -179,6 +183,9 @@ class ProxyClient:
                 value = strict_json(content)
                 if not isinstance(value, dict):
                     raise ValueError("expected_object")
+                if effort_dropped:
+                    # Only a success without the parameter shows that it was the cause.
+                    ProxyClient.effort_rejected = True
                 return value
             except HTTPError as exc:
                 code = exc.code
@@ -191,7 +198,7 @@ class ProxyClient:
                 if code in {400, 422} and "reasoning_effort" in request_body and attempt < 2:
                     # The provider may not know the parameter: retry once without
                     # it. Another cause of the error repeats and is reported.
-                    ProxyClient.effort_rejected = True
+                    effort_dropped = True
                     del request_body["reasoning_effort"]
                     body = json.dumps(request_body, ensure_ascii=False).encode()
                     continue
