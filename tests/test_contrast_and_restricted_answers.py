@@ -94,12 +94,37 @@ class ContrastProvisionTests(unittest.TestCase):
                 self.assertLessEqual(len(model.calls), QUESTION_CALL_LIMIT)
                 self.assertEqual([e['reduced'] for e in events], [False, False])
 
+    def test_partial_verdict_for_an_inapplicable_contrast_is_reduced_on_the_first_attempt(self):
+        # Holdout 76f2b42 contradiction-0019, low temporal-0069, PR #18 temporal-0039:
+        # the first verdict said "partial" with the contrast provision inapplicable,
+        # no reduction followed, the retry repeated it and the call limit ended in
+        # a generic refusal.
+        def partial_inapplicable(payload):
+            claims = payload['candidate']['claims']
+            return {'approved': False, 'complete': False, 'status': 'partial', 'answer_supported': False,
+                    'claim_checks': [{'index': i, 'supported': True, 'applicable': i != 1} for i in range(len(claims))]}
+        for s in REVISIONS:
+            with self.subTest(s['question']):
+                text, status, model, events = run(s['question'], [both(s), partial_inapplicable, judge()], s['files'])
+                self.assertEqual(status, 'answer', text)
+                self.assertEqual(len(model.calls), 3)
+                self.assertEqual(model.calls[-1][1]['candidate']['status'], 'answer')
+                self.assertEqual(len(model.calls[-1][1]['candidate']['claims']), 1)
+
+    def test_partial_verdict_does_not_upgrade_or_reduce_other_statuses(self):
+        c = {'status': 'partial', 'claims': [{}, {}]}
+        v = {'status': 'answer', 'claim_checks': [{'index': 0, 'supported': True, 'applicable': True}, {'index': 1, 'supported': True, 'applicable': False}]}
+        self.assertEqual(inapplicable_only(c, v), [])
+        self.assertEqual(inapplicable_only({'status': 'clarify', 'claims': [{}, {}]}, {**v, 'status': 'partial'}), [])
+
     def test_inapplicable_only_requires_a_complete_wellformed_verdict(self):
         c = {'status': 'answer', 'claims': [{}, {}]}
         ok = lambda a, b: {'status': 'answer', 'claim_checks': [{'index': 0, 'supported': True, 'applicable': a}, {'index': 1, 'supported': True, 'applicable': b}]}
         self.assertEqual(inapplicable_only(c, ok(True, False)), [1])
         self.assertEqual(inapplicable_only(c, ok(True, True)), [])
-        self.assertEqual(inapplicable_only(c, {**ok(True, False), 'status': 'partial'}), [])
+        # A downgraded "partial" verdict for an "answer" is the same objection.
+        self.assertEqual(inapplicable_only(c, {**ok(True, False), 'status': 'partial'}), [1])
+        self.assertEqual(inapplicable_only(c, {**ok(True, False), 'status': 'insufficient'}), [])
         self.assertEqual(inapplicable_only(c, {'status': 'answer', 'claim_checks': [{'index': 0, 'supported': True, 'applicable': False}]}), [])
         self.assertEqual(inapplicable_only(c, {'status': 'answer', 'claim_checks': [{'index': 0, 'supported': True, 'applicable': True}] * 2}), [])
         self.assertEqual(inapplicable_only(c, None), [])

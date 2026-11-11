@@ -287,9 +287,15 @@ def inapplicable_only(candidate: dict, verdict) -> list[int]:
     """Positions of claims the verifier confirmed as authentic but not applicable.
 
     Non-empty only when this is the sole objection to the claims: the status
-    matches, every claim is supported and at least one claim remains.
+    matches, every claim is supported and at least one claim remains. A
+    verdict of "partial" for an "answer" counts as matching: the verifier
+    downgrades the status because of the very provisions it marks inapplicable
+    (holdout diagnostics: 6 of 6 rejected first verifications). The reduced
+    candidate keeps its own status and still needs full approval.
     """
-    if not isinstance(verdict, dict) or verdict.get("status") != candidate["status"]:
+    if not isinstance(verdict, dict):
+        return []
+    if verdict.get("status") != candidate["status"] and not (candidate["status"] == "answer" and verdict.get("status") == "partial"):
         return []
     checks, count = verdict.get("claim_checks"), len(candidate["claims"])
     if not isinstance(checks, list) or len(checks) != count:
