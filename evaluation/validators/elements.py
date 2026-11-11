@@ -32,6 +32,14 @@ _UNIT = re.compile(r'\s*(?:\([^)]{0,60}\)\s*)?(?:(рабоч\w*)\s+(?:дн\w*|д
                    r'|(месяц\w*|мес\.)|(руб\w*|₽))', re.I)
 
 
+# "документов об увеличении до 500 000 рублей в базе нет": the value is named as absent, not asserted.
+_ABSENT = re.compile(r'^[^.;!?]{0,80}?\b(?:нет|отсутству\w*|не\s+(?:найден\w*|представлен\w*|предусмотрен\w*|установлен\w*))', re.I)
+
+
+def _refuted(text, start, end):
+    return bool(_REFUTED.search(text[max(0, start - 16):start]) or _ABSENT.search(text[end:]))
+
+
 def norm(text):
     return ' '.join(text.casefold().replace('ё', 'е').split())
 
@@ -63,8 +71,7 @@ def values(text):
         unit_match = _UNIT.match(text, m.end())
         if unit_match:
             unit = ('working_days', 'calendar_days', 'months', 'RUB')[[g is not None for g in unit_match.groups()].index(True)]
-            refuted = bool(_REFUTED.search(text[max(0, m.start() - 16):m.start()]))
-            found.append((_word_value(m.group(1)), unit, refuted))
+            found.append((_word_value(m.group(1)), unit, _refuted(text, m.start(), unit_match.end())))
     for m in _NUMBER.finditer(text):
         unit_match = _UNIT.match(text, m.end())
         if not unit_match:
@@ -74,7 +81,7 @@ def values(text):
         number = float(raw)
         if m.group(2):
             number *= next(v for k, v in _SCALE.items() if m.group(2).startswith(k))
-        refuted = bool(_REFUTED.search(text[max(0, m.start() - 16):m.start()]))
+        refuted = _refuted(text, m.start(), unit_match.end())
         found.append((int(number) if number.is_integer() else number, unit, refuted))
     return found
 

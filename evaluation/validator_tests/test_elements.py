@@ -47,6 +47,16 @@ class ElementTests(unittest.TestCase):
         # A fabricated amount where the base has none is a failure even with a caveat.
         self.assertNotEqual(check(g['3'],'В базе нет документов, но обычно пособие составляет 100 000 рублей.')['outcome'],'pass')
 
+    def test_value_named_as_absent_is_not_asserted(self):
+        # Real deepseek-flash answer (demo-c0104d7, case 4) wrongly failed as "forbidden 500000".
+        g=gold()
+        real=('Нет, по договору аренды № А-08/2024 с ООО «Северный Склад» арендная плата составляет 450 000 рублей в месяц, включая НДС, а не 500 000 (п. 3.1). '
+              'Арендодатель вправе не чаще одного раза в год увеличить её не более чем на 7%, письменно уведомив Арендатора (п. 3.4); документов об увеличении платы до 500 000 рублей в базе нет.')
+        self.assertEqual(check(g['4'],real)['outcome'],'pass')
+        for bad in [real.replace('документов об увеличении платы до 500 000 рублей в базе нет','с учётом увеличения плата равна 500 000 рублей'),
+                    'Арендная плата составляет 500 000 рублей в месяц (п. 3.1). Иных документов в базе нет.']:
+            self.assertIn('forbidden:false premise 500000',check(g['4'],bad)['failures'])
+
     def test_values_units_words_and_refutation(self):
         self.assertIn((450000,'RUB',False),values('плата 450 000 (четыреста пятьдесят тысяч) рублей'))
         self.assertIn((12000000,'RUB',False),values('договор на 12 млн рублей'))
