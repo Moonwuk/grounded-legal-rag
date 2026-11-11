@@ -5,7 +5,7 @@ import json
 import sys
 from decimal import Decimal, localcontext
 from psb_corpus import Fragment, norm
-from psb_llm import ProviderError
+from psb_llm import ProviderError, QUESTION_CALL_LIMIT
 from psb_retrieval import user_turns, tokens
 
 FOLLOWUPS = {
@@ -678,6 +678,7 @@ def answer_question(question: str, retriever, client, top_k: int = 6) -> tuple[s
         # (expanded search, reduced candidate). A reduced candidate re-verifies the
         # same selection without provisions the verifier found inapplicable.
         attempts, position_in_plan = [(False, None), (True, None)], 0
+        calls = 0  # model calls made for this question, see QUESTION_CALL_LIMIT
         while position_in_plan < len(attempts):
             expanded, reduced = attempts[position_in_plan]
             position_in_plan += 1
@@ -693,6 +694,7 @@ def answer_question(question: str, retriever, client, top_k: int = 6) -> tuple[s
                     payload["retry_reason"] = retry_reason
                     if retry_scope_guard:
                         payload["retry_scope_guard"] = True
+                calls += 1
                 generated = client.complete(SYSTEM, payload)
                 candidate = expand_selection(generated, evidence)
             if not validate_candidate(candidate, evidence):
@@ -746,6 +748,7 @@ def answer_question(question: str, retriever, client, top_k: int = 6) -> tuple[s
                 candidate["answer"] = prose
             rendered = render(candidate, evidence, source_gaps, prose, question=question, value_gaps=value_gaps,
                               keep_sources=restricted)
+            calls += 1
             verdict = client.complete(VERIFY, {**payload, "candidate": candidate,
                                                "rendered_answer": rendered,
                                                "source_gaps":source_gaps, "value_gaps":value_gaps})
@@ -771,7 +774,9 @@ def answer_question(question: str, retriever, client, top_k: int = 6) -> tuple[s
             print(json.dumps(event), file=sys.stderr)
             if scope_blocked and not expanded:
                 retry_reason, retry_scope_guard = "answer_not_supported", True
-            dropped = [] if allowed or reduced else inapplicable_only(candidate, verdict)
+            # Only within the per-question call limit: exceeding it would turn a
+            # refusal into a technical error.
+            dropped = [] if allowed or reduced or calls >= QUESTION_CALL_LIMIT else inapplicable_only(candidate, verdict)
             if dropped:
                 # The same mistake repeats on a free retry. Re-verify once the
                 # selection without the inapplicable provisions; nothing follows it.

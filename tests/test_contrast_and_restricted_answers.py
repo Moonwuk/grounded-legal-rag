@@ -82,6 +82,18 @@ class ContrastProvisionTests(unittest.TestCase):
             self.assertEqual(status, 'unverified')
             self.assertTrue(all(e['reduced'] is False for e in events))
 
+    def test_reduction_never_exceeds_the_per_question_call_limit(self):
+        # Holdout 9989f40 temporal-0009: rejected for another reason, then the
+        # expanded attempt found an inapplicable provision; the 5th call raised
+        # question_call_budget and the answer became a technical error.
+        from psb_llm import QUESTION_CALL_LIMIT
+        for s in REVISIONS:
+            with self.subTest(s['question']):
+                text, status, model, events = run(s['question'], [both(s), judge(unsupported=[0]), both(s), judge(inapplicable=[1])], s['files'])
+                self.assertEqual(status, 'unverified')
+                self.assertLessEqual(len(model.calls), QUESTION_CALL_LIMIT)
+                self.assertEqual([e['reduced'] for e in events], [False, False])
+
     def test_inapplicable_only_requires_a_complete_wellformed_verdict(self):
         c = {'status': 'answer', 'claims': [{}, {}]}
         ok = lambda a, b: {'status': 'answer', 'claim_checks': [{'index': 0, 'supported': True, 'applicable': a}, {'index': 1, 'supported': True, 'applicable': b}]}
