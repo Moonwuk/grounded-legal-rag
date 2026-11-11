@@ -1,5 +1,5 @@
-/* 6 columns, 5 rows, 160 × 160 px per cell. Frame intervals are 1/15 s. */
 .archive-scene {
+  position: relative;
   overflow: hidden;
   contain: paint;
 }
@@ -7,128 +7,24 @@
   display: block;
   width: 100%;
   aspect-ratio: 1;
-  background-image: url("/static/media/archive-blue.webp");
-  background-size: 600% 500%;
   background-repeat: no-repeat;
-  background-position: 0 0;
 }
-.archive-scene[data-state="found"] .archive-scene__frame,
-.archive-scene[data-state="partial"] .archive-scene__frame {
-  background-image: url("/static/media/archive-found.webp");
+.archive-scene__badge {
+  position: absolute;
+  top: .25rem;
+  right: .25rem;
+  display: grid;
+  place-items: center;
+  min-width: 1.25em;
+  aspect-ratio: 1;
+  border-radius: .35em;
+  background: #ffe398;
+  color: #322306;
+  font-size: .95rem;
+  font-weight: 800;
 }
-.archive-scene[data-state="partial"] .archive-scene__frame { background-position: 40% 75%; }
-.archive-scene[data-state="clarify"] .archive-scene__frame { background-position: 20% 25%; }
-.archive-scene[data-state="error"] .archive-scene__frame {
-  background-image: url("/static/media/archive-outcomes.webp");
-}
-.archive-scene[data-state="searching"] .archive-scene__frame {
-  background-position: 20% 25%;
-  animation: archive-search calc(48s / 15) steps(1, end) infinite;
-}
-.archive-scene[data-state="found"] .archive-scene__frame {
-  background-position: 0% 100%;
-  animation: archive-found calc(10s / 15) steps(1, end) 1 forwards;
-}
-.archive-scene[data-state="error"] .archive-scene__frame {
-  background-position: 100% 100%;
-  animation: archive-error calc(12s / 15) steps(1, end) 1 forwards;
-}
-.archive-scene[data-state="refused"] .archive-scene__frame {
-  background-position: 100% 100%;
-  animation: archive-refused calc(10s / 15) steps(1, end) 1 forwards;
-}
-@keyframes archive-search {
-  0% { background-position: 0% 0%; }
-  2.0833333% { background-position: 20% 0%; }
-  4.1666667% { background-position: 40% 0%; }
-  6.25% { background-position: 60% 0%; }
-  8.3333333% { background-position: 80% 0%; }
-  10.416667% { background-position: 100% 0%; }
-  12.5% { background-position: 0% 25%; }
-  14.583333% { background-position: 20% 25%; }
-  16.666667% { background-position: 40% 25%; }
-  18.75% { background-position: 60% 25%; }
-  20.833333% { background-position: 80% 25%; }
-  22.916667% { background-position: 100% 25%; }
-  25% { background-position: 0% 50%; }
-  27.083333% { background-position: 20% 50%; }
-  29.166667% { background-position: 40% 50%; }
-  31.25% { background-position: 60% 50%; }
-  33.333333% { background-position: 80% 50%; }
-  35.416667% { background-position: 100% 50%; }
-  37.5% { background-position: 0% 75%; }
-  39.583333% { background-position: 20% 75%; }
-  41.666667% { background-position: 40% 75%; }
-  43.75% { background-position: 60% 75%; }
-  45.833333% { background-position: 80% 75%; }
-  47.916667% { background-position: 100% 75%; }
-  50% { background-position: 0% 100%; }
-  52.083333% { background-position: 100% 75%; }
-  54.166667% { background-position: 80% 75%; }
-  56.25% { background-position: 60% 75%; }
-  58.333333% { background-position: 40% 75%; }
-  60.416667% { background-position: 20% 75%; }
-  62.5% { background-position: 0% 75%; }
-  64.583333% { background-position: 100% 50%; }
-  66.666667% { background-position: 80% 50%; }
-  68.75% { background-position: 60% 50%; }
-  70.833333% { background-position: 40% 50%; }
-  72.916667% { background-position: 20% 50%; }
-  75% { background-position: 0% 50%; }
-  77.083333% { background-position: 100% 25%; }
-  79.166667% { background-position: 80% 25%; }
-  81.25% { background-position: 60% 25%; }
-  83.333333% { background-position: 40% 25%; }
-  85.416667% { background-position: 20% 25%; }
-  87.5% { background-position: 0% 25%; }
-  89.583333% { background-position: 100% 0%; }
-  91.666667% { background-position: 80% 0%; }
-  93.75% { background-position: 60% 0%; }
-  95.833333% { background-position: 40% 0%; }
-  97.916667% { background-position: 20% 0%; }
-  100% { background-position: 0% 0%; }
-}
-@keyframes archive-found {
-  0% { background-position: 60% 50%; }
-  10% { background-position: 80% 50%; }
-  20% { background-position: 100% 50%; }
-  30% { background-position: 0% 75%; }
-  40% { background-position: 20% 75%; }
-  50% { background-position: 40% 75%; }
-  60% { background-position: 60% 75%; }
-  70% { background-position: 80% 75%; }
-  80% { background-position: 100% 75%; }
-  90% { background-position: 0% 100%; }
-  100% { background-position: 0% 100%; }
-}
-@keyframes archive-error {
-  0% { background-position: 0% 75%; }
-  8.3333333% { background-position: 20% 75%; }
-  16.666667% { background-position: 40% 75%; }
-  25% { background-position: 60% 75%; }
-  33.333333% { background-position: 80% 75%; }
-  41.666667% { background-position: 100% 75%; }
-  50% { background-position: 0% 100%; }
-  58.333333% { background-position: 20% 100%; }
-  66.666667% { background-position: 40% 100%; }
-  75% { background-position: 60% 100%; }
-  83.333333% { background-position: 80% 100%; }
-  91.666667% { background-position: 100% 100%; }
-  100% { background-position: 100% 100%; }
-}
-@keyframes archive-refused {
-  0% { background-position: 40% 75%; }
-  10% { background-position: 60% 75%; }
-  20% { background-position: 80% 75%; }
-  30% { background-position: 100% 75%; }
-  40% { background-position: 0% 100%; }
-  50% { background-position: 20% 100%; }
-  60% { background-position: 40% 100%; }
-  70% { background-position: 60% 100%; }
-  80% { background-position: 80% 100%; }
-  90% { background-position: 100% 100%; }
-  100% { background-position: 100% 100%; }
-}
-@media (prefers-reduced-motion: reduce) {
-  .archive-scene[data-state] .archive-scene__frame { animation: none; }
+.archive-scene__badge:empty { display: none; }
+.archive-scene[data-state="unsafe_legal_request"] .archive-scene__badge {
+  background: #fae2e2;
+  color: #7f2121;
 }

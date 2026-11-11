@@ -2,6 +2,7 @@
 from contextlib import asynccontextmanager
 import json
 import os
+import re
 from pathlib import Path
 import sys
 from threading import BoundedSemaphore
@@ -38,7 +39,10 @@ async def lifespan(app):
     yield
 
 
-app = FastAPI(title="Юридический ассистент", lifespan=lifespan)
+app = FastAPI(title="Юридический ассистент", lifespan=lifespan,
+              docs_url=None, redoc_url=None, openapi_url=None)
+# UI-only signal for explicit, standalone forged system-role delimiters.
+FORGED_ROLE = re.compile(r"(?im)^\s*(?:\[SYSTEM\]|<\|im_start\|>system|<\|system\|>)\s*\S")
 
 
 class Message(BaseModel):
@@ -85,7 +89,7 @@ def model_client(deadline):
         raise
 
 
-def answer(question, state):
+def answer(question, state, latest_user_text=""):
     started = time.monotonic()
     if not state.slots.acquire(blocking=False):
         return dict(status="technical_error", text="Сервис занят. Повторите запрос через несколько секунд.",
@@ -107,8 +111,11 @@ def answer(question, state):
             sources.append(dict(n=number, document_id=doc.sha256, title=display_name(doc.name),
                                 status=describe(doc)["status"], heading=fragment.heading,
                                 start=fragment.start, end=fragment.end, quote=fragment.text))
-        return dict(status=result["status"], text=result["text"], sources=sources,
-                    elapsed_seconds=round(time.monotonic() - started, 1))
+        response = dict(status=result["status"], text=result["text"], sources=sources,
+                        elapsed_seconds=round(time.monotonic() - started, 1))
+        if result["status"] in {"out_of_scope", "disallowed"} and FORGED_ROLE.search(latest_user_text):
+            response["ui_state"] = "role_protection"
+        return response
     except Exception as error:
         print("question_error: " + type(error).__name__, file=sys.stderr)
         return dict(status="technical_error", text=TECHNICAL, sources=[],
@@ -136,7 +143,7 @@ async def chat(request: Request):
     question = to_question(request_data.messages)
     if len(question) > 30000:
         raise HTTPException(413, TOO_LONG)
-    return await run_in_threadpool(answer, question, request.app.state)
+    return await run_in_threadpool(answer, question, request.app.state, request_data.messages[-1].text)
 
 
 @app.get("/healthz")

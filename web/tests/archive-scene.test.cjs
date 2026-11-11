@@ -7,7 +7,7 @@ const vm = require("node:vm");
 
 class Element {
   constructor(tag = "div") {
-    this.tagName = tag; this.children = []; this.dataset = {}; this.attributes = {};
+    this.tagName = tag; this.children = []; this.dataset = {}; this.attributes = {}; this.style = {};
     this.events = {}; this.value = ""; this.hidden = false; this.textContent = "";
     this.classes = new Set();
     this.classList = {add: n => this.classes.add(n), remove: n => this.classes.delete(n)};
@@ -33,6 +33,7 @@ class Element {
   removeAttribute(name) { delete this.attributes[name]; }
   addEventListener(name, fn) { this.events[name] = fn; }
   focus() {}
+  animate() { return {cancel() {}}; }
   closest() { return this; }
   querySelector(selector) {
     if (selector === ".message") return this.children.find(c => c.classes?.has("message")) || null;
@@ -55,7 +56,7 @@ function harness() {
     fetch: url => url === "/api/chat"
       ? new Promise((resolve, fail) => { reply = answer => resolve({ok: true, json: async () => answer}); reject = fail; })
       : Promise.resolve({ok: true, json: async () => []}),
-    AbortController, AbortSignal, performance, Intl,
+    AbortController, AbortSignal, performance, Intl, matchMedia: () => ({matches: false}), CustomEvent,
     setInterval: fn => { intervals.add(fn); return fn; },
     clearInterval: fn => intervals.delete(fn),
     setTimeout, clearTimeout
@@ -75,14 +76,18 @@ function harness() {
 const source = {n: 1, title: "Документ", document_id: "fixture", quote: "Текст", start: 0, end: 5};
 test("only a complete sourced answer celebrates; refusal and error never do, even with sources", () => {
   const h = harness();
-  assert.equal(h.stateFor({status: "answer", sources: [source]}), "found");
-  assert.equal(h.stateFor({status: "answer", sources: []}), "neutral");
+  assert.equal(h.stateFor({status: "answer", sources: [source]}), "success");
+  assert.equal(h.stateFor({status: "answer", sources: []}), "idle");
   assert.equal(h.stateFor({status: "partial", sources: [source]}), "partial");
   assert.equal(h.stateFor({status: "clarify", sources: [source]}), "clarify");
-  for (const status of ["insufficient", "out_of_scope", "disallowed", "unverified"])
-    assert.equal(h.stateFor({status, sources: [source]}), "refused");
-  assert.equal(h.stateFor({status: "technical_error", sources: [source]}), "error");
-  assert.equal(h.stateFor({status: "future_status", sources: [source]}), "neutral");
+  assert.equal(h.stateFor({status: "insufficient"}), "search_error");
+  assert.equal(h.stateFor({status: "out_of_scope"}), "out_of_scope");
+  assert.equal(h.stateFor({status: "disallowed"}), "unsafe_legal_request");
+  assert.equal(h.stateFor({status: "unverified"}), "unverified");
+  assert.equal(h.stateFor({status: "out_of_scope", ui_state: "role_protection"}), "role_protection");
+  assert.equal(h.stateFor({status: "answer", ui_state: "role_protection", sources: [source]}), "success");
+  assert.equal(h.stateFor({status: "technical_error", sources: [source]}), "system_error");
+  assert.equal(h.stateFor({status: "future_status", sources: [source]}), "idle");
 });
 test("pending request searches, then freezes on the sourced result without delaying the answer", async () => {
   const h = harness(); h.get("question").value = "Вопрос";
@@ -94,7 +99,7 @@ test("pending request searches, then freezes on the sourced result without delay
   h.reply({status: "answer", text: "Ответ", sources: [source]});
   await request;
   assert.equal(h.scene(), scene);
-  assert.equal(scene.dataset.state, "found");
+  assert.equal(scene.dataset.state, "success");
   assert.equal(h.intervals.size, 0);
   assert.equal(h.get("reset").disabled, false);
 });
@@ -103,7 +108,7 @@ test("network failure uses its own scene; retry starts a new search without dupl
   const request = h.send();
   h.fail(new TypeError("offline"));
   await assert.rejects(request, /chat_request_failed/);
-  assert.equal(h.scene().dataset.state, "error");
+  assert.equal(h.scene().dataset.state, "system_error");
   assert.equal(h.intervals.size, 0);
   const assistant = h.get("conversation").children.at(-1);
   const body = assistant.children.find(n => n.className === "message-body");
@@ -121,7 +126,7 @@ test("refusal displays refusal frames and keeps its reason in the answer", async
   const request = h.send();
   h.reply({status: "insufficient", text: "Недостаточно оснований", sources: []});
   await request;
-  assert.equal(h.scene().dataset.state, "refused");
+  assert.equal(h.scene().dataset.state, "search_error");
   assert.equal(h.intervals.size, 0);
 });
 test("cancel removes the scene and timer, restores the question and welcome", async () => {
