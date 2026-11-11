@@ -129,7 +129,9 @@ class ObservationFidelityTests(unittest.TestCase):
                           candidate=dict(status='answer',claims=[dict(sources=[dict(fragment_id='a')]),dict(sources=[dict(fragment_id='b')])],answer='Секретный текст')),
                      response=dict(approved=True,complete=True,status='answer',claim_checks=[dict(index=0,supported=True,applicable=True),dict(index=1,supported=True,applicable=False)]))]
         steps=worker.model_steps(events)
-        self.assertEqual(steps[0],dict(stage='generate',expanded=False,status='answer',selected=2,prose=True,retry_reason=None))
+        self.assertEqual(steps[0],dict(stage='generate',expanded=False,status='answer',selected=2,prose=True,requested_facts=None,issue=None,retry_reason=None))
+        coded=worker.model_steps([dict(payload=dict(question='q',evidence=[]),response=dict(status='partial',source_ids=[],requested_facts=['document','Секретный код'],issue='invented'))])
+        self.assertEqual((coded[0]['requested_facts'],coded[0]['issue']),(['document','invalid'],'invalid'))
         self.assertFalse(steps[1]['approved']);self.assertEqual(steps[1]['rejected_claims'],[1])
         self.assertEqual(steps[1]['inapplicable_claims'],[1]);self.assertEqual(steps[1]['unsupported_claims'],[])
         self.assertEqual(steps[1]['claim_documents'],[['d1.txt'],['d2.txt']])

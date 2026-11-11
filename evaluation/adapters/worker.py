@@ -12,7 +12,7 @@ import sys
 import time
 from psb_corpus import load_corpus
 from psb_retrieval import Retriever, tokens, user_turns
-from psb_policy import answer_question, approved
+from psb_policy import answer_question, approved, FOLLOWUPS, ISSUES
 from net_client import Client
 
 class TracedRetriever:
@@ -59,6 +59,9 @@ def model_steps(events):
     hidden reasoning is copied.
     """
     def code(value,allowed):return value if isinstance(value,str) and value in allowed else ('invalid' if value is not None else None)
+    # Only application-owned codes: how the candidate named its gap or problem.
+    def facts(value):return [code(x,FOLLOWUPS) for x in value[:8]] if isinstance(value,list) else None
+    def issue(value):return code(value,ISSUES) if value else None
     statuses={'answer','partial','clarify','insufficient','out_of_scope','disallowed'}
     steps=[]
     for e in events:
@@ -72,6 +75,7 @@ def model_steps(events):
                        for claim in c.get('claims',[]) if isinstance(claim,dict)]
             steps.append(dict(stage='verify',expanded=p.get('expanded_search') is True,candidate_status=c.get('status'),
                 prose=bool(c.get('answer')),approved=approved(c,r),verdict_status=code(r.get('status'),statuses),
+                requested_facts=facts(c.get('requested_facts')),issue=issue(c.get('issue')),
                 complete=r.get('complete') is True,answer_supported=r.get('answer_supported') is True,
                 rejected_claims=[i for i,x in enumerate(checks[:12]) if not isinstance(x,dict) or x.get('supported') is not True or x.get('applicable') is not True],
                 unsupported_claims=[i for i,x in enumerate(checks[:12]) if isinstance(x,dict) and x.get('supported') is not True],
@@ -81,6 +85,7 @@ def model_steps(events):
             ids=r.get('source_ids')
             steps.append(dict(stage='generate',expanded=p.get('expanded_search') is True,status=code(r.get('status'),statuses),
                 selected=len(ids) if isinstance(ids,list) else None,prose=bool(r.get('answer')),
+                requested_facts=facts(r.get('requested_facts')),issue=issue(r.get('issue')),
                 retry_reason=p.get('retry_reason') if isinstance(p.get('retry_reason'),str) and len(p['retry_reason'])<=64 else None))
     return steps
 
