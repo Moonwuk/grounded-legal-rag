@@ -252,6 +252,15 @@ _RESTRICTIONS = {
 }
 
 
+# An upper bound ("не может превышать шести месяцев") is a restriction of its
+# own: an answer keeps it with any upper-bound wording ("максимальный срок",
+# "не более", "не превышает"). Other prohibitions still need a prohibition.
+_UPPER_BOUND_SOURCE = (r"\bне\s+(?:может|могут|должен|должна|должно|должны)\s+"
+                       r"(?:превыша\w*|быть\s+(?:более|больше|дольше|свыше))")
+_UPPER_BOUND_ANSWER = (r"\bне\s+(?:может|могут)\s+превыша\w*|\bне\s+превыша\w*|\bне\s+(?:более|больше|дольше|свыше)\b"
+                       r"|\bмаксимальн\w*|\bпредельн\w*|\bпредел\w*")
+
+
 def restrictions_kept(text: str, selected: list[Fragment]) -> bool:
     """Lexical barrier: the text must not drop a restriction class of its sources.
 
@@ -260,7 +269,12 @@ def restrictions_kept(text: str, selected: list[Fragment]) -> bool:
     """
     source = norm("\n".join(f.text for f in selected)).lower().replace("ё", "е")
     answer = norm(text).lower().replace("ё", "е")
-    return all(re.search(pattern, answer) for pattern in _RESTRICTIONS.values() if re.search(pattern, source))
+    if re.search(_UPPER_BOUND_SOURCE, source) and not re.search(_UPPER_BOUND_ANSWER, answer):
+        return False
+    # The upper-bound phrases are accounted for above; any other prohibition
+    # in the sources still requires a prohibition in the answer.
+    rest = re.sub(_UPPER_BOUND_SOURCE, " ", source)
+    return all(re.search(pattern, answer) for pattern in _RESTRICTIONS.values() if re.search(pattern, rest))
 
 
 def inapplicable_only(candidate: dict, verdict) -> list[int]:

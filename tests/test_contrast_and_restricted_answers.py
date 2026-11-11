@@ -146,6 +146,29 @@ class RestrictedProvisionTests(unittest.TestCase):
         text, status, _, _ = run(s['question'], [select(s['needle'], s['good']), confirm(False), select(s['needle'], s['good']), confirm(False)], s['file'])
         self.assertEqual(status, 'answer'); self.assertNotIn(s['good'], text); self.assertIn('«7.4.', text)
 
+    def test_upper_bound_is_kept_by_any_upper_bound_wording(self):
+        # Demo run (diag on 76f2b42), question 2: "Максимальный срок ... шесть месяцев"
+        # for "не может превышать шести месяцев" was published as quotes only.
+        cases = [('4.1. Срок испытания не может превышать пяти месяцев для руководителей отделов.', ('Максимальный срок испытания руководителя отдела — пять месяцев.', 'Испытание руководителя отдела не более пяти месяцев.', 'Срок испытания не превышает пяти месяцев.')),
+                 ('2.2. Хранение образцов не может быть дольше 40 дней.', ('Предельный срок хранения образцов — 40 дней.', 'Хранить образцы можно не дольше 40 дней.'))]
+        for source, answers in cases:
+            f = [Fragment('i', 'd', 0, 1, source, '')]
+            for answer in answers:
+                with self.subTest(answer=answer):
+                    self.assertTrue(restrictions_kept(answer, f))
+            self.assertFalse(restrictions_kept('Срок составляет пять месяцев.' if 'пяти' in source else 'Срок хранения — 40 дней.', f))
+        both = [Fragment('i', 'd', 0, 1, 'Срок проверки не может превышать 10 дней. Арендатор не вправе продлевать проверку.', '')]
+        self.assertFalse(restrictions_kept('Максимальный срок проверки — 10 дней.', both))
+        self.assertTrue(restrictions_kept('Максимальный срок проверки — 10 дней; арендатор не вправе её продлевать.', both))
+
+    def test_upper_bound_answer_is_published_with_the_source(self):
+        source = '6.4. Срок испытания не может превышать семи месяцев для руководителей филиалов.'
+        good = 'Максимальный срок испытания для руководителей филиалов — семь месяцев (п. 6.4).'
+        text, status, _, events = run('Какой максимальный срок испытания руководителя филиала?', [select('6.4.', good), confirm()], {'Положение.txt': source})
+        self.assertEqual(status, 'answer')
+        self.assertTrue(text.startswith(good), text)
+        self.assertIn('«' + source + '»', text)
+
     def test_restrictions_kept_is_per_class(self):
         f = [Fragment('i', 'd', 0, 1, 'Не вправе передавать, за исключением случаев по соглашению сторон.', '')]
         self.assertTrue(restrictions_kept('Передавать нельзя, за исключением случаев по соглашению сторон.', f))
