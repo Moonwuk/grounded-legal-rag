@@ -225,6 +225,47 @@ _SOURCE_ONLY = re.compile(
     r'|запрещ\w*|только|лишь|при\s+(?:наличии|условии)|по\s+соглашению|за\s+исключением)\b', re.I)
 
 
+# Restrictive operators by class. A model text about a restricted provision is
+# published only when it repeats an operator of every class found in the source.
+_RESTRICTIONS = {
+    "prohibition": r"\bне\s+(?:вправе|может|могут|допуска\w*|разреш\w*|подлеж\w*|име(?:ет|ют)\s+прав[ао])|\bнельзя\b|\bзапрещ\w*",
+    "exclusive": r"\b(?:только|лишь)\b",
+    "condition": r"\bпри\s+(?:наличии|условии)\b",
+    "agreement": r"\bпо\s+соглашению\b",
+    "exception": r"\bза\s+исключением\b",
+}
+
+
+def restrictions_kept(text: str, selected: list[Fragment]) -> bool:
+    """Lexical barrier: the text must not drop a restriction class of its sources.
+
+    This does not prove that the restriction is stated correctly; the verifier
+    still judges the text, and the source provisions are published with it.
+    """
+    source = norm("\n".join(f.text for f in selected)).lower().replace("ё", "е")
+    answer = norm(text).lower().replace("ё", "е")
+    return all(re.search(pattern, answer) for pattern in _RESTRICTIONS.values() if re.search(pattern, source))
+
+
+def inapplicable_only(candidate: dict, verdict) -> list[int]:
+    """Positions of claims the verifier confirmed as authentic but not applicable.
+
+    Non-empty only when this is the sole objection to the claims: the status
+    matches, every claim is supported and at least one claim remains.
+    """
+    if not isinstance(verdict, dict) or verdict.get("status") != candidate["status"]:
+        return []
+    checks, count = verdict.get("claim_checks"), len(candidate["claims"])
+    if not isinstance(checks, list) or len(checks) != count:
+        return []
+    if any(not isinstance(c, dict) or type(c.get("index")) is not int or c.get("supported") is not True for c in checks):
+        return []
+    if sorted(c["index"] for c in checks) != list(range(count)):
+        return []
+    bad = sorted(c["index"] for c in checks if c.get("applicable") is not True)
+    return bad if 0 < len(bad) < count else []
+
+
 def _word_value(word):
     if word in _HUNDREDS:
         return _HUNDREDS[word]
@@ -554,15 +595,17 @@ def gap_lines(source_gaps) -> list[str]:
             "по доступным материалам установить нельзя. Предоставьте эти статьи." for gap in source_gaps]
 
 
-def render(candidate: dict, evidence: list[Fragment], source_gaps=(), prose: str = "", *, question: str = "", value_gaps=()) -> str:
+def render(candidate: dict, evidence: list[Fragment], source_gaps=(), prose: str = "", *, question: str = "", value_gaps=(), keep_sources: bool = False) -> str:
     """Build the published text.
 
     prose is the model-written answer that already passed prose_grounded();
     without it only source wording and application-owned text are published.
+    keep_sources publishes the source provisions after the text (restricted
+    provisions keep their exact wording next to any conclusion).
     """
     status = candidate["status"]
     issue = ISSUES.get(candidate.get("issue", ""), "")
-    if prose:
+    if prose and not (keep_sources and candidate["claims"]):
         lines = [prose]
         if candidate["claims"]:
             lines.append(source_line(candidate, evidence))
@@ -593,6 +636,8 @@ def render(candidate: dict, evidence: list[Fragment], source_gaps=(), prose: str
                 (followup(candidate) or "Нужен документ, содержащий сведения по этому вопросу."))
     by_id = {f.id: f for f in evidence}
     references, numbers, lines = [], {}, [clarification_line] if clarification_line else []
+    if prose:
+        lines.insert(0, prose)
     for claim in candidate["claims"]:
         used = []
         for cite in claim["sources"]:
@@ -630,19 +675,29 @@ def answer_question(question: str, retriever, client, top_k: int = 6) -> tuple[s
     retry_reason = ""
     retry_scope_guard = False
     try:
-        for expanded in (False, True):
-            evidence = retriever.search(question, top_k=top_k, expanded=expanded)
-            payload = {"question": question, "evidence": retriever.evidence(evidence),
-                       "expanded_search": expanded}
-            if retry_reason:
-                # Application-owned code only; verifier prose never reaches the generator.
-                payload["retry_reason"] = retry_reason
-                if retry_scope_guard:
-                    payload["retry_scope_guard"] = True
-            generated = client.complete(SYSTEM, payload)
-            candidate = expand_selection(generated, evidence)
+        # (expanded search, reduced candidate). A reduced candidate re-verifies the
+        # same selection without provisions the verifier found inapplicable.
+        attempts, position_in_plan = [(False, None), (True, None)], 0
+        while position_in_plan < len(attempts):
+            expanded, reduced = attempts[position_in_plan]
+            position_in_plan += 1
+            contrast = []
+            if reduced:
+                evidence, payload, generated, candidate, contrast = reduced
+            else:
+                evidence = retriever.search(question, top_k=top_k, expanded=expanded)
+                payload = {"question": question, "evidence": retriever.evidence(evidence),
+                           "expanded_search": expanded}
+                if retry_reason:
+                    # Application-owned code only; verifier prose never reaches the generator.
+                    payload["retry_reason"] = retry_reason
+                    if retry_scope_guard:
+                        payload["retry_scope_guard"] = True
+                generated = client.complete(SYSTEM, payload)
+                candidate = expand_selection(generated, evidence)
             if not validate_candidate(candidate, evidence):
                 continue
+            selection = candidate
             if candidate["status"] == "insufficient" and not expanded:
                 continue
             # Source structure, not the model, determines mandatory list context.
@@ -674,17 +729,23 @@ def answer_question(question: str, retriever, client, top_k: int = 6) -> tuple[s
             # selected provisions and the verifier confirms that very text.
             candidate = {k: v for k, v in candidate.items() if k != "answer"}
             draft = prose_of(generated)
-            # Known restrictive units retain the source-only boundary even when
-            # a semantic verifier incorrectly approves a contradictory draft.
-            source_only = bool(value_gaps) or any(_SOURCE_ONLY.search(norm(f.text)) for f in selected)
+            # Known restrictive units always keep their source wording in the
+            # answer. A model conclusion may precede it only if it repeats every
+            # restriction class of the sources; a positive verdict cannot waive this.
+            restricted = any(_SOURCE_ONLY.search(norm(f.text)) for f in selected)
+            source_only = bool(value_gaps) or (restricted and not (draft and restrictions_kept(draft, selected)))
             scope_blocked = bool(draft and selected and not source_only and not prose_scope_safe(draft, selected))
+            # Figures may also come from provisions the verifier confirmed as
+            # authentic but inapplicable: they explain the contrast and are not
+            # published as a basis of the answer.
             prose = draft if draft and selected and not source_only and not scope_blocked and prose_grounded(draft, grounding_basis(
-                question, selected, getattr(retriever, "documents", {}))) else ""
+                question, selected + contrast, getattr(retriever, "documents", {}))) else ""
             prose_state = ('checked' if prose else 'source_only' if draft and source_only else 'rejected' if scope_blocked else
                            'no_sources' if draft and not selected else 'ungrounded' if draft else 'absent')
             if prose:
                 candidate["answer"] = prose
-            rendered = render(candidate, evidence, source_gaps, prose, question=question, value_gaps=value_gaps)
+            rendered = render(candidate, evidence, source_gaps, prose, question=question, value_gaps=value_gaps,
+                              keep_sources=restricted)
             verdict = client.complete(VERIFY, {**payload, "candidate": candidate,
                                                "rendered_answer": rendered,
                                                "source_gaps":source_gaps, "value_gaps":value_gaps})
@@ -699,7 +760,7 @@ def answer_question(question: str, retriever, client, top_k: int = 6) -> tuple[s
             vstatus = verdict.get("status") if isinstance(verdict, dict) else None
             position = getattr(client, "position", None)
             event = {"event":"policy_verdict", "position":position if type(position) is int else None,
-                     "expanded":expanded, "candidate_status":candidate["status"], "approved":allowed,
+                     "expanded":expanded, "reduced":bool(reduced), "candidate_status":candidate["status"], "approved":allowed,
                      "prose":prose_state,
                      "verdict_status":vstatus if isinstance(vstatus,str) and vstatus in STATUSES else "invalid",
                      "check_count":len(checks) if isinstance(checks,list) else -1,
@@ -710,6 +771,14 @@ def answer_question(question: str, retriever, client, top_k: int = 6) -> tuple[s
             print(json.dumps(event), file=sys.stderr)
             if scope_blocked and not expanded:
                 retry_reason, retry_scope_guard = "answer_not_supported", True
+            dropped = [] if allowed or reduced else inapplicable_only(candidate, verdict)
+            if dropped:
+                # The same mistake repeats on a free retry. Re-verify once the
+                # selection without the inapplicable provisions; nothing follows it.
+                kept = {**selection, "claims": [c for i, c in enumerate(selection["claims"]) if i not in dropped]}
+                contrast = [by_id[cite["fragment_id"]] for i in dropped for cite in candidate["claims"][i]["sources"]]
+                attempts[position_in_plan:] = [(expanded, (evidence, payload, generated, kept, contrast))]
+                continue
             if allowed:
                 if prose_state in {"ungrounded", "rejected"} and not expanded:
                     # Keep the verified provisions and give the text one more attempt.
