@@ -48,6 +48,10 @@ def strict_json(raw):
     return json.loads(raw, object_pairs_hook=pairs, parse_constant=constant)
 
 
+# Logical model calls per question. The policy plans its attempts within it.
+QUESTION_CALL_LIMIT = 4
+
+
 class ProxyClient:
     def __init__(self, deadline: float, position: int | None = None):
         self.base = env("LLM_BASE_URL", "OPENAI_BASE_URL").rstrip("/")
@@ -67,7 +71,7 @@ class ProxyClient:
 
     def complete(self, system: str, payload: dict) -> dict:
         self.calls += 1
-        if self.calls > 4:
+        if self.calls > QUESTION_CALL_LIMIT:
             raise ProviderError("question_call_budget")
         try:
             temperature = min(2., max(0., float(env("TEMPERATURE", default="0"))))
