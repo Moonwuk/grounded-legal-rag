@@ -12,6 +12,9 @@ const docTitle = byId("doc-title");
 const docStatus = byId("doc-status");
 const allDocs = byId("all-docs");
 const quoteTools = byId("quote-tools");
+const docFilter = byId("doc-filter");
+const docQuery = byId("doc-query");
+const clearDocQuery = byId("clear-doc-query");
 let selectedQuote = "";
 const copyController = MatteCopy.mount(quoteTools.querySelector(".sl-copy"), {
   getText: () => selectedQuote,
@@ -30,6 +33,7 @@ const labels = {
 let messages = [];
 let busy = false;
 let activeDocument;
+let catalog = [];
 
 function bubble(role, text) {
   welcome.hidden = true;
@@ -38,11 +42,32 @@ function bubble(role, text) {
   const author = document.createElement("strong");
   author.textContent = role === "user" ? "Вы" : "Ассистент";
   const content = document.createElement("p");
+  const body = document.createElement("div");
+  body.className = "message-body";
   content.textContent = text;
-  item.append(author, content);
+  body.append(content);
+  item.append(author, body);
   log.append(item);
   log.scrollTop = log.scrollHeight;
-  return {item, content};
+  return {item, content, body};
+}
+
+function archiveScene(searching) {
+  const picture = document.createElement("picture");
+  picture.className = "archive-scene";
+  if (searching) {
+    const still = document.createElement("source");
+    still.media = "(prefers-reduced-motion: reduce)";
+    still.srcset = "/static/media/archive-idle.png";
+    picture.append(still);
+  }
+  const image = document.createElement("img");
+  image.src = searching ? "/static/media/archive-search.gif" : "/static/media/archive-found.png";
+  image.alt = "";
+  image.width = 192;
+  image.height = 188;
+  picture.append(image);
+  return picture;
 }
 
 function showList() {
@@ -53,7 +78,9 @@ function showList() {
   docStatus.textContent = "";
   docText.hidden = true;
   list.hidden = false;
+  docFilter.hidden = catalog.length === 0;
   allDocs.hidden = true;
+  renderCatalog();
 }
 
 function clearQuote() {
@@ -62,7 +89,7 @@ function clearQuote() {
   copyController.reset();
 }
 
-async function openDocument(id, source) {
+async function openDocument(id, source, focus = true) {
   activeDocument?.abort();
   clearQuote();
   const request = new AbortController();
@@ -78,9 +105,10 @@ async function openDocument(id, source) {
     docStatus.textContent = [doc.status, source?.heading].filter(Boolean).join(" · ");
     docText.textContent = doc.text;
     list.hidden = true;
+    docFilter.hidden = true;
     docText.hidden = false;
     allDocs.hidden = false;
-    docTitle.focus();
+    if (focus) docTitle.focus();
     if (source) {
       const characters = Array.from(doc.text);
       const quote = characters.slice(source.start, source.end).join("");
@@ -93,7 +121,8 @@ async function openDocument(id, source) {
       selectedQuote = quote;
       quoteTools.hidden = false;
       docText.replaceChildren(characters.slice(0, source.start).join(""), mark, characters.slice(source.end).join(""));
-      mark.scrollIntoView({block: "center"});
+      docText.scrollTop += mark.getBoundingClientRect().top - docText.getBoundingClientRect().top
+        - docText.clientHeight / 2 + mark.offsetHeight / 2;
     } else {
       docText.scrollTop = 0;
     }
@@ -104,20 +133,36 @@ async function openDocument(id, source) {
   }
 }
 
+function renderCatalog() {
+  const query = docQuery.value.trim().toLocaleLowerCase("ru");
+  clearDocQuery.hidden = !docQuery.value;
+  list.replaceChildren();
+  if (!catalog.length) return;
+  const matching = catalog.filter(doc => doc.title.toLocaleLowerCase("ru").includes(query));
+  for (const doc of matching) {
+    const row = document.createElement("li");
+    const button = document.createElement("button");
+    button.type = "button";
+    const title = document.createElement("span");
+    title.className = "catalog-title";
+    title.textContent = doc.title;
+    const meta = document.createElement("small");
+    meta.textContent = doc.status || doc.category;
+    button.append(title, meta);
+    button.addEventListener("click", () => openDocument(doc.id));
+    row.append(button);
+    list.append(row);
+  }
+  docStatus.textContent = matching.length ? "Документов: " + matching.length : "По этому запросу документов нет.";
+}
+
 async function loadDocuments() {
   try {
     const response = await fetch("/api/documents", {signal: AbortSignal.timeout(10000)});
     if (!response.ok) throw new Error();
-    const docs = await response.json();
-    for (const doc of docs) {
-      const row = document.createElement("li");
-      const button = document.createElement("button");
-      button.type = "button";
-      button.textContent = doc.title + (doc.status ? " · " + doc.status : "");
-      button.addEventListener("click", () => openDocument(doc.id));
-      row.append(button);
-      list.append(row);
-    }
+    catalog = await response.json();
+    docFilter.hidden = !catalog.length;
+    renderCatalog();
   } catch {
     docStatus.textContent = "Список документов недоступен. Обновите страницу.";
   }
@@ -127,30 +172,31 @@ function renderAnswer(node, answer, retry) {
   node.item.dataset.status = answer.status;
   node.content.textContent = answer.text;
   const missingModel = answer.error_code === "model_not_configured";
-  if (labels[answer.status]) {
+  const sources = answer.sources || [];
+  if (labels[answer.status] || sources.length) {
     const status = document.createElement("strong");
     status.className = "message-status";
-    status.textContent = missingModel ? "Модель не настроена" : labels[answer.status];
+    status.textContent = missingModel ? "Модель не настроена" : labels[answer.status] || "Найдены источники";
     node.content.before(status);
   }
-  for (const source of answer.sources || []) {
+  for (const source of sources) {
     const button = document.createElement("button");
     button.type = "button";
     button.className = "source";
     button.textContent = ["[" + source.n + "] " + source.title, source.heading, source.status].filter(Boolean).join(" · ");
     button.addEventListener("click", () => openDocument(source.document_id, source));
-    node.item.append(button);
+    node.body.append(button);
   }
   if (answer.status === "technical_error" && !missingModel) {
     const button = document.createElement("button");
     button.type = "button";
     button.textContent = "Повторить";
     button.addEventListener("click", retry);
-    node.item.append(button);
+    node.body.append(button);
   } else if (answer.status !== "technical_error" && Number.isFinite(answer.elapsed_seconds)) {
     const duration = document.createElement("small");
     duration.textContent = new Intl.NumberFormat("ru-RU").format(answer.elapsed_seconds) + " с";
-    node.item.append(duration);
+    node.body.append(duration);
   }
 }
 
@@ -159,10 +205,19 @@ async function ask(question, existing, signal) {
   reset.disabled = true;
   const pending = {role: "user", text: question};
   const userNode = existing || bubble("user", question).item;
-  const node = bubble("assistant", "Готовим ответ…");
+  const node = bubble("assistant", "Ищем в документах…");
+  const documentAtStart = activeDocument;
+  const scene = archiveScene(true);
+  const progress = document.createElement("small");
+  progress.textContent = "Подбираем подтверждающие положения";
+  node.body.append(progress);
+  node.body.before(scene);
+  node.item.classList.add("with-scene");
+  node.item.dataset.status = "searching";
+  log.scrollTop = log.scrollHeight;
   const start = performance.now();
   const timer = setInterval(() => {
-    node.content.textContent = "Готовим ответ… " + Math.floor((performance.now() - start) / 1000) + " с";
+    progress.textContent = "Подбираем подтверждающие положения · " + Math.floor((performance.now() - start) / 1000) + " с";
   }, 1000);
   let answer;
   try {
@@ -181,6 +236,7 @@ async function ask(question, existing, signal) {
     if (signal.aborted) {
       node.item.remove();
       userNode.remove();
+      if (!log.querySelector(".message")) welcome.hidden = false;
       if (!input.value) input.value = question;
       input.focus();
       throw error;
@@ -191,6 +247,17 @@ async function ask(question, existing, signal) {
     clearInterval(timer);
     busy = false;
     reset.disabled = false;
+  }
+  scene.remove();
+  progress.remove();
+  node.item.classList.remove("with-scene");
+  if (answer.sources?.length) {
+    node.body.before(archiveScene(false));
+    node.item.classList.add("with-scene");
+    if (activeDocument === documentAtStart && docText.hidden) {
+      const first = answer.sources[0];
+      openDocument(first.document_id, first, false);
+    }
   }
   if (answer.status !== "technical_error") {
     messages.push(pending, {role: "assistant", text: answer.text});
@@ -252,6 +319,13 @@ reset.addEventListener("click", () => {
   input.focus();
 });
 allDocs.addEventListener("click", () => { showList(); docTitle.focus(); });
+docQuery.addEventListener("input", renderCatalog);
+clearDocQuery.addEventListener("click", () => {
+  docQuery.value = "";
+  renderCatalog();
+  docQuery.focus();
+});
+clearDocQuery.disabled = false;
 for (const example of document.querySelectorAll(".example")) {
   example.addEventListener("click", () => { input.value = example.textContent; input.focus(); });
   example.disabled = false;
