@@ -143,6 +143,8 @@ class ReasoningBudgetTests(unittest.TestCase):
                 self.complete()
         self.assertEqual(str(error.exception), 'http_400')
         self.assertEqual(['reasoning_effort' in c for c in calls], [True, False])
+        # A bad request of another cause does not disable the parameter for the run.
+        self.assertFalse(ProxyClient.effort_rejected)
 
     def test_truncation_does_not_reintroduce_a_rejected_parameter(self):
         ProxyClient.effort_rejected = True

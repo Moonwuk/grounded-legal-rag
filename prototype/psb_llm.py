@@ -106,6 +106,7 @@ class ProxyClient:
         if len(body) > 512000:
             raise ProviderError("request_size_limit")
         truncation_retry = False
+        effort_dropped = False
         for attempt in range(3):
             remaining = self.deadline - time.monotonic()
             if remaining <= 1:
@@ -179,6 +180,9 @@ class ProxyClient:
                 value = strict_json(content)
                 if not isinstance(value, dict):
                     raise ValueError("expected_object")
+                if effort_dropped:
+                    # Only a success without the parameter shows that it was the cause.
+                    ProxyClient.effort_rejected = True
                 return value
             except HTTPError as exc:
                 code = exc.code
@@ -191,7 +195,7 @@ class ProxyClient:
                 if code in {400, 422} and "reasoning_effort" in request_body and attempt < 2:
                     # The provider may not know the parameter: retry once without
                     # it. Another cause of the error repeats and is reported.
-                    ProxyClient.effort_rejected = True
+                    effort_dropped = True
                     del request_body["reasoning_effort"]
                     body = json.dumps(request_body, ensure_ascii=False).encode()
                     continue
