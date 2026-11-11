@@ -14,7 +14,12 @@ class Element {
   }
   set className(value) { this.classes = new Set(value.split(" ")); }
   get className() { return [...this.classes].join(" "); }
-  append(...children) { for (const child of children) { child.remove?.(); child.parent = this; this.children.push(child); } }
+  append(...children) {
+    for (const value of children) {
+      const child = typeof value === "string" ? Object.assign(new Element("#text"), {textContent: value}) : value;
+      child.remove?.(); child.parent = this; this.children.push(child);
+    }
+  }
   before(child) {
     child.remove?.(); child.parent = this.parent;
     this.parent.children.splice(this.parent.children.indexOf(this), 0, child);
@@ -138,4 +143,20 @@ test("new dialogue clears terminal scenes", async () => {
   h.get("reset").events.click();
   assert.equal(h.scene(), undefined);
   assert.equal(h.get("welcome").hidden, false);
+});
+
+test("only registered citation numbers become links and the answer text stays intact", async () => {
+  const h = harness();
+  h.get("question").value = "Вопрос";
+  const request = h.send();
+  const text = "Основание [1], неизвестный номер [9], повтор [1].";
+  h.reply({status: "answer", text, sources: [source]});
+  await request;
+  const answer = h.get("conversation").children.find(node => node.dataset.status === "answer");
+  const body = answer.children.find(node => node.className === "message-body");
+  const paragraph = body.children.find(node => node.tagName === "p");
+  const links = paragraph.children.filter(node => node.tagName === "a");
+  assert.deepEqual(links.map(link => link.textContent), ["[1]", "[1]"]);
+  assert.equal(links[0].href, "#doc-title");
+  assert.equal(paragraph.children.map(node => node.textContent).join(""), text);
 });

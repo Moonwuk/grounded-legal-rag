@@ -58,7 +58,7 @@ button {
 }
 button:hover:not(:disabled) { background: #edf4ff; }
 button:disabled { cursor: default; opacity: .58; }
-button:focus-visible, textarea:focus-visible, input:focus-visible, [tabindex]:focus-visible {
+button:focus-visible, textarea:focus-visible, input:focus-visible, .inline-citation:focus-visible, [tabindex]:focus-visible {
   outline: 3px solid #3868df;
   outline-offset: 2px;
 }
@@ -130,6 +130,14 @@ button:focus-visible, textarea:focus-visible, input:focus-visible, [tabindex]:fo
 .message.user { width: fit-content; max-width: 86%; margin-left: auto; background: #e6efff; border-radius: 12px 12px 4px 12px; }
 .message > strong:first-child { font-size: .8rem; color: #36578e; }
 .message p { margin: .3rem 0; white-space: pre-wrap; }
+.inline-citation {
+  color: var(--blue);
+  font-size: .78em;
+  font-weight: 700;
+  vertical-align: super;
+  text-underline-offset: .14em;
+}
+.inline-citation:hover { color: var(--navy); }
 .message-body { min-width: 0; }
 .message.with-scene {
   display: grid;

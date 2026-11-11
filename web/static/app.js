@@ -152,9 +152,31 @@ async function loadDocuments() {
 
 function renderAnswer(node, answer, retry) {
   node.item.dataset.status = answer.status;
-  node.content.textContent = answer.text;
   const missingModel = answer.error_code === "model_not_configured";
   const sources = answer.sources || [];
+  const sourcesByNumber = new Map(sources.map(source => [String(source.n), source]));
+  const parts = answer.text.split(/\[(\d+)\]/);
+  node.content.replaceChildren(parts[0]);
+  for (let index = 1; index < parts.length; index += 2) {
+    const number = parts[index];
+    const label = "[" + number + "]";
+    const source = sourcesByNumber.get(number);
+    if (source) {
+      const link = document.createElement("a");
+      link.className = "inline-citation";
+      link.href = "#doc-title";
+      link.textContent = label;
+      link.setAttribute("aria-label", label + " Источник: " + source.title);
+      link.addEventListener("click", event => {
+        event.preventDefault();
+        openDocument(source.document_id, source);
+      });
+      node.content.append(link);
+    } else {
+      node.content.append(label);
+    }
+    node.content.append(parts[index + 1]);
+  }
   if (labels[answer.status] || sources.length) {
     const status = document.createElement("strong");
     status.className = "message-status";
