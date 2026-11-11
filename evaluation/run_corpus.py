@@ -34,6 +34,12 @@ def load(corpus):
     if len(set(ids))!=len(ids) or set(ids)!=set(cases):raise ValueError('questions and gold case ids differ')
     return meta,kb,questions,rows,cases
 
+def shard(rows,spec):
+    """Contiguous part k of n ("2/4"), so a large corpus fits the solution's own deadline."""
+    k,n=map(int,spec.split('/'))
+    if not 1<=k<=n:raise ValueError('shard must be k/n with 1<=k<=n')
+    size=-(-len(rows)//n);return rows[(k-1)*size:k*size]
+
 def score(cases,answers):
     """Rows per case; a missing answer is a contract failure, not a refusal."""
     rows=[]
@@ -57,6 +63,8 @@ def summarize(rows):
 
 def run(args):
     meta,kb,questions,rows,cases=load(args.corpus)
+    if args.shard:
+        rows=shard(rows,args.shard);cases={r['id']:cases[r['id']] for r in rows}
     out=EVAL/'reports'/args.run_id;out.mkdir(parents=True,exist_ok=True)
     env={k:v for k,v in os.environ.items() if not k.startswith(('LLM_','OPENAI_','GEN_'))}
     env.update(LLM_BASE_URL=os.environ.get('LLM_BASE_URL',''),LLM_API_KEY=os.environ.get('LLM_API_KEY',''),LLM_MODEL=os.environ.get('LLM_MODEL',''),PYTHONIOENCODING='utf-8')
@@ -67,7 +75,9 @@ def run(args):
     started=time.perf_counter()
     with tempfile.TemporaryDirectory() as tmp:
         work=Path(tmp);(work/'data').mkdir()
-        shutil.copyfile(kb,work/'data/knowledge-base.zip');shutil.copyfile(questions,work/'data/questions.csv')
+        shutil.copyfile(kb,work/'data/knowledge-base.zip')
+        with (work/'data/questions.csv').open('w',encoding='utf-8',newline='') as h:
+            w=csv.writer(h,lineterminator='\n');w.writerow(['id','question']);w.writerows((r['id'],r['question']) for r in rows)
         env['DATA_DIR']=str(work/'data')
         proc=subprocess.run([sys.executable,str(ROOT/'prototype/solution.py')],cwd=work,env=env,capture_output=True,encoding='utf-8',timeout=1250)
         answers={}
@@ -79,13 +89,14 @@ def run(args):
     info=dict(git_commit=commit(),corpus_id=meta['corpus_id'],knowledge_base_sha256=meta['knowledge_base_sha256'],questions_sha256=meta['questions_sha256'],
         gold_sha256=digest(canonical(cases)),runtime_sha256=digest(canonical({p.name:digest(p.read_bytes()) for p in sorted((ROOT/'prototype').glob('*.py'))})),
         model=env['LLM_MODEL'],provider_base_url=env['LLM_BASE_URL'],returncode=proc.returncode,elapsed_seconds=time.perf_counter()-started,
-        generation_settings=settings,tuning_note=meta.get('tuning_note'),scope='Local element check, not the official Score.')
+        generation_settings=settings,shard=args.shard,questions_run=len(rows),tuning_note=meta.get('tuning_note'),scope='Local element check, not the official Score.')
     summary={**info,**summarize(scored)}
     write(out/'summary.json',summary);write(out/'cases.json',scored)
     print(json.dumps({k:summary[k] for k in ('passed','total','outcomes','statuses','failures','not_evaluated','elapsed_seconds')},ensure_ascii=False))
 
 def main():
     p=argparse.ArgumentParser();p.add_argument('--corpus',type=Path,required=True);p.add_argument('--run-id',required=True)
+    p.add_argument('--shard',help='run part k of n, e.g. 2/4')
     run(p.parse_args())
 
 if __name__=='__main__':main()

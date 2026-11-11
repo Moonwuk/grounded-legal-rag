@@ -6,7 +6,7 @@ one meaning-bearing element and must stop the case from passing.
 import csv
 import unittest
 from evaluation.common import EVAL,ROOT,read
-from evaluation.run_corpus import load,score,summarize
+from evaluation.run_corpus import load,score,shard,summarize
 from evaluation.validators.elements import check,status_of,values
 
 DEMO=EVAL/'corpora/demo'
@@ -75,6 +75,22 @@ class CorpusContractTests(unittest.TestCase):
     def test_demo_corpus_is_consistent_and_gold_is_not_a_question_field(self):
         meta,kb,questions,rows,cases=load(DEMO)
         self.assertEqual(len(rows),18);self.assertEqual(list(rows[0]),['id','question'])
+        self.assertTrue(all(c['checked_by_hand'] is False for c in cases.values()))
+
+    def test_shards_cover_every_question_once(self):
+        rows=[dict(id=str(i)) for i in range(139)]
+        for n in (1,3,4,7):
+            parts=[shard(rows,f'{k}/{n}') for k in range(1,n+1)]
+            self.assertEqual([r['id'] for p in parts for r in p],[r['id'] for r in rows])
+        with self.assertRaises(ValueError):shard(rows,'5/4')
+
+    def test_legalbench_ru_corpus_hides_answers_and_distractors(self):
+        import zipfile
+        meta,kb,questions,rows,cases=load(EVAL/'corpora/legalbench-ru')
+        names=zipfile.ZipFile(kb).namelist()
+        self.assertFalse(any('distract' in n.lower() for n in names))
+        text=(EVAL/'corpora/legalbench-ru/data/questions.csv').read_text(encoding='utf-8')
+        self.assertNotIn('Ловушка',text)
         self.assertTrue(all(c['checked_by_hand'] is False for c in cases.values()))
 
     def test_missing_row_is_a_failure_and_summary_counts(self):

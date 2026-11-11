@@ -1,0 +1,12 @@
+{
+  "corpus_id": "legalbench-ru-public-grounded",
+  "knowledge_base": "data/knowledge-base.zip",
+  "knowledge_base_sha256": "5dd1f05959f2ae1a138d538d3c94ccfece8044bdb5d6afa93f148c444e46ed2a",
+  "questions": "data/questions.csv",
+  "questions_sha256": "a8c660585fb42e4e5ba617e50624f110a0f44240c378546953f729e71d5f8f4b",
+  "gold": "gold/cases.json",
+  "source": "https://huggingface.co/datasets/AlsKozlov/legalbench-ru",
+  "source_sha256": "4c63ca94fb87787e98f46f2ed013e41cef0c455c73943d4f850127062d3bca2a",
+  "license": "CC-BY-4.0",
+  "tuning_note": "External set, not used for tuning. Gold is generated and adversarially verified, not lawyer-annotated."
+}
