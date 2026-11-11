@@ -57,6 +57,13 @@ class ElementTests(unittest.TestCase):
                     'Арендная плата составляет 500 000 рублей в месяц (п. 3.1). Иных документов в базе нет.']:
             self.assertIn('forbidden:false premise 500000',check(g['4'],bad)['failures'])
 
+    def test_alternative_question_opening_is_not_polarity(self):
+        # Demo run 3 (76f2b42), question 16: "included or paid separately?"
+        real=('Нет, отдельно доставка и упаковка не оплачиваются. По договору поставки № П-17/2024 цена Товара включает НДС по ставке 20%, '
+              'стоимость упаковки и доставки до склада Покупателя (п. 2.1).')
+        self.assertEqual(check(gold()['16'],real)['outcome'],'pass')
+        self.assertNotEqual(check(gold()['16'],real.replace('стоимость упаковки и доставки до склада Покупателя (п. 2.1)','доставку (п. 2.4)'))['outcome'],'pass')
+
     def test_values_units_words_and_refutation(self):
         self.assertIn((450000,'RUB',False),values('плата 450 000 (четыреста пятьдесят тысяч) рублей'))
         self.assertIn((12000000,'RUB',False),values('договор на 12 млн рублей'))

@@ -33,7 +33,7 @@ TOPICS = {'payment_term': r'оплат', 'review_term': r'согласовани
 _NUMBER = re.compile(r'(?<![\w/.\-])(\d{1,3}(?:[   ]\d{3})+|\d+)(?![\w/\-]|[.,]\d)')
 _UNIT = re.compile(r'\s*(?:(календарн\w*)\s+(?:дн\w*|день)|(рабоч\w*)\s+(?:дн\w*|день)|(руб\w*|₽))', re.I)
 _ASSERTING_VERB = re.compile(r'(?:составля\w*|равн\w*|—|–|-)\s*$', re.I)
-_REFUTED = re.compile(r'(?:\bа\s+не|\bне\s+(?:равн\w*|составля\w*)|\bвместо|\bне)\s*$', re.I)
+_REFUTED = re.compile(r'(?:\bа\s+не|\bне\s+(?:равн\w*|раве\w*|составля\w*)|\bвместо|\bне)\s*$', re.I)
 _CONDITIONAL = re.compile(
     r'\bесли\b|\bпри\s+подписани|\bприменя\w*\s+(?:при|к|для|до|с)\b|\bдейству\w*\s+(?:при|до|с|для)\b'
     r'|\bне\s+(?:применя|распространя|действу)|\bначиная\s+с\b|\bдо\s+\d{4}-\d{2}-\d{2}'
@@ -149,6 +149,25 @@ def _present(phrase, text):
     return all(match(w) for w in words)
 
 
+def _conclusion_in_condition(own, sentences, event_date):
+    """The only value stated with "составляет/равен/—" inside a condition clause
+    is the conclusion when the event date of the question is named in that or
+    the next sentence ("…начиная с X составляет 60 дней. Акт от Y подпадает…").
+    Two such values stay ambiguous."""
+    if not event_date:
+        return []
+    picked = []
+    for m in own:
+        if m.status != 'conditional':
+            continue
+        sentence = sentences[m.sentence]
+        head = sentence[max(0, m.position - 16):m.position]
+        near = ' '.join(sentences[m.sentence:m.sentence + 2])
+        if _ASSERTING_VERB.search(head) and event_date in near:
+            picked.append(m)
+    return picked if len({(m.value, m.unit) for m in picked}) == 1 else []
+
+
 def evaluate_prose(prose, case):
     """Return (True|False|None, reasons). Reasons explain False or None."""
     expected = case['expected']
@@ -162,7 +181,17 @@ def evaluate_prose(prose, case):
     failures, unknown = [], []
     for f in required:
         own = [m for m in found if m.predicate == f['predicate']]
+        # A value stated about another object ("касается объекта КТ-7/2026-Б")
+        # is neither the conclusion nor a contradiction.
+        aside = lambda m: bool(_SUBJECT.findall(m.clause)) and f['subject_id'] not in _SUBJECT.findall(m.clause)
         asserted = [m for m in own if m.status == 'asserted']
+        # Only an aside next to a conclusion about the asked object; a lone
+        # value about another object still fails as a wrong subject.
+        if any(not aside(m) for m in asserted):
+            asserted = [m for m in asserted if not aside(m)]
+            own = [m for m in own if not aside(m)]
+        if not asserted:
+            asserted = _conclusion_in_condition(own, sentences, case.get('event_date'))
         if not asserted:
             unknown.append('prose_conclusion_not_identified')
             continue

@@ -34,6 +34,20 @@ FRESH_CORRUPTIONS=[
  ('multi_document-0001','Согласование: обычная сделка, событие отсчёта — получение проекта.','Согласование: обычная сделка.'),
  ('multi_document-0001','срок согласования — 9 рабочих','срок согласования — 19 рабочих'),
 ]
+# Full holdout 76f2b42: correct answers the reader had rejected (holdout
+# questions were not used to tune the reader before this run).
+HOLDOUT={
+ 'contradiction-0009':'Нет, предпосылка неверна: срок оплаты не равен 999 календарных дней. Для объекта КТ-10/2026 по дополнению к договору срок оплаты для акта, подписанного начиная с 2026-07-10 включительно, составляет 60 рабочих дней, без исключений (contract_0028, разъяснения к приложению). Акт от 2026-07-11 подпадает под это условие.',
+ 'contradiction-0069':'Нет. Для объекта КТ-70/2026 по акту от 2026-07-06 срок оплаты составляет 63 рабочих дня, а не 999 календарных дней: условие применяется при подписании акта начиная с 2026-07-05 включительно (contract_0208). Условие о 17 рабочих днях относится к актам до 2026-07-05, не включая эту дату (contract_0207); условие о 90 календарных днях касается объекта КТ-70/2026-Б (contract_0209).',
+ 'contradiction-0059':'Нет. Для объекта КТ-60/2026 при подписании акта 2026-07-09 срок оплаты составляет 63 календарных дня, а не 999: условие действует без исключений для актов начиная с 2026-07-08 включительно (CONTRACT № КТ-60/2026 / 0178 (amendment)). Дата акта 2026-07-09 подпадает под это условие.',
+}
+HOLDOUT_CORRUPTIONS=[
+ ('contradiction-0009','составляет 60 рабочих','составляет 45 рабочих'),
+ ('contradiction-0009','срок оплаты не равен 999','срок оплаты равен 999'),
+ ('contradiction-0069','касается объекта КТ-70/2026-Б','также действует'),
+ ('contradiction-0069','объекта КТ-70/2026 по акту','объекта КТ-71/2026 по акту'),
+ ('contradiction-0059','составляет 63 календарных','составляет 63 рабочих'),
+]
 CONDITIONAL={  # gold expects clarification/partial: both rules stated conditionally
  'missing_information-0000':'Нет, срок оплаты по КТ-1/2026 зависит от даты подписания акта: в базовом договоре предусмотрено 30 рабочих дней, если акт подписан до 2026-07-01 (не включая эту дату), а в допсоглашении — 75 рабочих дней, если акт подписан начиная с 2026-07-01 включительно (Приложение А, п. 1). Какая дата подписания акта?',
 }
@@ -78,6 +92,25 @@ class ProseReaderTests(unittest.TestCase):
                 self.assertIn(old,FRESH[cid])
                 verdict,reasons=evaluate_prose(FRESH[cid].replace(old,new),gold[cid])
                 self.assertIs(verdict,False,reasons)
+
+    def test_holdout_correct_answers_pass(self):
+        gold=cases()
+        for cid,text in HOLDOUT.items():
+            with self.subTest(cid):self.assertEqual(evaluate_prose(text,gold[cid]),(True,[]))
+
+    def test_holdout_corruptions_do_not_pass(self):
+        gold=cases()
+        for cid,old,new in HOLDOUT_CORRUPTIONS:
+            with self.subTest(new=new):
+                self.assertIn(old,HOLDOUT[cid])
+                verdict,reasons=evaluate_prose(HOLDOUT[cid].replace(old,new),gold[cid])
+                self.assertIs(verdict,False,reasons)
+
+    def test_two_values_in_conditions_stay_ambiguous(self):
+        gold=cases()
+        text=('Для объекта КТ-10/2026 для акта, подписанного до 2026-07-10, срок оплаты составляет 17 рабочих дней, '
+              'а для акта, подписанного начиная с 2026-07-10, составляет 60 рабочих дней. Акт от 2026-07-11.')
+        self.assertIsNone(evaluate_prose(text,gold['contradiction-0009'])[0])
 
     def test_conditional_answers_need_review(self):
         gold=cases()

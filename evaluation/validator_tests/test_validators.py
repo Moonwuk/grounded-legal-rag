@@ -155,6 +155,18 @@ class ConflictGapTests(unittest.TestCase):
         self.assertTrue(validate(c,g,r)['checks']['gap'])
         r['candidate']['requested_facts']=['event_date'];self.assertFalse(validate(c,g,r)['checks']['gap'])
 
+class ConflictTemporalTests(unittest.TestCase):
+    def test_quoting_the_inapplicable_side_of_a_conflict_is_not_a_temporal_error(self):
+        # Holdout 76f2b42 temporal-0004/0044: a correct conflict answer quoted the
+        # base clause whose period ended before the event date.
+        c,g,r=fixture();c['event_date']='2026-06-30'
+        c['expected'].update(allowed_statuses=['partial','clarification'],required_claims=[],missing=['conflict_resolution'],issue='conflict')
+        r['status']='partial';r['candidate'].update(status='partial',requested_facts=['priority_rule'],issue='conflicting_documents')
+        v=validate(c,g,r);self.assertNotIn('temporal_failure',v['failures'])
+        c['expected'].update(issue='',missing=[],allowed_statuses=['answer'],required_claims=[dict(fact={**FACT,'event_date':'2026-06-30'},acceptable_evidence_sets=[['a:p1']])])
+        r['status']='answer';r['candidate'].update(status='answer',requested_facts=[],issue='')
+        self.assertIn('temporal_failure',validate(c,g,r)['failures'])
+
 class CalibrationTests(unittest.TestCase):
     def test_report_calibrates_current_validator_not_stale_file(self):
         from evaluation.analyze_results import report

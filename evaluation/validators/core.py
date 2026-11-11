@@ -182,7 +182,9 @@ def validate(case,gold,result):
             time_ok=applicable(f,case.get('event_date')) if f['predicate']=='payment_term' else True
             if f['predicate']=='payment_term' and matches and not contextual:
                 time_ok=time_ok and any(applicable(r['fact'],case.get('event_date')) for r in matches)
-            if 'event_date' in expected.get('missing',[]):time_ok=True
+            # Quoting both sides of a conflict, or both revisions when the date is
+            # missing, is legitimate; the inapplicable side is not a temporal error.
+            if contextual:time_ok=True
             if f['predicate']=='payment_term': temporal.append(time_ok)
             support=any(sufficient(r['acceptable_evidence_sets'],sources,citefrags) for r in matches)
             correct=bool(matches and time_ok and valid and support)
