@@ -10,7 +10,7 @@ import threading
 import zipfile
 from psb_corpus import load_corpus
 from psb_retrieval import Retriever
-from psb_llm import ProxyClient, ProviderError, env, integer
+from psb_llm import EmbeddingClient, ProxyClient, ProviderError, env, integer
 from psb_policy import answer_question, TECHNICAL
 
 
@@ -96,6 +96,16 @@ def main() -> int:
         watchdog.cancel()
         print("configuration_error: " + type(error).__name__, file=sys.stderr)
         return 2
+    # Optional dense candidates: only when the platform names an embedding model.
+    # Indexing may take at most a fifth of the run; any failure keeps BM25 only.
+    if env("EMB_MODEL"):
+        try:
+            started_dense = time.monotonic()
+            seconds = integer("PSB_DENSE_SECONDS", int(min(240., max(0., (deadline - started_dense) / 5))), 0, 600)
+            budget = min(deadline - 60, started_dense + seconds)
+            print(retriever.enable_dense(EmbeddingClient(deadline), budget), file=sys.stderr)
+        except ProviderError as error:
+            print("dense_disabled:" + str(error), file=sys.stderr)
     top_k = integer("TOP_K", 6, 1, 40)
     workers = integer("MAX_WORKERS", 2, 1, 8)
 

@@ -1,0 +1,48 @@
+{
+  "git_commit": "1290d96b7d6f39fa9dc271b2d8e09208e445c2c7",
+  "corpus_id": "demo-paraphrase",
+  "knowledge_base_sha256": "cea8ef2c8f6c8b9f498efacf705b97bf3da53cc78f366f9b1fef7a6de66327e0",
+  "questions_sha256": "674eb14ccf421d92adcc815980a9c208a3134d98cc71f2a69562e97ebb90d740",
+  "gold_sha256": "d64f27c676ccab39243ee1c367d0f340a20c748fc214478ec3f7a0d13fa9c737",
+  "runtime_sha256": "fbd43e0fef482270c62e70ceb841f436111d49545231b4b1d8183b7d29bac575",
+  "model": "deepseek-flash",
+  "provider_base_url": "http://127.0.0.1:8091/v1",
+  "returncode": 0,
+  "elapsed_seconds": 214.54306736800027,
+  "generation_settings": {},
+  "shard": null,
+  "questions_run": 34,
+  "tuning_note": "Paraphrases of the 18 demo questions (evaluation/make_paraphrases.py) with the demo element gold. The demo was used for tuning.",
+  "scope": "Local element check, not the official Score.",
+  "outcomes": {
+    "pass": 31,
+    "fail": 3
+  },
+  "statuses": {
+    "answer": 31,
+    "insufficient": 3
+  },
+  "passed": 31,
+  "total": 34,
+  "quotes_only": [
+    "9-p1",
+    "11-p1",
+    "15-p2",
+    "17-p1",
+    "17-p2"
+  ],
+  "false_refusals": 3,
+  "failures": {
+    "12-p2": [
+      "false_refusal"
+    ],
+    "13-p1": [
+      "false_refusal"
+    ],
+    "13-p2": [
+      "false_refusal"
+    ]
+  },
+  "not_evaluated": {},
+  "checked_by_hand": 0
+}

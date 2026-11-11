@@ -7,10 +7,16 @@ from __future__ import annotations
 from collections import Counter, defaultdict
 import hashlib
 from bisect import bisect_right, bisect_left
+import heapq
 import itertools
 import math
+import operator
+import sys
+import threading
+import time
 import re
 from psb_corpus import Document, Fragment, check_deadline
+from psb_llm import ProviderError
 
 ORG_FORMS = {"ооо", "ао", "пао", "зао", "оао", "ип", "нко", "фгуп", "муп"}
 STOP = set("и в во на по с со у к ко из за от до для не ли мы вы он она они это как какой какая какие что сколько нужно можно чем при а или его ее их нам нас наш этот того если будет было есть меня мне теперь".split())
@@ -179,6 +185,54 @@ class Retriever:
         self.parties = {d.name: {x.casefold().replace(" ", "-") for x in
                         re.findall(r"«([^»\n]{2,80})»", d.text[:1200])} for d in documents}
 
+    # --- Optional dense candidates (EMB_MODEL through the organizer proxy) ---
+    dense = None
+    vectors = None
+
+    def enable_dense(self, client, deadline: float) -> str:
+        """Embed every fragment; on any failure keep lexical search only.
+
+        Returns an application-owned status code for the run log."""
+        texts = [(f.heading + "\n" + f.text if f.heading and f.heading not in f.text else f.text)[:2000]
+                 for f in self.fragments]
+        # The first chunk shows the provider's speed: if the whole corpus would
+        # not fit the budget, stop now instead of spending the budget for nothing.
+        vectors, chunk, started = [], 128, time.monotonic()
+        try:
+            for start in range(0, len(texts), chunk):
+                vectors += client.embed(texts[start:start + chunk], deadline=deadline)
+                elapsed = time.monotonic() - started
+                if len(vectors) < len(texts) and started + elapsed / len(vectors) * len(texts) > deadline:
+                    return "dense_disabled:embedding_too_slow"
+        except ProviderError as error:
+            return "dense_disabled:" + str(error)
+        if len(vectors) != len(self.fragments):
+            return "dense_disabled:invalid_embedding_response"
+        self.dense, self.vectors = client, vectors
+        self._query_vectors, self._dense_lock, self._dense_failed = {}, threading.Lock(), False
+        return "dense_enabled"
+
+    def _dense_candidates(self, text: str, count: int) -> list[Fragment]:
+        if self.vectors is None or self._dense_failed or count <= 0:
+            return []
+        with self._dense_lock:
+            vector = self._query_vectors.get(text)
+        if vector is None:
+            try:
+                vector = self.dense.embed([text])[0]
+            except ProviderError:
+                # A query-time failure is not a missing provision: lexical search continues.
+                with self._dense_lock:
+                    self._dense_failed = True
+                print("dense_query_failed", file=sys.stderr)
+                return []
+            with self._dense_lock:
+                if len(self._query_vectors) < 4096:
+                    self._query_vectors[text] = vector
+        best = heapq.nlargest(count, range(len(self.vectors)),
+                              key=lambda i: sum(map(operator.mul, vector, self.vectors[i])))
+        return [self.fragments[i] for i in best]
+
     def _scores(self, query):
         scores = defaultdict(float)
         for word, weight in query.items():
@@ -243,6 +297,12 @@ class Retriever:
                 if score > 0 and f.id not in existing:
                     hits.append(f)
                     existing.add(f.id)
+        # Dense candidates find a provision worded differently from the question.
+        # They are reserved places, so the lexical order of the hits is unchanged.
+        for f in self._dense_candidates("\n".join(turns[-2:]), 4 if expanded else 2):
+            if f.id not in existing:
+                hits.append(f)
+                existing.add(f.id)
         selected = {f.id: f for f in hits}
         selected_docs = {f.document for f in hits}
         # Relations are derived from the corpus text. Keep dates and original

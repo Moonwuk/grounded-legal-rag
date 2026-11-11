@@ -57,8 +57,12 @@ knowledge-base.zip ──► psb_corpus: чтение, карантин инст
 - `expanded=True` — второй, более широкий проход (больше кандидатов).
 - `reference_gaps` находит отсылки к статьям, текста которых нет в базе.
 
-Без эмбеддингов и реранкера: для этой базы точные номера, идентификаторы и
-даты важнее семантической близости. Подробнее: [retrieval_scaling.md](retrieval_scaling.md),
+- **Плотные кандидаты (`bge-m3`)**, если платформа задаёт `EMB_MODEL`: к выдаче
+  BM25 добавляются 2–4 близких по смыслу фрагмента; при любой ошибке остаётся
+  BM25 ([hybrid_retrieval.md](hybrid_retrieval.md)).
+
+Основа — лексический поиск: для этой базы точные номера, идентификаторы и
+даты важнее семантической близости; эмбеддинги закрывают вопросы другими словами. Подробнее: [retrieval_scaling.md](retrieval_scaling.md),
 [family_expansion_and_title_match.md](family_expansion_and_title_match.md),
 [structural_dependencies.md](structural_dependencies.md).
 

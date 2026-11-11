@@ -222,3 +222,86 @@ class ProxyClient:
                 raise ProviderError("run_deadline")
             time.sleep(delay)
         raise ProviderError("proxy_unavailable")
+
+
+class EmbeddingClient:
+    """Embeddings from the same organizer proxy ({base}/embeddings, EMB_MODEL).
+
+    Optional: without EMB_MODEL nothing is requested. Every failure is a
+    ProviderError code; the retriever then keeps lexical search only.
+    """
+    BATCH = 32
+
+    def __init__(self, deadline: float):
+        self.base = env("LLM_BASE_URL", "OPENAI_BASE_URL", "BASE_URL").rstrip("/")
+        self.key = env("LLM_API_KEY", "OPENAI_API_KEY")
+        self.model = env("EMB_MODEL")
+        self.deadline = deadline
+        parsed = urlparse(self.base)
+        if not self.model:
+            raise ProviderError("embedding_not_configured")
+        if not self.key or parsed.scheme not in {"http", "https"} or not parsed.hostname:
+            raise ProviderError("missing_proxy_configuration")
+        if parsed.username or parsed.password or parsed.query or parsed.fragment:
+            raise ProviderError("invalid_proxy_url")
+        if len(self.base) > 2048 or len(self.model) > 256 or any(ord(c) < 32 for c in self.base + self.key + self.model):
+            raise ProviderError("invalid_proxy_configuration")
+        self.opener = build_opener(NoRedirect())
+        self.dimension = None
+
+    def embed(self, texts: list[str], deadline: float | None = None) -> list:
+        """Unit-length vectors (array of float32), one per text, in input order."""
+        from array import array
+        import math
+        limit = min(self.deadline, deadline) if deadline else self.deadline
+        result = []
+        for start in range(0, len(texts), self.BATCH):
+            batch = texts[start:start + self.BATCH]
+            body = json.dumps({"model": self.model, "input": batch}, ensure_ascii=False).encode()
+            if len(body) > 512000:
+                raise ProviderError("request_size_limit")
+            value = None
+            for attempt in range(2):
+                remaining = limit - time.monotonic()
+                if remaining <= 1:
+                    raise ProviderError("embedding_deadline")
+                request = Request(self.base + "/embeddings", data=body, method="POST",
+                                  headers={"Authorization": "Bearer " + self.key, "Content-Type": "application/json"})
+                try:
+                    with self.opener.open(request, timeout=min(45., remaining)) as response:
+                        raw = response.read(40_000_001)
+                    if len(raw) > 40_000_000:
+                        raise ProviderError("response_size_limit")
+                    value = strict_json(raw)
+                    break
+                except HTTPError as exc:
+                    code = exc.code
+                    exc.close()
+                    if code not in {429, 500, 502, 503, 504} or attempt:
+                        raise ProviderError("embedding_http_" + str(code) if type(code) is int and 100 <= code <= 599
+                                            else "embedding_http_other") from None
+                except (URLError, socket.timeout, TimeoutError, HTTPException, ConnectionError):
+                    if attempt:
+                        raise ProviderError("embedding_unavailable") from None
+                except (ValueError, RecursionError):
+                    raise ProviderError("invalid_embedding_response") from None
+                time.sleep(1)
+            try:
+                items = sorted(value["data"], key=lambda item: item["index"])
+                if [item["index"] for item in items] != list(range(len(batch))):
+                    raise ValueError
+                for item in items:
+                    vector = item["embedding"]
+                    if not isinstance(vector, list) or not 16 <= len(vector) <= 8192:
+                        raise ValueError
+                    if self.dimension is None:
+                        self.dimension = len(vector)
+                    if len(vector) != self.dimension or not all(type(x) in (int, float) and math.isfinite(x) for x in vector):
+                        raise ValueError
+                    norm = math.sqrt(sum(x * x for x in vector))
+                    if norm <= 0:
+                        raise ValueError
+                    result.append(array("f", (x / norm for x in vector)))
+            except (ValueError, KeyError, TypeError, AttributeError):
+                raise ProviderError("invalid_embedding_response") from None
+        return result
