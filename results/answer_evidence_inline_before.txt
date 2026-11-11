@@ -1,0 +1,23 @@
+test_absence_of_other_requirements_needs_an_explicit_source (test_answer_evidence_completeness.AnswerEvidenceCompleteness.test_absence_of_other_requirements_needs_an_explicit_source) ... ok
+test_an_approving_judge_cannot_add_document_contents (test_answer_evidence_completeness.AnswerEvidenceCompleteness.test_an_approving_judge_cannot_add_document_contents) ... ok
+test_date_definition_is_not_borrowed_from_another_document (test_answer_evidence_completeness.AnswerEvidenceCompleteness.test_date_definition_is_not_borrowed_from_another_document) ... ok
+test_date_definition_is_selected_verified_and_published_even_if_model_omits_it (test_answer_evidence_completeness.AnswerEvidenceCompleteness.test_date_definition_is_selected_verified_and_published_even_if_model_omits_it) ... ok
+test_explicit_document_contents_are_allowed_but_wrong_fields_are_not (test_answer_evidence_completeness.AnswerEvidenceCompleteness.test_explicit_document_contents_are_allowed_but_wrong_fields_are_not) ... ok
+test_inline_date_definition_cannot_disappear_from_prose (test_answer_evidence_completeness.AnswerEvidenceCompleteness.test_inline_date_definition_cannot_disappear_from_prose) ... FAIL
+test_missing_date_dependency_is_explicit_not_silently_omitted (test_answer_evidence_completeness.AnswerEvidenceCompleteness.test_missing_date_dependency_is_explicit_not_silently_omitted) ... ok
+test_negative_document_contents_do_not_authorize_a_positive_claim (test_answer_evidence_completeness.AnswerEvidenceCompleteness.test_negative_document_contents_do_not_authorize_a_positive_claim) ... ok
+test_preamble_stays_in_verification_but_is_not_printed_for_a_value_question (test_answer_evidence_completeness.AnswerEvidenceCompleteness.test_preamble_stays_in_verification_but_is_not_printed_for_a_value_question) ... ok
+test_repeated_sources_share_one_document_reference_without_cutting_conditions (test_answer_evidence_completeness.AnswerEvidenceCompleteness.test_repeated_sources_share_one_document_reference_without_cutting_conditions) ... ok
+
+======================================================================
+FAIL: test_inline_date_definition_cannot_disappear_from_prose (test_answer_evidence_completeness.AnswerEvidenceCompleteness.test_inline_date_definition_cannot_disappear_from_prose)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "<repo>/tests/test_answer_evidence_completeness.py", line 109, in test_inline_date_definition_cannot_disappear_from_prose
+    self.assertIn('дата подписания ведомости обеими сторонами', text)
+AssertionError: 'дата подписания ведомости обеими сторонами' not found in 'Проверка выполняется в течение 11 дней с даты передачи.\nИсточник: Условия, п. 6.2.'
+
+----------------------------------------------------------------------
+Ran 10 tests in 0.057s
+
+FAILED (failures=1)

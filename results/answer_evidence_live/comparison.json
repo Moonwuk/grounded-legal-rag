@@ -1,0 +1,133 @@
+[
+  {
+    "version": "scored",
+    "archive_sha256": "f97a833152e562249ff03e5f80dc873ff3919f1ba8d60949eb80f7f5a8b08cbb",
+    "seconds": 258.309,
+    "rows": 18,
+    "csv_valid": true,
+    "technical_ids": [],
+    "unverified_ids": [],
+    "chars_total": 11943,
+    "over150words": [
+      "13"
+    ],
+    "q17_chars": 840,
+    "statuses": {
+      "answer": 16,
+      "insufficient": 1,
+      "partial": 1
+    }
+  },
+  {
+    "version": "compat",
+    "archive_sha256": "1f146c67a85aa59538960e4404d9a073525071378e02bac6587fcf8b69615a69",
+    "seconds": 301.552,
+    "rows": 18,
+    "csv_valid": true,
+    "technical_ids": [],
+    "unverified_ids": [],
+    "chars_total": 9000,
+    "over150words": [
+      "2",
+      "13"
+    ],
+    "q17_chars": 1064,
+    "statuses": {
+      "answer": 15,
+      "insufficient": 1,
+      "partial": 2
+    }
+  },
+  {
+    "version": "attempt_1",
+    "archive_sha256": "9a95880e3a9c2109a8754cdca67db1edc41bf701be4c678f34bc805e447eeacd",
+    "seconds": 303.429,
+    "rows": 18,
+    "csv_valid": true,
+    "technical_ids": [],
+    "unverified_ids": [],
+    "chars_total": 7377,
+    "over150words": [
+      "13"
+    ],
+    "q17_chars": 307,
+    "statuses": {
+      "answer": 15,
+      "insufficient": 1,
+      "partial": 2
+    }
+  },
+  {
+    "version": "attempt_2",
+    "archive_sha256": "1ac618f2cebb7f52969dfd98b1944820b92120565c2de7618f1c1def7e1d8748",
+    "seconds": 323.247,
+    "rows": 18,
+    "csv_valid": true,
+    "technical_ids": [],
+    "unverified_ids": [],
+    "chars_total": 7480,
+    "over150words": [
+      "13"
+    ],
+    "q17_chars": 307,
+    "statuses": {
+      "answer": 15,
+      "insufficient": 1,
+      "partial": 2
+    }
+  },
+  {
+    "version": "attempt_3",
+    "archive_sha256": "57ad5f1ebee39b632cbb1f8802b756920ebce51db2068ff79f1255e6c95279f8",
+    "seconds": 309.843,
+    "rows": 18,
+    "csv_valid": true,
+    "technical_ids": [],
+    "unverified_ids": [],
+    "chars_total": 7677,
+    "over150words": [],
+    "q17_chars": 503,
+    "statuses": {
+      "answer": 15,
+      "insufficient": 1,
+      "partial": 2
+    }
+  },
+  {
+    "version": "full_demo",
+    "archive_sha256": "4beae19cdc79b4a4c14e0c52f632e0dc423e8fb6166e5612cf776edeb1174c1c",
+    "seconds": 267.506,
+    "rows": 18,
+    "csv_valid": true,
+    "technical_ids": [],
+    "unverified_ids": [],
+    "chars_total": 7546,
+    "over150words": [
+      "13"
+    ],
+    "q17_chars": 307,
+    "statuses": {
+      "answer": 15,
+      "insufficient": 1,
+      "partial": 2
+    }
+  },
+  {
+    "version": "final_targeted",
+    "archive_sha256": "95ca0ed7e71de2db4d2403ba6adfd2829b6467af8f9110819d672c5fcd5fc2ed",
+    "seconds": 79.455,
+    "rows": 4,
+    "question_ids": [
+      "4",
+      "8",
+      "14",
+      "15"
+    ],
+    "csv_valid": true,
+    "technical_ids": [],
+    "unverified_ids": [],
+    "statuses": {
+      "answer": 4
+    }
+  }
+]

@@ -12,6 +12,17 @@ import re
 from psb_corpus import Document, Fragment, check_deadline
 
 STOP = set("и в во на по с со у к ко из за от до для не ли мы вы он она они это как какой какая какие что сколько нужно можно чем при а или его ее их нам нас наш этот того если будет было есть меня мне теперь".split())
+DATE_DEFINITION = re.compile(
+    r'\bдатой\s+([а-яё]+(?:\s+[а-яё]+){0,2}?)\s+(?:считается|является|признаётся|признается)\b', re.I)
+UPPER_BOUND = re.compile(
+    r'\b(?:(?:срок|период|продолжительность)\s+)?([а-яё]{5,})\s+не\s+'
+    r'(?:может\s+превышать|превышает)\b', re.I)
+CONDITIONAL_BOUND = re.compile(r'^\s*(?:\d+(?:\.\d+)*[.)]\s*)?(?:при|если|для|в\s+случае)\b', re.I)
+TIME_UNIT = re.compile(r'\b(?:дн\w*|ден[ьья]|недел\w*|месяц\w*|год\w*|лет|час\w*|минут\w*)\b', re.I)
+
+
+def date_term(text):
+    return ' '.join(text.lower().replace('ё', 'е').split())
 
 
 def tokens(text: str) -> list[str]:
@@ -114,6 +125,22 @@ class Retriever:
                 else:
                     parent, style = None, None
             self.list_parents[d.name] = links
+        # Explicit definitions from the same document only. A date mentioned in
+        # another contract must not supply the start event for this one.
+        self.date_definitions = defaultdict(lambda: defaultdict(set))
+        self.conditional_bounds = defaultdict(lambda: defaultdict(set))
+        for d in documents:
+            boundaries = self.paragraph_boundaries[d.name]
+            for start, end in zip(boundaries, boundaries[1:]):
+                check_deadline(deadline)
+                if any(a < end and b > start for a, b in d.quarantined):
+                    continue
+                block = d.text[start:end]
+                for m in DATE_DEFINITION.finditer(block):
+                    self.date_definitions[d.name][date_term(m[1])].add((start, end))
+                if CONDITIONAL_BOUND.search(block) and TIME_UNIT.search(block):
+                    for m in UPPER_BOUND.finditer(block):
+                        self.conditional_bounds[d.name][date_term(m[1])[:5]].add((start, end))
         self.article_catalog = defaultdict(set)
         self.law_by_doc = {}
         for d in documents:
@@ -273,38 +300,86 @@ class Retriever:
         result = list(complete.values())
         # Restore dependency sources even when a narrow search window omitted
         # the introduction. They keep independent exact source coordinates.
-        for f in list(result):
+        pending = list(result)
+        for f in pending:
             for parent in self.dependencies(f):
-                complete[parent.id] = parent
+                if parent.id not in complete:
+                    complete[parent.id] = parent
+                    pending.append(parent)
+                    if len(complete) > 512:
+                        raise ValueError("evidence_size_limit")
         result = list(complete.values())
         # Never silently cut an exception or an amendment to satisfy a hard cap.
         if len(result) > 512 or sum(len(f.text) for f in result) > 100000:
             raise ValueError("evidence_size_limit")
         return result
 
+    def date_dependencies(self, fragment, *, include_contained=False):
+        """Exact definitions needed by an explicit 'с/от даты <event>' reference."""
+        text = date_term(fragment.text)
+        spans = set()
+        for term, definitions in self.date_definitions[fragment.document].items():
+            if re.search(r'\b(?:с|от)\s+даты\s+' + re.escape(term) + r'\b', text):
+                spans.update(definitions)
+        return self._dependency_fragments(fragment, spans, include_contained=include_contained)
+
+    def bound_dependencies(self, fragment, *, include_contained=False):
+        """Keep explicit conditional upper bounds for the same named duration.
+
+        This narrow same-document construction does not infer arbitrary legal
+        exceptions. The complete clauses still require applicability review.
+        """
+        if not TIME_UNIT.search(fragment.text):
+            return []
+        spans = set()
+        for m in UPPER_BOUND.finditer(fragment.text):
+            spans.update(self.conditional_bounds[fragment.document][date_term(m[1])[:5]])
+        return self._dependency_fragments(fragment, spans, include_contained=include_contained)
+
+    def publication_context(self, fragment):
+        return (self.date_dependencies(fragment, include_contained=True)
+                + self.bound_dependencies(fragment, include_contained=True))
+
+    def _dependency_fragments(self, fragment, spans, *, include_contained=False):
+        doc = self.documents[fragment.document]
+        result = []
+        for start, end in sorted(spans):
+            if not include_contained and fragment.start <= start and fragment.end >= end:
+                continue
+            fid = hashlib.sha256(f"{doc.name}:{doc.sha256}:{start}:{end}".encode()).hexdigest()[:20]
+            result.append(Fragment(fid, doc.name, start, end, doc.text[start:end], ""))
+        return result
+
     def dependencies(self, fragment):
-        """Return source-owned introductions required by a selected list item."""
+        """Source-owned introductions, date definitions and conditional bounds."""
         doc = self.documents[fragment.document]
         spans = {parent for (start, end), parent in self.list_parents[doc.name].items()
                  if start < fragment.end and end > fragment.start
                  and not (fragment.start <= parent[0] and fragment.end >= parent[1])}
-        result = []
-        for start, end in sorted(spans):
-            fid = hashlib.sha256(f"{doc.name}:{doc.sha256}:{start}:{end}".encode()).hexdigest()[:20]
-            result.append(Fragment(fid, doc.name, start, end, doc.text[start:end], ""))
-        return result
+        return (self._dependency_fragments(fragment, spans) + self.date_dependencies(fragment)
+                + self.bound_dependencies(fragment))
 
     def complete_sources(self, sources, evidence):
         """Close a selected source set before semantic verification/publication."""
         by_id = {f.id: f for f in evidence}
         selected = {}
-        for cite in sources:
-            f = by_id[cite["fragment_id"]]
+        visiting = set()
+        def add(f):
+            if f.id in selected or f.id in visiting:
+                return
+            visiting.add(f.id)
+            if len(visiting) > 6:
+                raise ValueError("structural_source_limit")
             for parent in self.dependencies(f):
                 if parent.id not in by_id:
                     raise ValueError("missing_structural_source")
-                selected[parent.id] = parent
+                add(by_id[parent.id])
             selected[f.id] = f
+            visiting.remove(f.id)
+            if len(selected) > 6:
+                raise ValueError("structural_source_limit")
+        for cite in sources:
+            add(by_id[cite["fragment_id"]])
         return [{"fragment_id":f.id, "quote":f.text} for f in selected.values()]
 
     def evidence(self, fragments: list[Fragment]) -> list[dict]:
