@@ -7,10 +7,12 @@ from __future__ import annotations
 from collections import Counter, defaultdict
 import hashlib
 from bisect import bisect_right, bisect_left
+import itertools
 import math
 import re
 from psb_corpus import Document, Fragment, check_deadline
 
+ORG_FORMS = {"ооо", "ао", "пао", "зао", "оао", "ип", "нко", "фгуп", "муп"}
 STOP = set("и в во на по с со у к ко из за от до для не ли мы вы он она они это как какой какая какие что сколько нужно можно чем при а или его ее их нам нас наш этот того если будет было есть меня мне теперь".split())
 DATE_DEFINITION = re.compile(
     r'\bдатой\s+([а-яё]+(?:\s+[а-яё]+){0,2}?)\s+(?:считается|является|признаётся|признается)\b', re.I)
@@ -152,6 +154,28 @@ class Retriever:
                 self.law_by_doc[d.name] = identity
                 articles = re.findall(r"(?:^|Источник:.*?)(?:Статья)\s+(\d+(?:\.\d+)?)", d.text, re.I | re.M)
                 self.article_catalog[identity].update(articles)
+        # Document roles come from the text, so another naming scheme works the
+        # same. A regulation names itself in a heading line ("РЕГЛАМЕНТ
+        # СОГЛАСОВАНИЯ ДОГОВОРОВ ..."); its family is every edition with the same
+        # title and every non-law document that cites that title.
+        keys = {}
+        for d in documents:
+            if d.name in self.law_by_doc:
+                continue
+            for line in [line for line in d.text.splitlines() if line.strip()][:3]:
+                words = re.findall(r"[а-яё]+", line.casefold().replace("ё", "е"))
+                if words and words[0] == "регламент" and len(words) >= 2:
+                    # The title ends before the organization form: "РЕГЛАМЕНТ ЗАКУПОК ООО ...".
+                    title = list(itertools.takewhile(lambda w: w not in ORG_FORMS, words))[:3]
+                    if len(title) >= 2:
+                        keys[d.name] = tuple(w[:5] for w in title)
+                        break
+        self.regulations = set(keys)
+        self.regulation_family = {}
+        for name, key in keys.items():
+            cited = re.compile(r"\b" + r"\w*\s+".join(map(re.escape, key)) + r"\w*", re.I)
+            self.regulation_family[name] = {n for n, d in self.documents.items() if n not in self.law_by_doc
+                                            and (keys.get(n) == key or cited.search(d.text.replace("ё", "е")))}
         self.parties = {d.name: {x.casefold().replace(" ", "-") for x in
                         re.findall(r"«([^»\n]{2,80})»", d.text[:1200])} for d in documents}
 
@@ -230,9 +254,8 @@ class Retriever:
             # contract stays a candidate itself but must not pull in its whole family.
             if self.doc_ids[name] and (not ids or ids & self.doc_ids[name]):
                 connected.update(n for n, docids in self.doc_ids.items() if docids & self.doc_ids[name])
-            if "регламент согласования" in name.lower():
-                connected.update(n for n, d in self.documents.items()
-                                 if not n.startswith("законы__") and "регламент" in d.text.lower())
+            if name in self.regulations:
+                connected.update(self.regulation_family[name])
         for name in connected:
             if len(self.documents[name].text) <= 7500 or name not in selected_docs:
                 selected.update((f.id, f) for f in self.by_doc[name])
@@ -254,8 +277,8 @@ class Retriever:
         def unit(name):
             """A document with every document it must not be separated from."""
             members = {name} | {n for n in connected if self.doc_ids[name] & self.doc_ids[n]}
-            if "регламент согласования" in name.lower():
-                members |= {n for n in connected if "регламент" in self.documents[n].text.lower()}
+            if name in self.regulations:
+                members |= self.regulation_family[name] & connected
             return members
         # The budget counts a document together with its linked documents, so a
         # family is kept whole or skipped whole; linked documents can no longer
@@ -280,8 +303,8 @@ class Retriever:
         required = set()
         for name in kept:
             required.update(n for n in connected if self.doc_ids[name] & self.doc_ids[n])
-            if "регламент согласования" in name.lower():
-                required.update(n for n in connected if "регламент" in self.documents[n].text.lower())
+            if name in self.regulations:
+                required.update(self.regulation_family[name] & connected)
         for name in sorted(required):
             existing_ids = {f.id for f in result}
             result.extend(f for f in self.by_doc[name] if f.id not in existing_ids)
