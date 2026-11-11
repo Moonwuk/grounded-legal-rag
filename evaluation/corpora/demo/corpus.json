@@ -1,0 +1,11 @@
+{
+ "corpus_id": "demo-organizer",
+ "knowledge_base": "organizer/knowledge-base.zip",
+ "knowledge_base_sha256": "cea8ef2c8f6c8b9f498efacf705b97bf3da53cc78f366f9b1fef7a6de66327e0",
+ "questions": "data/questions.csv",
+ "questions_sha256": "e922cee1e155ed23f9f1c8f9758e396ed0e72e4309343dffe33824139bbf1423",
+ "gold": "gold/cases.json",
+ "reference": "organizer/demo_output.csv",
+ "reference_sha256": "cf73e808c2c0071e616c61a965b8cd01713b62d150ec1c9c1c2c7dcb3206115b",
+ "tuning_note": "The solution prompt was tuned on these 18 questions; results here are not an independent measurement."
+}
