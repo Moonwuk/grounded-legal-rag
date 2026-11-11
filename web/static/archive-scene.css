@@ -1,6 +1,5 @@
-/* 12 blue source poses (4x3); separate error/refusal poses (2x2). */
+/* Each source sheet is a 6×4 atlas of square frames. */
 .archive-scene {
-  background: #000;
   overflow: hidden;
   contain: paint;
 }
@@ -9,62 +8,91 @@
   width: 100%;
   aspect-ratio: 1;
   background-image: url("/static/media/archive-blue.webp");
-  background-size: 400% 300%;
+  background-size: 600% 400%;
   background-repeat: no-repeat;
   background-position: 0 0;
 }
 .archive-scene[data-state="searching"] .archive-scene__frame {
-  animation: archive-search 7.2s steps(1, end) infinite;
+  animation: archive-search 3.8s steps(1, end) infinite;
 }
 .archive-scene[data-state="found"] .archive-scene__frame {
   background-position: 100% 100%;
-  animation: archive-found 1.2s steps(1, end) 1 forwards;
+  animation: archive-found 1.8s steps(1, end) 1 forwards;
 }
-.archive-scene[data-state="partial"] .archive-scene__frame { background-position: 33.333333% 100%; }
-.archive-scene[data-state="clarify"] .archive-scene__frame { background-position: 66.666667% 0; }
+.archive-scene[data-state="partial"] .archive-scene__frame { background-position: 20% 100%; }
+.archive-scene[data-state="clarify"] .archive-scene__frame { background-position: 20% 33.333333%; }
 .archive-scene[data-state="error"] .archive-scene__frame,
 .archive-scene[data-state="refused"] .archive-scene__frame {
   background-image: url("/static/media/archive-outcomes.webp");
-  background-size: 200% 200%;
 }
 .archive-scene[data-state="error"] .archive-scene__frame {
-  background-position: 100% 0;
-  animation: archive-error .8s steps(1, end) 1 forwards;
+  background-position: 40% 66.666667%;
+  animation: archive-error 1.35s steps(1, end) 1 forwards;
 }
 .archive-scene[data-state="refused"] .archive-scene__frame {
   background-position: 100% 100%;
-  animation: archive-refused 1s steps(1, end) 1 forwards;
+  animation: archive-refused 2s steps(1, end) 1 forwards;
 }
-/* The loading loop deliberately skips every document-found / victory pose. */
+/* A pending request never shows a document or a victory pose. */
 @keyframes archive-search {
-  0% { background-position: 0 0; }
-  8.333333% { background-position: 33.333333% 0; }
-  16.666667% { background-position: 66.666667% 0; }
-  25% { background-position: 100% 0; }
-  33.333333% { background-position: 33.333333% 50%; }
-  41.666667% { background-position: 100% 0; }
-  50% { background-position: 33.333333% 50%; }
-  58.333333% { background-position: 66.666667% 50%; }
-  66.666667% { background-position: 100% 50%; }
-  75% { background-position: 66.666667% 50%; }
-  83.333333% { background-position: 100% 50%; }
-  91.666667%, 100% { background-position: 66.666667% 0; }
+  0% { background-position: 0% 0%; }
+  4.7619% { background-position: 20% 0%; }
+  9.52381% { background-position: 40% 0%; }
+  14.2857% { background-position: 60% 0%; }
+  19.0476% { background-position: 80% 0%; }
+  23.8095% { background-position: 100% 0%; }
+  28.5714% { background-position: 0% 33.3333%; }
+  33.3333% { background-position: 20% 33.3333%; }
+  38.0952% { background-position: 40% 33.3333%; }
+  42.8571% { background-position: 60% 33.3333%; }
+  47.619% { background-position: 80% 33.3333%; }
+  52.381% { background-position: 100% 33.3333%; }
+  57.1429% { background-position: 0% 66.6667%; }
+  61.9048% { background-position: 20% 66.6667%; }
+  66.6667% { background-position: 100% 33.3333%; }
+  71.4286% { background-position: 80% 33.3333%; }
+  76.1905% { background-position: 40% 33.3333%; }
+  80.9524% { background-position: 0% 33.3333%; }
+  85.7143% { background-position: 80% 0%; }
+  90.4762% { background-position: 40% 0%; }
+  95.2381% { background-position: 20% 0%; }
+  100% { background-position: 0% 0%; }
 }
 @keyframes archive-found {
-  0% { background-position: 0 100%; }
-  25% { background-position: 33.333333% 100%; }
-  50% { background-position: 66.666667% 100%; }
-  75%, 100% { background-position: 100% 100%; }
+  0% { background-position: 40% 66.6667%; }
+  10% { background-position: 60% 66.6667%; }
+  20% { background-position: 80% 66.6667%; }
+  30% { background-position: 100% 66.6667%; }
+  40% { background-position: 0% 100%; }
+  50% { background-position: 20% 100%; }
+  60% { background-position: 40% 100%; }
+  70% { background-position: 60% 100%; }
+  80% { background-position: 80% 100%; }
+  90% { background-position: 100% 100%; }
+  100% { background-position: 100% 100%; }
 }
 @keyframes archive-error {
-  0% { background-position: 0 0; }
-  50%, 100% { background-position: 100% 0; }
+  0% { background-position: 60% 33.3333%; }
+  16.6667% { background-position: 80% 33.3333%; }
+  33.3333% { background-position: 100% 33.3333%; }
+  50% { background-position: 0% 66.6667%; }
+  66.6667% { background-position: 20% 66.6667%; }
+  83.3333% { background-position: 40% 66.6667%; }
+  100% { background-position: 40% 66.6667%; }
 }
 @keyframes archive-refused {
-  0% { background-position: 0 100%; }
-  50%, 100% { background-position: 100% 100%; }
+  0% { background-position: 60% 66.6667%; }
+  11.1111% { background-position: 80% 66.6667%; }
+  22.2222% { background-position: 100% 66.6667%; }
+  33.3333% { background-position: 0% 100%; }
+  44.4444% { background-position: 20% 100%; }
+  55.5556% { background-position: 40% 100%; }
+  66.6667% { background-position: 60% 100%; }
+  77.7778% { background-position: 80% 100%; }
+  88.8889% { background-position: 100% 100%; }
+  100% { background-position: 100% 100%; }
 }
 @media (prefers-reduced-motion: reduce) {
   .archive-scene[data-state] .archive-scene__frame { animation: none; }
-  .archive-scene[data-state="searching"] .archive-scene__frame { background-position: 100% 0; }
+  .archive-scene[data-state="searching"] .archive-scene__frame { background-position: 20% 33.333333%; }
 }
