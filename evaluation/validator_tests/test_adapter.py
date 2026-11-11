@@ -81,7 +81,7 @@ class AdapterTests(unittest.TestCase):
                 self.assertEqual(bodies[-1]['max_tokens'],8192);self.assertEqual(bodies[-1]['temperature'],0)
                 with closing(sqlite3.connect(p)) as db:
                     self.assertEqual(db.execute('SELECT requests,tokens_reserved FROM budget').fetchone(),(1,37))
-                self.assertNotIn('reasoning_effort',bodies[-1])
+                self.assertEqual(bodies[-1]['reasoning_effort'],'low')  # runtime default
                 c=Client(time.monotonic()+10,dict(budget_db=p,max_requests=9,max_token_bound=10**7,max_tokens=512,temperature=0.5,reasoning_effort='low'))
                 c.complete('Return JSON.',{'x':2})
                 self.assertEqual((bodies[-1]['max_tokens'],bodies[-1]['temperature'],bodies[-1]['reasoning_effort']),(512,0.5,'low'))

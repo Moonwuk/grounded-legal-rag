@@ -52,7 +52,20 @@ def strict_json(raw):
 QUESTION_CALL_LIMIT = 4
 
 
+# Reasoning effort: measured on deepseek-flash, "low" kept accuracy on the demo
+# and the synthetic holdout and roughly halved the time. "default" omits the
+# parameter. A truncated reply whose reasoning used the token budget is retried
+# one level lower; a provider that rejects the parameter is retried without it,
+# and the parameter is not sent again in this run.
+EFFORTS = ("none", "low", "high", "max")
+DEFAULT_EFFORT = "low"
+LOWER_EFFORT = {None: "low", "max": "low", "high": "low", "low": "none"}
+REASONING_BUDGET_SHARE = 0.8
+
+
 class ProxyClient:
+    effort_rejected = False
+
     def __init__(self, deadline: float, position: int | None = None):
         self.base = env("LLM_BASE_URL", "OPENAI_BASE_URL", "BASE_URL").rstrip("/")
         self.key = env("LLM_API_KEY", "OPENAI_API_KEY")
@@ -84,10 +97,10 @@ class ProxyClient:
             "temperature": temperature,
             "max_tokens": integer("MAX_TOKENS", 8192, 256, 65536),
         }
-        effort = env("LLM_REASONING_EFFORT")
-        if effort:
-            if effort not in {"none", "low", "high", "max"}:
-                raise ProviderError("invalid_reasoning_configuration")
+        effort = env("LLM_REASONING_EFFORT", default=DEFAULT_EFFORT)
+        if effort != "default" and effort not in EFFORTS:
+            raise ProviderError("invalid_reasoning_configuration")
+        if effort in EFFORTS and not ProxyClient.effort_rejected:
             request_body["reasoning_effort"] = effort
         body = json.dumps(request_body, ensure_ascii=False).encode()
         if len(body) > 512000:
@@ -137,6 +150,19 @@ class ProxyClient:
                     # fresh attempt shares the three-attempt transport budget.
                     if not truncation_retry and attempt < 2:
                         truncation_retry = True
+                        # Reasoning that used the budget is not shortened by an
+                        # instruction about the answer; the effort level is.
+                        # Without usage details: every visible token is at least one
+                        # character, so a short visible text means hidden reasoning.
+                        message = choice.get("message")
+                        visible = message.get("content") if isinstance(message, dict) else None
+                        budget = request_body["max_tokens"]
+                        spent = event.get("reasoning_tokens")
+                        hidden = (spent >= REASONING_BUDGET_SHARE * budget if spent is not None
+                                  else len(visible if isinstance(visible, str) else "") < budget / 2)
+                        lower = LOWER_EFFORT.get(request_body.get("reasoning_effort"))
+                        if lower and not ProxyClient.effort_rejected and hidden:
+                            request_body["reasoning_effort"] = lower
                         request_body["messages"][0]["content"] += (
                             "\nПовтор после обрезки: верни только минимальный JSON по заданной схеме, "
                             "без пояснений, без повторения контекста. Сохрани необходимые условия.")
@@ -162,6 +188,13 @@ class ProxyClient:
                     "elapsed_ms":round((time.monotonic() - request_started) * 1000)}), file=sys.stderr)
                 retry = exc.headers.get("Retry-After", "")
                 exc.close()
+                if code in {400, 422} and "reasoning_effort" in request_body and attempt < 2:
+                    # The provider may not know the parameter: retry once without
+                    # it. Another cause of the error repeats and is reported.
+                    ProxyClient.effort_rejected = True
+                    del request_body["reasoning_effort"]
+                    body = json.dumps(request_body, ensure_ascii=False).encode()
+                    continue
                 if code not in {429, 500, 502, 503, 504}:
                     raise ProviderError("http_" + str(code)) from None
                 if len(retry) <= 6 and retry.isascii() and retry.isdigit():
