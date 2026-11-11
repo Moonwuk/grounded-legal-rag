@@ -1,0 +1,38 @@
+name: psb-web
+services:
+  web:
+    build:
+      context: .
+      dockerfile: web/Dockerfile
+    ports:
+      - "${WEB_BIND:-127.0.0.1}:${WEB_PORT:-8000}:8000"
+    environment:
+      LLM_BASE_URL: "${LLM_BASE_URL:-}"
+      LLM_API_KEY: "${LLM_API_KEY:-}"
+      LLM_MODEL: "${LLM_MODEL:-}"
+      WEB_WORKERS: "${WEB_WORKERS:-2}"
+      # Empty values keep the solution defaults (see README).
+      LLM_REASONING_EFFORT: "${LLM_REASONING_EFFORT:-}"
+      MAX_TOKENS: "${MAX_TOKENS:-}"
+      TEMPERATURE: "${TEMPERATURE:-}"
+      TOP_K: "${TOP_K:-}"
+      KB_PATH: /data/knowledge-base.zip
+    volumes:
+      - type: bind
+        source: ./organizer/knowledge-base.zip
+        target: /data/knowledge-base.zip
+        read_only: true
+        bind:
+          create_host_path: false
+    read_only: true
+    tmpfs:
+      - /tmp
+    cap_drop:
+      - ALL
+    security_opt:
+      - no-new-privileges:true
+    healthcheck:
+      test: ["CMD", "python", "-c", "from urllib.request import urlopen; urlopen('http://127.0.0.1:8000/healthz', timeout=2).close()"]
+      interval: 10s
+      timeout: 3s
+      retries: 5

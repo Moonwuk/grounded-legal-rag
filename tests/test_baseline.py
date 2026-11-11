@@ -16,7 +16,7 @@ ROOT=Path(__file__).resolve().parents[1]
 sys.path.insert(0,str(ROOT/'prototype'))
 from psb_corpus import load_corpus, norm, read_docx
 from psb_retrieval import Retriever
-from psb_policy import validate_candidate, approved, answer_question, TECHNICAL, render
+from psb_policy import validate_candidate, approved, answer_question, answer_structured, TECHNICAL, render
 from psb_llm import ProviderError, ProxyClient
 from solution import read_questions, write_output
 
@@ -47,6 +47,17 @@ class BaselineTests(unittest.TestCase):
     def setUpClass(cls):
         cls.docs,cls.frags=load_corpus(ROOT/'organizer/knowledge-base.zip')
         cls.r=Retriever(cls.docs,cls.frags)
+
+    def test_structured_answer_preserves_batch_text_and_source_offsets(self):
+        question = "Арендная плата Северный Склад"
+        structured = answer_structured(question, self.r, ScriptedModel([draft, VERDICT]))
+        batch = answer_question(question, self.r, ScriptedModel([draft, VERDICT]))
+        self.assertEqual((structured["text"], structured["status"]), batch)
+        self.assertEqual(structured["status"], "answer")
+        self.assertTrue(structured["sources"])
+        for number, fragment in enumerate(structured["sources"], 1):
+            self.assertIn(f"[{number}]", structured["text"])
+            self.assertEqual(fragment.text, self.r.documents[fragment.document].text[fragment.start:fragment.end])
 
     def test_corpus_source_offsets_are_exact(self):
         by_name={d.name:d for d in self.docs}
