@@ -1,0 +1,15 @@
+{
+  "scope": "Offline retrieval coverage on an author-labelled development set. NOT answer accuracy, NOT a blind benchmark, NOT competition score.",
+  "documents": 21,
+  "fragments": 1113,
+  "quarantined_lines": 1,
+  "index_seconds": 0.06378829999994196,
+  "cases_total": 37,
+  "cases_with_evidence": 32,
+  "all_evidence_cases": 32,
+  "span_recall": 1.0,
+  "median_context_characters": 6694,
+  "max_context_characters": 14027,
+  "median_retrieval_ms": 1.9436999998561078,
+  "median_evidence_json_characters": 13689
+}

@@ -1,0 +1,11 @@
+{
+  "version": "1.0.0",
+  "corpus_id": "mixed-0ba893e3363c2021",
+  "archive_sha256": "0ba893e3363c2021087f5e8a0c871b27ed9b244c2b7b1345b57647a499bc3cec",
+  "documents": 1135,
+  "origin": "mixed",
+  "parents": [
+    "synthetic-b148e60beaa44f30",
+    "public-24b8adf1546470b5"
+  ]
+}

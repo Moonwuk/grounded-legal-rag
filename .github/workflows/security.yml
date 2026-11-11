@@ -297,6 +297,8 @@ jobs:
         run: |
           mkdir -p reports
           python -m unittest discover -s tests -v 2>&1 | tee reports/tests.log
+      - name: Test evaluation adapters and validators with stub models
+        run: python -m unittest discover -s evaluation/validator_tests -v 2>&1 | tee reports/evaluation-tests.log
       - name: Check retrieval and build a fresh submission
         run: |
           python audit_retrieval.py > reports/retrieval.json
@@ -309,6 +311,7 @@ jobs:
           name: security-regression-py${{ matrix.python }}
           path: |
             reports/tests.log
+            reports/evaluation-tests.log
             reports/retrieval.json
             reports/package.json
           if-no-files-found: error

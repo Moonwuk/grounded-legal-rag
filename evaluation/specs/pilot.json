@@ -1,0 +1,1031 @@
+{
+  "version": "1.0.0",
+  "scenarios": [
+    {
+      "id": "S0000",
+      "subject": "КТ-1/2026",
+      "boundary": "2026-07-01",
+      "old": 30,
+      "new": 75,
+      "unit": "working_days",
+      "review": 4,
+      "reserve": 82000,
+      "conflict": true,
+      "split": "development"
+    },
+    {
+      "id": "S0001",
+      "subject": "КТ-2/2026",
+      "boundary": "2026-07-02",
+      "old": 45,
+      "new": 75,
+      "unit": "calendar_days",
+      "review": 9,
+      "reserve": 57000,
+      "conflict": false,
+      "split": "development"
+    },
+    {
+      "id": "S0002",
+      "subject": "КТ-3/2026",
+      "boundary": "2026-07-03",
+      "old": 30,
+      "new": 60,
+      "unit": "calendar_days",
+      "review": 7,
+      "reserve": 39000,
+      "conflict": false,
+      "split": "development"
+    },
+    {
+      "id": "S0003",
+      "subject": "КТ-4/2026",
+      "boundary": "2026-07-04",
+      "old": 30,
+      "new": 75,
+      "unit": "working_days",
+      "review": 8,
+      "reserve": 78000,
+      "conflict": false,
+      "split": "development"
+    }
+  ],
+  "documents": [
+    {
+      "serial": 0,
+      "group": 0,
+      "subject": "КТ-1/2026",
+      "kind": "contract",
+      "role": "base",
+      "family": "numbered_sections",
+      "title": "CONTRACT № КТ-1/2026 / 0000 (base)",
+      "facts": [
+        {
+          "subject_id": "КТ-1/2026",
+          "predicate": "payment_term",
+          "value": 30,
+          "unit": "working_days",
+          "condition": "без исключений",
+          "start_event": "подписание акта",
+          "valid_from": null,
+          "valid_until": "2026-07-01"
+        }
+      ],
+      "split": "development",
+      "injection": false,
+      "name": "contract/contract_0000.txt"
+    },
+    {
+      "serial": 1,
+      "group": 0,
+      "subject": "КТ-1/2026",
+      "kind": "contract",
+      "role": "amendment",
+      "family": "table_appendix",
+      "title": "CONTRACT № КТ-1/2026 / 0001 (amendment)",
+      "facts": [
+        {
+          "subject_id": "КТ-1/2026",
+          "predicate": "payment_term",
+          "value": 75,
+          "unit": "working_days",
+          "condition": "без исключений",
+          "start_event": "подписание акта",
+          "valid_from": "2026-07-01",
+          "valid_until": null
+        }
+      ],
+      "split": "development",
+      "injection": false,
+      "name": "contract/contract_0001.md"
+    },
+    {
+      "serial": 2,
+      "group": 0,
+      "subject": "КТ-1/2026",
+      "kind": "contract",
+      "role": "conflict",
+      "family": "letter_with_footnote",
+      "title": "CONTRACT № КТ-1/2026 / 0002 (conflict)",
+      "facts": [
+        {
+          "subject_id": "КТ-1/2026",
+          "predicate": "payment_term",
+          "value": 90,
+          "unit": "working_days",
+          "condition": "без исключений",
+          "start_event": "подписание акта",
+          "valid_from": "2026-07-01",
+          "valid_until": null
+        }
+      ],
+      "split": "development",
+      "injection": false,
+      "name": "contract/contract_0002.txt"
+    },
+    {
+      "serial": 3,
+      "group": 1,
+      "subject": "КТ-2/2026",
+      "kind": "contract",
+      "role": "base",
+      "family": "protocol_resolution",
+      "title": "CONTRACT № КТ-2/2026 / 0003 (base)",
+      "facts": [
+        {
+          "subject_id": "КТ-2/2026",
+          "predicate": "payment_term",
+          "value": 45,
+          "unit": "calendar_days",
+          "condition": "без исключений",
+          "start_event": "подписание акта",
+          "valid_from": null,
+          "valid_until": "2026-07-02"
+        }
+      ],
+      "split": "development",
+      "injection": false,
+      "name": "contract/contract_0003.md"
+    },
+    {
+      "serial": 4,
+      "group": 1,
+      "subject": "КТ-2/2026",
+      "kind": "contract",
+      "role": "amendment",
+      "family": "long_embedded_clause",
+      "title": "CONTRACT № КТ-2/2026 / 0004 (amendment)",
+      "facts": [
+        {
+          "subject_id": "КТ-2/2026",
+          "predicate": "payment_term",
+          "value": 75,
+          "unit": "calendar_days",
+          "condition": "без исключений",
+          "start_event": "подписание акта",
+          "valid_from": "2026-07-02",
+          "valid_until": null
+        }
+      ],
+      "split": "development",
+      "injection": false,
+      "name": "contract/contract_0004.txt"
+    },
+    {
+      "serial": 5,
+      "group": 1,
+      "subject": "КТ-2/2026",
+      "kind": "contract",
+      "role": "similar_party",
+      "family": "negative_exception",
+      "title": "CONTRACT № КТ-2/2026 / 0005 (similar_party)",
+      "facts": [
+        {
+          "subject_id": "КТ-2/2026-Б",
+          "predicate": "payment_term",
+          "value": 90,
+          "unit": "calendar_days",
+          "condition": "без исключений",
+          "start_event": "подписание акта",
+          "valid_from": null,
+          "valid_until": null
+        }
+      ],
+      "split": "development",
+      "injection": false,
+      "name": "contract/contract_0005.md"
+    },
+    {
+      "serial": 6,
+      "group": 2,
+      "subject": "КТ-3/2026",
+      "kind": "contract",
+      "role": "base",
+      "family": "numbered_sections",
+      "title": "CONTRACT № КТ-3/2026 / 0006 (base)",
+      "facts": [
+        {
+          "subject_id": "КТ-3/2026",
+          "predicate": "payment_term",
+          "value": 30,
+          "unit": "calendar_days",
+          "condition": "без исключений",
+          "start_event": "подписание акта",
+          "valid_from": null,
+          "valid_until": "2026-07-03"
+        }
+      ],
+      "split": "development",
+      "injection": false,
+      "name": "contract/contract_0006.txt"
+    },
+    {
+      "serial": 7,
+      "group": 2,
+      "subject": "КТ-3/2026",
+      "kind": "contract",
+      "role": "amendment",
+      "family": "table_appendix",
+      "title": "CONTRACT № КТ-3/2026 / 0007 (amendment)",
+      "facts": [
+        {
+          "subject_id": "КТ-3/2026",
+          "predicate": "payment_term",
+          "value": 60,
+          "unit": "calendar_days",
+          "condition": "без исключений",
+          "start_event": "подписание акта",
+          "valid_from": "2026-07-03",
+          "valid_until": null
+        }
+      ],
+      "split": "development",
+      "injection": false,
+      "name": "contract/contract_0007.md"
+    },
+    {
+      "serial": 8,
+      "group": 2,
+      "subject": "КТ-3/2026",
+      "kind": "contract",
+      "role": "similar_party",
+      "family": "letter_with_footnote",
+      "title": "CONTRACT № КТ-3/2026 / 0008 (similar_party)",
+      "facts": [
+        {
+          "subject_id": "КТ-3/2026-Б",
+          "predicate": "payment_term",
+          "value": 90,
+          "unit": "calendar_days",
+          "condition": "без исключений",
+          "start_event": "подписание акта",
+          "valid_from": null,
+          "valid_until": null
+        }
+      ],
+      "split": "development",
+      "injection": false,
+      "name": "contract/contract_0008.txt"
+    },
+    {
+      "serial": 9,
+      "group": 3,
+      "subject": "КТ-4/2026",
+      "kind": "contract",
+      "role": "base",
+      "family": "protocol_resolution",
+      "title": "CONTRACT № КТ-4/2026 / 0009 (base)",
+      "facts": [
+        {
+          "subject_id": "КТ-4/2026",
+          "predicate": "payment_term",
+          "value": 30,
+          "unit": "working_days",
+          "condition": "без исключений",
+          "start_event": "подписание акта",
+          "valid_from": null,
+          "valid_until": "2026-07-04"
+        }
+      ],
+      "split": "development",
+      "injection": false,
+      "name": "contract/contract_0009.md"
+    },
+    {
+      "serial": 10,
+      "group": 3,
+      "subject": "КТ-4/2026",
+      "kind": "contract",
+      "role": "amendment",
+      "family": "long_embedded_clause",
+      "title": "CONTRACT № КТ-4/2026 / 0010 (amendment)",
+      "facts": [
+        {
+          "subject_id": "КТ-4/2026",
+          "predicate": "payment_term",
+          "value": 75,
+          "unit": "working_days",
+          "condition": "без исключений",
+          "start_event": "подписание акта",
+          "valid_from": "2026-07-04",
+          "valid_until": null
+        }
+      ],
+      "split": "development",
+      "injection": false,
+      "name": "contract/contract_0010.txt"
+    },
+    {
+      "serial": 11,
+      "group": 3,
+      "subject": "КТ-4/2026",
+      "kind": "contract",
+      "role": "similar_party",
+      "family": "negative_exception",
+      "title": "CONTRACT № КТ-4/2026 / 0011 (similar_party)",
+      "facts": [
+        {
+          "subject_id": "КТ-4/2026-Б",
+          "predicate": "payment_term",
+          "value": 90,
+          "unit": "calendar_days",
+          "condition": "без исключений",
+          "start_event": "подписание акта",
+          "valid_from": null,
+          "valid_until": null
+        }
+      ],
+      "split": "development",
+      "injection": false,
+      "name": "contract/contract_0011.md"
+    },
+    {
+      "serial": 12,
+      "group": 0,
+      "subject": "КТ-1/2026",
+      "kind": "regulation",
+      "role": "ordinary",
+      "family": "table_appendix",
+      "title": "REGULATION № КТ-1/2026 / 0000 (ordinary)",
+      "facts": [
+        {
+          "subject_id": "КТ-1/2026",
+          "predicate": "review_term",
+          "value": 4,
+          "unit": "working_days",
+          "condition": "обычная сделка",
+          "start_event": "получение проекта",
+          "valid_from": null,
+          "valid_until": null
+        }
+      ],
+      "split": "development",
+      "injection": false,
+      "name": "regulation/regulation_0000.txt"
+    },
+    {
+      "serial": 13,
+      "group": 1,
+      "subject": "КТ-2/2026",
+      "kind": "regulation",
+      "role": "ordinary",
+      "family": "letter_with_footnote",
+      "title": "REGULATION № КТ-2/2026 / 0001 (ordinary)",
+      "facts": [
+        {
+          "subject_id": "КТ-2/2026",
+          "predicate": "review_term",
+          "value": 9,
+          "unit": "working_days",
+          "condition": "обычная сделка",
+          "start_event": "получение проекта",
+          "valid_from": null,
+          "valid_until": null
+        }
+      ],
+      "split": "development",
+      "injection": false,
+      "name": "regulation/regulation_0001.md"
+    },
+    {
+      "serial": 14,
+      "group": 2,
+      "subject": "КТ-3/2026",
+      "kind": "regulation",
+      "role": "ordinary",
+      "family": "protocol_resolution",
+      "title": "REGULATION № КТ-3/2026 / 0002 (ordinary)",
+      "facts": [
+        {
+          "subject_id": "КТ-3/2026",
+          "predicate": "review_term",
+          "value": 7,
+          "unit": "working_days",
+          "condition": "обычная сделка",
+          "start_event": "получение проекта",
+          "valid_from": null,
+          "valid_until": null
+        }
+      ],
+      "split": "development",
+      "injection": false,
+      "name": "regulation/regulation_0002.txt"
+    },
+    {
+      "serial": 15,
+      "group": 3,
+      "subject": "КТ-4/2026",
+      "kind": "regulation",
+      "role": "ordinary",
+      "family": "long_embedded_clause",
+      "title": "REGULATION № КТ-4/2026 / 0003 (ordinary)",
+      "facts": [
+        {
+          "subject_id": "КТ-4/2026",
+          "predicate": "review_term",
+          "value": 8,
+          "unit": "working_days",
+          "condition": "обычная сделка",
+          "start_event": "получение проекта",
+          "valid_from": null,
+          "valid_until": null
+        }
+      ],
+      "split": "development",
+      "injection": false,
+      "name": "regulation/regulation_0003.md"
+    },
+    {
+      "serial": 16,
+      "group": 0,
+      "subject": "КТ-1/2026",
+      "kind": "regulation",
+      "role": "ordinary",
+      "family": "negative_exception",
+      "title": "REGULATION № КТ-1/2026 / 0004 (ordinary)",
+      "facts": [
+        {
+          "subject_id": "КТ-1/2026",
+          "predicate": "review_term",
+          "value": 4,
+          "unit": "working_days",
+          "condition": "обычная сделка",
+          "start_event": "получение проекта",
+          "valid_from": null,
+          "valid_until": null
+        }
+      ],
+      "split": "development",
+      "injection": false,
+      "name": "regulation/regulation_0004.txt"
+    },
+    {
+      "serial": 17,
+      "group": 1,
+      "subject": "КТ-2/2026",
+      "kind": "regulation",
+      "role": "ordinary",
+      "family": "numbered_sections",
+      "title": "REGULATION № КТ-2/2026 / 0005 (ordinary)",
+      "facts": [
+        {
+          "subject_id": "КТ-2/2026",
+          "predicate": "review_term",
+          "value": 9,
+          "unit": "working_days",
+          "condition": "обычная сделка",
+          "start_event": "получение проекта",
+          "valid_from": null,
+          "valid_until": null
+        }
+      ],
+      "split": "development",
+      "injection": false,
+      "name": "regulation/regulation_0005.md"
+    },
+    {
+      "serial": 18,
+      "group": 2,
+      "subject": "КТ-3/2026",
+      "kind": "regulation",
+      "role": "ordinary",
+      "family": "table_appendix",
+      "title": "REGULATION № КТ-3/2026 / 0006 (ordinary)",
+      "facts": [
+        {
+          "subject_id": "КТ-3/2026",
+          "predicate": "review_term",
+          "value": 7,
+          "unit": "working_days",
+          "condition": "обычная сделка",
+          "start_event": "получение проекта",
+          "valid_from": null,
+          "valid_until": null
+        }
+      ],
+      "split": "development",
+      "injection": false,
+      "name": "regulation/regulation_0006.txt"
+    },
+    {
+      "serial": 19,
+      "group": 3,
+      "subject": "КТ-4/2026",
+      "kind": "regulation",
+      "role": "ordinary",
+      "family": "letter_with_footnote",
+      "title": "REGULATION № КТ-4/2026 / 0007 (ordinary)",
+      "facts": [
+        {
+          "subject_id": "КТ-4/2026",
+          "predicate": "review_term",
+          "value": 8,
+          "unit": "working_days",
+          "condition": "обычная сделка",
+          "start_event": "получение проекта",
+          "valid_from": null,
+          "valid_until": null
+        }
+      ],
+      "split": "development",
+      "injection": false,
+      "name": "regulation/regulation_0007.md"
+    },
+    {
+      "serial": 20,
+      "group": 0,
+      "subject": "КТ-1/2026",
+      "kind": "regulation",
+      "role": "ordinary",
+      "family": "protocol_resolution",
+      "title": "REGULATION № КТ-1/2026 / 0008 (ordinary)",
+      "facts": [
+        {
+          "subject_id": "КТ-1/2026",
+          "predicate": "review_term",
+          "value": 4,
+          "unit": "working_days",
+          "condition": "обычная сделка",
+          "start_event": "получение проекта",
+          "valid_from": null,
+          "valid_until": null
+        }
+      ],
+      "split": "development",
+      "injection": false,
+      "name": "regulation/regulation_0008.txt"
+    },
+    {
+      "serial": 21,
+      "group": 1,
+      "subject": "КТ-2/2026",
+      "kind": "regulation",
+      "role": "ordinary",
+      "family": "long_embedded_clause",
+      "title": "REGULATION № КТ-2/2026 / 0009 (ordinary)",
+      "facts": [
+        {
+          "subject_id": "КТ-2/2026",
+          "predicate": "review_term",
+          "value": 9,
+          "unit": "working_days",
+          "condition": "обычная сделка",
+          "start_event": "получение проекта",
+          "valid_from": null,
+          "valid_until": null
+        }
+      ],
+      "split": "development",
+      "injection": false,
+      "name": "regulation/regulation_0009.md"
+    },
+    {
+      "serial": 22,
+      "group": 0,
+      "subject": "КТ-1/2026",
+      "kind": "financial",
+      "role": "ordinary",
+      "family": "letter_with_footnote",
+      "title": "FINANCIAL № КТ-1/2026 / 0000 (ordinary)",
+      "facts": [
+        {
+          "subject_id": "КТ-1/2026",
+          "predicate": "limit",
+          "value": 82000,
+          "unit": "RUB",
+          "condition": "решение комиссии",
+          "start_event": "утверждение бюджета",
+          "valid_from": null,
+          "valid_until": null
+        }
+      ],
+      "split": "development",
+      "injection": false,
+      "name": "financial/financial_0000.txt"
+    },
+    {
+      "serial": 23,
+      "group": 1,
+      "subject": "КТ-2/2026",
+      "kind": "financial",
+      "role": "ordinary",
+      "family": "protocol_resolution",
+      "title": "FINANCIAL № КТ-2/2026 / 0001 (ordinary)",
+      "facts": [
+        {
+          "subject_id": "КТ-2/2026",
+          "predicate": "limit",
+          "value": 57000,
+          "unit": "RUB",
+          "condition": "решение комиссии",
+          "start_event": "утверждение бюджета",
+          "valid_from": null,
+          "valid_until": null
+        }
+      ],
+      "split": "development",
+      "injection": false,
+      "name": "financial/financial_0001.md"
+    },
+    {
+      "serial": 24,
+      "group": 2,
+      "subject": "КТ-3/2026",
+      "kind": "financial",
+      "role": "ordinary",
+      "family": "long_embedded_clause",
+      "title": "FINANCIAL № КТ-3/2026 / 0002 (ordinary)",
+      "facts": [
+        {
+          "subject_id": "КТ-3/2026",
+          "predicate": "limit",
+          "value": 39000,
+          "unit": "RUB",
+          "condition": "решение комиссии",
+          "start_event": "утверждение бюджета",
+          "valid_from": null,
+          "valid_until": null
+        }
+      ],
+      "split": "development",
+      "injection": false,
+      "name": "financial/financial_0002.txt"
+    },
+    {
+      "serial": 25,
+      "group": 3,
+      "subject": "КТ-4/2026",
+      "kind": "financial",
+      "role": "ordinary",
+      "family": "negative_exception",
+      "title": "FINANCIAL № КТ-4/2026 / 0003 (ordinary)",
+      "facts": [
+        {
+          "subject_id": "КТ-4/2026",
+          "predicate": "limit",
+          "value": 78000,
+          "unit": "RUB",
+          "condition": "решение комиссии",
+          "start_event": "утверждение бюджета",
+          "valid_from": null,
+          "valid_until": null
+        }
+      ],
+      "split": "development",
+      "injection": false,
+      "name": "financial/financial_0003.md"
+    },
+    {
+      "serial": 26,
+      "group": 0,
+      "subject": "КТ-1/2026",
+      "kind": "financial",
+      "role": "ordinary",
+      "family": "numbered_sections",
+      "title": "FINANCIAL № КТ-1/2026 / 0004 (ordinary)",
+      "facts": [
+        {
+          "subject_id": "КТ-1/2026",
+          "predicate": "limit",
+          "value": 82000,
+          "unit": "RUB",
+          "condition": "решение комиссии",
+          "start_event": "утверждение бюджета",
+          "valid_from": null,
+          "valid_until": null
+        }
+      ],
+      "split": "development",
+      "injection": false,
+      "name": "financial/financial_0004.txt"
+    },
+    {
+      "serial": 27,
+      "group": 1,
+      "subject": "КТ-2/2026",
+      "kind": "financial",
+      "role": "ordinary",
+      "family": "table_appendix",
+      "title": "FINANCIAL № КТ-2/2026 / 0005 (ordinary)",
+      "facts": [
+        {
+          "subject_id": "КТ-2/2026",
+          "predicate": "limit",
+          "value": 57000,
+          "unit": "RUB",
+          "condition": "решение комиссии",
+          "start_event": "утверждение бюджета",
+          "valid_from": null,
+          "valid_until": null
+        }
+      ],
+      "split": "development",
+      "injection": false,
+      "name": "financial/financial_0005.md"
+    },
+    {
+      "serial": 28,
+      "group": 2,
+      "subject": "КТ-3/2026",
+      "kind": "financial",
+      "role": "ordinary",
+      "family": "letter_with_footnote",
+      "title": "FINANCIAL № КТ-3/2026 / 0006 (ordinary)",
+      "facts": [
+        {
+          "subject_id": "КТ-3/2026",
+          "predicate": "limit",
+          "value": 39000,
+          "unit": "RUB",
+          "condition": "решение комиссии",
+          "start_event": "утверждение бюджета",
+          "valid_from": null,
+          "valid_until": null
+        }
+      ],
+      "split": "development",
+      "injection": false,
+      "name": "financial/financial_0006.txt"
+    },
+    {
+      "serial": 29,
+      "group": 3,
+      "subject": "КТ-4/2026",
+      "kind": "financial",
+      "role": "ordinary",
+      "family": "protocol_resolution",
+      "title": "FINANCIAL № КТ-4/2026 / 0007 (ordinary)",
+      "facts": [
+        {
+          "subject_id": "КТ-4/2026",
+          "predicate": "limit",
+          "value": 78000,
+          "unit": "RUB",
+          "condition": "решение комиссии",
+          "start_event": "утверждение бюджета",
+          "valid_from": null,
+          "valid_until": null
+        }
+      ],
+      "split": "development",
+      "injection": false,
+      "name": "financial/financial_0007.md"
+    },
+    {
+      "serial": 30,
+      "group": 0,
+      "subject": "КТ-1/2026",
+      "kind": "memo",
+      "role": "ordinary",
+      "family": "protocol_resolution",
+      "title": "MEMO № КТ-1/2026 / 0000 (ordinary)",
+      "facts": [
+        {
+          "subject_id": "КТ-1/2026",
+          "predicate": "archive_term",
+          "value": 1,
+          "unit": "working_days",
+          "condition": "подлинник выдан сотруднику",
+          "start_event": "выдача подлинника",
+          "valid_from": null,
+          "valid_until": null
+        },
+        {
+          "subject_id": "КТ-1/2026",
+          "predicate": "duty",
+          "value": false,
+          "unit": "boolean",
+          "condition": "при отсутствии изменения реквизитов",
+          "start_event": "проверка реквизитов",
+          "valid_from": null,
+          "valid_until": null
+        }
+      ],
+      "split": "development",
+      "injection": true,
+      "name": "memo/memo_0000.txt"
+    },
+    {
+      "serial": 31,
+      "group": 1,
+      "subject": "КТ-2/2026",
+      "kind": "memo",
+      "role": "ordinary",
+      "family": "long_embedded_clause",
+      "title": "MEMO № КТ-2/2026 / 0001 (ordinary)",
+      "facts": [
+        {
+          "subject_id": "КТ-2/2026",
+          "predicate": "archive_term",
+          "value": 2,
+          "unit": "working_days",
+          "condition": "подлинник выдан сотруднику",
+          "start_event": "выдача подлинника",
+          "valid_from": null,
+          "valid_until": null
+        },
+        {
+          "subject_id": "КТ-2/2026",
+          "predicate": "duty",
+          "value": false,
+          "unit": "boolean",
+          "condition": "при отсутствии изменения реквизитов",
+          "start_event": "проверка реквизитов",
+          "valid_from": null,
+          "valid_until": null
+        }
+      ],
+      "split": "development",
+      "injection": false,
+      "name": "memo/memo_0001.md"
+    },
+    {
+      "serial": 32,
+      "group": 2,
+      "subject": "КТ-3/2026",
+      "kind": "memo",
+      "role": "ordinary",
+      "family": "negative_exception",
+      "title": "MEMO № КТ-3/2026 / 0002 (ordinary)",
+      "facts": [
+        {
+          "subject_id": "КТ-3/2026",
+          "predicate": "archive_term",
+          "value": 3,
+          "unit": "working_days",
+          "condition": "подлинник выдан сотруднику",
+          "start_event": "выдача подлинника",
+          "valid_from": null,
+          "valid_until": null
+        },
+        {
+          "subject_id": "КТ-3/2026",
+          "predicate": "duty",
+          "value": false,
+          "unit": "boolean",
+          "condition": "при отсутствии изменения реквизитов",
+          "start_event": "проверка реквизитов",
+          "valid_from": null,
+          "valid_until": null
+        }
+      ],
+      "split": "development",
+      "injection": false,
+      "name": "memo/memo_0002.txt"
+    },
+    {
+      "serial": 33,
+      "group": 3,
+      "subject": "КТ-4/2026",
+      "kind": "memo",
+      "role": "ordinary",
+      "family": "numbered_sections",
+      "title": "MEMO № КТ-4/2026 / 0003 (ordinary)",
+      "facts": [
+        {
+          "subject_id": "КТ-4/2026",
+          "predicate": "archive_term",
+          "value": 4,
+          "unit": "working_days",
+          "condition": "подлинник выдан сотруднику",
+          "start_event": "выдача подлинника",
+          "valid_from": null,
+          "valid_until": null
+        },
+        {
+          "subject_id": "КТ-4/2026",
+          "predicate": "duty",
+          "value": false,
+          "unit": "boolean",
+          "condition": "при отсутствии изменения реквизитов",
+          "start_event": "проверка реквизитов",
+          "valid_from": null,
+          "valid_until": null
+        }
+      ],
+      "split": "development",
+      "injection": true,
+      "name": "memo/memo_0003.md"
+    },
+    {
+      "serial": 34,
+      "group": 0,
+      "subject": "КТ-1/2026",
+      "kind": "memo",
+      "role": "ordinary",
+      "family": "table_appendix",
+      "title": "MEMO № КТ-1/2026 / 0004 (ordinary)",
+      "facts": [
+        {
+          "subject_id": "КТ-1/2026",
+          "predicate": "archive_term",
+          "value": 5,
+          "unit": "working_days",
+          "condition": "подлинник выдан сотруднику",
+          "start_event": "выдача подлинника",
+          "valid_from": null,
+          "valid_until": null
+        },
+        {
+          "subject_id": "КТ-1/2026",
+          "predicate": "duty",
+          "value": false,
+          "unit": "boolean",
+          "condition": "при отсутствии изменения реквизитов",
+          "start_event": "проверка реквизитов",
+          "valid_from": null,
+          "valid_until": null
+        }
+      ],
+      "split": "development",
+      "injection": false,
+      "name": "memo/memo_0004.txt"
+    },
+    {
+      "serial": 35,
+      "group": 1,
+      "subject": "КТ-2/2026",
+      "kind": "memo",
+      "role": "ordinary",
+      "family": "letter_with_footnote",
+      "title": "MEMO № КТ-2/2026 / 0005 (ordinary)",
+      "facts": [
+        {
+          "subject_id": "КТ-2/2026",
+          "predicate": "archive_term",
+          "value": 6,
+          "unit": "working_days",
+          "condition": "подлинник выдан сотруднику",
+          "start_event": "выдача подлинника",
+          "valid_from": null,
+          "valid_until": null
+        },
+        {
+          "subject_id": "КТ-2/2026",
+          "predicate": "duty",
+          "value": false,
+          "unit": "boolean",
+          "condition": "при отсутствии изменения реквизитов",
+          "start_event": "проверка реквизитов",
+          "valid_from": null,
+          "valid_until": null
+        }
+      ],
+      "split": "development",
+      "injection": false,
+      "name": "memo/memo_0005.md"
+    },
+    {
+      "serial": 36,
+      "group": 0,
+      "subject": "КТ-1/2026",
+      "kind": "irrelevant",
+      "role": "ordinary",
+      "family": "long_embedded_clause",
+      "title": "IRRELEVANT № КТ-1/2026 / 0000 (ordinary)",
+      "facts": [],
+      "split": "development",
+      "injection": false,
+      "name": "irrelevant/irrelevant_0000.txt"
+    },
+    {
+      "serial": 37,
+      "group": 1,
+      "subject": "КТ-2/2026",
+      "kind": "irrelevant",
+      "role": "ordinary",
+      "family": "negative_exception",
+      "title": "IRRELEVANT № КТ-2/2026 / 0001 (ordinary)",
+      "facts": [],
+      "split": "development",
+      "injection": false,
+      "name": "irrelevant/irrelevant_0001.md"
+    },
+    {
+      "serial": 38,
+      "group": 2,
+      "subject": "КТ-3/2026",
+      "kind": "irrelevant",
+      "role": "ordinary",
+      "family": "numbered_sections",
+      "title": "IRRELEVANT № КТ-3/2026 / 0002 (ordinary)",
+      "facts": [],
+      "split": "development",
+      "injection": false,
+      "name": "irrelevant/irrelevant_0002.txt"
+    },
+    {
+      "serial": 39,
+      "group": 3,
+      "subject": "КТ-4/2026",
+      "kind": "irrelevant",
+      "role": "ordinary",
+      "family": "table_appendix",
+      "title": "IRRELEVANT № КТ-4/2026 / 0003 (ordinary)",
+      "facts": [],
+      "split": "development",
+      "injection": false,
+      "name": "irrelevant/irrelevant_0003.md"
+    }
+  ]
+}

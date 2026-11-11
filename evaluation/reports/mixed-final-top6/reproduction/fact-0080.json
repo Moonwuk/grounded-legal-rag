@@ -1,0 +1,14 @@
+{
+  "case_id": "fact-0080",
+  "question": "Возникает ли обязанность уведомления для КТ-81/2026 при отсутствии изменения реквизитов?",
+  "history": [],
+  "corpus": "evaluation\\generated_corpora\\mixed\\knowledge-base.zip",
+  "candidate_documents": [
+    "memo/memo_0080.txt"
+  ],
+  "command": "python -m evaluation.run_benchmark --corpus mixed --mode full --engine retrieval --case-id fact-0080 --run-id repro-fact-0080",
+  "caution": "candidate reduced context; full corpus is authoritative for rank reproduction",
+  "failures": [
+    "system_error"
+  ]
+}

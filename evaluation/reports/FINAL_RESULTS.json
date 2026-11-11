@@ -1,0 +1,1312 @@
+{
+  "git_commit": "b5ecfdc130c8f10aacd75a2d813b124f01e923c3",
+  "synthetic": {
+    "metrics": {
+      "raw_bm25_recall@1": {
+        "numerator": 207.5,
+        "denominator": 394,
+        "value": 0.5266497461928934
+      },
+      "raw_bm25_recall@5": {
+        "numerator": 262.0,
+        "denominator": 394,
+        "value": 0.6649746192893401
+      },
+      "raw_bm25_recall@10": {
+        "numerator": 267.0,
+        "denominator": 394,
+        "value": 0.6776649746192893
+      },
+      "production_context_sufficiency": {
+        "numerator": 374,
+        "denominator": 374,
+        "value": 1.0
+      },
+      "context_available_and_sufficient": {
+        "numerator": 374,
+        "denominator": 394,
+        "value": 0.949238578680203
+      },
+      "fact_accuracy": {
+        "numerator": 0,
+        "denominator": 0,
+        "value": null
+      },
+      "completeness": {
+        "numerator": 0,
+        "denominator": 0,
+        "value": null
+      },
+      "citation_integrity": {
+        "numerator": 0,
+        "denominator": 0,
+        "value": null
+      },
+      "citation_support_accuracy": {
+        "numerator": 0,
+        "denominator": 0,
+        "value": null
+      },
+      "false_refusal_rate": {
+        "numerator": 0,
+        "denominator": 0,
+        "value": null
+      },
+      "unsupported_answer_rate": {
+        "numerator": 0,
+        "denominator": 0,
+        "value": null
+      },
+      "correct_clarification_rate": {
+        "numerator": 0,
+        "denominator": 0,
+        "value": null
+      },
+      "temporal_accuracy": {
+        "numerator": 0,
+        "denominator": 0,
+        "value": null
+      },
+      "end_to_end_success": {
+        "numerator": 0,
+        "denominator": 0,
+        "value": null
+      },
+      "api_error_rate": {
+        "numerator": 0,
+        "denominator": 0,
+        "value": null
+      },
+      "validator_false_acceptance_rate": {
+        "numerator": 0,
+        "denominator": 0,
+        "value": null
+      },
+      "validator_false_rejection_rate": {
+        "numerator": 0,
+        "denominator": 0,
+        "value": null
+      }
+    },
+    "outcomes": {
+      "not_evaluated": 455,
+      "system_error": 45
+    },
+    "categories": {
+      "contradiction": {
+        "not_evaluated": 75
+      },
+      "fact": {
+        "not_evaluated": 90,
+        "system_error": 10
+      },
+      "missing_information": {
+        "not_evaluated": 75
+      },
+      "multi_document": {
+        "not_evaluated": 100
+      },
+      "security": {
+        "system_error": 35,
+        "not_evaluated": 40
+      },
+      "temporal": {
+        "not_evaluated": 75
+      }
+    },
+    "failures": {
+      "system_error": 45
+    },
+    "not_evaluated_reasons": {
+      "generation_not_run": 455
+    },
+    "latency": {
+      "median_seconds": 0.6097688499999094,
+      "p95_seconds": 0.852835099999993
+    },
+    "requests": 0,
+    "usage": {},
+    "cases": 500,
+    "system_error_codes": {
+      "evidence_size_limit": 45
+    },
+    "system_error_categories": {
+      "fact": 10,
+      "security": 35
+    }
+  },
+  "mixed": {
+    "metrics": {
+      "raw_bm25_recall@1": {
+        "numerator": 208.5,
+        "denominator": 394,
+        "value": 0.5291878172588832
+      },
+      "raw_bm25_recall@5": {
+        "numerator": 271.5,
+        "denominator": 394,
+        "value": 0.6890862944162437
+      },
+      "raw_bm25_recall@10": {
+        "numerator": 275.5,
+        "denominator": 394,
+        "value": 0.699238578680203
+      },
+      "production_context_sufficiency": {
+        "numerator": 374,
+        "denominator": 374,
+        "value": 1.0
+      },
+      "context_available_and_sufficient": {
+        "numerator": 374,
+        "denominator": 394,
+        "value": 0.949238578680203
+      },
+      "fact_accuracy": {
+        "numerator": 0,
+        "denominator": 0,
+        "value": null
+      },
+      "completeness": {
+        "numerator": 0,
+        "denominator": 0,
+        "value": null
+      },
+      "citation_integrity": {
+        "numerator": 0,
+        "denominator": 0,
+        "value": null
+      },
+      "citation_support_accuracy": {
+        "numerator": 0,
+        "denominator": 0,
+        "value": null
+      },
+      "false_refusal_rate": {
+        "numerator": 0,
+        "denominator": 0,
+        "value": null
+      },
+      "unsupported_answer_rate": {
+        "numerator": 0,
+        "denominator": 0,
+        "value": null
+      },
+      "correct_clarification_rate": {
+        "numerator": 0,
+        "denominator": 0,
+        "value": null
+      },
+      "temporal_accuracy": {
+        "numerator": 0,
+        "denominator": 0,
+        "value": null
+      },
+      "end_to_end_success": {
+        "numerator": 0,
+        "denominator": 0,
+        "value": null
+      },
+      "api_error_rate": {
+        "numerator": 0,
+        "denominator": 0,
+        "value": null
+      },
+      "validator_false_acceptance_rate": {
+        "numerator": 0,
+        "denominator": 0,
+        "value": null
+      },
+      "validator_false_rejection_rate": {
+        "numerator": 0,
+        "denominator": 0,
+        "value": null
+      }
+    },
+    "outcomes": {
+      "not_evaluated": 455,
+      "system_error": 45
+    },
+    "categories": {
+      "contradiction": {
+        "not_evaluated": 75
+      },
+      "fact": {
+        "not_evaluated": 90,
+        "system_error": 10
+      },
+      "missing_information": {
+        "not_evaluated": 75
+      },
+      "multi_document": {
+        "not_evaluated": 100
+      },
+      "security": {
+        "system_error": 35,
+        "not_evaluated": 40
+      },
+      "temporal": {
+        "not_evaluated": 75
+      }
+    },
+    "failures": {
+      "system_error": 45
+    },
+    "not_evaluated_reasons": {
+      "generation_not_run": 455
+    },
+    "latency": {
+      "median_seconds": 1.2418420000001333,
+      "p95_seconds": 2.3159654999999475
+    },
+    "requests": 0,
+    "usage": {},
+    "cases": 500,
+    "system_error_codes": {
+      "evidence_size_limit": 45
+    },
+    "system_error_categories": {
+      "fact": 10,
+      "security": 35
+    }
+  },
+  "public": {
+    "version": "1.0.0",
+    "git_commit": "b5ecfdc130c8f10aacd75a2d813b124f01e923c3",
+    "runtime_sha256": "e74860d250de51d8b0e0b43d2eb5ac11513ea9bf090d593ed07613650302cea5",
+    "evaluation_sha256": "20607e3dbe811f7d150e151b9540f8cce9e988831a91b49d2fa46df43c615de9",
+    "corpus_id": "public-24b8adf1546470b5",
+    "corpus_sha256": "24b8adf1546470b503ffc1d7f4171f2059a2ea1c17bae41ec644216884cb7641",
+    "gold_sha256": "9e99549f00f4f619f73a1758cc5d02f3714b782a16eb030e7f89975ee5846ecf",
+    "gold_version": "1.0.0",
+    "questions_sha256": "96bcf5d47c7d2a4f5f6e8c4cf449fded13e50364936d52e1ce64d4bbba62fd89",
+    "selection_sha256": "ea66abcedfe96a823a2aa422d0402d878e4f343ff5887b7e4ddb0d9c0e7e5083",
+    "documents": 135,
+    "questions_selected": 20,
+    "mode": "full",
+    "engine": "retrieval",
+    "model": null,
+    "provider_base_url": null,
+    "config": {
+      "top_k": 6,
+      "workers": 4,
+      "timeout": 30,
+      "case_seconds": 240,
+      "max_tokens": 2048,
+      "temperature": 0,
+      "max_requests": 60,
+      "max_token_bound": 3000000,
+      "max_cost": null,
+      "input_price_per_million": 0,
+      "output_price_per_million": 0,
+      "save_responses": true,
+      "bm25_k1": 1.5,
+      "bm25_b": 0.75,
+      "note": "No prices guessed. Set both unit prices to enforce monetary cap. Token bound reserves UTF-8 request bytes plus max_tokens per HTTP attempt; conservative, not billing.",
+      "engine": "retrieval"
+    },
+    "fingerprint": "7646808d2d2bcfe71589fe7801f94f5343b2f186ea41ccb16324b10dd0e48ac0",
+    "started_utc": "2026-11-10T10:17:53.851139+00:00",
+    "elapsed_seconds": 7.8830596000002515,
+    "organizer_unchanged": true,
+    "budget": {
+      "requests": 0,
+      "tokens_reserved": 0,
+      "cost_reserved": 0.0
+    },
+    "isolation": "fresh subprocess per case; only copied runtime, corpus and public question; no gold/specs copied",
+    "api_status": "not_requested",
+    "metrics": {
+      "raw_bm25_recall@1": {
+        "numerator": 19.0,
+        "denominator": 20,
+        "value": 0.95
+      },
+      "raw_bm25_recall@5": {
+        "numerator": 20.0,
+        "denominator": 20,
+        "value": 1.0
+      },
+      "raw_bm25_recall@10": {
+        "numerator": 20.0,
+        "denominator": 20,
+        "value": 1.0
+      },
+      "production_context_sufficiency": {
+        "numerator": 20,
+        "denominator": 20,
+        "value": 1.0
+      },
+      "context_available_and_sufficient": {
+        "numerator": 20,
+        "denominator": 20,
+        "value": 1.0
+      },
+      "fact_accuracy": {
+        "numerator": 0,
+        "denominator": 0,
+        "value": null
+      },
+      "completeness": {
+        "numerator": 0,
+        "denominator": 0,
+        "value": null
+      },
+      "citation_integrity": {
+        "numerator": 0,
+        "denominator": 0,
+        "value": null
+      },
+      "citation_support_accuracy": {
+        "numerator": 0,
+        "denominator": 0,
+        "value": null
+      },
+      "false_refusal_rate": {
+        "numerator": 0,
+        "denominator": 0,
+        "value": null
+      },
+      "unsupported_answer_rate": {
+        "numerator": 0,
+        "denominator": 0,
+        "value": null
+      },
+      "correct_clarification_rate": {
+        "numerator": 0,
+        "denominator": 0,
+        "value": null
+      },
+      "temporal_accuracy": {
+        "numerator": 0,
+        "denominator": 0,
+        "value": null
+      },
+      "end_to_end_success": {
+        "numerator": 0,
+        "denominator": 0,
+        "value": null
+      },
+      "api_error_rate": {
+        "numerator": 0,
+        "denominator": 0,
+        "value": null
+      },
+      "validator_false_acceptance_rate": {
+        "numerator": 0,
+        "denominator": 7,
+        "value": 0.0
+      },
+      "validator_false_rejection_rate": {
+        "numerator": 0,
+        "denominator": 4,
+        "value": 0.0
+      }
+    },
+    "outcomes": {
+      "not_evaluated": 20
+    },
+    "categories": {
+      "public_span_retrieval": {
+        "not_evaluated": 20
+      }
+    },
+    "failures": {},
+    "not_evaluated_reasons": {
+      "generation_not_run": 20
+    },
+    "latency": {
+      "median_seconds": 1.1647341999998844,
+      "p95_seconds": 1.532849400000032
+    },
+    "requests": 0,
+    "usage": {},
+    "cases_completed": 20,
+    "scope": "Local experiment, not official competition Score. Raw BM25 rank is a separate diagnostic from production grouped context."
+  },
+  "comparison": {
+    "comparable": true,
+    "runs": [
+      {
+        "version": "1.0.0",
+        "git_commit": "b5ecfdc130c8f10aacd75a2d813b124f01e923c3",
+        "runtime_sha256": "e74860d250de51d8b0e0b43d2eb5ac11513ea9bf090d593ed07613650302cea5",
+        "evaluation_sha256": "27f972dffcb206b760cea64f7f2d509492ef4120410dbfdaa017708388ee22b0",
+        "validator_sha256": "cb54eb6fc3ea42dbc381f9f5a5e453d3144a0c0e27cd2766099c1c53e9b44b1c",
+        "retrieval_adapter_sha256": "a01827e9828dc7bbfa0ee470e5a6de28c472db69b0b9cf2a23e143c1506641e3",
+        "corpus_id": "synthetic-080b083c21e00acd",
+        "corpus_sha256": "4992f489770051e3502af664eda5adc90ca776c24ba74245c0079d69d6e7963f",
+        "gold_sha256": "06ca02da278771714d8f95ff369928b8a20195cf04fbe1616a9441d7ed7153a0",
+        "gold_version": "1.0.0",
+        "questions_sha256": "e923efab2d5b9466d5f6e366247febed78e2fcda6e3879af25ef180470b4da15",
+        "selection_sha256": "a540b7aa7ff47e5679bb5e1c09d5ea285c97827ac83ee0ce256ea33b89fbe278",
+        "documents": 1000,
+        "questions_selected": 60,
+        "mode": "full",
+        "engine": "retrieval",
+        "model": null,
+        "provider_base_url": null,
+        "config": {
+          "top_k": 1,
+          "workers": 4,
+          "timeout": 30,
+          "case_seconds": 240,
+          "max_tokens": 2048,
+          "temperature": 0,
+          "max_requests": 60,
+          "max_token_bound": 3000000,
+          "max_cost": null,
+          "input_price_per_million": 0,
+          "output_price_per_million": 0,
+          "save_responses": true,
+          "bm25_k1": 1.5,
+          "bm25_b": 0.75,
+          "note": "No prices guessed. Set both unit prices to enforce monetary cap. Token bound reserves UTF-8 request bytes plus max_tokens per HTTP attempt; conservative, not billing.",
+          "engine": "retrieval"
+        },
+        "fingerprint": "27b4c4e20ce9e7acda06be107f8677ded8160d2355c73bb620c95f294345abd1",
+        "started_utc": "2026-11-10T10:30:13.871789+00:00",
+        "cases_not_run": 0,
+        "elapsed_seconds": 8.725581600000169,
+        "organizer_unchanged": true,
+        "budget": {
+          "requests": 0,
+          "tokens_reserved": 0,
+          "cost_reserved": 0.0
+        },
+        "isolation": "fresh subprocess per case; only copied runtime, corpus and public question; no gold/specs copied",
+        "api_status": "not_requested",
+        "metrics": {
+          "raw_bm25_recall@1": {
+            "numerator": 20.0,
+            "denominator": 47,
+            "value": 0.425531914893617
+          },
+          "raw_bm25_recall@5": {
+            "numerator": 28.5,
+            "denominator": 47,
+            "value": 0.6063829787234043
+          },
+          "raw_bm25_recall@10": {
+            "numerator": 31.0,
+            "denominator": 47,
+            "value": 0.6595744680851063
+          },
+          "production_context_sufficiency": {
+            "numerator": 47,
+            "denominator": 47,
+            "value": 1.0
+          },
+          "context_available_and_sufficient": {
+            "numerator": 47,
+            "denominator": 47,
+            "value": 1.0
+          },
+          "fact_accuracy": {
+            "numerator": 0,
+            "denominator": 0,
+            "value": null
+          },
+          "completeness": {
+            "numerator": 0,
+            "denominator": 0,
+            "value": null
+          },
+          "citation_integrity": {
+            "numerator": 0,
+            "denominator": 0,
+            "value": null
+          },
+          "citation_support_accuracy": {
+            "numerator": 0,
+            "denominator": 0,
+            "value": null
+          },
+          "false_refusal_rate": {
+            "numerator": 0,
+            "denominator": 0,
+            "value": null
+          },
+          "unsupported_answer_rate": {
+            "numerator": 0,
+            "denominator": 0,
+            "value": null
+          },
+          "correct_clarification_rate": {
+            "numerator": 0,
+            "denominator": 0,
+            "value": null
+          },
+          "temporal_accuracy": {
+            "numerator": 0,
+            "denominator": 0,
+            "value": null
+          },
+          "end_to_end_success": {
+            "numerator": 0,
+            "denominator": 0,
+            "value": null
+          },
+          "api_error_rate": {
+            "numerator": 0,
+            "denominator": 0,
+            "value": null
+          },
+          "validator_false_acceptance_rate": {
+            "numerator": 0,
+            "denominator": 7,
+            "value": 0.0
+          },
+          "validator_false_rejection_rate": {
+            "numerator": 0,
+            "denominator": 4,
+            "value": 0.0
+          }
+        },
+        "outcomes": {
+          "not_evaluated": 60
+        },
+        "categories": {
+          "contradiction": {
+            "not_evaluated": 10
+          },
+          "fact": {
+            "not_evaluated": 10
+          },
+          "missing_information": {
+            "not_evaluated": 10
+          },
+          "multi_document": {
+            "not_evaluated": 10
+          },
+          "security": {
+            "not_evaluated": 10
+          },
+          "temporal": {
+            "not_evaluated": 10
+          }
+        },
+        "failures": {},
+        "not_evaluated_reasons": {
+          "generation_not_run": 60
+        },
+        "latency": {
+          "median_seconds": 0.4165155499999855,
+          "p95_seconds": 0.4558697000002212
+        },
+        "requests": 0,
+        "usage": {},
+        "cases_completed": 60,
+        "scope": "Local experiment, not official competition Score. Raw BM25 rank is a separate diagnostic from production grouped context."
+      },
+      {
+        "version": "1.0.0",
+        "git_commit": "b5ecfdc130c8f10aacd75a2d813b124f01e923c3",
+        "runtime_sha256": "e74860d250de51d8b0e0b43d2eb5ac11513ea9bf090d593ed07613650302cea5",
+        "evaluation_sha256": "27f972dffcb206b760cea64f7f2d509492ef4120410dbfdaa017708388ee22b0",
+        "validator_sha256": "cb54eb6fc3ea42dbc381f9f5a5e453d3144a0c0e27cd2766099c1c53e9b44b1c",
+        "retrieval_adapter_sha256": "a01827e9828dc7bbfa0ee470e5a6de28c472db69b0b9cf2a23e143c1506641e3",
+        "corpus_id": "synthetic-080b083c21e00acd",
+        "corpus_sha256": "4992f489770051e3502af664eda5adc90ca776c24ba74245c0079d69d6e7963f",
+        "gold_sha256": "06ca02da278771714d8f95ff369928b8a20195cf04fbe1616a9441d7ed7153a0",
+        "gold_version": "1.0.0",
+        "questions_sha256": "e923efab2d5b9466d5f6e366247febed78e2fcda6e3879af25ef180470b4da15",
+        "selection_sha256": "a540b7aa7ff47e5679bb5e1c09d5ea285c97827ac83ee0ce256ea33b89fbe278",
+        "documents": 1000,
+        "questions_selected": 60,
+        "mode": "full",
+        "engine": "retrieval",
+        "model": null,
+        "provider_base_url": null,
+        "config": {
+          "top_k": 6,
+          "workers": 4,
+          "timeout": 30,
+          "case_seconds": 240,
+          "max_tokens": 2048,
+          "temperature": 0,
+          "max_requests": 60,
+          "max_token_bound": 3000000,
+          "max_cost": null,
+          "input_price_per_million": 0,
+          "output_price_per_million": 0,
+          "save_responses": true,
+          "bm25_k1": 1.5,
+          "bm25_b": 0.75,
+          "note": "No prices guessed. Set both unit prices to enforce monetary cap. Token bound reserves UTF-8 request bytes plus max_tokens per HTTP attempt; conservative, not billing.",
+          "engine": "retrieval"
+        },
+        "fingerprint": "3bf0326881159c20abc0d953e192b6c62ddff25bb89406351ec0e117f8506be3",
+        "started_utc": "2026-11-10T10:30:22.729470+00:00",
+        "cases_not_run": 0,
+        "elapsed_seconds": 8.86716000000024,
+        "organizer_unchanged": true,
+        "budget": {
+          "requests": 0,
+          "tokens_reserved": 0,
+          "cost_reserved": 0.0
+        },
+        "isolation": "fresh subprocess per case; only copied runtime, corpus and public question; no gold/specs copied",
+        "api_status": "not_requested",
+        "metrics": {
+          "raw_bm25_recall@1": {
+            "numerator": 20.0,
+            "denominator": 47,
+            "value": 0.425531914893617
+          },
+          "raw_bm25_recall@5": {
+            "numerator": 28.5,
+            "denominator": 47,
+            "value": 0.6063829787234043
+          },
+          "raw_bm25_recall@10": {
+            "numerator": 31.0,
+            "denominator": 47,
+            "value": 0.6595744680851063
+          },
+          "production_context_sufficiency": {
+            "numerator": 44,
+            "denominator": 44,
+            "value": 1.0
+          },
+          "context_available_and_sufficient": {
+            "numerator": 44,
+            "denominator": 47,
+            "value": 0.9361702127659575
+          },
+          "fact_accuracy": {
+            "numerator": 0,
+            "denominator": 0,
+            "value": null
+          },
+          "completeness": {
+            "numerator": 0,
+            "denominator": 0,
+            "value": null
+          },
+          "citation_integrity": {
+            "numerator": 0,
+            "denominator": 0,
+            "value": null
+          },
+          "citation_support_accuracy": {
+            "numerator": 0,
+            "denominator": 0,
+            "value": null
+          },
+          "false_refusal_rate": {
+            "numerator": 0,
+            "denominator": 0,
+            "value": null
+          },
+          "unsupported_answer_rate": {
+            "numerator": 0,
+            "denominator": 0,
+            "value": null
+          },
+          "correct_clarification_rate": {
+            "numerator": 0,
+            "denominator": 0,
+            "value": null
+          },
+          "temporal_accuracy": {
+            "numerator": 0,
+            "denominator": 0,
+            "value": null
+          },
+          "end_to_end_success": {
+            "numerator": 0,
+            "denominator": 0,
+            "value": null
+          },
+          "api_error_rate": {
+            "numerator": 0,
+            "denominator": 0,
+            "value": null
+          },
+          "validator_false_acceptance_rate": {
+            "numerator": 0,
+            "denominator": 7,
+            "value": 0.0
+          },
+          "validator_false_rejection_rate": {
+            "numerator": 0,
+            "denominator": 4,
+            "value": 0.0
+          }
+        },
+        "outcomes": {
+          "not_evaluated": 53,
+          "system_error": 7
+        },
+        "categories": {
+          "contradiction": {
+            "not_evaluated": 10
+          },
+          "fact": {
+            "not_evaluated": 10
+          },
+          "missing_information": {
+            "not_evaluated": 10
+          },
+          "multi_document": {
+            "not_evaluated": 10
+          },
+          "security": {
+            "system_error": 7,
+            "not_evaluated": 3
+          },
+          "temporal": {
+            "not_evaluated": 10
+          }
+        },
+        "failures": {
+          "system_error": 7
+        },
+        "not_evaluated_reasons": {
+          "generation_not_run": 53
+        },
+        "latency": {
+          "median_seconds": 0.4190814000000955,
+          "p95_seconds": 0.4648157000001447
+        },
+        "requests": 0,
+        "usage": {},
+        "cases_completed": 60,
+        "scope": "Local experiment, not official competition Score. Raw BM25 rank is a separate diagnostic from production grouped context."
+      },
+      {
+        "version": "1.0.0",
+        "git_commit": "b5ecfdc130c8f10aacd75a2d813b124f01e923c3",
+        "runtime_sha256": "e74860d250de51d8b0e0b43d2eb5ac11513ea9bf090d593ed07613650302cea5",
+        "evaluation_sha256": "27f972dffcb206b760cea64f7f2d509492ef4120410dbfdaa017708388ee22b0",
+        "validator_sha256": "cb54eb6fc3ea42dbc381f9f5a5e453d3144a0c0e27cd2766099c1c53e9b44b1c",
+        "retrieval_adapter_sha256": "a01827e9828dc7bbfa0ee470e5a6de28c472db69b0b9cf2a23e143c1506641e3",
+        "corpus_id": "synthetic-080b083c21e00acd",
+        "corpus_sha256": "4992f489770051e3502af664eda5adc90ca776c24ba74245c0079d69d6e7963f",
+        "gold_sha256": "06ca02da278771714d8f95ff369928b8a20195cf04fbe1616a9441d7ed7153a0",
+        "gold_version": "1.0.0",
+        "questions_sha256": "e923efab2d5b9466d5f6e366247febed78e2fcda6e3879af25ef180470b4da15",
+        "selection_sha256": "a540b7aa7ff47e5679bb5e1c09d5ea285c97827ac83ee0ce256ea33b89fbe278",
+        "documents": 1000,
+        "questions_selected": 60,
+        "mode": "full",
+        "engine": "retrieval",
+        "model": null,
+        "provider_base_url": null,
+        "config": {
+          "top_k": 10,
+          "workers": 4,
+          "timeout": 30,
+          "case_seconds": 240,
+          "max_tokens": 2048,
+          "temperature": 0,
+          "max_requests": 60,
+          "max_token_bound": 3000000,
+          "max_cost": null,
+          "input_price_per_million": 0,
+          "output_price_per_million": 0,
+          "save_responses": true,
+          "bm25_k1": 1.5,
+          "bm25_b": 0.75,
+          "note": "No prices guessed. Set both unit prices to enforce monetary cap. Token bound reserves UTF-8 request bytes plus max_tokens per HTTP attempt; conservative, not billing.",
+          "engine": "retrieval"
+        },
+        "fingerprint": "aaeacf8268d656ea58b3f45636fb1b5949023d3257af007a3b264cab860664a8",
+        "started_utc": "2026-11-10T10:30:31.742044+00:00",
+        "cases_not_run": 0,
+        "elapsed_seconds": 9.216778500000146,
+        "organizer_unchanged": true,
+        "budget": {
+          "requests": 0,
+          "tokens_reserved": 0,
+          "cost_reserved": 0.0
+        },
+        "isolation": "fresh subprocess per case; only copied runtime, corpus and public question; no gold/specs copied",
+        "api_status": "not_requested",
+        "metrics": {
+          "raw_bm25_recall@1": {
+            "numerator": 20.0,
+            "denominator": 47,
+            "value": 0.425531914893617
+          },
+          "raw_bm25_recall@5": {
+            "numerator": 28.5,
+            "denominator": 47,
+            "value": 0.6063829787234043
+          },
+          "raw_bm25_recall@10": {
+            "numerator": 31.0,
+            "denominator": 47,
+            "value": 0.6595744680851063
+          },
+          "production_context_sufficiency": {
+            "numerator": 25,
+            "denominator": 25,
+            "value": 1.0
+          },
+          "context_available_and_sufficient": {
+            "numerator": 25,
+            "denominator": 47,
+            "value": 0.5319148936170213
+          },
+          "fact_accuracy": {
+            "numerator": 0,
+            "denominator": 0,
+            "value": null
+          },
+          "completeness": {
+            "numerator": 0,
+            "denominator": 0,
+            "value": null
+          },
+          "citation_integrity": {
+            "numerator": 0,
+            "denominator": 0,
+            "value": null
+          },
+          "citation_support_accuracy": {
+            "numerator": 0,
+            "denominator": 0,
+            "value": null
+          },
+          "false_refusal_rate": {
+            "numerator": 0,
+            "denominator": 0,
+            "value": null
+          },
+          "unsupported_answer_rate": {
+            "numerator": 0,
+            "denominator": 0,
+            "value": null
+          },
+          "correct_clarification_rate": {
+            "numerator": 0,
+            "denominator": 0,
+            "value": null
+          },
+          "temporal_accuracy": {
+            "numerator": 0,
+            "denominator": 0,
+            "value": null
+          },
+          "end_to_end_success": {
+            "numerator": 0,
+            "denominator": 0,
+            "value": null
+          },
+          "api_error_rate": {
+            "numerator": 0,
+            "denominator": 0,
+            "value": null
+          },
+          "validator_false_acceptance_rate": {
+            "numerator": 0,
+            "denominator": 7,
+            "value": 0.0
+          },
+          "validator_false_rejection_rate": {
+            "numerator": 0,
+            "denominator": 4,
+            "value": 0.0
+          }
+        },
+        "outcomes": {
+          "system_error": 27,
+          "not_evaluated": 33
+        },
+        "categories": {
+          "contradiction": {
+            "system_error": 2,
+            "not_evaluated": 8
+          },
+          "fact": {
+            "system_error": 10
+          },
+          "missing_information": {
+            "not_evaluated": 7,
+            "system_error": 3
+          },
+          "multi_document": {
+            "not_evaluated": 8,
+            "system_error": 2
+          },
+          "security": {
+            "system_error": 8,
+            "not_evaluated": 2
+          },
+          "temporal": {
+            "not_evaluated": 8,
+            "system_error": 2
+          }
+        },
+        "failures": {
+          "system_error": 27
+        },
+        "not_evaluated_reasons": {
+          "generation_not_run": 33
+        },
+        "latency": {
+          "median_seconds": 0.42715835000012703,
+          "p95_seconds": 0.4773176000003332
+        },
+        "requests": 0,
+        "usage": {},
+        "cases_completed": 60,
+        "scope": "Local experiment, not official competition Score. Raw BM25 rank is a separate diagnostic from production grouped context."
+      }
+    ]
+  },
+  "calibration": {
+    "validator_false_acceptance_rate": {
+      "numerator": 0,
+      "denominator": 7,
+      "value": 0.0
+    },
+    "validator_false_rejection_rate": {
+      "numerator": 0,
+      "denominator": 4,
+      "value": 0.0
+    },
+    "permitted_not_evaluated": 0,
+    "bad_outcomes": [
+      "fail",
+      "fail",
+      "fail",
+      "fail",
+      "fail",
+      "fail",
+      "fail"
+    ],
+    "good_outcomes": [
+      "pass",
+      "pass",
+      "pass",
+      "pass"
+    ],
+    "scope": "Finite handwritten anchor mutations; not a universal semantic accuracy claim"
+  },
+  "diagnostic": {
+    "error": "evidence_size_limit",
+    "telemetry": {
+      "context_fragments": 516,
+      "context_characters": 96777,
+      "context_documents": 60,
+      "seed_hits": 6,
+      "connected_documents": 60
+    },
+    "minimal": {
+      "case_id": "fact-0050",
+      "original_documents": 1000,
+      "remaining_documents": 60,
+      "files": [
+        "contract/contract_0000.txt",
+        "contract/contract_0001.md",
+        "contract/contract_0002.txt",
+        "contract/contract_0003.md",
+        "contract/contract_0004.txt",
+        "contract/contract_0005.md",
+        "contract/contract_0006.txt",
+        "contract/contract_0007.md",
+        "contract/contract_0008.txt",
+        "contract/contract_0015.md",
+        "contract/contract_0016.txt",
+        "contract/contract_0017.md",
+        "contract/contract_0018.txt",
+        "contract/contract_0019.md",
+        "contract/contract_0020.txt",
+        "contract/contract_0021.md",
+        "contract/contract_0022.txt",
+        "contract/contract_0023.md",
+        "financial/financial_0000.txt",
+        "financial/financial_0001.md",
+        "financial/financial_0002.txt",
+        "financial/financial_0005.md",
+        "financial/financial_0006.txt",
+        "financial/financial_0007.md",
+        "irrelevant/irrelevant_0000.txt",
+        "irrelevant/irrelevant_0001.md",
+        "irrelevant/irrelevant_0002.txt",
+        "irrelevant/irrelevant_0005.md",
+        "irrelevant/irrelevant_0006.txt",
+        "irrelevant/irrelevant_0007.md",
+        "memo/memo_0000.txt",
+        "memo/memo_0001.md",
+        "memo/memo_0002.txt",
+        "memo/memo_0005.md",
+        "memo/memo_0006.txt",
+        "memo/memo_0007.md",
+        "memo/memo_0100.txt",
+        "memo/memo_0101.md",
+        "memo/memo_0102.txt",
+        "memo/memo_0105.md",
+        "memo/memo_0106.txt",
+        "memo/memo_0107.md",
+        "regulation/regulation_0000.txt",
+        "regulation/regulation_0001.md",
+        "regulation/regulation_0002.txt",
+        "regulation/regulation_0005.md",
+        "regulation/regulation_0006.txt",
+        "regulation/regulation_0007.md",
+        "regulation/regulation_0100.txt",
+        "regulation/regulation_0101.md",
+        "regulation/regulation_0102.txt",
+        "regulation/regulation_0105.md",
+        "regulation/regulation_0106.txt",
+        "regulation/regulation_0107.md",
+        "regulation/regulation_0200.txt",
+        "regulation/regulation_0201.md",
+        "regulation/regulation_0202.txt",
+        "regulation/regulation_0205.md",
+        "regulation/regulation_0206.txt",
+        "regulation/regulation_0207.md"
+      ],
+      "expected_exception": "evidence_size_limit",
+      "question": "Возникает ли обязанность уведомления для КТ-51/2026 при отсутствии изменения реквизитов?",
+      "top_k": 6,
+      "checks": 1390,
+      "one_deletion_minimal": true,
+      "sha256": "cdd9c1ebcd453e1de3f34f0498637ea644303b8ae9c288d37cfd679b686fd84e",
+      "scope": "1-minimal observed exception under deterministic replay, not global cardinality minimum"
+    }
+  },
+  "formats": [
+    {
+      "source": "https://raw.githubusercontent.com/General-Legal/legal-templates/6d6805425eabd41bed86fc1e2ec51612760f716c/docx-originals/privacy-policy-gdpr-enhanced.docx",
+      "repository": "General-Legal/legal-templates",
+      "license": "CC0-1.0",
+      "commit": "6d6805425eabd41bed86fc1e2ec51612760f716c",
+      "origin": "public",
+      "original_format": ".docx",
+      "downloaded_utc": "2026-11-10T10:31:33.826778+00:00",
+      "language": "en",
+      "sha256": "f9513183be44466748d0346e6dcd7113489bf9cfbcf4ff183652c557109a1a28",
+      "downloaded": true,
+      "indexed": false,
+      "reason_not_indexed": "alternate format of an existing conceptual document; avoid duplicates",
+      "status": "parse_not_verified",
+      "error": "docx_notes_not_supported",
+      "license_url": "https://raw.githubusercontent.com/General-Legal/legal-templates/6d6805425eabd41bed86fc1e2ec51612760f716c/LICENSE"
+    },
+    {
+      "source": "https://raw.githubusercontent.com/General-Legal/legal-templates/6d6805425eabd41bed86fc1e2ec51612760f716c/docx-originals/privacy-policy-u-s-only.docx",
+      "repository": "General-Legal/legal-templates",
+      "license": "CC0-1.0",
+      "commit": "6d6805425eabd41bed86fc1e2ec51612760f716c",
+      "origin": "public",
+      "original_format": ".docx",
+      "downloaded_utc": "2026-11-10T10:31:33.829386+00:00",
+      "language": "en",
+      "sha256": "8c0f67cde316dfc11e9d0cc58e2a2b5a5f3068b523e7fdcd0b2be08f8954b7db",
+      "downloaded": true,
+      "indexed": false,
+      "reason_not_indexed": "alternate format of an existing conceptual document; avoid duplicates",
+      "parser": "production read_docx",
+      "status": "parsed",
+      "characters": 36155,
+      "nonempty": true,
+      "license_url": "https://raw.githubusercontent.com/General-Legal/legal-templates/6d6805425eabd41bed86fc1e2ec51612760f716c/LICENSE"
+    },
+    {
+      "source": "https://raw.githubusercontent.com/mozilla/legal-docs/68c62051e7ca282a023a2560ca72edf227097a1f/ru/pdf/mdn_plus_privacy.pdf",
+      "repository": "mozilla/legal-docs",
+      "license": "CC-BY-SA-3.0",
+      "commit": "68c62051e7ca282a023a2560ca72edf227097a1f",
+      "origin": "public",
+      "original_format": ".pdf",
+      "downloaded_utc": "2026-11-10T10:31:33.846578+00:00",
+      "language": "ru",
+      "sha256": "421cb0d5a4434466ae440cef9b4b46516d42ede8c72812c85e7f0da2cfd00c91",
+      "downloaded": true,
+      "indexed": false,
+      "reason_not_indexed": "alternate format of an existing conceptual document; avoid duplicates",
+      "parser": "optional pypdf; PDF not supported by production loader",
+      "status": "parsed",
+      "characters": 3524,
+      "nonempty": true,
+      "license_url": "https://raw.githubusercontent.com/mozilla/legal-docs/68c62051e7ca282a023a2560ca72edf227097a1f/LICENSE.md"
+    },
+    {
+      "source": "https://raw.githubusercontent.com/mozilla/legal-docs/68c62051e7ca282a023a2560ca72edf227097a1f/ru/pdf/mdn_plus_terms.pdf",
+      "repository": "mozilla/legal-docs",
+      "license": "CC-BY-SA-3.0",
+      "commit": "68c62051e7ca282a023a2560ca72edf227097a1f",
+      "origin": "public",
+      "original_format": ".pdf",
+      "downloaded_utc": "2026-11-10T10:31:34.315557+00:00",
+      "language": "ru",
+      "sha256": "5c0501c2df71211095d180b22fa090ae7163cbf5830973ef0e332d97d91b7a70",
+      "downloaded": true,
+      "indexed": false,
+      "reason_not_indexed": "alternate format of an existing conceptual document; avoid duplicates",
+      "parser": "optional pypdf; PDF not supported by production loader",
+      "status": "parsed",
+      "characters": 8876,
+      "nonempty": true,
+      "license_url": "https://raw.githubusercontent.com/mozilla/legal-docs/68c62051e7ca282a023a2560ca72edf227097a1f/LICENSE.md"
+    }
+  ],
+  "deepseek": {
+    "version": "1.0.0",
+    "git_commit": "b5ecfdc130c8f10aacd75a2d813b124f01e923c3",
+    "runtime_sha256": "e74860d250de51d8b0e0b43d2eb5ac11513ea9bf090d593ed07613650302cea5",
+    "evaluation_sha256": "20607e3dbe811f7d150e151b9540f8cce9e988831a91b49d2fa46df43c615de9",
+    "corpus_id": "synthetic-080b083c21e00acd",
+    "corpus_sha256": "4992f489770051e3502af664eda5adc90ca776c24ba74245c0079d69d6e7963f",
+    "gold_sha256": "06ca02da278771714d8f95ff369928b8a20195cf04fbe1616a9441d7ed7153a0",
+    "gold_version": "1.0.0",
+    "questions_sha256": "e923efab2d5b9466d5f6e366247febed78e2fcda6e3879af25ef180470b4da15",
+    "selection_sha256": "c42fb55715f1e4d352904ef96e91489a388039810ce0569eebc7e994678352fa",
+    "documents": 1000,
+    "questions_selected": 12,
+    "mode": "smoke",
+    "engine": "deepseek",
+    "model": null,
+    "provider_base_url": "https://api.deepseek.com/v1",
+    "config": {
+      "top_k": 6,
+      "workers": 2,
+      "timeout": 30,
+      "case_seconds": 240,
+      "max_tokens": 2048,
+      "temperature": 0,
+      "max_requests": 60,
+      "max_token_bound": 3000000,
+      "max_cost": null,
+      "input_price_per_million": 0,
+      "output_price_per_million": 0,
+      "save_responses": true,
+      "bm25_k1": 1.5,
+      "bm25_b": 0.75,
+      "note": "No prices guessed. Set both unit prices to enforce monetary cap. Token bound reserves UTF-8 request bytes plus max_tokens per HTTP attempt; conservative, not billing.",
+      "engine": "deepseek"
+    },
+    "fingerprint": "64810a14110246a8531ffca3b9293bd59503bf720a9295c6bf1098a34fcbd039",
+    "started_utc": "2026-11-10T10:18:09.439688+00:00",
+    "api_status": "not_run_missing_environment",
+    "elapsed_seconds": 0.17345830000022033,
+    "isolation": "worker inputs contain only archive/question/history/config; gold not copied",
+    "metrics": {
+      "raw_bm25_recall@1": {
+        "numerator": 0,
+        "denominator": 0,
+        "value": null
+      },
+      "raw_bm25_recall@5": {
+        "numerator": 0,
+        "denominator": 0,
+        "value": null
+      },
+      "raw_bm25_recall@10": {
+        "numerator": 0,
+        "denominator": 0,
+        "value": null
+      },
+      "production_context_sufficiency": {
+        "numerator": 0,
+        "denominator": 0,
+        "value": null
+      },
+      "context_available_and_sufficient": {
+        "numerator": 0,
+        "denominator": 0,
+        "value": null
+      },
+      "fact_accuracy": {
+        "numerator": 0,
+        "denominator": 0,
+        "value": null
+      },
+      "completeness": {
+        "numerator": 0,
+        "denominator": 0,
+        "value": null
+      },
+      "citation_integrity": {
+        "numerator": 0,
+        "denominator": 0,
+        "value": null
+      },
+      "citation_support_accuracy": {
+        "numerator": 0,
+        "denominator": 0,
+        "value": null
+      },
+      "false_refusal_rate": {
+        "numerator": 0,
+        "denominator": 0,
+        "value": null
+      },
+      "unsupported_answer_rate": {
+        "numerator": 0,
+        "denominator": 0,
+        "value": null
+      },
+      "correct_clarification_rate": {
+        "numerator": 0,
+        "denominator": 0,
+        "value": null
+      },
+      "temporal_accuracy": {
+        "numerator": 0,
+        "denominator": 0,
+        "value": null
+      },
+      "end_to_end_success": {
+        "numerator": 0,
+        "denominator": 0,
+        "value": null
+      },
+      "api_error_rate": {
+        "numerator": 0,
+        "denominator": 0,
+        "value": null
+      },
+      "validator_false_acceptance_rate": {
+        "numerator": 0,
+        "denominator": 7,
+        "value": 0.0
+      },
+      "validator_false_rejection_rate": {
+        "numerator": 0,
+        "denominator": 4,
+        "value": 0.0
+      }
+    },
+    "outcomes": {},
+    "categories": {},
+    "failures": {},
+    "not_evaluated_reasons": {},
+    "latency": {
+      "median_seconds": null,
+      "p95_seconds": null
+    },
+    "requests": 0,
+    "usage": {},
+    "cases_completed": 0,
+    "scope": "Local experiment, not official competition Score. Raw BM25 rank is a separate diagnostic from production grouped context."
+  },
+  "integrity": {
+    "synthetic": {
+      "source_spans": 1050,
+      "all_spans_exact": true,
+      "archive_has_no_gold": true,
+      "unique_case_ids": true,
+      "questions_match_gold": true
+    },
+    "public": {
+      "source_spans": 20,
+      "all_spans_exact": true,
+      "archive_has_no_gold": true,
+      "unique_case_ids": true,
+      "questions_match_gold": true
+    },
+    "mixed": {
+      "source_spans": 1050,
+      "all_spans_exact": true,
+      "archive_has_no_gold": true,
+      "unique_case_ids": true,
+      "questions_match_gold": true
+    }
+  }
+}

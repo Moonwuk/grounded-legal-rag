@@ -1,0 +1,66 @@
+{
+  "version": "1.0.0",
+  "corpus_id": "meta-working-7f2cfd099ac329a5",
+  "sources": {
+    "a:p1": {
+      "id": "a:p1",
+      "document": "a.txt",
+      "start": 0,
+      "end": 155,
+      "quote": "Для объекта МТ-17/2026 срок оплаты составляет 45 рабочих дней; условие: без исключений; событие отсчёта: подписание акта начиная с 2026-07-01 включительно.",
+      "document_sha256": "f81911bb2a4b832ad57a3ddaa5dc21f009679cd0c387dd3c716ac8fa1fa5b63a",
+      "revision": "rule",
+      "fact": {
+        "subject_id": "МТ-17/2026",
+        "predicate": "payment_term",
+        "value": 45,
+        "unit": "working_days",
+        "condition": "без исключений",
+        "start_event": "подписание акта",
+        "valid_from": "2026-07-01",
+        "valid_until": null
+      }
+    }
+  },
+  "cases": [
+    {
+      "case_id": "pair",
+      "corpus_id": "meta-working-7f2cfd099ac329a5",
+      "scenario_id": "hand-anchor",
+      "question": "Каков срок оплаты МТ-17/2026 для акта от 2026-07-01?",
+      "history": [],
+      "category": "metamorphic",
+      "difficulty": 2,
+      "split": "development",
+      "event_date": "2026-07-01",
+      "expected": {
+        "allowed_statuses": [
+          "answer"
+        ],
+        "required_claims": [
+          {
+            "fact": {
+              "subject_id": "МТ-17/2026",
+              "predicate": "payment_term",
+              "value": 45,
+              "unit": "working_days",
+              "condition": "без исключений",
+              "start_event": "подписание акта",
+              "valid_from": "2026-07-01",
+              "valid_until": null,
+              "event_date": "2026-07-01"
+            },
+            "acceptable_evidence_sets": [
+              [
+                "a:p1"
+              ]
+            ]
+          }
+        ],
+        "forbidden_claims": [],
+        "missing": [],
+        "issue": ""
+      }
+    }
+  ]
+}

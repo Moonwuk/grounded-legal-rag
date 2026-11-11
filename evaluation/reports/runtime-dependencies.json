@@ -1,0 +1,23 @@
+{
+  "direct_dependencies": {},
+  "files_scanned": [
+    "prototype\\psb_corpus.py",
+    "prototype\\psb_llm.py",
+    "prototype\\psb_policy.py",
+    "prototype\\psb_retrieval.py",
+    "prototype\\solution.py"
+  ],
+  "foreign_imports": {},
+  "has_dependencies": false,
+  "limitations": [
+    "Static import statements only; dynamic imports are not resolved.",
+    "Python interpreter, standard-library and OS vulnerabilities are not assessed.",
+    "Import names are not mapped to distribution names; CI verifies dependency closure separately."
+  ],
+  "lock_closure_verified": false,
+  "locked_dependencies": {},
+  "python_version": "3.15.0",
+  "schema_version": 1,
+  "scope": "prototype/*.py and prototype/requirements.txt",
+  "status": "stdlib_only"
+}

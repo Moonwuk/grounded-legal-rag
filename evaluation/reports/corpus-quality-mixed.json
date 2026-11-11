@@ -1,0 +1,18 @@
+{
+  "corpus": "mixed",
+  "documents": 1135,
+  "fragments": 19068,
+  "source_offsets_exact": true,
+  "exact_duplicates": 0,
+  "nonempty": true,
+  "quarantined_spans": 0,
+  "load_index_seconds": 0.9952121000001171,
+  "snapshot_total_seconds": 1.5571923000002243,
+  "index_path": "indexes\\f94a7542d03433ba\\bm25.json",
+  "index_sha256": "77f8575f084cbc4f55b110edd5c5eb005b5aae7039c06bfca31aee2b1763bbfb",
+  "index_has_gold": false,
+  "supported_formats": [
+    ".md",
+    ".txt"
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "case_id": "contradiction-0000",
+  "question": "Для КТ-1/2026 акт подписан 2026-07-02. В документах разные сроки оплаты без правила приоритета. Какой один срок достоверен?",
+  "history": [],
+  "corpus": "evaluation\\generated_corpora\\synthetic\\knowledge-base.zip",
+  "candidate_documents": [],
+  "command": "python -m evaluation.run_benchmark --corpus synthetic --mode full --engine retrieval --case-id contradiction-0000 --run-id repro-contradiction-0000",
+  "caution": "candidate reduced context; full corpus is authoritative for rank reproduction",
+  "failures": [
+    "system_error"
+  ]
+}

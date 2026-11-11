@@ -1,0 +1,5036 @@
+{
+  "version": "1.0.0",
+  "corpus_id": "synthetic-b148e60beaa44f30",
+  "seed": 20261110,
+  "archive_sha256": "283b6ac186a36c6ca6a10078c9e31f7d41ab65672c3bbe32b8f9ef62c6190fe1",
+  "documents": 1000,
+  "questions": 500,
+  "document_distribution": {
+    "contract": 300,
+    "regulation": 250,
+    "financial": 200,
+    "memo": 150,
+    "irrelevant": 100
+  },
+  "question_distribution": {
+    "fact": 100,
+    "multi_document": 100,
+    "temporal": 75,
+    "missing_information": 75,
+    "contradiction": 75,
+    "security": 75
+  },
+  "family_distribution": {
+    "numbered_sections": 133,
+    "table_appendix": 134,
+    "letter_with_footnote": 134,
+    "protocol_resolution": 134,
+    "long_embedded_clause": 133,
+    "negative_exception": 132,
+    "question_answer_annex": 100,
+    "reverse_order_bulletin": 100
+  },
+  "origin": "synthetic",
+  "files": [
+    {
+      "name": "contract/contract_0000.txt",
+      "sha256": "bed0f740eabf0815f2a14d6f92bd6536abaf720aa09d9d5d21cf332584d4a875",
+      "characters": 341
+    },
+    {
+      "name": "contract/contract_0001.md",
+      "sha256": "a3c0ecd1f60da9b13d66dd2e236e07d580f5216e8145f10c7d9ae120141af6db",
+      "characters": 332
+    },
+    {
+      "name": "contract/contract_0002.txt",
+      "sha256": "08b05281525f9718f51479903dcb4465ab35f7624aed79cb7e2b449e8c862024",
+      "characters": 376
+    },
+    {
+      "name": "contract/contract_0003.md",
+      "sha256": "88424ee93ef3b33106b970a4fd835580456cc680ce9a9a8f2c3784555c155e18",
+      "characters": 418
+    },
+    {
+      "name": "contract/contract_0004.txt",
+      "sha256": "6143ec73b09eb9196ad6c46b3642f7b0e3ff690b8752f5d75f3feea1c60abc28",
+      "characters": 6541
+    },
+    {
+      "name": "contract/contract_0005.md",
+      "sha256": "42f95e7e86e69d84ea29b64fc77b10785fa705bb34aecde813bc0ac7be262ab1",
+      "characters": 380
+    },
+    {
+      "name": "contract/contract_0006.txt",
+      "sha256": "82000d32c820af607b1f42f9701ec92484328aab2b036ee00e95f6c530df31af",
+      "characters": 345
+    },
+    {
+      "name": "contract/contract_0007.md",
+      "sha256": "79da6479ddc6cff6cbb3888ec9f95ec32c1d61600d5aedc1cd9908fb376b0a58",
+      "characters": 336
+    },
+    {
+      "name": "contract/contract_0008.txt",
+      "sha256": "1af999f0de787ee7cc6f6693220927a54313b99698c6743d2f79a6795a9e0579",
+      "characters": 353
+    },
+    {
+      "name": "contract/contract_0009.md",
+      "sha256": "4ca6fcbacde8aceedead5123e7035a4f77dfcff990affcb267f1333159dfc660",
+      "characters": 414
+    },
+    {
+      "name": "contract/contract_0010.txt",
+      "sha256": "52ab5db1267cfeba06ad4edd670cc6a8ac57284bb4cb7ead41467b9c701b65f7",
+      "characters": 6549
+    },
+    {
+      "name": "contract/contract_0011.md",
+      "sha256": "b7b7c543414525682b97a5f418e5d118e038129180f941762226bfb221a2f8a8",
+      "characters": 380
+    },
+    {
+      "name": "contract/contract_0012.txt",
+      "sha256": "45fcbcd445b283ba8055593a78b7a2c4625c84c551209a48ceb9d1979938b28c",
+      "characters": 325
+    },
+    {
+      "name": "contract/contract_0013.md",
+      "sha256": "0defef01ef05d5c9085d71cbc5d6adabfb4d438727624a282a06bee6aabb22e8",
+      "characters": 386
+    },
+    {
+      "name": "contract/contract_0014.txt",
+      "sha256": "9ba19aae5702b9dc06ff66776c10823788a8c81efa62d50f4854ac464222fa87",
+      "characters": 327
+    },
+    {
+      "name": "contract/contract_0015.md",
+      "sha256": "5ab5abb58f3fae861717016d216ecd130292292eead5e5bd09aeae0f0b25d475",
+      "characters": 418
+    },
+    {
+      "name": "contract/contract_0016.txt",
+      "sha256": "5438720553d837331dda5dff2666e64c3bfd26c7fc59cdea5f2875a108e6abce",
+      "characters": 6553
+    },
+    {
+      "name": "contract/contract_0017.md",
+      "sha256": "ec32ba7f840b06f9779b91ba06bdbf7b69dead224407446462457a4eef142c59",
+      "characters": 380
+    },
+    {
+      "name": "contract/contract_0018.txt",
+      "sha256": "91464fb9f0a929ea67adac9fe3920215c4759d63f7a79b946745c131e5940da4",
+      "characters": 341
+    },
+    {
+      "name": "contract/contract_0019.md",
+      "sha256": "1acc7284aa812312711f58975b37f573eb9f8cc31b14e58cf715cb1d4dc297ab",
+      "characters": 332
+    },
+    {
+      "name": "contract/contract_0020.txt",
+      "sha256": "72f11275378044e4e69eee63aad6ae763dd3838a8e7fd6ceb4849159cef75e57",
+      "characters": 353
+    },
+    {
+      "name": "contract/contract_0021.md",
+      "sha256": "80ef8d87d0da4ed21c2befb6423df0194b539d2a535a51ebb1a5f2023600332d",
+      "characters": 418
+    },
+    {
+      "name": "contract/contract_0022.txt",
+      "sha256": "a6c770e40629f94c00fe8862150c9574e045ff358e9c1adbcbe0f25a2950deb6",
+      "characters": 6553
+    },
+    {
+      "name": "contract/contract_0023.md",
+      "sha256": "165a6ceef96baf1825184bc1845ff490d92bccabe1df26c1e7271159a65ad4c6",
+      "characters": 380
+    },
+    {
+      "name": "contract/contract_0024.txt",
+      "sha256": "4f89c916e3263a03bf372ccdf0c7d46b5cc3c84ddca4b6c2e91fa35c6ad90e60",
+      "characters": 345
+    },
+    {
+      "name": "contract/contract_0025.md",
+      "sha256": "6cd49ec115d568dd899d4abed57098bec821a4b8bc9cde9b7fd9b5ba7d619c08",
+      "characters": 336
+    },
+    {
+      "name": "contract/contract_0026.txt",
+      "sha256": "f25fb91e23b45dd587b147de70054cd313c4a04787f7f02e0f1a3a87e249e521",
+      "characters": 380
+    },
+    {
+      "name": "contract/contract_0027.md",
+      "sha256": "c79ee2dc6113b21615241e4797f98ba5afb4a44d3ba768a2c9570fc14e9a6a60",
+      "characters": 382
+    },
+    {
+      "name": "contract/contract_0028.txt",
+      "sha256": "f180fb9fdf04f02b3c4929054c53cc24b1d20492d21ce439810b2d81644a87a6",
+      "characters": 327
+    },
+    {
+      "name": "contract/contract_0029.md",
+      "sha256": "c4b828dc7563e57fb49e025606cc1d679515388d24fd06165b722106f95d5d82",
+      "characters": 361
+    },
+    {
+      "name": "contract/contract_0030.txt",
+      "sha256": "959d85d1b6f14488211ed24bb718fb061e63cbbd9ab43b82a7a2e34bc49589f0",
+      "characters": 349
+    },
+    {
+      "name": "contract/contract_0031.md",
+      "sha256": "63ed93e6a95b34885a8a2829b7e47a6e525d3a1017dfe5d5af83e12248805636",
+      "characters": 340
+    },
+    {
+      "name": "contract/contract_0032.txt",
+      "sha256": "de0424f5c5080d603fabd4008171f527f950cdcee534e812f326a20bdc354251",
+      "characters": 357
+    },
+    {
+      "name": "contract/contract_0033.md",
+      "sha256": "fc2d1983833efc9cf5616e45df8f84203600a0738b52745a66783e3fb822853f",
+      "characters": 422
+    },
+    {
+      "name": "contract/contract_0034.txt",
+      "sha256": "ba9e3a227def3195863281b7eaab0b3a755b606fa27cf873f7eae26979d9d465",
+      "characters": 6557
+    },
+    {
+      "name": "contract/contract_0035.md",
+      "sha256": "a457349e25092be66119899b6e837226428414c9320059e4fe201582ac527b55",
+      "characters": 384
+    },
+    {
+      "name": "contract/contract_0036.txt",
+      "sha256": "3e857c1e7bf438a455a9e515456403deabbaf8a053b9f51bf7761cfe9c29cb01",
+      "characters": 345
+    },
+    {
+      "name": "contract/contract_0037.md",
+      "sha256": "3bc97ee6080b67b75b4f5172420ddbd75925a76c7c3f14057554e2f0910ca4ee",
+      "characters": 336
+    },
+    {
+      "name": "contract/contract_0038.txt",
+      "sha256": "93905aa4a9a0bd0644254a06f3707c2e30942e91bfc9a842dc486220d828850f",
+      "characters": 380
+    },
+    {
+      "name": "contract/contract_0039.md",
+      "sha256": "0cd5eecac15de77b0d7ccf305b36e0869226d199e5ef8d97d29231136c4ac26f",
+      "characters": 422
+    },
+    {
+      "name": "contract/contract_0040.txt",
+      "sha256": "7998c649efa1e0b82fd8770da52489f81df03e8fec035736d1471480e1e5f908",
+      "characters": 6557
+    },
+    {
+      "name": "contract/contract_0041.md",
+      "sha256": "8db2934805e7e4d55eb950888d425beb2e028c6fdb57ab94c50149b4ff99b0a0",
+      "characters": 384
+    },
+    {
+      "name": "contract/contract_0042.txt",
+      "sha256": "3989de4f29ad66a4e38e8a9e12d2c071237a0315aa294eb1a00271d9422b608b",
+      "characters": 329
+    },
+    {
+      "name": "contract/contract_0043.md",
+      "sha256": "f68b8e0ce7ff8d83c2a2ccba1b2845663ab5a07593122545cc02b0b0f0060263",
+      "characters": 390
+    },
+    {
+      "name": "contract/contract_0044.txt",
+      "sha256": "355a57ee052677eacef6bfa15008ff5ea4ff1f261788e481396c88fdd8879f12",
+      "characters": 304
+    },
+    {
+      "name": "contract/contract_0045.md",
+      "sha256": "7322cd15a4b994a0860c1ab0104f3b35821e7b41fa71f97df744fdb3bc780139",
+      "characters": 418
+    },
+    {
+      "name": "contract/contract_0046.txt",
+      "sha256": "47cedd6a96f42c5e7689baabe1bf827a3376f74d2767db4d0934ada3692b1ac4",
+      "characters": 6553
+    },
+    {
+      "name": "contract/contract_0047.md",
+      "sha256": "e4b41e5477c415a2196e4d9d23682b25e3b1cf7aef0afacab72d37263ca651de",
+      "characters": 384
+    },
+    {
+      "name": "contract/contract_0048.txt",
+      "sha256": "1d32b4fc5d57c3139cae3a328f711efdcdbf417ae98808d85960e8f6219bf950",
+      "characters": 349
+    },
+    {
+      "name": "contract/contract_0049.md",
+      "sha256": "a78251414fb3ae0d433aa0d78a8e7edf0301836b059a950cde35ba9808634a2c",
+      "characters": 340
+    },
+    {
+      "name": "contract/contract_0050.txt",
+      "sha256": "461d72a1fd917ed559437871cdf42a6aa9fca85723ffa355bc6a3b2cb1ddf997",
+      "characters": 384
+    },
+    {
+      "name": "contract/contract_0051.md",
+      "sha256": "10b74ecb80499fac744a55bc29918484eccfd61ae5c57b90c79a372a2f7f9634",
+      "characters": 422
+    },
+    {
+      "name": "contract/contract_0052.txt",
+      "sha256": "70185e9175fa569a23719bf3e12e4b660520a6d612c14ad6c65f549da7076f98",
+      "characters": 6557
+    },
+    {
+      "name": "contract/contract_0053.md",
+      "sha256": "6c4020145c9a521780bb3593f1fdafa32c1dca8aba77adc61933aa1f8f21e4d2",
+      "characters": 384
+    },
+    {
+      "name": "contract/contract_0054.txt",
+      "sha256": "7ab4e905fb395ca6ca2edf8d6d2f7aacd9501ba70f752025350c1df161eca9d5",
+      "characters": 345
+    },
+    {
+      "name": "contract/contract_0055.md",
+      "sha256": "2e2185c4659b673c0457a277d691618725b8b6ab771a4add5fb9c03460a1e118",
+      "characters": 336
+    },
+    {
+      "name": "contract/contract_0056.txt",
+      "sha256": "fdf730a5beada85a647df87ca7731224a101b2f195317fa8ff403702b6e07b05",
+      "characters": 357
+    },
+    {
+      "name": "contract/contract_0057.md",
+      "sha256": "c64db1e115d93b1ef7872badf775e9c5b0e14a5f1748c98ed47992ffaa284e74",
+      "characters": 387
+    },
+    {
+      "name": "contract/contract_0058.txt",
+      "sha256": "2e7018ee0b200325197fbc6eeb20c6563b5f10922dacd0fea33d606552a715c7",
+      "characters": 332
+    },
+    {
+      "name": "contract/contract_0059.md",
+      "sha256": "cf00fdfa5b4a25804a7c0b5f6447f08cd66da8edc82c0db871cb509a683f354f",
+      "characters": 362
+    },
+    {
+      "name": "contract/contract_0060.txt",
+      "sha256": "09ddfcd01ba93a46283b6ecf4a9d5c1e32dfe2bb7473689ca75623edf9245cab",
+      "characters": 349
+    },
+    {
+      "name": "contract/contract_0061.md",
+      "sha256": "9402cb829099d742893d5c62f4f2c5a35fd2e8969664a0216faaf066ecf845ba",
+      "characters": 340
+    },
+    {
+      "name": "contract/contract_0062.txt",
+      "sha256": "05db5d091603b710fbd6f3063b994b06f8a4d82d4b4a8260120c9d269e041603",
+      "characters": 384
+    },
+    {
+      "name": "contract/contract_0063.md",
+      "sha256": "8d9b9831183bf20edd0b70c863e21b95589711fc0f46574b2a1826556f1bda57",
+      "characters": 418
+    },
+    {
+      "name": "contract/contract_0064.txt",
+      "sha256": "a777d1c1bf936596a49e3f8d655be1f585e063f5132588e65f751600efa4ed93",
+      "characters": 6553
+    },
+    {
+      "name": "contract/contract_0065.md",
+      "sha256": "bd98112337e8002b59d0ea745bc15c43c6ccad144089165f50a5c9a024f90386",
+      "characters": 384
+    },
+    {
+      "name": "contract/contract_0066.txt",
+      "sha256": "7ebc84ece0ec8c64ffa0fadc2bbb40da765c2db5698aca90e30d7f5b701fb065",
+      "characters": 349
+    },
+    {
+      "name": "contract/contract_0067.md",
+      "sha256": "9c227027cd19e14eaa43efdb6d5b5a5f77eab396be79b2abe9bb157f5c5e2572",
+      "characters": 340
+    },
+    {
+      "name": "contract/contract_0068.txt",
+      "sha256": "1c15bdde4d4b81fe3422a810bdd671e999b80e8a1584a136bd7a604a23d9cfc5",
+      "characters": 357
+    },
+    {
+      "name": "contract/contract_0069.md",
+      "sha256": "9850af51fe018892329c5e1f274ed926c0815408c10dac157f862eb7beec1d35",
+      "characters": 422
+    },
+    {
+      "name": "contract/contract_0070.txt",
+      "sha256": "5903489c7cca203ceb04e1b355ce9ff7525ee441410b16464c3d627dd0867c91",
+      "characters": 6557
+    },
+    {
+      "name": "contract/contract_0071.md",
+      "sha256": "a1d69dabf65b882e6b0acd31ec74374a4c97d0cad7d5bada92bc0bb7de562069",
+      "characters": 384
+    },
+    {
+      "name": "contract/contract_0072.txt",
+      "sha256": "2ff07d8c4dd9073d87e6215a0e732e469fa7ba26985633d5cdb47b41f96a2b3a",
+      "characters": 325
+    },
+    {
+      "name": "contract/contract_0073.md",
+      "sha256": "812391bd2a57d6e1f7f9e11a3dbef2f083b9080bf80ff8b93e27057b27a1ced2",
+      "characters": 386
+    },
+    {
+      "name": "contract/contract_0074.txt",
+      "sha256": "521f365ea320fe2f314d6d6f438d63aa8e24ffc850f6860615fcc4bc4306f439",
+      "characters": 327
+    },
+    {
+      "name": "contract/contract_0075.md",
+      "sha256": "3fc52cf18061b3e9291aace426e2c030f79e49eff6784c6b31ed0bc95a009a07",
+      "characters": 422
+    },
+    {
+      "name": "contract/contract_0076.txt",
+      "sha256": "bb61ec2b560e0989f119ce4b38f74ed08466380af12a3b2485d7e636c9ade551",
+      "characters": 6557
+    },
+    {
+      "name": "contract/contract_0077.md",
+      "sha256": "ca79d25d4dc8bab73d91340ea1e97c70f091841a9835abffc2ef30bc800750f6",
+      "characters": 384
+    },
+    {
+      "name": "contract/contract_0078.txt",
+      "sha256": "c11f7bd8e3057e5f59cbdfaab908ab8d5e57f71051badf3c2547a53ef72d77b6",
+      "characters": 349
+    },
+    {
+      "name": "contract/contract_0079.md",
+      "sha256": "f0ac1c99082b71a05dd2fa11eef8e42b29048f93b13192dd397bab7a191eda8f",
+      "characters": 340
+    },
+    {
+      "name": "contract/contract_0080.txt",
+      "sha256": "b1ada4055758494e61eee16f48dfbcc8f29bfed469aa4dd958352911618ab445",
+      "characters": 357
+    },
+    {
+      "name": "contract/contract_0081.md",
+      "sha256": "718cbfc914f0867db73fdb87c3685252ea76efbee91cbdcb355ff46003a8ff50",
+      "characters": 418
+    },
+    {
+      "name": "contract/contract_0082.txt",
+      "sha256": "434e36afa57bf9d6350df12a060d77a620620d948b2f57523891577a8b70a603",
+      "characters": 6553
+    },
+    {
+      "name": "contract/contract_0083.md",
+      "sha256": "c07fc3fd4aa98abbbea11382fbf4876d9a0996de1623d4efa8998118fcfd9cf4",
+      "characters": 384
+    },
+    {
+      "name": "contract/contract_0084.txt",
+      "sha256": "8d51f7a0429c06bb93e716fb6ad21481c283e1885009738bbdaeb7d7ad3541c6",
+      "characters": 349
+    },
+    {
+      "name": "contract/contract_0085.md",
+      "sha256": "1e200529073e8c95a81329406eaeca026965e7694213d2c81702f52750edf95f",
+      "characters": 340
+    },
+    {
+      "name": "contract/contract_0086.txt",
+      "sha256": "852f3c20f64f47df9d46f97ea0734a15099bb3fce719edb28ccfd0bf677ec638",
+      "characters": 384
+    },
+    {
+      "name": "contract/contract_0087.md",
+      "sha256": "775c5243c750ad8e9686dc41b98afffac8121459c7de33291386c36af336d0bc",
+      "characters": 387
+    },
+    {
+      "name": "contract/contract_0088.txt",
+      "sha256": "6039ac43aff72f537b8daa6ca57419402cfeb95f2e557ec44ca8673469cceea2",
+      "characters": 332
+    },
+    {
+      "name": "contract/contract_0089.md",
+      "sha256": "d9e8d4e6f3fb056777832802f6adb70c3bce92ee2c492c8046b73a0704042395",
+      "characters": 362
+    },
+    {
+      "name": "contract/contract_0090.txt",
+      "sha256": "904bc1e22af12aec2f7477baab312d13fba0c198f312ca28edaf7d12545d6a88",
+      "characters": 345
+    },
+    {
+      "name": "contract/contract_0091.md",
+      "sha256": "f67e9d9f0278376cf307e83276be3a697646a1806ec7096dcf5562127ead07d6",
+      "characters": 336
+    },
+    {
+      "name": "contract/contract_0092.txt",
+      "sha256": "a473ccb4036c1313610cff83acc6ec8fbd86b7338d7549202d427ba836398ff7",
+      "characters": 357
+    },
+    {
+      "name": "contract/contract_0093.md",
+      "sha256": "af5fa7be46203406bff731ee0aff8e1a4a15e0893e5b2ae3fd29ac466b0d2b48",
+      "characters": 422
+    },
+    {
+      "name": "contract/contract_0094.txt",
+      "sha256": "f67f65f9d30e70c9a932b7b26b26373eab323e7f7f0bb59886b73da66abe0534",
+      "characters": 6557
+    },
+    {
+      "name": "contract/contract_0095.md",
+      "sha256": "2a262453844ef315f98aff3d68f1813bff44854bae3bda47a5643b524b034a23",
+      "characters": 384
+    },
+    {
+      "name": "contract/contract_0096.txt",
+      "sha256": "e77a210566d0a5fdb0b3acd6ed127f3e8c15994d3b06f2fab1307ad86bcd24a5",
+      "characters": 349
+    },
+    {
+      "name": "contract/contract_0097.md",
+      "sha256": "db84e1d318f32416a0b8a6742e708ea60dc5e5466e4049674a9d88d569d079b2",
+      "characters": 340
+    },
+    {
+      "name": "contract/contract_0098.txt",
+      "sha256": "82929a31c274601db8e6c6090872b9128147fbee8c21b30ce9c5923c9c135df7",
+      "characters": 384
+    },
+    {
+      "name": "contract/contract_0099.md",
+      "sha256": "504aaad859b41ebb4c30969b345df724698e1307895b3c0dea905fe771232378",
+      "characters": 418
+    },
+    {
+      "name": "contract/contract_0100.txt",
+      "sha256": "87a596013142e74e0a44063001de9d26b7628ab0be050a6212e5bd87cdb79ee1",
+      "characters": 6565
+    },
+    {
+      "name": "contract/contract_0101.md",
+      "sha256": "fb3c9fb7e46f3af00d71a740f38524db2430aa9035208e9509730a7925a0b197",
+      "characters": 384
+    },
+    {
+      "name": "contract/contract_0102.txt",
+      "sha256": "6a3a959a4bfb239194add5e43c5bddb95f5e7cb43bad1084c60e2181463e5cf2",
+      "characters": 329
+    },
+    {
+      "name": "contract/contract_0103.md",
+      "sha256": "f1200cb8b4c9da0d9fe401ddb88c700a11cb9e87c25bc68817773dcb77efdde8",
+      "characters": 390
+    },
+    {
+      "name": "contract/contract_0104.txt",
+      "sha256": "fc6bb154a3ab20c5e3b27ca95650b0116eda7a8dab8d457e3d0de74e2244fd54",
+      "characters": 304
+    },
+    {
+      "name": "contract/contract_0105.md",
+      "sha256": "8c6b37102cf3fdf9113b457ca861e451d20929ca365819cf23fa953425484640",
+      "characters": 422
+    },
+    {
+      "name": "contract/contract_0106.txt",
+      "sha256": "f7044c304547a7392182d091ff1350316b6bbbd3d74b72981881bdac08bbb2be",
+      "characters": 6569
+    },
+    {
+      "name": "contract/contract_0107.md",
+      "sha256": "2d1f41784f418ad849e4227d194e6d565e332a2d46ca9729fbb61fa4a9b7f566",
+      "characters": 384
+    },
+    {
+      "name": "contract/contract_0108.txt",
+      "sha256": "13e68da483f3b2132dfa8a726edf47bcf214de825bf405b07f9346f30192eadc",
+      "characters": 345
+    },
+    {
+      "name": "contract/contract_0109.md",
+      "sha256": "b380a468690858b63f93db54829dfa8f8072b292d8b2648f135eb33da0a78e53",
+      "characters": 336
+    },
+    {
+      "name": "contract/contract_0110.txt",
+      "sha256": "535322fa5c3dce4568a64ca71159e5d84a8112536af8c5109e14b6831a2ddf1d",
+      "characters": 380
+    },
+    {
+      "name": "contract/contract_0111.md",
+      "sha256": "6b8dba1c5a161ea7eb5682d7377d23b935d564bef7dadc49b7afd4c7e5418495",
+      "characters": 422
+    },
+    {
+      "name": "contract/contract_0112.txt",
+      "sha256": "82f87593cd83a3836d1361ccdcf54721632bfefb08b441445cdd9f54c4045733",
+      "characters": 6569
+    },
+    {
+      "name": "contract/contract_0113.md",
+      "sha256": "9af2de6accf2b92a9f7bb7396a29ca111fcd2e6eefcbd7e92e1b7df5805c0b1c",
+      "characters": 384
+    },
+    {
+      "name": "contract/contract_0114.txt",
+      "sha256": "92210fe746cabbd2a3c959c950b44b121575a44b9d08dd6a369ef74fea7e0317",
+      "characters": 349
+    },
+    {
+      "name": "contract/contract_0115.md",
+      "sha256": "3ee1eac78657fc5ab21e5bb3787521660330ce4b7ff5f3de23f280a6b17010d5",
+      "characters": 340
+    },
+    {
+      "name": "contract/contract_0116.txt",
+      "sha256": "f62e8168f55afb85f541639a21b3eee6f3003ea1077f7831a7fc9389066fc98f",
+      "characters": 357
+    },
+    {
+      "name": "contract/contract_0117.md",
+      "sha256": "4cd74310bfec33d9fe671e629f7097a63f3d15a407fb1aa51d6450196a1b154a",
+      "characters": 383
+    },
+    {
+      "name": "contract/contract_0118.txt",
+      "sha256": "36845f53da1ad3d73c530e1c12b361df4e37eadffa88a92e1c1e3bfd41472134",
+      "characters": 328
+    },
+    {
+      "name": "contract/contract_0119.md",
+      "sha256": "42fb99b47961c6915531e56dbbcd73ed3ff78bfc8a98e8aec03c8c556221dfa5",
+      "characters": 362
+    },
+    {
+      "name": "contract/contract_0120.txt",
+      "sha256": "07aa34c245aabdc34d1961983545249d9bccf81a91da4d38642a7f0d8a8ea27b",
+      "characters": 349
+    },
+    {
+      "name": "contract/contract_0121.md",
+      "sha256": "787abc5bdd215d8b70e4524882630fd653fa2b203c0116aa6cca5cea5c9c433d",
+      "characters": 340
+    },
+    {
+      "name": "contract/contract_0122.txt",
+      "sha256": "fcb848f99157a76c9a017a4f63cc95f36d147df2bbb349ed0630fa368d34111e",
+      "characters": 384
+    },
+    {
+      "name": "contract/contract_0123.md",
+      "sha256": "69ba94cd031d5a9ef64045f0e1edb50110b595e0b46295e94b2a3e0375707431",
+      "characters": 422
+    },
+    {
+      "name": "contract/contract_0124.txt",
+      "sha256": "0af60f9f1a7313e2e209748c9c2ac00f4a7214068ce7292061203385475eff89",
+      "characters": 6569
+    },
+    {
+      "name": "contract/contract_0125.md",
+      "sha256": "af062ead6b4449ac09e3d6933f02efcec2ef2658531bedc8e904795c62542383",
+      "characters": 384
+    },
+    {
+      "name": "contract/contract_0126.txt",
+      "sha256": "2c15b83639c161b29a2b0f155eaf579923a6a2b820457843accf52500406a77a",
+      "characters": 345
+    },
+    {
+      "name": "contract/contract_0127.md",
+      "sha256": "c8608dc2067cd6f340ba8332d0267cc454e858c0b35ebf87236615ef376c82cc",
+      "characters": 336
+    },
+    {
+      "name": "contract/contract_0128.txt",
+      "sha256": "803276166caa20a4643bf7c7bd89fc73522f53c3d7ce6be26a21fdfe092d9df9",
+      "characters": 357
+    },
+    {
+      "name": "contract/contract_0129.md",
+      "sha256": "779cf2e93e22af5bd9c2b7c3751c681b686c2abe30a40eff134d1329250d98d4",
+      "characters": 422
+    },
+    {
+      "name": "contract/contract_0130.txt",
+      "sha256": "7e03d0fb7f0c51913bf5c7a87c2514f1dfe8a024d718e935a4e71b3752b1d281",
+      "characters": 6569
+    },
+    {
+      "name": "contract/contract_0131.md",
+      "sha256": "0248ba0947234517c48372635af9511d543500c6af421e2ec30fb4c2187e876b",
+      "characters": 384
+    },
+    {
+      "name": "contract/contract_0132.txt",
+      "sha256": "877abf9c5163a1067a209aa7d5fb697f9d2320ea53ad9875190443190738b362",
+      "characters": 329
+    },
+    {
+      "name": "contract/contract_0133.md",
+      "sha256": "de184dcab7bda018cb5aff23d4a9d1004d6c5e3fcfd1bdee96f7b65d77f80f26",
+      "characters": 390
+    },
+    {
+      "name": "contract/contract_0134.txt",
+      "sha256": "8f620f9477ef6da14491787692cf8d50254e526e8cd70587a90fc6aac66613da",
+      "characters": 331
+    },
+    {
+      "name": "contract/contract_0135.md",
+      "sha256": "8196702cd9b46c678b0bf657de332bbd9248e63fab9540bdaf94449028082e0d",
+      "characters": 418
+    },
+    {
+      "name": "contract/contract_0136.txt",
+      "sha256": "dbbc6d3a28f30a85595946391eadf8a6e9f6878a40ecc3d34ac52e39b54ba7a7",
+      "characters": 6565
+    },
+    {
+      "name": "contract/contract_0137.md",
+      "sha256": "67a405c40d0bb6f453b9367d1a5bd0a3221ea1091b77999d731987ffaedccec4",
+      "characters": 384
+    },
+    {
+      "name": "contract/contract_0138.txt",
+      "sha256": "eaea7ca6b9b4ff64909d692d310110249cb1a67277bcb7f6c69da1b185288010",
+      "characters": 349
+    },
+    {
+      "name": "contract/contract_0139.md",
+      "sha256": "1920d434087c92276e54df906074e224bcfbecc5b8ee3b096a04f794f2b4bfc6",
+      "characters": 340
+    },
+    {
+      "name": "contract/contract_0140.txt",
+      "sha256": "57ddf5620dbdd3d8a3a4a0d9c2ff539b30f70d84430cbee375add7a8a591e232",
+      "characters": 357
+    },
+    {
+      "name": "contract/contract_0141.md",
+      "sha256": "299e6d413ca03d378b305fb882ea4deebb08adffbac6e9d7aabbbd6333295f39",
+      "characters": 422
+    },
+    {
+      "name": "contract/contract_0142.txt",
+      "sha256": "a1cb3b836aaf545fc520f17f85c5c183d8c89ceabb331ff45b7f793177eef0bf",
+      "characters": 6569
+    },
+    {
+      "name": "contract/contract_0143.md",
+      "sha256": "94f28c9d7d2856c17cbb5f8d0f464839f23b4a8990bdb07747d7ed8ada3c642c",
+      "characters": 384
+    },
+    {
+      "name": "contract/contract_0144.txt",
+      "sha256": "3cd323bce769469b792c3c1d7ae3fbb301a068b9356c12dcb703b095dc13e8d3",
+      "characters": 345
+    },
+    {
+      "name": "contract/contract_0145.md",
+      "sha256": "d13b3ace500c55c1e0ff8b6431f08ac6c664761aeb5e6c92c9ee8c3acdc87225",
+      "characters": 336
+    },
+    {
+      "name": "contract/contract_0146.txt",
+      "sha256": "22ae21855e772a2ca4d6ba2772f6720b6e373645262e0dba2a13163b997f7c0f",
+      "characters": 380
+    },
+    {
+      "name": "contract/contract_0147.md",
+      "sha256": "c41b71cde972102d157caf2de764da42a98af4516f6aa53e093a0184ef4009a4",
+      "characters": 387
+    },
+    {
+      "name": "contract/contract_0148.txt",
+      "sha256": "6d81d0bda76959ca93573ca5cafe0018e917c7def1bd6736912d3d6f4b1f7352",
+      "characters": 332
+    },
+    {
+      "name": "contract/contract_0149.md",
+      "sha256": "e3686d274f3e03a3dc8d3273a9b2d4f7e2c821d0c5ba1faa14350168cd0ef15c",
+      "characters": 362
+    },
+    {
+      "name": "contract/contract_0150.txt",
+      "sha256": "556bcfe506edccd9689fb82b88ddff90f8de35f998e05fec0368e272945650e9",
+      "characters": 349
+    },
+    {
+      "name": "contract/contract_0151.md",
+      "sha256": "c602cfa582969960810dadee2245f196a3b71ccf597c7bdcb10be06378bc20c2",
+      "characters": 340
+    },
+    {
+      "name": "contract/contract_0152.txt",
+      "sha256": "0c9a2a84ac6f2cc32892f2ab7fcbaea4cc336330eb9738437b57bdf496260591",
+      "characters": 357
+    },
+    {
+      "name": "contract/contract_0153.md",
+      "sha256": "607b5ea626ee0058e3be56ac46a2748acb1be4eca5e7b8ce2df17a7a5bf38d54",
+      "characters": 418
+    },
+    {
+      "name": "contract/contract_0154.txt",
+      "sha256": "18f6bf5c41e63badfcd8c40ef7ee06be57f49bc08003b0bca01f8f248990bc7f",
+      "characters": 6565
+    },
+    {
+      "name": "contract/contract_0155.md",
+      "sha256": "80f7f2ce44682e86bd08e9b1973478e7e548d941c6a3ae57287b1141160666a1",
+      "characters": 384
+    },
+    {
+      "name": "contract/contract_0156.txt",
+      "sha256": "3bab58a919820244a26ea476e0634c0e5a0eb4bca3ba81f9af90b96f01e33403",
+      "characters": 349
+    },
+    {
+      "name": "contract/contract_0157.md",
+      "sha256": "78512f060a2d8b64efacd6621ed625ed901089710b9f1a2e6da8da5a6191481c",
+      "characters": 340
+    },
+    {
+      "name": "contract/contract_0158.txt",
+      "sha256": "ee76c9d2b48144622279616545ffe9dcc19af97f14699ffa929f935f8318b63b",
+      "characters": 384
+    },
+    {
+      "name": "contract/contract_0159.md",
+      "sha256": "aa3f285ac9a483d5a69c80a60de04a9cb7ecf31827b958a197b8de5bc2cc0914",
+      "characters": 422
+    },
+    {
+      "name": "contract/contract_0160.txt",
+      "sha256": "00500f5270a5c7caf929b602a3a96d477eca442d40bd2675937d872bc6453afa",
+      "characters": 6569
+    },
+    {
+      "name": "contract/contract_0161.md",
+      "sha256": "d3c09a2ffaf6386a7b9fe81c47621b28dfeb3d25cc0c8245c10f96b82cfe4e37",
+      "characters": 384
+    },
+    {
+      "name": "contract/contract_0162.txt",
+      "sha256": "ffe6cffdbefba8361cc7b773accb31017e196bafc3f279cbe93a01b423d7981d",
+      "characters": 325
+    },
+    {
+      "name": "contract/contract_0163.md",
+      "sha256": "977dd6decaae06a98fc7d90696054871652e67dda9f798656eb520279107ba09",
+      "characters": 386
+    },
+    {
+      "name": "contract/contract_0164.txt",
+      "sha256": "b47dc4034d0c6d9194d19432fe6bddc7affb68731ecdb659b5e2ac23086417da",
+      "characters": 304
+    },
+    {
+      "name": "contract/contract_0165.md",
+      "sha256": "c5bb4942a77bcbd8c6dc96eced814ca04c2d00b69139c682711743cc8e7f4778",
+      "characters": 422
+    },
+    {
+      "name": "contract/contract_0166.txt",
+      "sha256": "da2cec679e776149f97cdf1be29d1a752140a731c582b521e9763c1e2171326b",
+      "characters": 6569
+    },
+    {
+      "name": "contract/contract_0167.md",
+      "sha256": "5e039061e41271cbb25c7c127a341aebb129efa7ef4fcfbe7f97b3e4db63ade1",
+      "characters": 384
+    },
+    {
+      "name": "contract/contract_0168.txt",
+      "sha256": "869988f1c42bf43f59f8893d681f641d007d2dab3fe3218330e59efef9629e9c",
+      "characters": 349
+    },
+    {
+      "name": "contract/contract_0169.md",
+      "sha256": "a9505ce5492acab29615a5db6aaadca4c5c340441e2ed309d1a1a6d1438b7265",
+      "characters": 340
+    },
+    {
+      "name": "contract/contract_0170.txt",
+      "sha256": "a7ef5be9afdd5ba686f3f425075fbfdfe7ff6de2581ee9b130c88b05af7f1f1a",
+      "characters": 384
+    },
+    {
+      "name": "contract/contract_0171.md",
+      "sha256": "9f1e76aa186f45b0530554a35ec3df26610a0e97164011018a11f3a53c84e2c3",
+      "characters": 418
+    },
+    {
+      "name": "contract/contract_0172.txt",
+      "sha256": "9e15fe74a2dfae37e708f6662e99993da50ee5411f69d2aa6605a238b5a733f8",
+      "characters": 6565
+    },
+    {
+      "name": "contract/contract_0173.md",
+      "sha256": "ef6f5586024d0f25e25a58d5ffde09a2cc7d587ba6f4c5ab5aa7dee21f7db1cd",
+      "characters": 384
+    },
+    {
+      "name": "contract/contract_0174.txt",
+      "sha256": "542d53bda5ba29b53da19dee037df0b34b8f48047318144848196001132283db",
+      "characters": 349
+    },
+    {
+      "name": "contract/contract_0175.md",
+      "sha256": "b87e45eda7d58e06a398889d7b65df1109787aa170e0607904ad52927ca165c5",
+      "characters": 340
+    },
+    {
+      "name": "contract/contract_0176.txt",
+      "sha256": "0b152ca15ce2b32e2fa18aacc62c78321f6bbe169febba655d0a21fa6106ed9a",
+      "characters": 357
+    },
+    {
+      "name": "contract/contract_0177.md",
+      "sha256": "e558224e701b2d1687ee994b17bdb6fcb45eab1d0e1c04863bf02b2e41957bec",
+      "characters": 387
+    },
+    {
+      "name": "contract/contract_0178.txt",
+      "sha256": "9578ccf34013f7a03cf14dd536c7db134905180fc56e3998c4d76f8bb145f20f",
+      "characters": 332
+    },
+    {
+      "name": "contract/contract_0179.md",
+      "sha256": "2d24974ba94f8c4c35f016ac77f4ec644c10fb197556ffc4bce8237f840ec830",
+      "characters": 362
+    },
+    {
+      "name": "contract/contract_0180.txt",
+      "sha256": "89a132e99955236bc9e2622317ae2074a3440948f445546b469718728f07d9e9",
+      "characters": 345
+    },
+    {
+      "name": "contract/contract_0181.md",
+      "sha256": "eb5f5397b8739432366558d0d1d6fe25149e0f857b868ecce6ac3da0265cdd3e",
+      "characters": 336
+    },
+    {
+      "name": "contract/contract_0182.txt",
+      "sha256": "9de36eaeb8bdc6c424adcc16cd587656b3975be4bd93725b21d36868fcab6dff",
+      "characters": 380
+    },
+    {
+      "name": "contract/contract_0183.md",
+      "sha256": "c4cf44806ffcc1b7df5dda09037f69128c021ca1c3a06322239623b4c3892e19",
+      "characters": 422
+    },
+    {
+      "name": "contract/contract_0184.txt",
+      "sha256": "fbafdde4d01456fbd2025b51e43a7aabe0af441856a3bc1a9b9b445e3b2c7afd",
+      "characters": 6569
+    },
+    {
+      "name": "contract/contract_0185.md",
+      "sha256": "d7ad06fc3680a494a8b0673135109f084f69803fa0dcd205c2d1fcae391ef08d",
+      "characters": 384
+    },
+    {
+      "name": "contract/contract_0186.txt",
+      "sha256": "d8ef2bd1f7f0da4fb6eceb665fd842c7c459c4f360e7d458bf64418174ac199f",
+      "characters": 349
+    },
+    {
+      "name": "contract/contract_0187.md",
+      "sha256": "9aef321fcceed6a434c47cf3a553cc54e24643bb7beaae752a21e38560339e00",
+      "characters": 340
+    },
+    {
+      "name": "contract/contract_0188.txt",
+      "sha256": "1f87b7569b4fc871caf2f6097b27bfbf6e7f73c32cb479c181a0b8ae19f3bfa3",
+      "characters": 357
+    },
+    {
+      "name": "contract/contract_0189.md",
+      "sha256": "bea3c38f11c3f268208c6bb1621f051465bba638170185a702d3decf17e4c2fe",
+      "characters": 418
+    },
+    {
+      "name": "contract/contract_0190.txt",
+      "sha256": "e2ef4d41df8cbb80bc59952a4c7f1ba51e04a2fd106d211bf7681b8605b5832a",
+      "characters": 6565
+    },
+    {
+      "name": "contract/contract_0191.md",
+      "sha256": "eb587f2d9c692e589b00d39d59d465a011788c4a7f066949613d34a4d6e843af",
+      "characters": 384
+    },
+    {
+      "name": "contract/contract_0192.txt",
+      "sha256": "10f66539a36cbedb22ffbea5bba5b470b3979d3456a199ae6abd332567a07fe4",
+      "characters": 329
+    },
+    {
+      "name": "contract/contract_0193.md",
+      "sha256": "f439d2e3864a0b51765ab78569c78a9ad56aa5bb7281e27997959b44cd6da808",
+      "characters": 390
+    },
+    {
+      "name": "contract/contract_0194.txt",
+      "sha256": "0b9f9e52618ee6085f97c0d6c88f6a445fd4a2012e554bc03e5929848726b575",
+      "characters": 331
+    },
+    {
+      "name": "contract/contract_0195.md",
+      "sha256": "ea350bf5680fde46de58919d85b0eecad21e9ff9f93aca8f393e5370abae2461",
+      "characters": 422
+    },
+    {
+      "name": "contract/contract_0196.txt",
+      "sha256": "c7b21b0ccf40d1fdb4a270d81799fe86e3f57bff452c5db45dfba776320aab60",
+      "characters": 6569
+    },
+    {
+      "name": "contract/contract_0197.md",
+      "sha256": "2768220c8eb2cab293f582271acf24902780ccb515f1dc07362d197b4646fbda",
+      "characters": 384
+    },
+    {
+      "name": "contract/contract_0198.txt",
+      "sha256": "3912f2293f7015744eb76c563d8ac19663cdd8f113111778a7e87b6f164994a2",
+      "characters": 345
+    },
+    {
+      "name": "contract/contract_0199.md",
+      "sha256": "6a5722d5030af1423da85779dfc43c74f172e95716257cad96d2e5ef85aa5b9a",
+      "characters": 336
+    },
+    {
+      "name": "contract/contract_0200.txt",
+      "sha256": "8ed376e78655fe4e9d94261667cf770b67d44ab40bee5bd2a7222ca842392ac9",
+      "characters": 357
+    },
+    {
+      "name": "contract/contract_0201.md",
+      "sha256": "26828f950fcdc78d20d3dee3f14d638a9de64568cb9259c096f69f785f5d609f",
+      "characters": 422
+    },
+    {
+      "name": "contract/contract_0202.txt",
+      "sha256": "8201d772304592af976d2eebacfb7fd978e495c7f7079596bf669a48771a49da",
+      "characters": 6569
+    },
+    {
+      "name": "contract/contract_0203.md",
+      "sha256": "8890674f596b23810d84f52707d50f8fe480b836898b5899aa4cb3399bd122aa",
+      "characters": 384
+    },
+    {
+      "name": "contract/contract_0204.txt",
+      "sha256": "ef392831393046d9e4bae2663bb71a6fe9ec5e49de909501b1501285b454d5c5",
+      "characters": 349
+    },
+    {
+      "name": "contract/contract_0205.md",
+      "sha256": "630992f3ac996bd4a8d81ebdec44c63896ab43212af49b426d5983835023f0e3",
+      "characters": 340
+    },
+    {
+      "name": "contract/contract_0206.txt",
+      "sha256": "7a7e97f0c07f4576175d4d3312cffd07b2e9ef17dd4027c0668aec91fa1f2ca1",
+      "characters": 384
+    },
+    {
+      "name": "contract/contract_0207.md",
+      "sha256": "2d65fc4a6f83ae2bc59bc3d311ced40f6a44d9b11d7edc3251fffeaacdcfbbd0",
+      "characters": 383
+    },
+    {
+      "name": "contract/contract_0208.txt",
+      "sha256": "8e634079bb45dc0088d25060a8c2a4926d31e4c71db1301fe9955515548aae90",
+      "characters": 328
+    },
+    {
+      "name": "contract/contract_0209.md",
+      "sha256": "532fe8ac53fab779b39ec060efc0c5f26ea6f462f89a8ae3ed1c4f58a41d210a",
+      "characters": 362
+    },
+    {
+      "name": "contract/contract_0210.txt",
+      "sha256": "9e564810859d4f2aec025a599aba5fe0a443edf4844ac2ae6a7f33295a3abdd9",
+      "characters": 349
+    },
+    {
+      "name": "contract/contract_0211.md",
+      "sha256": "a146cc216413e426aeb6c590ee754792e4467234418b82b4b09202b53b4437b5",
+      "characters": 340
+    },
+    {
+      "name": "contract/contract_0212.txt",
+      "sha256": "1e799e17e1d58f08ec638bb8fe64918a6492b21763670e6cabb34f74c57db6ee",
+      "characters": 357
+    },
+    {
+      "name": "contract/contract_0213.md",
+      "sha256": "6a0613283a50f73d012f097ca00e17f366084d9143b2ca8d43f9a3063cab83ca",
+      "characters": 422
+    },
+    {
+      "name": "contract/contract_0214.txt",
+      "sha256": "669ea849b4625176aff2c6d67e4787b4a4b660e7d4a5ee73362c24afc5f9d6ea",
+      "characters": 6569
+    },
+    {
+      "name": "contract/contract_0215.md",
+      "sha256": "3155039bc151b2d3f4e7288ef75196c7c4099a7d0750f42370114272bacaa0db",
+      "characters": 384
+    },
+    {
+      "name": "contract/contract_0216.txt",
+      "sha256": "ca581ac504bd3043df4644795d682589c61b7eee228931b78dea9cef0611f075",
+      "characters": 345
+    },
+    {
+      "name": "contract/contract_0217.md",
+      "sha256": "5098f0eb807b5e2fb3718fff7814476564f6a98c447adc70ea66a75767d9e72a",
+      "characters": 336
+    },
+    {
+      "name": "contract/contract_0218.txt",
+      "sha256": "e4fc5148909b7ac43ada466f3e986938e4ed145ee9b143a857f725745bb6209a",
+      "characters": 380
+    },
+    {
+      "name": "contract/contract_0219.md",
+      "sha256": "b2febf9611de2b8a31ff11374bc6f4dba52b9e67d876e36ff77439884e45188e",
+      "characters": 422
+    },
+    {
+      "name": "contract/contract_0220.txt",
+      "sha256": "f999c824072c41d3502bc70c2a8c6ab9a1afa42c60cd2b1d7704b2fb03b85e6b",
+      "characters": 6569
+    },
+    {
+      "name": "contract/contract_0221.md",
+      "sha256": "46c6d2696e0528a5f6a5f234c5ff48d7e3d190d8a32b88d4ac910bbdf505baab",
+      "characters": 384
+    },
+    {
+      "name": "contract/contract_0222.txt",
+      "sha256": "baff5e2821996747e426ee64ac350587a53b5eb67946ebadd07c643f67d6b4e2",
+      "characters": 329
+    },
+    {
+      "name": "contract/contract_0223.md",
+      "sha256": "244636f99abf627c17d90ea3edf0a648e5c0234eeedd12c4d4d459171eff3dde",
+      "characters": 390
+    },
+    {
+      "name": "contract/contract_0224.txt",
+      "sha256": "a3cd4cbaacd7846228b4e5a0649db3c2114196c29f5850ca8869ca2a60bede01",
+      "characters": 304
+    },
+    {
+      "name": "contract/contract_0225.md",
+      "sha256": "5e6b614ca5bd30caf4b2f0009d4fe9b68a6ce23e8519b6b1d57489d5f25d834d",
+      "characters": 418
+    },
+    {
+      "name": "contract/contract_0226.txt",
+      "sha256": "66fd6353f3b48e87e083414ff32cb8a0155ac3e4175b1ad5c33b58703bc0f675",
+      "characters": 6565
+    },
+    {
+      "name": "contract/contract_0227.md",
+      "sha256": "1be9c2879bdbb3c6f2b1df52d01388c663dc9d00f3531a5056df24c58bfa9079",
+      "characters": 384
+    },
+    {
+      "name": "contract/contract_0228.txt",
+      "sha256": "d0a85f35e26090065c0d38fb226ded361c674b0f78190d56eec54b1cb46506ac",
+      "characters": 349
+    },
+    {
+      "name": "contract/contract_0229.md",
+      "sha256": "78a73986831d23a8ce00238de7da3512e0ddd8e574313d9baa61c455c15f49a9",
+      "characters": 340
+    },
+    {
+      "name": "contract/contract_0230.txt",
+      "sha256": "2e1bd8edaa8d83eb7a4e40c712a2a1f53b5462d063df37d15c81e76f44ca8e10",
+      "characters": 384
+    },
+    {
+      "name": "contract/contract_0231.md",
+      "sha256": "d7375b568ce659aac76216e83a0a61a36c7ce3bb5411635d99acf2fecb573dce",
+      "characters": 422
+    },
+    {
+      "name": "contract/contract_0232.txt",
+      "sha256": "b7dd7d347440961c6086573a4f39332276a43d2a4145448dbe0e29e86d18e5bd",
+      "characters": 6569
+    },
+    {
+      "name": "contract/contract_0233.md",
+      "sha256": "332c9e0d410c6680ce256c24a1c51537f2968abbf7d8eb95867b7c6bd929c6ab",
+      "characters": 384
+    },
+    {
+      "name": "contract/contract_0234.txt",
+      "sha256": "39fff844c55bce1978eb038836399fd0fa5cd5d016660010fc410a0c9bbf7310",
+      "characters": 345
+    },
+    {
+      "name": "contract/contract_0235.md",
+      "sha256": "5fbca5b7dc813096b35f1161119d03b5288cd1468222c2aadf34393558c7dc9b",
+      "characters": 336
+    },
+    {
+      "name": "contract/contract_0236.txt",
+      "sha256": "d959dfe3e59d3442f4a39dc7339f064a5af7ac1ca374ad9fe6c93a5a5d9cf1ab",
+      "characters": 357
+    },
+    {
+      "name": "contract/contract_0237.md",
+      "sha256": "9117216478d64bd997610b153d52a54b85980bc9390d0a0736e3c78c13e5eb68",
+      "characters": 387
+    },
+    {
+      "name": "contract/contract_0238.txt",
+      "sha256": "25f123f0331196d48d9ce6e0c5507b73919f25289d5c00655be96b5d7c66b006",
+      "characters": 332
+    },
+    {
+      "name": "contract/contract_0239.md",
+      "sha256": "11928437df187d69d156f5e0a2af0c1827a37590e7eea4ef36baeffd1bc86d0e",
+      "characters": 362
+    },
+    {
+      "name": "contract/contract_0240.txt",
+      "sha256": "6969df32c4394c3dd71e2e559dfbe6d2652bcd647a5ad8e3797f57e765e3221c",
+      "characters": 349
+    },
+    {
+      "name": "contract/contract_0241.md",
+      "sha256": "bd351ec2fbb8cbbeaeedf3aaf65cab3b0f9236a0a03173231dc75887496ec104",
+      "characters": 340
+    },
+    {
+      "name": "contract/contract_0242.txt",
+      "sha256": "b79b3ff04f704facb36fb72fd74014e37202eb69abf6d4f10192bfb0e6ab0a2c",
+      "characters": 384
+    },
+    {
+      "name": "contract/contract_0243.md",
+      "sha256": "41dcd66c04b4e20d39622b583fe54443a03aea3a3dce5019947a7e9d916c5764",
+      "characters": 418
+    },
+    {
+      "name": "contract/contract_0244.txt",
+      "sha256": "374d87cee4a8c556641d50f261bfc59c7f0fb2dd4f2b7b55832b1cad84217a3c",
+      "characters": 6565
+    },
+    {
+      "name": "contract/contract_0245.md",
+      "sha256": "c2f65adac9eff31f9d5fdd8e7e82ec9b14a0458387ffbdfda07b7d15b41f63b5",
+      "characters": 384
+    },
+    {
+      "name": "contract/contract_0246.txt",
+      "sha256": "2e1b40b1b7148c7fc7b0d84ae58db6855995d4a6d8648531d4af4750d2b7911f",
+      "characters": 349
+    },
+    {
+      "name": "contract/contract_0247.md",
+      "sha256": "996779dbe9f5fbc6fd888556005f0837b971f5256352f105b2037df0293a5477",
+      "characters": 340
+    },
+    {
+      "name": "contract/contract_0248.txt",
+      "sha256": "e9117c00748ff3c07c3cb508069e24468d993cd39eaebaaa90a273977bc1d3cd",
+      "characters": 357
+    },
+    {
+      "name": "contract/contract_0249.md",
+      "sha256": "1ebf94c1ac57134d1e6e6af4b034494fc8804d8228005c5ccd8712c96ca1824f",
+      "characters": 422
+    },
+    {
+      "name": "contract/contract_0250.txt",
+      "sha256": "7b3bc651292349dd372488c5f4332c0beab8f0e087cdcb398e19d7c7b6310482",
+      "characters": 6569
+    },
+    {
+      "name": "contract/contract_0251.md",
+      "sha256": "2a96ba957e01b44c687abea05ca00b26b255290c7c2b37a86a60d313a970dd88",
+      "characters": 384
+    },
+    {
+      "name": "contract/contract_0252.txt",
+      "sha256": "6c07beb0f102e3eab713122ddf1081c482c26e66c95ad3a69f582d1cb620c8c2",
+      "characters": 325
+    },
+    {
+      "name": "contract/contract_0253.md",
+      "sha256": "33cc2f680a2f2f63a63dd9f652d90c33d7d4916007ecb8cf8a073cf3b00035d5",
+      "characters": 386
+    },
+    {
+      "name": "contract/contract_0254.txt",
+      "sha256": "90aef1ac36187cada94550f16395d97a466b536ccb63c199170865eca56d9ba3",
+      "characters": 327
+    },
+    {
+      "name": "contract/contract_0255.md",
+      "sha256": "e6e8f100bd90e1c931a287eed11214daab11d2352d36d7a353e771cbd4264a20",
+      "characters": 422
+    },
+    {
+      "name": "contract/contract_0256.txt",
+      "sha256": "4892d2632aeeb8d93633fe042c471cbc2d65ed20bc30937b5244b9b7aab0008f",
+      "characters": 6569
+    },
+    {
+      "name": "contract/contract_0257.md",
+      "sha256": "9cba0e3be21d29ac1b184004ec43e99c720a4a25bf7e33cdda6bf46c96672423",
+      "characters": 384
+    },
+    {
+      "name": "contract/contract_0258.txt",
+      "sha256": "f8117b4a7c524b86836d4d0bfa216f34931a8b988da38c504f5f0be633263606",
+      "characters": 349
+    },
+    {
+      "name": "contract/contract_0259.md",
+      "sha256": "8397c9f4d8852da3e343295eb0a503630a5fdfc54e457b43606b34120591f9c9",
+      "characters": 340
+    },
+    {
+      "name": "contract/contract_0260.txt",
+      "sha256": "2f95b8bc5fe141c817f328e1880b8e64abe45c104e8578b96ad270d6f1f18d80",
+      "characters": 357
+    },
+    {
+      "name": "contract/contract_0261.md",
+      "sha256": "00b8556f3ca726f22366aaccd94c8cbfba5e90511e45115f9cd3b2005702e1b0",
+      "characters": 418
+    },
+    {
+      "name": "contract/contract_0262.txt",
+      "sha256": "e1c220bb9da6f4c4adca8e8dc432fc2da481ba4a7a0ad6a6c6c2a5bb6069500d",
+      "characters": 6565
+    },
+    {
+      "name": "contract/contract_0263.md",
+      "sha256": "b33482b3a39e81621cc9c9312d4221d64814bb70a6a10efdd439fd8087083ca0",
+      "characters": 384
+    },
+    {
+      "name": "contract/contract_0264.txt",
+      "sha256": "eff8e9b0fbd047a7be4e1a92cf990d747b5af288121a66f909a9aabf2e7e4210",
+      "characters": 349
+    },
+    {
+      "name": "contract/contract_0265.md",
+      "sha256": "1baceead64fb55d21f8b950fc95cd91e050d43a70bfe363aa53b3ddf28427fef",
+      "characters": 340
+    },
+    {
+      "name": "contract/contract_0266.txt",
+      "sha256": "c33b4eeab617ff4129750984c6cea75fb314981ca777041b4409b112f476288e",
+      "characters": 384
+    },
+    {
+      "name": "contract/contract_0267.md",
+      "sha256": "f57068a1c0bd59748c1f869721f615dd6816f21452592c8fc9ad4e199521d819",
+      "characters": 387
+    },
+    {
+      "name": "contract/contract_0268.txt",
+      "sha256": "b32f76930ff44ee6fa70b7f248ef32025ea5c41df901dcd089bf4043ac554f14",
+      "characters": 332
+    },
+    {
+      "name": "contract/contract_0269.md",
+      "sha256": "ab3b144ade1f93ffaa959af4e516e37c2822782c58996e1ffd2abd3148691681",
+      "characters": 362
+    },
+    {
+      "name": "contract/contract_0270.txt",
+      "sha256": "7d47f819dde1ff2227e878ee3e95a24c7ebceb4ccf0a838e57f9730be4243e49",
+      "characters": 345
+    },
+    {
+      "name": "contract/contract_0271.md",
+      "sha256": "2977d64fe65648d55d530c078b9649287eaf60ee7d3bc55697068be819e3216a",
+      "characters": 336
+    },
+    {
+      "name": "contract/contract_0272.txt",
+      "sha256": "8dde168f54359fa721589c8d340e6ffc443f88ecd278be21304c542ef203f2e9",
+      "characters": 357
+    },
+    {
+      "name": "contract/contract_0273.md",
+      "sha256": "4ff705a9791f6cd3cbdd499ef4cb12bbfa59456dfe60e69412000bb286951b5c",
+      "characters": 422
+    },
+    {
+      "name": "contract/contract_0274.txt",
+      "sha256": "367e5b6879b3ddc9c2d686848a6e9e02dc27f02221416e6033b3a8a7e8a8c548",
+      "characters": 6569
+    },
+    {
+      "name": "contract/contract_0275.md",
+      "sha256": "fdeed500a1ad57a1aa9382709898a43a6589ddc5aae826d2b662b54ff07689dc",
+      "characters": 384
+    },
+    {
+      "name": "contract/contract_0276.txt",
+      "sha256": "c0234e4028260dfb5123d3422d849533ecf44473b86e6797c896ab43c3dc65d2",
+      "characters": 349
+    },
+    {
+      "name": "contract/contract_0277.md",
+      "sha256": "66f4729dd2f4e6862e468a223f3899b8ba4708b01245e66bb7b8772ff9406244",
+      "characters": 340
+    },
+    {
+      "name": "contract/contract_0278.txt",
+      "sha256": "dfad7b551421edbed5be9b3d4ed90f854d7a1623fe37516553c4ad77633015e9",
+      "characters": 384
+    },
+    {
+      "name": "contract/contract_0279.md",
+      "sha256": "37d4fba5e77a02407fe60dd6a3ca1ebc7fda70e062dc0b1fe402d67467a33062",
+      "characters": 418
+    },
+    {
+      "name": "contract/contract_0280.txt",
+      "sha256": "209f33e1b0abc355761f5c233a075b4ad2cd4342d930f1987719b703f6c2a7ca",
+      "characters": 6565
+    },
+    {
+      "name": "contract/contract_0281.md",
+      "sha256": "cb487446a4c98d46074bdcf38e3754d920b8d1348ea3e1ab186ca4ce9b73033a",
+      "characters": 384
+    },
+    {
+      "name": "contract/contract_0282.txt",
+      "sha256": "efb113156503f3f74d3f08ca03e427f30a1c2ad1749b23a502ef5eca3805ab6b",
+      "characters": 329
+    },
+    {
+      "name": "contract/contract_0283.md",
+      "sha256": "edb133b4b4c7c585ba5e71ed4fade7bb56a4945511e95cdfdc3c12d8f1c3a41e",
+      "characters": 390
+    },
+    {
+      "name": "contract/contract_0284.txt",
+      "sha256": "a7f779da722cbcec5da1d08be598d1243bff15d06beab90a60cf8b98e0a78c11",
+      "characters": 304
+    },
+    {
+      "name": "contract/contract_0285.md",
+      "sha256": "d45633d2287c49df0cce27285a1b4b4f3887acef7a33e3ac967e40e75290697c",
+      "characters": 422
+    },
+    {
+      "name": "contract/contract_0286.txt",
+      "sha256": "911502a212a95c6f225e2fee4523f99edcf56ded6a3f6aae2a299ba5e2d2c828",
+      "characters": 6569
+    },
+    {
+      "name": "contract/contract_0287.md",
+      "sha256": "e86be62cc76c355775ebbe98ee01f2d4bea872f8d1e65b9e72738ed105a40929",
+      "characters": 384
+    },
+    {
+      "name": "contract/contract_0288.txt",
+      "sha256": "d0ca56c45c7e8ec200be1ea95bbb5d0e2df90df4e5fdf60ffd88f2afa037250d",
+      "characters": 345
+    },
+    {
+      "name": "contract/contract_0289.md",
+      "sha256": "22033f85df0225e052b1e71964de5c1b19e94682f4b1b1727363e1897ddbea7f",
+      "characters": 336
+    },
+    {
+      "name": "contract/contract_0290.txt",
+      "sha256": "13437f22f9e5992dca49360f87f0b3f7c936e6a7aa0696053c026f33629d0b91",
+      "characters": 380
+    },
+    {
+      "name": "contract/contract_0291.md",
+      "sha256": "6806f8028fa18a34041952f23701ae4c8cd484bb63a02f4981ede91a27b7bd70",
+      "characters": 422
+    },
+    {
+      "name": "contract/contract_0292.txt",
+      "sha256": "46b0c759f5cb9e25f39086d13d817242f6c0fd3d54352cbd0aa118c7a9cc05a2",
+      "characters": 6569
+    },
+    {
+      "name": "contract/contract_0293.md",
+      "sha256": "1ef63dd272cd7f2be83dba817460c3dec99f4eaeefabd8743ba1d97de3e6b2ff",
+      "characters": 384
+    },
+    {
+      "name": "contract/contract_0294.txt",
+      "sha256": "cecab4880ec66c2f785b747178d14aae699f2aab7400e0c31a20f219531ed0f5",
+      "characters": 349
+    },
+    {
+      "name": "contract/contract_0295.md",
+      "sha256": "6ed6af760a2b8186f2f28e57a613292c03c6265a5e56b6fde691d41a3ead74fa",
+      "characters": 340
+    },
+    {
+      "name": "contract/contract_0296.txt",
+      "sha256": "1b0f1a244a11c78d5e82c378b9e4e9128cd96319722c7556dbfd55c9b81f6930",
+      "characters": 357
+    },
+    {
+      "name": "contract/contract_0297.md",
+      "sha256": "a09e72339c5c4cf387a177f2d8490c4eda1f8ede38fab137abfeed20fc4e09c2",
+      "characters": 386
+    },
+    {
+      "name": "contract/contract_0298.txt",
+      "sha256": "d999bd0c55429b912cbe73919c3cca5a5da79e994f20176de666e6ce507ce2ea",
+      "characters": 331
+    },
+    {
+      "name": "contract/contract_0299.md",
+      "sha256": "ff56f94f3ac1b23aef6bb6624386688f70f0aef9e170f843003a0dab82cb8af7",
+      "characters": 365
+    },
+    {
+      "name": "financial/financial_0000.txt",
+      "sha256": "256fcc5ca655565543fb2de4bced1170eb3dff6f6ed69ec11328247192384213",
+      "characters": 348
+    },
+    {
+      "name": "financial/financial_0001.md",
+      "sha256": "8beb8aed9427d14c410950f71f00fc97013298adcd41fbb6b78bde8359480ac1",
+      "characters": 388
+    },
+    {
+      "name": "financial/financial_0002.txt",
+      "sha256": "4b85a22290c5d0683191502ba545a638dc80c0ed1b2c9f4cd9bb6750f4ae5e45",
+      "characters": 6532
+    },
+    {
+      "name": "financial/financial_0003.md",
+      "sha256": "16c1bcb793fa87da27576cb13d25ab2c05fe36b73e3b7e095786d50a4ef3131d",
+      "characters": 375
+    },
+    {
+      "name": "financial/financial_0004.txt",
+      "sha256": "bc2464952f7bb97b4cb47dd4f89248afbc759ee226ca461f38e2b6bc416d380e",
+      "characters": 295
+    },
+    {
+      "name": "financial/financial_0005.md",
+      "sha256": "8b4514c1aa00b0ead3895b0d7a64afed10829e7126bc7434f68366468a94465b",
+      "characters": 303
+    },
+    {
+      "name": "financial/financial_0006.txt",
+      "sha256": "cdab20213cf9c8c9431ad6feb005fdfaf0f29805d86c28556878974490ff8fb1",
+      "characters": 348
+    },
+    {
+      "name": "financial/financial_0007.md",
+      "sha256": "470daa63c56c36a00bb92be68d18de66529cd972f4c54f961816a7f63893feb5",
+      "characters": 388
+    },
+    {
+      "name": "financial/financial_0008.txt",
+      "sha256": "d78fa9b476e152cba6c76fc7754d253ceb7aad8b7ee8ab11aa92def353feb203",
+      "characters": 6532
+    },
+    {
+      "name": "financial/financial_0009.md",
+      "sha256": "9019c953836e0837ef7cdfada393ad5eedea867f147d9c14dcccd0f2a52333ca",
+      "characters": 356
+    },
+    {
+      "name": "financial/financial_0010.txt",
+      "sha256": "497839c3762c2a673cd51ef5e169ffbdd3f089337999c19e2b8a2af4dce2ab04",
+      "characters": 319
+    },
+    {
+      "name": "financial/financial_0011.md",
+      "sha256": "0d7812e2096c2d010a4cbcbff4998d0ad3da009a4e63ced0f76c9503c6719f50",
+      "characters": 307
+    },
+    {
+      "name": "financial/financial_0012.txt",
+      "sha256": "3fe5d09e390355b937e571c55ed70dccf3f52e1455372017ab03f6cbe726b886",
+      "characters": 352
+    },
+    {
+      "name": "financial/financial_0013.md",
+      "sha256": "c9bccb9f29b7c6d6ffecda95e0846a2382a1c918762c7cd2b0209a8bf6defa59",
+      "characters": 392
+    },
+    {
+      "name": "financial/financial_0014.txt",
+      "sha256": "38d69148f00c20054fd570abb0f6843ae5134ddafa950ba1104d0db292df05bf",
+      "characters": 299
+    },
+    {
+      "name": "financial/financial_0015.md",
+      "sha256": "d9b1cc15b1fd4b59052e10f07f62c05c7a03bd884246320e353c11f2a5fbcd2a",
+      "characters": 379
+    },
+    {
+      "name": "financial/financial_0016.txt",
+      "sha256": "310a102c0c2282f64ea267c2c5121b4a2f52fbbb090a563a4ad497231addb302",
+      "characters": 319
+    },
+    {
+      "name": "financial/financial_0017.md",
+      "sha256": "f6aca85a3ee54eb0c79650a3ce22d56813003a5bf48f92b25f47d7ed24a49c05",
+      "characters": 307
+    },
+    {
+      "name": "financial/financial_0018.txt",
+      "sha256": "93b8fe65fdb9c18bade5e69adf4a4473cbbb7988f8e9cbb7a6d009c1d472b0ab",
+      "characters": 352
+    },
+    {
+      "name": "financial/financial_0019.md",
+      "sha256": "f722ebbd90e05c152de97686271c844e86ba61d911d8cdccbb0edb56cd092565",
+      "characters": 357
+    },
+    {
+      "name": "financial/financial_0020.txt",
+      "sha256": "fe68521f46155a9c1440d3f00e5ec0bf1c5598af9dd39d6c9f11b3352869f5dc",
+      "characters": 6536
+    },
+    {
+      "name": "financial/financial_0021.md",
+      "sha256": "981529014f3d68426574afca42ff86cf1c278166895a0616cfb8f77bbd78b7fd",
+      "characters": 379
+    },
+    {
+      "name": "financial/financial_0022.txt",
+      "sha256": "56f1bbca81b5d24e235303685b8332c721f84e6c35d71ccea734c6daf67efe76",
+      "characters": 319
+    },
+    {
+      "name": "financial/financial_0023.md",
+      "sha256": "de38def1eb9caaafda6f7ec9adc26186ae318e7993d1e73c05d600c52e5e77f5",
+      "characters": 307
+    },
+    {
+      "name": "financial/financial_0024.txt",
+      "sha256": "4c018880dbd99e7168e52f9622021a71fa6dab154591f12da3d420d3244c3b9f",
+      "characters": 299
+    },
+    {
+      "name": "financial/financial_0025.md",
+      "sha256": "fcaf08bf5c84d0e8c741f2b7886bfcfa762a6510c961e51ff039f1ede0115866",
+      "characters": 392
+    },
+    {
+      "name": "financial/financial_0026.txt",
+      "sha256": "d56c95e5489a57b9e43cfc15b716b80ae87993e140a81cce832f74193ce16648",
+      "characters": 6536
+    },
+    {
+      "name": "financial/financial_0027.md",
+      "sha256": "fa767ade1774cb4581841ef27f7d238cfb9c06f9778bc049b3976cde2f2be10c",
+      "characters": 379
+    },
+    {
+      "name": "financial/financial_0028.txt",
+      "sha256": "c65a0a3940759807ea2a924249247f565e89e9a79d70d235d22b15a6b27e3735",
+      "characters": 319
+    },
+    {
+      "name": "financial/financial_0029.md",
+      "sha256": "e1cbb973dbf763a271c86dca336b7368032605cd99d3d5082d9374a27d785064",
+      "characters": 357
+    },
+    {
+      "name": "financial/financial_0030.txt",
+      "sha256": "5a8c2d7b95b7781ffaee01e8fc89e982f8383ea18a3e7ea69d378f0d22c36b21",
+      "characters": 352
+    },
+    {
+      "name": "financial/financial_0031.md",
+      "sha256": "a308e74cba5ce14438a25096d3de6bcf33013e1740a2ecb718d414d11352be1f",
+      "characters": 392
+    },
+    {
+      "name": "financial/financial_0032.txt",
+      "sha256": "7176225bb8a20f933c696722e6a103c89a8d3574ae5d1e3634c31708e4dade0f",
+      "characters": 6536
+    },
+    {
+      "name": "financial/financial_0033.md",
+      "sha256": "33c67cb28f83dec345ba85b81ccaf4bace71d23c225ee017493a8e1f6bc309e3",
+      "characters": 379
+    },
+    {
+      "name": "financial/financial_0034.txt",
+      "sha256": "6cde91dcc92acb9759cee554f5c540845eabf2f9e75898a1d55a49788b118437",
+      "characters": 299
+    },
+    {
+      "name": "financial/financial_0035.md",
+      "sha256": "c4dfadda0f60758dd4004c31ec230ab5a9c2f0a2e9d71e6f7109a11db6c74fe2",
+      "characters": 307
+    },
+    {
+      "name": "financial/financial_0036.txt",
+      "sha256": "1660938cf12ce2c3e0ee6bcffe2224ad4bce423de4c9f49744036f9532f75133",
+      "characters": 352
+    },
+    {
+      "name": "financial/financial_0037.md",
+      "sha256": "a62137b42754da51285c46a21cfdeffa3ec27d09a0c277e799d65f534ea28b76",
+      "characters": 392
+    },
+    {
+      "name": "financial/financial_0038.txt",
+      "sha256": "014a736c52140747d65612adaae8025e3220379c9d9f4f0377d1e06b37aac837",
+      "characters": 6536
+    },
+    {
+      "name": "financial/financial_0039.md",
+      "sha256": "3e1ae2ce456ed0c8ce820fd479000b9c1ac00a8234e4543f060064fb59750af9",
+      "characters": 357
+    },
+    {
+      "name": "financial/financial_0040.txt",
+      "sha256": "1c77c999dc4b2aeba70dcb04efe5d001f695d730144819f55bfbddc7fa11a6f3",
+      "characters": 319
+    },
+    {
+      "name": "financial/financial_0041.md",
+      "sha256": "1df31987d4d48397efcdae5081022051b47d8e6d7947b67e1d80c17c27bfa65d",
+      "characters": 307
+    },
+    {
+      "name": "financial/financial_0042.txt",
+      "sha256": "1bc18014d519cac1e594eb83cfae5f8cb01b5f96aee4ae6a75db66be648ddac5",
+      "characters": 352
+    },
+    {
+      "name": "financial/financial_0043.md",
+      "sha256": "be6d353ac70d17c5f31cf55a868fe7b1a3160d3d4c157c2a8d617a2fb3dc7020",
+      "characters": 392
+    },
+    {
+      "name": "financial/financial_0044.txt",
+      "sha256": "f9cef85ba75a5e0bac126d87f70f5a6b24d2672153166b6ab00d846732f5eb2c",
+      "characters": 299
+    },
+    {
+      "name": "financial/financial_0045.md",
+      "sha256": "9008eafc0350e6bf1fcac53a20723cfaaf4a4acd7d01bdbdac2f0b3a834a76f5",
+      "characters": 379
+    },
+    {
+      "name": "financial/financial_0046.txt",
+      "sha256": "df56d01138f48939593da594dd6b90d7f7a0ab8210f339f8cf5b0b0572ed3106",
+      "characters": 319
+    },
+    {
+      "name": "financial/financial_0047.md",
+      "sha256": "4816644e1130b1b55ba5db577908d8bc66de05c21ec00b8cfa9fcf403e7abec4",
+      "characters": 307
+    },
+    {
+      "name": "financial/financial_0048.txt",
+      "sha256": "bb82f14c0e43ed343da8902a71231818215fb83a5b202f1031c185ae33e86d96",
+      "characters": 352
+    },
+    {
+      "name": "financial/financial_0049.md",
+      "sha256": "30818ac29fccf5aac3c77c535a385823df39cb28be443a3c6fcf94ef5ff2d969",
+      "characters": 357
+    },
+    {
+      "name": "financial/financial_0050.txt",
+      "sha256": "b2da590dba787d1c5feb2acbbe7a2dd22710b46ed9ed2ee3e292259e54059036",
+      "characters": 6536
+    },
+    {
+      "name": "financial/financial_0051.md",
+      "sha256": "0563d10caf2c400f7c9bf80d952888fda90c4c41182b8b393df615d1413afb15",
+      "characters": 379
+    },
+    {
+      "name": "financial/financial_0052.txt",
+      "sha256": "e7ba16d0b24d576beb42ef3d390ec1a938ed8d5fb3901c72d4b8314d9bacc8c8",
+      "characters": 319
+    },
+    {
+      "name": "financial/financial_0053.md",
+      "sha256": "0a4cb6760df0a305db27d4bb8b4117ed909eb984e8ac2be6f18b1a73e6cf79cf",
+      "characters": 307
+    },
+    {
+      "name": "financial/financial_0054.txt",
+      "sha256": "952a5cc9e313e32fd075078c2674a5f59d7d5b5eb26553d1e272b49aaacd16b5",
+      "characters": 299
+    },
+    {
+      "name": "financial/financial_0055.md",
+      "sha256": "556feecba44bd98014a583c201dc87a4ee623f46ba40ccaca26764caf278b339",
+      "characters": 392
+    },
+    {
+      "name": "financial/financial_0056.txt",
+      "sha256": "dac54dad36656cd0e4ff32549b2d9fc05cce3f20619bb227aad4464d6055eda4",
+      "characters": 6536
+    },
+    {
+      "name": "financial/financial_0057.md",
+      "sha256": "d992311a7c0ae0e1b88853fcba4ec880cf17c007f618c91b70165d709855dac8",
+      "characters": 379
+    },
+    {
+      "name": "financial/financial_0058.txt",
+      "sha256": "4cbf9658f526e5f24b446d9c5991eb5c6ddd3a68a59e371d7458f800dc6c46d6",
+      "characters": 319
+    },
+    {
+      "name": "financial/financial_0059.md",
+      "sha256": "6d356c8f956794f8bc89fda5953c6d087e5f5567eab3ef8fabf4e052389ae59f",
+      "characters": 357
+    },
+    {
+      "name": "financial/financial_0060.txt",
+      "sha256": "1e48466c83ddd561c4d728fd21fb40e0c9ec29e1e731e0d4a504b3e41c1d5a33",
+      "characters": 352
+    },
+    {
+      "name": "financial/financial_0061.md",
+      "sha256": "e1eaeafafc8f12f2b20a7a09e392dec28fe60be9547b13641e1ceb4cde5214f9",
+      "characters": 392
+    },
+    {
+      "name": "financial/financial_0062.txt",
+      "sha256": "efaf81043919335266514b3a6450bec921729ecb7516a0d388f15264f419b574",
+      "characters": 6536
+    },
+    {
+      "name": "financial/financial_0063.md",
+      "sha256": "ccc38c6b17296f663ca57736bb10520968fd94096aac03d31d2161a68b20c929",
+      "characters": 379
+    },
+    {
+      "name": "financial/financial_0064.txt",
+      "sha256": "3ee0a1b3b14628d4db9841faa1fa4456aeb521f28fd29bd79fb4b3f6062aab71",
+      "characters": 299
+    },
+    {
+      "name": "financial/financial_0065.md",
+      "sha256": "875379e7b5c3ae3c9d5d6f529e96848b5551e29e6b8608d33570d611e43b5ed6",
+      "characters": 307
+    },
+    {
+      "name": "financial/financial_0066.txt",
+      "sha256": "86773d88b3425bf44050f071e76ce8cfdba1a91e8df5c6cd1f8f8c2b4cec0bc9",
+      "characters": 352
+    },
+    {
+      "name": "financial/financial_0067.md",
+      "sha256": "c8dd4ac59bc29b98b430fefa960c6c2908c6b91927e2c0d0ac76afc403ffb12d",
+      "characters": 392
+    },
+    {
+      "name": "financial/financial_0068.txt",
+      "sha256": "3c95b0c2e4b0ea40c2300150dccbf8553a89f6f557e3d568a4d6a5fb71f1f297",
+      "characters": 6536
+    },
+    {
+      "name": "financial/financial_0069.md",
+      "sha256": "96d8d544f45749757c8118f225ecc432509e00f65b6c96979806efb72714fb7a",
+      "characters": 357
+    },
+    {
+      "name": "financial/financial_0070.txt",
+      "sha256": "aeafb919dad2c8db6d7f1f66e3d7fecbb62b30bdfd9e45761d4c2dcd69f2350e",
+      "characters": 319
+    },
+    {
+      "name": "financial/financial_0071.md",
+      "sha256": "b918116998d00ca2a85e907fc8c84f530583c73107f7efed13ea327308893fbc",
+      "characters": 307
+    },
+    {
+      "name": "financial/financial_0072.txt",
+      "sha256": "a463e67156e9e27592d86a0535f13aa386e5f7e6673ba46babda01c8f07ce64d",
+      "characters": 352
+    },
+    {
+      "name": "financial/financial_0073.md",
+      "sha256": "776f4eac4d51b4855c531c917ba38aacfab37b5406e73e7bbf198f9024e6a084",
+      "characters": 392
+    },
+    {
+      "name": "financial/financial_0074.txt",
+      "sha256": "d5b9390a444ddc4c69fedd0761b62bd42218256644ca4b3c2428ad3c488930de",
+      "characters": 299
+    },
+    {
+      "name": "financial/financial_0075.md",
+      "sha256": "4da08faf71eb09b16cad7bd54b57a67cd589c8992d8bdd47f7257b83d0c8d119",
+      "characters": 379
+    },
+    {
+      "name": "financial/financial_0076.txt",
+      "sha256": "5a48c5a3395c7c78eb9155e21040477cfac98d608fbdd63aab11caa17a3477b3",
+      "characters": 319
+    },
+    {
+      "name": "financial/financial_0077.md",
+      "sha256": "1bb0364c78ae39a8ac8d05d5fd4857c87d15786cbd11dfd9ba9a034812fddb86",
+      "characters": 307
+    },
+    {
+      "name": "financial/financial_0078.txt",
+      "sha256": "121a990a5c621e71b261071b25aafa8da426b3402bde4dd257be1f108512a545",
+      "characters": 352
+    },
+    {
+      "name": "financial/financial_0079.md",
+      "sha256": "5e6741b5a3a8c5bae6c28c1605bf602da9f3a8c6a497e0f8be2027d5fd17589b",
+      "characters": 357
+    },
+    {
+      "name": "financial/financial_0080.txt",
+      "sha256": "1b7a0701f33292731d9ae4523bd8fe8468a3beef44419a67b8b3d8fd48ff5b9c",
+      "characters": 6536
+    },
+    {
+      "name": "financial/financial_0081.md",
+      "sha256": "26a9d7515f4b6baaf6c9e096ff0524a737a3e862887435615740dc2d751ba9d9",
+      "characters": 379
+    },
+    {
+      "name": "financial/financial_0082.txt",
+      "sha256": "df27cbbe49851e11fe5b7d710b193e982d0e12333dbb86c2050f914d19f00228",
+      "characters": 319
+    },
+    {
+      "name": "financial/financial_0083.md",
+      "sha256": "daeeed94cd3700e403afb7f7b33b624e090f241a32252f4489529b8b14768a2c",
+      "characters": 307
+    },
+    {
+      "name": "financial/financial_0084.txt",
+      "sha256": "e12ad3906f7c6a36439c559702678deba4edb010633ba68a73798977489b9de7",
+      "characters": 299
+    },
+    {
+      "name": "financial/financial_0085.md",
+      "sha256": "1384f7320f254a2ccb1765da98ce892effb20743d90e923b2a31a06a051855c8",
+      "characters": 392
+    },
+    {
+      "name": "financial/financial_0086.txt",
+      "sha256": "ed801446573a33c4acd9581c641c7ffb1ca08dd16268a3110ca029591c3f89db",
+      "characters": 6536
+    },
+    {
+      "name": "financial/financial_0087.md",
+      "sha256": "3b07ff0bbf12b7d76d067c65fef004ddeb752358d37436fec689f51954699a19",
+      "characters": 379
+    },
+    {
+      "name": "financial/financial_0088.txt",
+      "sha256": "1e648b6634faf3ecec4a9defdf9b26bb3587b85231bdff0d5bfa2e2a1870a457",
+      "characters": 319
+    },
+    {
+      "name": "financial/financial_0089.md",
+      "sha256": "f3dd2fb6a341072b109d9155a3a77a1cb01acbb265860ec25f909430534c87a5",
+      "characters": 357
+    },
+    {
+      "name": "financial/financial_0090.txt",
+      "sha256": "21cc015aff9b32515614ee815fffad441b72a6340f6787ec03323de4e5c387d9",
+      "characters": 352
+    },
+    {
+      "name": "financial/financial_0091.md",
+      "sha256": "67fa5a3dcb2e8b9e1d634e951433ca83c3e567218e37a4b868b0c787a80c2803",
+      "characters": 392
+    },
+    {
+      "name": "financial/financial_0092.txt",
+      "sha256": "2c65ed2443ae95bd37ff9b98344357d47de281b4b50ac6463acbf7038147922b",
+      "characters": 6536
+    },
+    {
+      "name": "financial/financial_0093.md",
+      "sha256": "17cf7befc99aa1c9711ad785b8c2e3a1f18b312ed70f5311ef9b1ef974375168",
+      "characters": 379
+    },
+    {
+      "name": "financial/financial_0094.txt",
+      "sha256": "c0cea3174d4a66b9c9a66597443ee60521ebb49f0e55ae79c14ff728ef3c5559",
+      "characters": 299
+    },
+    {
+      "name": "financial/financial_0095.md",
+      "sha256": "3a2657518cad402a24ba13764befd292a1e6853412518f17ce2ec3307d425cbf",
+      "characters": 307
+    },
+    {
+      "name": "financial/financial_0096.txt",
+      "sha256": "1c6328e0a7928c7746058c223af92c4971ba9ebc41bc4c1a1820d3e1858d4e52",
+      "characters": 352
+    },
+    {
+      "name": "financial/financial_0097.md",
+      "sha256": "45067a0f85825ea0f3033f4e0c073edf226236469792f5397f23a0c0d0d1165d",
+      "characters": 392
+    },
+    {
+      "name": "financial/financial_0098.txt",
+      "sha256": "bffb209a35e25d9e38d0a0e7b49e803ce196b259ca37d5fc477928ccd99a2b3c",
+      "characters": 6536
+    },
+    {
+      "name": "financial/financial_0099.md",
+      "sha256": "c7a263717e886bafb21763d236544eb9ac326e564684be183ffa76f29ab694bc",
+      "characters": 360
+    },
+    {
+      "name": "financial/financial_0100.txt",
+      "sha256": "0e3311393aaeb787f29681121944ee543343408b3da2f1d9b82b927dde35cfb3",
+      "characters": 315
+    },
+    {
+      "name": "financial/financial_0101.md",
+      "sha256": "2899468244e59bf2f0dccaf7ba1f513077f5f9a48095a972778904a4df61dac6",
+      "characters": 303
+    },
+    {
+      "name": "financial/financial_0102.txt",
+      "sha256": "4e2242f8b3eb48229ddc0999a95012592f624cfac2465cc004cb3f82601052af",
+      "characters": 348
+    },
+    {
+      "name": "financial/financial_0103.md",
+      "sha256": "d087f24d2b669173300f8256317f027554a9ad968034e65e6aa344f4a38be859",
+      "characters": 388
+    },
+    {
+      "name": "financial/financial_0104.txt",
+      "sha256": "0f8807c9660d78578451eef68060a063f9bb97739c2918d74cc27a7e29faf835",
+      "characters": 295
+    },
+    {
+      "name": "financial/financial_0105.md",
+      "sha256": "a2dc72cffcb591d634f0ee78131a582a0f0284ff9d4cb406793cb711a37599b7",
+      "characters": 375
+    },
+    {
+      "name": "financial/financial_0106.txt",
+      "sha256": "9a8a7bad6eb82fb9e592d49099e59b637b081b9f8b7b016bcf026802fc2a0074",
+      "characters": 315
+    },
+    {
+      "name": "financial/financial_0107.md",
+      "sha256": "4f9f0fc707d7593a1923e2b1d4d973a4ac9d370ef2e01bd6dfbf20535fd3b48e",
+      "characters": 303
+    },
+    {
+      "name": "financial/financial_0108.txt",
+      "sha256": "1ffeb03373b644d277cda6953306c04746d2fc0d189db01645cebc39a8240544",
+      "characters": 348
+    },
+    {
+      "name": "financial/financial_0109.md",
+      "sha256": "92a7d1ae31fd03db902c4768fa19499c059329a19fa5ec82cf2499084a624472",
+      "characters": 356
+    },
+    {
+      "name": "financial/financial_0110.txt",
+      "sha256": "b481be06fc303a28617e256b1445018b78580685b2d8fc6f58f86266baf649d3",
+      "characters": 6536
+    },
+    {
+      "name": "financial/financial_0111.md",
+      "sha256": "1d3f682cbd8e9ca351e016c7e6295ffab6fffa9e053aa526a1a0a4ef42056a1b",
+      "characters": 379
+    },
+    {
+      "name": "financial/financial_0112.txt",
+      "sha256": "c9d1a42f4ef694dbfa319acaed729f4c7698fc9a2ac25d5f32f8033ef5676cdb",
+      "characters": 319
+    },
+    {
+      "name": "financial/financial_0113.md",
+      "sha256": "f2849835bfadfbf7a513f998c85a029f38f26295979726268881e96da07c5025",
+      "characters": 307
+    },
+    {
+      "name": "financial/financial_0114.txt",
+      "sha256": "1b8b6fd7afb450fd256666d645d975e6ce70092d0933fe2c43806018c93b98cf",
+      "characters": 299
+    },
+    {
+      "name": "financial/financial_0115.md",
+      "sha256": "7b97ddcb1b25732c57183e8efbb772c683545034d87efb30e1ea2cb86dca379c",
+      "characters": 392
+    },
+    {
+      "name": "financial/financial_0116.txt",
+      "sha256": "6d4a34e123ca65a59643e4f3ba511a21a8fe0b234d0565767e12b8dcd40a5fe1",
+      "characters": 6536
+    },
+    {
+      "name": "financial/financial_0117.md",
+      "sha256": "dfbcfce0fc3c0ca437e9c9a75e7251464398350b66c84ab98ff568546c38c98d",
+      "characters": 379
+    },
+    {
+      "name": "financial/financial_0118.txt",
+      "sha256": "6e3cb85d00f34955061ecb95bb43e3ae657bdf76a8bca95e2c02d3fd4ad9e14f",
+      "characters": 319
+    },
+    {
+      "name": "financial/financial_0119.md",
+      "sha256": "4c24ce0ca6bff1a15f63397b43c9e7d00f1361896c3394b8a4bacf64f121dc54",
+      "characters": 357
+    },
+    {
+      "name": "financial/financial_0120.txt",
+      "sha256": "bcf0662bdd54d8af4a6ba6afee730bd1473a03d71a58f27684cea9f5bc1404d6",
+      "characters": 352
+    },
+    {
+      "name": "financial/financial_0121.md",
+      "sha256": "5d229a8af11e2af232e25408eec61592ceada46304c0e2a4395153ceaf875c56",
+      "characters": 392
+    },
+    {
+      "name": "financial/financial_0122.txt",
+      "sha256": "0cddcc96aa034d77ac532b9999ab329c10b46264c89443d228945c372e459ee3",
+      "characters": 6536
+    },
+    {
+      "name": "financial/financial_0123.md",
+      "sha256": "4700eca29903d953a547db408fdd7397e0186a8aa6a4d4afff639cc104634114",
+      "characters": 379
+    },
+    {
+      "name": "financial/financial_0124.txt",
+      "sha256": "dcf02e9ab088342140873cc380ff04087f0150805c60340f618a19fe5d90fa20",
+      "characters": 299
+    },
+    {
+      "name": "financial/financial_0125.md",
+      "sha256": "e0b3b0ae23967d45460deacf5511ce2823a034211b839a98e22a958d5f5c64ff",
+      "characters": 307
+    },
+    {
+      "name": "financial/financial_0126.txt",
+      "sha256": "712447821475326bd917c983f7bea97c980ddeeb0845592a7c078b8465eb2fc0",
+      "characters": 352
+    },
+    {
+      "name": "financial/financial_0127.md",
+      "sha256": "e7cd8ee769b69ec73c407437c69da1efc4e1f3801f3562c522f22fdfd2219f29",
+      "characters": 392
+    },
+    {
+      "name": "financial/financial_0128.txt",
+      "sha256": "a0aec47bfa3239d5f36c5ec46d86079fd00e084c907001244fe91928e1af6d24",
+      "characters": 6536
+    },
+    {
+      "name": "financial/financial_0129.md",
+      "sha256": "cb2f7d99bc09eb614d730d425dc8c8f510797ee729be544828e97cb982e55871",
+      "characters": 357
+    },
+    {
+      "name": "financial/financial_0130.txt",
+      "sha256": "1c65148f06c680c87adcfd7fe4b90f210f9d5c27dd5f6a06f44c514948f0ac03",
+      "characters": 319
+    },
+    {
+      "name": "financial/financial_0131.md",
+      "sha256": "404ecea99eff2affc5cdf695a3aeb0ca34377f8bfacc6d396a9bcc206d1986f2",
+      "characters": 307
+    },
+    {
+      "name": "financial/financial_0132.txt",
+      "sha256": "1af9f73dd7b590dbb299aab7a65289ab7dd84bd092ca8a3cafb576cf3b6d1ee4",
+      "characters": 352
+    },
+    {
+      "name": "financial/financial_0133.md",
+      "sha256": "03ad2734e56dd3312c39dedc757a96a40bbfeb50b92021b8aaca36d695ea4630",
+      "characters": 392
+    },
+    {
+      "name": "financial/financial_0134.txt",
+      "sha256": "ea10629646ed3399b8268441a8d703612a20135d9bb5dd27b2391a8d8e447f5a",
+      "characters": 299
+    },
+    {
+      "name": "financial/financial_0135.md",
+      "sha256": "975981f643ed17acd5848edd985e22fc1f1bd9be9563816810e3df85744737cf",
+      "characters": 379
+    },
+    {
+      "name": "financial/financial_0136.txt",
+      "sha256": "d04aef9afd44d8fa28611a6ed33bee554d2939cdd8348f89a6ea9c84487e3133",
+      "characters": 319
+    },
+    {
+      "name": "financial/financial_0137.md",
+      "sha256": "dc447155c556783951cd4eae8302bbddd998a3d1598dc91acd4a86a1ca379ba8",
+      "characters": 307
+    },
+    {
+      "name": "financial/financial_0138.txt",
+      "sha256": "11128e131d0f285149c7e537c7bfe26b9eecd8b0ebcbae232f47f85be6bc1907",
+      "characters": 352
+    },
+    {
+      "name": "financial/financial_0139.md",
+      "sha256": "55ceb8624948eb718f67e3a7ac8903383dea9b92b452730a53436bb69fcdbd34",
+      "characters": 357
+    },
+    {
+      "name": "financial/financial_0140.txt",
+      "sha256": "466357f1ec3cd4cd939ea3faaa887cde626000438b471c38807b505fadca17c0",
+      "characters": 6536
+    },
+    {
+      "name": "financial/financial_0141.md",
+      "sha256": "7fde54a36b47d5e6327f480d51f82d8775cf4c14b5a273fb94401fac464505dd",
+      "characters": 379
+    },
+    {
+      "name": "financial/financial_0142.txt",
+      "sha256": "0dcff1df9c13a7848c4e98ee621a5e108f26a7755497d16d0a124369b737704b",
+      "characters": 319
+    },
+    {
+      "name": "financial/financial_0143.md",
+      "sha256": "23ce2343dbaf9fcd20243cb696091b2612549f7245a3c0bb8284ae4bb8f30910",
+      "characters": 307
+    },
+    {
+      "name": "financial/financial_0144.txt",
+      "sha256": "b89eb3db1f71e81b7c0a37aeb5e1a6be0e8f892d1b208a4b7e36bef77e1f37a0",
+      "characters": 299
+    },
+    {
+      "name": "financial/financial_0145.md",
+      "sha256": "77be896b5de65c171bebc59a579e33389116055274c18b0a2ef707cbd37b73f6",
+      "characters": 392
+    },
+    {
+      "name": "financial/financial_0146.txt",
+      "sha256": "d66d4bb54f0d0621bf73a986636a21719066d18c486ab209da65523876da72d1",
+      "characters": 6536
+    },
+    {
+      "name": "financial/financial_0147.md",
+      "sha256": "90e7a32f5ae9f6398838c80ed5dece9b284d89ff615afdcf0be6d74a81eefb6e",
+      "characters": 379
+    },
+    {
+      "name": "financial/financial_0148.txt",
+      "sha256": "9a66432efdb4b4a9111602d4f0d7119da9c8113511987b6d0d6b16162d07e34e",
+      "characters": 319
+    },
+    {
+      "name": "financial/financial_0149.md",
+      "sha256": "f0a6cc76a97f42777eba4984e175f9522d0265401a1b59fefd97c220828041ac",
+      "characters": 357
+    },
+    {
+      "name": "financial/financial_0150.txt",
+      "sha256": "970ba8ec3f4891276b7150e876b2d5db2542298ea6369f42709ddaef1b3e6c49",
+      "characters": 352
+    },
+    {
+      "name": "financial/financial_0151.md",
+      "sha256": "1c139d251ea6f6f49532c9ae1bdd15bef3fce0141b58b5082db21553c4a01949",
+      "characters": 392
+    },
+    {
+      "name": "financial/financial_0152.txt",
+      "sha256": "f21c11fcd394512143f9002f9a8fd9017bdec22f61a0fb277bd28b5ba33c641c",
+      "characters": 6536
+    },
+    {
+      "name": "financial/financial_0153.md",
+      "sha256": "3f612edbd706e2b14d9b5d990a1bc4baf4b1474ddc35b9d87fc4b35e0d1ccb77",
+      "characters": 379
+    },
+    {
+      "name": "financial/financial_0154.txt",
+      "sha256": "e4dbfa515833c1341f37cb7f0e89aa1c71cd30cee12068a767af12df52bba200",
+      "characters": 299
+    },
+    {
+      "name": "financial/financial_0155.md",
+      "sha256": "9296e96084362410037d76a36c841c5db143fa24f1584630e2a8ac10796b8665",
+      "characters": 307
+    },
+    {
+      "name": "financial/financial_0156.txt",
+      "sha256": "7bcef5b4cc5b460836e78576f7754ec0a8b905a257be09b9ec1b7a2c75f35d39",
+      "characters": 352
+    },
+    {
+      "name": "financial/financial_0157.md",
+      "sha256": "3195a5145521ccc2a93efc30803b3127f33d2bc8a2645f2895db7f475347ad6b",
+      "characters": 392
+    },
+    {
+      "name": "financial/financial_0158.txt",
+      "sha256": "cfdb71dc20e44a2f6b73a47d8905edc9c31d69eb0320614d9f79605a08d3b95c",
+      "characters": 6536
+    },
+    {
+      "name": "financial/financial_0159.md",
+      "sha256": "b823335d41f0c6e9a7b9558cc83db8fa7d7dc969a078eaa556a91621d5f79c99",
+      "characters": 357
+    },
+    {
+      "name": "financial/financial_0160.txt",
+      "sha256": "375d62b8cee789c04f1df9074dd4608ce3d7608c0a6367255bfcfa5abdfeae28",
+      "characters": 319
+    },
+    {
+      "name": "financial/financial_0161.md",
+      "sha256": "2fb5e02f954576a573c43e51e0c5703f7f501af7280271786a39a33bd5426001",
+      "characters": 307
+    },
+    {
+      "name": "financial/financial_0162.txt",
+      "sha256": "75f864309162b1588e7e7c3e3e1cd8931d1241704c95fb04000e9b5c8aa7d405",
+      "characters": 352
+    },
+    {
+      "name": "financial/financial_0163.md",
+      "sha256": "2bedc1bfe5980edd8062aec9c24355ab9a7400d0110f02e64b5c331558408aba",
+      "characters": 392
+    },
+    {
+      "name": "financial/financial_0164.txt",
+      "sha256": "649ced82d0637b20f23cebafcb544f31e5da74b6aef252b6f4a7060d48ae379b",
+      "characters": 299
+    },
+    {
+      "name": "financial/financial_0165.md",
+      "sha256": "893bd1168cb561f50bbf63f97639020a4ca4efd48c148f1177ac469f04dce5d7",
+      "characters": 379
+    },
+    {
+      "name": "financial/financial_0166.txt",
+      "sha256": "f549e1fa7a225842e37d20439e62ba72e34cd20c81e8e0ccaee6588dbdc796c3",
+      "characters": 319
+    },
+    {
+      "name": "financial/financial_0167.md",
+      "sha256": "b3d46bf00130bfc5553e36041eaea235915888db5228394f56535d9d13596b17",
+      "characters": 307
+    },
+    {
+      "name": "financial/financial_0168.txt",
+      "sha256": "40ca7b9e919c249aad6d829ae720a1c5ce29375531ca39090ebc906b50116b6b",
+      "characters": 352
+    },
+    {
+      "name": "financial/financial_0169.md",
+      "sha256": "10166e54154b7e0aeca3dcef11e7ab654fa29810f6d081ef632b6da981ab24f6",
+      "characters": 357
+    },
+    {
+      "name": "financial/financial_0170.txt",
+      "sha256": "5fc93c9354b7f1908065823b0438168ac204bcdaf64948b75ac892bba48e4634",
+      "characters": 6536
+    },
+    {
+      "name": "financial/financial_0171.md",
+      "sha256": "59b7cda5b5beecb81f07215c8f4a098eccbfe721790e8e409a1e850d0cb1ce9c",
+      "characters": 379
+    },
+    {
+      "name": "financial/financial_0172.txt",
+      "sha256": "232b8d7333c5378b51d71cb53552f494d717d19e3448f7a2dc00579d73fcd457",
+      "characters": 319
+    },
+    {
+      "name": "financial/financial_0173.md",
+      "sha256": "46c96ea0d6d9c4e9e8ba3f680f0c3427d516d84b6e3822bff611071ebd715651",
+      "characters": 307
+    },
+    {
+      "name": "financial/financial_0174.txt",
+      "sha256": "b582b6cd683e2cb1ddeb7ee0bb3f9e94d575c6a0d5a42fad7d4db9e7c2e2900b",
+      "characters": 299
+    },
+    {
+      "name": "financial/financial_0175.md",
+      "sha256": "93321f77fb8db6dd93ba646035fb6a7668cdc95f2d74780e20a90db064cd1329",
+      "characters": 392
+    },
+    {
+      "name": "financial/financial_0176.txt",
+      "sha256": "aca4c64c5fa0731db1055cd92ed6ef965906d19f61f614a0d3d4c550b831c939",
+      "characters": 6536
+    },
+    {
+      "name": "financial/financial_0177.md",
+      "sha256": "7ba57d605977276ee6a33e271ad1eb8ea7e2245f7331cba8e9f06af8dc5cdfc8",
+      "characters": 379
+    },
+    {
+      "name": "financial/financial_0178.txt",
+      "sha256": "4ee7714cd2b25845476db940ba0f0dc90cf28240c93ff6f4b4e3a4dd69e187ad",
+      "characters": 319
+    },
+    {
+      "name": "financial/financial_0179.md",
+      "sha256": "5125c272811960785779e6c65a7eede240574c304d11fcd17d9336f50e4cae08",
+      "characters": 357
+    },
+    {
+      "name": "financial/financial_0180.txt",
+      "sha256": "8db3266c22c0670e9821c6090e6306f2c82a9b95ef26a5dd6e04833b665d4ebd",
+      "characters": 352
+    },
+    {
+      "name": "financial/financial_0181.md",
+      "sha256": "5931205489923faa5b802a52d047bf30d90772baa0e422c6f5cd6933dc57b58b",
+      "characters": 392
+    },
+    {
+      "name": "financial/financial_0182.txt",
+      "sha256": "cc1a4783ec9ceac1b8f557b11d53fb22187c673009cb66f3809ff3de06b666fc",
+      "characters": 6536
+    },
+    {
+      "name": "financial/financial_0183.md",
+      "sha256": "d6cc8c46aef2567f1eb3795f6b0ae0bfdde40173346940d178f7e8e85621d44a",
+      "characters": 379
+    },
+    {
+      "name": "financial/financial_0184.txt",
+      "sha256": "3b3ab3d996f774eaed1202ad0a202f12c3dafd7ae589e7c39c5e4f08568938be",
+      "characters": 299
+    },
+    {
+      "name": "financial/financial_0185.md",
+      "sha256": "90ed2e2bb5cb653b7501f6c831a97ad39e775171304e2b51cce3051fbf84619d",
+      "characters": 307
+    },
+    {
+      "name": "financial/financial_0186.txt",
+      "sha256": "01124fcc2790098791e347b321a8ca4b52382c04f3aeb4e87e72027dae639303",
+      "characters": 352
+    },
+    {
+      "name": "financial/financial_0187.md",
+      "sha256": "f7001c34ad2d25763017b5101034a136bf160702e61b3ed53c06f79f185442ef",
+      "characters": 392
+    },
+    {
+      "name": "financial/financial_0188.txt",
+      "sha256": "745726c43d1439f42bba06ba633bb14413959f6c8d3d5636a4f963a2e7494760",
+      "characters": 6536
+    },
+    {
+      "name": "financial/financial_0189.md",
+      "sha256": "bef8cea4bc74e90f261a271646771f42dec0ba4094efd1597f19c57e9ca19513",
+      "characters": 357
+    },
+    {
+      "name": "financial/financial_0190.txt",
+      "sha256": "683294bd59becfb3106596100995edd0b1c5b83308dce108ecd1793216ace94a",
+      "characters": 319
+    },
+    {
+      "name": "financial/financial_0191.md",
+      "sha256": "5bde6d005c7348fb0aca921458ff32e32f157872ec8ec5051f0d87d1fb345676",
+      "characters": 307
+    },
+    {
+      "name": "financial/financial_0192.txt",
+      "sha256": "13dad6eca62a881f95b305143f84e7b77dc5c4c6d860c373f21f599e4ac2fe01",
+      "characters": 352
+    },
+    {
+      "name": "financial/financial_0193.md",
+      "sha256": "6c013b869a3699b51c2fbaa3acd27294226c037273763c8c7b340ef2196a53de",
+      "characters": 392
+    },
+    {
+      "name": "financial/financial_0194.txt",
+      "sha256": "f9badd9f16512e531469769cc18f39eff07902072e630c43f214aaef47b7972f",
+      "characters": 299
+    },
+    {
+      "name": "financial/financial_0195.md",
+      "sha256": "3e4c328055e2e28348559725038a6d1a4868043909e4524842bd0266baad8b2a",
+      "characters": 379
+    },
+    {
+      "name": "financial/financial_0196.txt",
+      "sha256": "892eaae6bcf95d3973d61c57ebc7bab3b5c91fb1c00109604d558a7e987c7ade",
+      "characters": 319
+    },
+    {
+      "name": "financial/financial_0197.md",
+      "sha256": "d224d57978dce1bba40bde23df769a42f11921f0dec39a70820d804a76388030",
+      "characters": 307
+    },
+    {
+      "name": "financial/financial_0198.txt",
+      "sha256": "5f12ab9b4d0fdf928f523965b0c0dea885e2ee6394250a776ae0e4c8521ddb56",
+      "characters": 352
+    },
+    {
+      "name": "financial/financial_0199.md",
+      "sha256": "1461b9649099054c133204187831710b6b5f06d87fc6b096b7beee81352965ab",
+      "characters": 360
+    },
+    {
+      "name": "irrelevant/irrelevant_0000.txt",
+      "sha256": "08b57d8947ce2f097ff5cd8f6348e9be5b2fe920884099c18b16b05f9bcf5bf6",
+      "characters": 6524
+    },
+    {
+      "name": "irrelevant/irrelevant_0001.md",
+      "sha256": "bbd44d4936fe8ee3b56e1814b0f1165aff227e086f95504abbc4594a3283d6d2",
+      "characters": 366
+    },
+    {
+      "name": "irrelevant/irrelevant_0002.txt",
+      "sha256": "cb695d5baeb325348b52dc1a9de3030cb5d7f633f39a7c202cee569c22f70c4b",
+      "characters": 303
+    },
+    {
+      "name": "irrelevant/irrelevant_0003.md",
+      "sha256": "fda9be3bfdc3d68b57236973d6dc0d7b9b7434d2b96a83e5c8adb40a2d24b4cc",
+      "characters": 286
+    },
+    {
+      "name": "irrelevant/irrelevant_0004.txt",
+      "sha256": "8c4c4bad700e8553b9883b2fdf2527c8dfe94c143c21be16e0b27bc298b23cd9",
+      "characters": 244
+    },
+    {
+      "name": "irrelevant/irrelevant_0005.md",
+      "sha256": "aab07f335a1fd6fbee5863fab2884635e7ae7991021bc230c8de9a221ba5a328",
+      "characters": 379
+    },
+    {
+      "name": "irrelevant/irrelevant_0006.txt",
+      "sha256": "209d5c0eff8933936f9711e000073d2378cc6417c33d0a2218e52a380e41dc67",
+      "characters": 6523
+    },
+    {
+      "name": "irrelevant/irrelevant_0007.md",
+      "sha256": "7d37a68928fe8f75f08749a6ca164c70d98ba5fc9990b9f0b9760ff03f20ea4a",
+      "characters": 366
+    },
+    {
+      "name": "irrelevant/irrelevant_0008.txt",
+      "sha256": "7e4a7b1fb10f94cd621fae8e8e4d05fe54f9ed7c1867aeb541a952b3404dda0e",
+      "characters": 303
+    },
+    {
+      "name": "irrelevant/irrelevant_0009.md",
+      "sha256": "587b2d570319c10b1c05ec4a84de9a4eda75fe0d4ae28a3034aa0828f88d2aaf",
+      "characters": 346
+    },
+    {
+      "name": "irrelevant/irrelevant_0010.txt",
+      "sha256": "04b22df61b320423c94f0cd5689010a331a2c4ca7d6e59a4e3dade25c57ab217",
+      "characters": 343
+    },
+    {
+      "name": "irrelevant/irrelevant_0011.md",
+      "sha256": "524cd9bfbf5e6861328483dd52910cf85fa27719fa6c2e251fcfccf88766081a",
+      "characters": 384
+    },
+    {
+      "name": "irrelevant/irrelevant_0012.txt",
+      "sha256": "7e1ae6c1814e78780a2ab25a53abbe06ae14b9fa615301d407b8d6b5d7b0905f",
+      "characters": 6528
+    },
+    {
+      "name": "irrelevant/irrelevant_0013.md",
+      "sha256": "16bb888d8cd2329455184d1d92684db88e3bac62b423051d0b8123c1fd205420",
+      "characters": 371
+    },
+    {
+      "name": "irrelevant/irrelevant_0014.txt",
+      "sha256": "39ca162394bcf77475ad581e656bc9b6cba6646a2cfe1cafb7c819ce29da44cd",
+      "characters": 249
+    },
+    {
+      "name": "irrelevant/irrelevant_0015.md",
+      "sha256": "c487b69b64736079291d7e1bda3521483c43db146c05d62b2f398cc4b992ed58",
+      "characters": 291
+    },
+    {
+      "name": "irrelevant/irrelevant_0016.txt",
+      "sha256": "41e57a114bf81dccc6d375935e4344dcfde72668cc1b3dd3b439968c30617491",
+      "characters": 344
+    },
+    {
+      "name": "irrelevant/irrelevant_0017.md",
+      "sha256": "e47d6f7e74b8162c8fcaf9e2823aa63478df5abed39e3f93e793b658ea143916",
+      "characters": 384
+    },
+    {
+      "name": "irrelevant/irrelevant_0018.txt",
+      "sha256": "edc22cf14fc49d54cd5a07832ff2835dc2b8a0349d9fba7b172578a7e43ed3e3",
+      "characters": 6527
+    },
+    {
+      "name": "irrelevant/irrelevant_0019.md",
+      "sha256": "3ca05e3c896f20173e1ae9ecdb96f283b07de6abf9c5839f96cc8b22504c26c5",
+      "characters": 348
+    },
+    {
+      "name": "irrelevant/irrelevant_0020.txt",
+      "sha256": "ea5f04ec5a1255c826b7b67ea9733deea887f82bc3f26c5d037c1028e236775b",
+      "characters": 307
+    },
+    {
+      "name": "irrelevant/irrelevant_0021.md",
+      "sha256": "e846b7cfe73ca50ea90fe9cfa348c665a6120bb17b6b6174af6eba0ed6fd84d8",
+      "characters": 290
+    },
+    {
+      "name": "irrelevant/irrelevant_0022.txt",
+      "sha256": "9b080fed673530435987a6a9bce9db8046f6b713e78b8a23c24248acd24fe7b6",
+      "characters": 343
+    },
+    {
+      "name": "irrelevant/irrelevant_0023.md",
+      "sha256": "032dca3139a90989313132c860e5c4295b0ba6586e960d9fbe62a97d928f0b3e",
+      "characters": 383
+    },
+    {
+      "name": "irrelevant/irrelevant_0024.txt",
+      "sha256": "afed21442ef198b5ff0f91d8117879fb0f8fb4a24e673d1ab8b1f0a7f7f60e04",
+      "characters": 248
+    },
+    {
+      "name": "irrelevant/irrelevant_0025.md",
+      "sha256": "ad8653aa5f7819dd60325d2aa46dfa08e2bdc05d85116699a4c4fb1c70684cf4",
+      "characters": 370
+    },
+    {
+      "name": "irrelevant/irrelevant_0026.txt",
+      "sha256": "0a4389f0559d343495a3058e6be8bec67f2e7f9470b5761a821b8765e403e677",
+      "characters": 307
+    },
+    {
+      "name": "irrelevant/irrelevant_0027.md",
+      "sha256": "dfece7630f558800541fc6f288f9d4e4434be1fb988ef2b0315389718e136a18",
+      "characters": 290
+    },
+    {
+      "name": "irrelevant/irrelevant_0028.txt",
+      "sha256": "ee07d5066ef535e093f0fae491de1a89664e0417195e607c154369ac7e2b5db0",
+      "characters": 344
+    },
+    {
+      "name": "irrelevant/irrelevant_0029.md",
+      "sha256": "cbbdf00598b87dc399c51afa44278332dbb0b6906b6b46f19c76ed9d297f21f9",
+      "characters": 349
+    },
+    {
+      "name": "irrelevant/irrelevant_0030.txt",
+      "sha256": "d46587364c7351d99c1baa11cbe51431cd7e2cfee53e9ef734547dbbb94bc39b",
+      "characters": 6528
+    },
+    {
+      "name": "irrelevant/irrelevant_0031.md",
+      "sha256": "20769346a2d4c613559e2263d6a89bd53d909c31082ac1ddeff28264e652071a",
+      "characters": 371
+    },
+    {
+      "name": "irrelevant/irrelevant_0032.txt",
+      "sha256": "274efd7f482ced13a7c65d3c6d26c5321c3b88e88b6227669ec182eb8b0f398d",
+      "characters": 308
+    },
+    {
+      "name": "irrelevant/irrelevant_0033.md",
+      "sha256": "13d859f63b9e1f3b6d1a75f3cfc4e9a406c67584dfbf7b82377d560931502a4f",
+      "characters": 291
+    },
+    {
+      "name": "irrelevant/irrelevant_0034.txt",
+      "sha256": "956733001ec06ef047a9fc054757d3e220f2858ed90860855a6021b36fca79f1",
+      "characters": 249
+    },
+    {
+      "name": "irrelevant/irrelevant_0035.md",
+      "sha256": "1651f57111c9d5f8f72736ae02c6c4cd22d4efa622461fe9a584bd6314fe8635",
+      "characters": 383
+    },
+    {
+      "name": "irrelevant/irrelevant_0036.txt",
+      "sha256": "9cf75907814613831f037de44528546987674672814d53b8dc93435627d93aec",
+      "characters": 6527
+    },
+    {
+      "name": "irrelevant/irrelevant_0037.md",
+      "sha256": "5d65f8e001bf45f209ab1a696c2a6dd7de0b67f72f371d7c394e4465e911209d",
+      "characters": 370
+    },
+    {
+      "name": "irrelevant/irrelevant_0038.txt",
+      "sha256": "c33f5c5f066676868d98678c087f4f5431fa41d805f69a52cba03baf4732d9fb",
+      "characters": 307
+    },
+    {
+      "name": "irrelevant/irrelevant_0039.md",
+      "sha256": "a99946ddac717452268d2f6d78f583fd2d058e9b4faac0918d57f41ef0e14b3d",
+      "characters": 348
+    },
+    {
+      "name": "irrelevant/irrelevant_0040.txt",
+      "sha256": "29f75b0275cd31ce4d26577e86415760ddc94c4f86f235f4d8a54bcbc2fff039",
+      "characters": 343
+    },
+    {
+      "name": "irrelevant/irrelevant_0041.md",
+      "sha256": "0fd52e4948ffffd85d32e1f1ea2bbddcd81a8c1deb66efc4105c33d2c0b34bdf",
+      "characters": 383
+    },
+    {
+      "name": "irrelevant/irrelevant_0042.txt",
+      "sha256": "0fcd0550b5aee02eaa488505180e15e509f40606b4c1fa00dbb71011e8ddeae3",
+      "characters": 6527
+    },
+    {
+      "name": "irrelevant/irrelevant_0043.md",
+      "sha256": "60a9918344f3a3be04f1214bc98c287995b983bbee6a2bb16a2baccfc7f78e9d",
+      "characters": 370
+    },
+    {
+      "name": "irrelevant/irrelevant_0044.txt",
+      "sha256": "ddf2d9d0cf47cbe1ffe6cd6432dcc043ffd31f377773f3e7f7e6370c4995420c",
+      "characters": 248
+    },
+    {
+      "name": "irrelevant/irrelevant_0045.md",
+      "sha256": "fec1eb8b336e56deec4e3689727e013b3cdc30dc9185cc5f5623a7fa9064c996",
+      "characters": 291
+    },
+    {
+      "name": "irrelevant/irrelevant_0046.txt",
+      "sha256": "cf7126be0691d19aa4023c0da708137eedf33d60ffc3f11ecdd28fca4e1708c5",
+      "characters": 344
+    },
+    {
+      "name": "irrelevant/irrelevant_0047.md",
+      "sha256": "a1dad75273bdd21a2cb035ef2e1ce9164667a63c672918ba964ffbdee9fadb70",
+      "characters": 384
+    },
+    {
+      "name": "irrelevant/irrelevant_0048.txt",
+      "sha256": "f59f82e521fc060834dc2adb5cc0b5db4650ca0eb252bbbdcb18cc110cee2038",
+      "characters": 6528
+    },
+    {
+      "name": "irrelevant/irrelevant_0049.md",
+      "sha256": "f180d1aa4d66a3ebe2ac4cc427fe2b2c98668fd65d9f6bd2dff1c39d548db108",
+      "characters": 349
+    },
+    {
+      "name": "irrelevant/irrelevant_0050.txt",
+      "sha256": "90207e27dfa22887df46be7adb73f35c5f62a4f62dad2a9e4e199a3631b78eae",
+      "characters": 308
+    },
+    {
+      "name": "irrelevant/irrelevant_0051.md",
+      "sha256": "988c84cd8fe1b81d4ff3ee90d51cdbd1064b6a90c1cdd22a680e0e0b12e1d1e2",
+      "characters": 291
+    },
+    {
+      "name": "irrelevant/irrelevant_0052.txt",
+      "sha256": "b104bc84ad0e9b5eee8fce72a4c807383a581d327edb85bb8410fc5805a42768",
+      "characters": 343
+    },
+    {
+      "name": "irrelevant/irrelevant_0053.md",
+      "sha256": "553749504075efdd2a1eb070a0b40f00dcfcf2574c97db646be5a31302904020",
+      "characters": 383
+    },
+    {
+      "name": "irrelevant/irrelevant_0054.txt",
+      "sha256": "01584c8170583074f7cc91fac2aa5b663527b718aebb224419b642e4691b2aeb",
+      "characters": 248
+    },
+    {
+      "name": "irrelevant/irrelevant_0055.md",
+      "sha256": "c2932498eec79a87b2d4f65be2adac906f4621c30a4b224b946c1f0047e54115",
+      "characters": 370
+    },
+    {
+      "name": "irrelevant/irrelevant_0056.txt",
+      "sha256": "c0cb4b53a86799da7cfcccedd694b0968556bb3aaddcab766e278d87af0c576c",
+      "characters": 307
+    },
+    {
+      "name": "irrelevant/irrelevant_0057.md",
+      "sha256": "041f5a2304c3c6eac0714d9689ec45ef65efd5f8d7a5fb16f1c37b28c455361d",
+      "characters": 290
+    },
+    {
+      "name": "irrelevant/irrelevant_0058.txt",
+      "sha256": "d866c0c4cdabefe5994ee08f184819106e67267c8b94eda6a4a4e2dd3a33f2c4",
+      "characters": 343
+    },
+    {
+      "name": "irrelevant/irrelevant_0059.md",
+      "sha256": "ca18032910baf50633640e8da3be7d97b6727c1d523fa9e6ead85bc64dcf3570",
+      "characters": 348
+    },
+    {
+      "name": "irrelevant/irrelevant_0060.txt",
+      "sha256": "86beddcdb9f31c1f4f58d1960131f97af7c5ecc7a742d8b5a9d999bc61bee5bd",
+      "characters": 6527
+    },
+    {
+      "name": "irrelevant/irrelevant_0061.md",
+      "sha256": "7ad03c4b442e091ab56799efa5a15cfef69452153442fb87c29700bf7be863e9",
+      "characters": 370
+    },
+    {
+      "name": "irrelevant/irrelevant_0062.txt",
+      "sha256": "d7a1788a86a1ef001df1f57dcfc4621352aa7569a45fd982946f7680cee95fec",
+      "characters": 308
+    },
+    {
+      "name": "irrelevant/irrelevant_0063.md",
+      "sha256": "a27abefaafa4f00e5d65141deb3e3109c04a25cf4e1d6afb664f97f18d949a67",
+      "characters": 291
+    },
+    {
+      "name": "irrelevant/irrelevant_0064.txt",
+      "sha256": "d14cdeeedb6e18a472128a9bfc7b7458153340648f8fb38645770cc6317b73f0",
+      "characters": 249
+    },
+    {
+      "name": "irrelevant/irrelevant_0065.md",
+      "sha256": "b6a71dfeea74c406d9a58ecb76b09e11368e6b1c3b104c27d55664c0fccef18f",
+      "characters": 384
+    },
+    {
+      "name": "irrelevant/irrelevant_0066.txt",
+      "sha256": "b7ec36b9b4f6da6209e25acb2e00fdacfd23d16e333bcb249e41caa421134d4d",
+      "characters": 6528
+    },
+    {
+      "name": "irrelevant/irrelevant_0067.md",
+      "sha256": "564d48d09292bfd7865d0b054c3846d58e3b32a27aec1d88d32288f12d11b350",
+      "characters": 371
+    },
+    {
+      "name": "irrelevant/irrelevant_0068.txt",
+      "sha256": "20e88be388664b7745668879b08805b6d7200855d8bb9b7c5d0b248968fd4c0a",
+      "characters": 308
+    },
+    {
+      "name": "irrelevant/irrelevant_0069.md",
+      "sha256": "0c19996944a7b7e5029c85df1566945e6ad29390fa55a324a0429fa8b21ff21c",
+      "characters": 348
+    },
+    {
+      "name": "irrelevant/irrelevant_0070.txt",
+      "sha256": "5ed3ce8ff630bf9e10ab530c49bcbad37464a7ab985a38a7af420d8b3685b13a",
+      "characters": 343
+    },
+    {
+      "name": "irrelevant/irrelevant_0071.md",
+      "sha256": "38c9cb6dcebda1bcbdd305520697444cd493a20759424805bb18b2465d7cdc0f",
+      "characters": 383
+    },
+    {
+      "name": "irrelevant/irrelevant_0072.txt",
+      "sha256": "777b4a7fde6fb3c94813b778b2e10f97a892787b27d0bf01287d1b59768cd448",
+      "characters": 6527
+    },
+    {
+      "name": "irrelevant/irrelevant_0073.md",
+      "sha256": "439db85179a6361390bac85b36960948b5f95abfd695b122828a69e75a7ac609",
+      "characters": 370
+    },
+    {
+      "name": "irrelevant/irrelevant_0074.txt",
+      "sha256": "11a400e74bfc244b141577e8b3adb4292df531fbba08a3c12630f356b0a7c2e3",
+      "characters": 248
+    },
+    {
+      "name": "irrelevant/irrelevant_0075.md",
+      "sha256": "488cce320f822f17793b141b3d45eb00b039c4bbda4a99025ec64ebebe09261e",
+      "characters": 290
+    },
+    {
+      "name": "irrelevant/irrelevant_0076.txt",
+      "sha256": "7049dfb95ec08f71010314f022aa5b10c63742f3b4bedbbe32a4214197720d1d",
+      "characters": 343
+    },
+    {
+      "name": "irrelevant/irrelevant_0077.md",
+      "sha256": "e7d14f083b96e0d70f13d2f8a69cb52ea505d375a765f0988cf03276c21f7c4e",
+      "characters": 383
+    },
+    {
+      "name": "irrelevant/irrelevant_0078.txt",
+      "sha256": "a9da93ee1ee15f580a6160b5a0defa63ae44c691bd7bc3cc2ae3bc0ba298b39b",
+      "characters": 6527
+    },
+    {
+      "name": "irrelevant/irrelevant_0079.md",
+      "sha256": "54bb741d15aa874beb62d8c44481e85f470e4b55cba9731fd6f71249e5e3834b",
+      "characters": 349
+    },
+    {
+      "name": "irrelevant/irrelevant_0080.txt",
+      "sha256": "cd64e8bad3359ef3ffbe8b44734e526251b8bf8cbb7c925b8c7806edc4879373",
+      "characters": 308
+    },
+    {
+      "name": "irrelevant/irrelevant_0081.md",
+      "sha256": "d2641cb6a69ab6978cf5d7e267c0718bcbc7f16b314d564de12318c241db8660",
+      "characters": 291
+    },
+    {
+      "name": "irrelevant/irrelevant_0082.txt",
+      "sha256": "1a666b8258fd2cb71b21d746c4adb7c6c501668e88e4dd1a51ce711d88cf2d72",
+      "characters": 344
+    },
+    {
+      "name": "irrelevant/irrelevant_0083.md",
+      "sha256": "899315ea595e8c71ee0753f6f2d8b45b4b198580267d9511e5bdc73552ca9c49",
+      "characters": 384
+    },
+    {
+      "name": "irrelevant/irrelevant_0084.txt",
+      "sha256": "f8d69db2a6d338593f15c011416336f40e7d97091d90c96528ab49d006273857",
+      "characters": 249
+    },
+    {
+      "name": "irrelevant/irrelevant_0085.md",
+      "sha256": "9f0fa2a7f07e320125098387637f6e0b0e34a39ab3aba549e73c83c0a4716dd9",
+      "characters": 371
+    },
+    {
+      "name": "irrelevant/irrelevant_0086.txt",
+      "sha256": "e9d748bdfa70c513bf10f6466814541e416262d05363f11a143c02f34a71409a",
+      "characters": 307
+    },
+    {
+      "name": "irrelevant/irrelevant_0087.md",
+      "sha256": "c36469f271a7559ff278e5e9fb6b61b3dc3d6e9d30cdf9592926f3e1133f34c9",
+      "characters": 290
+    },
+    {
+      "name": "irrelevant/irrelevant_0088.txt",
+      "sha256": "f767334e78887070af2a03395b44cec905d0197cbf10405ca18733590860cad1",
+      "characters": 343
+    },
+    {
+      "name": "irrelevant/irrelevant_0089.md",
+      "sha256": "11e3bfe1d4f129b35024eaf5c1d001ff65eed468f3729b6193e0eba471c0dbd9",
+      "characters": 348
+    },
+    {
+      "name": "irrelevant/irrelevant_0090.txt",
+      "sha256": "c5a9a83ff41e98517110b69b9c5d1d68a761d2072d4080351b506d844812785a",
+      "characters": 6527
+    },
+    {
+      "name": "irrelevant/irrelevant_0091.md",
+      "sha256": "defe14a62b4704195927937793c3b9bc4c3129390c4193a5132110c8f953bb49",
+      "characters": 370
+    },
+    {
+      "name": "irrelevant/irrelevant_0092.txt",
+      "sha256": "d55ee568d727ecf77ca2bba92f2254975030c3f6af5847f6d059c75abdc9d8e5",
+      "characters": 307
+    },
+    {
+      "name": "irrelevant/irrelevant_0093.md",
+      "sha256": "77aa4b163dedfbe59d33606737a0df0c12f1a0fe015d7ec21eb747cf4165fcd2",
+      "characters": 290
+    },
+    {
+      "name": "irrelevant/irrelevant_0094.txt",
+      "sha256": "563389d535eec6c2f7807de6a11536edf95cb9f78c916b6c72803f67df0014d0",
+      "characters": 248
+    },
+    {
+      "name": "irrelevant/irrelevant_0095.md",
+      "sha256": "cd278ae36fcf1e79f02a08f9883d0d252169eb9838e76e9bd173e5983574c5cb",
+      "characters": 383
+    },
+    {
+      "name": "irrelevant/irrelevant_0096.txt",
+      "sha256": "2e1cabdf99e6324c2aaccbf746ddb550b994a69875815183c62d8db77b65cd00",
+      "characters": 6528
+    },
+    {
+      "name": "irrelevant/irrelevant_0097.md",
+      "sha256": "547546d21f72e73a2ef2c3f89145a39924bf819264027302f9acaa5f5b48ee6a",
+      "characters": 371
+    },
+    {
+      "name": "irrelevant/irrelevant_0098.txt",
+      "sha256": "e53222d93665e100c7e829f9aa202ff7e265cfaf06189b3ea88c5d751e2d41e5",
+      "characters": 308
+    },
+    {
+      "name": "irrelevant/irrelevant_0099.md",
+      "sha256": "4b382e8f7772b89fa9db0759f5487df524c29c5417e8b30d0fdc6ea9aca9e518",
+      "characters": 351
+    },
+    {
+      "name": "memo/memo_0000.txt",
+      "sha256": "82ca93a3c14b8713574444993e78478cfcd5e33e15a283ebc02dd69eaa380ea8",
+      "characters": 652
+    },
+    {
+      "name": "memo/memo_0001.md",
+      "sha256": "516c26a02b82d3cd52638b11eccfb49039f79499a0f0685926741cbf4a74c4fa",
+      "characters": 6692
+    },
+    {
+      "name": "memo/memo_0002.txt",
+      "sha256": "03c04f0b67af36721b2695c73793710189d7169295a9340769b0684fb0cc2f58",
+      "characters": 535
+    },
+    {
+      "name": "memo/memo_0003.md",
+      "sha256": "34ba9e8c0417467425279069bbe0fc96576db36e3dcfa49208aa4f89119332dc",
+      "characters": 582
+    },
+    {
+      "name": "memo/memo_0004.txt",
+      "sha256": "d7ec3e684dc91604d9147b1aaa6570b11933aeb267544fea948ee230a465e021",
+      "characters": 497
+    },
+    {
+      "name": "memo/memo_0005.md",
+      "sha256": "6dd46409220b2f82073453d014f1e29e665c30baaa259c7407cc11af425c7764",
+      "characters": 508
+    },
+    {
+      "name": "memo/memo_0006.txt",
+      "sha256": "5d18b06add2ec089a60181112b7dc4a0d3e7ebb23e89367a13f110ef438f23c8",
+      "characters": 652
+    },
+    {
+      "name": "memo/memo_0007.md",
+      "sha256": "f73d37b49122292b5286eab6a301e14cad44ec7aff30e0a3a6b650f12261ab95",
+      "characters": 6692
+    },
+    {
+      "name": "memo/memo_0008.txt",
+      "sha256": "0b72f60aeaa5d3e3c45a27355c6df749724b3a493a7eeff893c51656d01cae25",
+      "characters": 535
+    },
+    {
+      "name": "memo/memo_0009.md",
+      "sha256": "869269b7b766c186a5a5ddc03f6147ff936db24e27ed0b864eae763dfda663b8",
+      "characters": 622
+    },
+    {
+      "name": "memo/memo_0010.txt",
+      "sha256": "221d4c24a44d4e670d209aa8fcdc23db2aa8dbd9f9c447fe6b1d74356728ee21",
+      "characters": 477
+    },
+    {
+      "name": "memo/memo_0011.md",
+      "sha256": "b9e478fc9ede33c31d00de35549177ae9dd53a2c0c64d8a7d7aa485237047ce4",
+      "characters": 513
+    },
+    {
+      "name": "memo/memo_0012.txt",
+      "sha256": "fc81bd918dcc31f994c403811fe61aaa6f5577aa04c817327968f456a51512d8",
+      "characters": 657
+    },
+    {
+      "name": "memo/memo_0013.md",
+      "sha256": "a8293b93fe16fe7ec11923eb94dcf27096f19e108b839a567dfd9143b803cacb",
+      "characters": 6697
+    },
+    {
+      "name": "memo/memo_0014.txt",
+      "sha256": "8e5d640312fb47930be74cb2a2a1d2581adf8cf1a482ff2afb525cb3551cca97",
+      "characters": 502
+    },
+    {
+      "name": "memo/memo_0015.md",
+      "sha256": "b9e8978c5b06605f7662994afc052758740b03914f29917e6bf4d431a3256c4d",
+      "characters": 587
+    },
+    {
+      "name": "memo/memo_0016.txt",
+      "sha256": "8b791fb2d6707c3e50916301ba7ffc227d3faa5f1bcecd4ebe08030b1d2223fe",
+      "characters": 476
+    },
+    {
+      "name": "memo/memo_0017.md",
+      "sha256": "df7fb458fde0843c5c656c7cf5965b50705018257e60c9959c4b4c2667a702bc",
+      "characters": 513
+    },
+    {
+      "name": "memo/memo_0018.txt",
+      "sha256": "05e9938f4d8049adde689d3834acf45c080b686e58ea1378dd41f08f58e381d2",
+      "characters": 657
+    },
+    {
+      "name": "memo/memo_0019.md",
+      "sha256": "9d0cb766468a34f2dd453f83d33c06408cabd195b26aa41f3176566bd75845b3",
+      "characters": 518
+    },
+    {
+      "name": "memo/memo_0020.txt",
+      "sha256": "4e4553a6f4195af7d5bd8eecbe13f55525fb9cd8bb9b53f1139f29376f786fbd",
+      "characters": 541
+    },
+    {
+      "name": "memo/memo_0021.md",
+      "sha256": "a5ca6cd4fb28dfc5055d0cca791f960719b8e5db8b7d04c43f64c51ed59f5912",
+      "characters": 588
+    },
+    {
+      "name": "memo/memo_0022.txt",
+      "sha256": "49a85ea7c142eae4b483e4b7369bc3c006bc40e7574905bbc2079aa2ac40c64a",
+      "characters": 476
+    },
+    {
+      "name": "memo/memo_0023.md",
+      "sha256": "4480cef10c623752ab7d73853ae029f7376d93769172b47605c009732cb6a0b7",
+      "characters": 513
+    },
+    {
+      "name": "memo/memo_0024.txt",
+      "sha256": "934716804497b2bd5df9f53ef4b4bd377c77ddee5c0844e049154e7bca30672f",
+      "characters": 606
+    },
+    {
+      "name": "memo/memo_0025.md",
+      "sha256": "b3bbf379832ab5ad6a7b11026f1977713422682fccae47f057ce56019f861532",
+      "characters": 6697
+    },
+    {
+      "name": "memo/memo_0026.txt",
+      "sha256": "87809e6536bdd85226e96aa92c306fa0333ce0397df7411b654e72e758fa49c1",
+      "characters": 540
+    },
+    {
+      "name": "memo/memo_0027.md",
+      "sha256": "b2f3cc17610634651ab1571af38ba2b4df31f7b82e6ad3225ae3df990b33817a",
+      "characters": 587
+    },
+    {
+      "name": "memo/memo_0028.txt",
+      "sha256": "0d185f21116ff64973bbe7f2ce9ff01b2decffbebd58d0234e1ee1947a92615f",
+      "characters": 476
+    },
+    {
+      "name": "memo/memo_0029.md",
+      "sha256": "fe61491404b10c5d63cec45a20ee4677199791d23028596833235eee91435b42",
+      "characters": 518
+    },
+    {
+      "name": "memo/memo_0030.txt",
+      "sha256": "b9c3fc454484f84a423a2eb815d1607aea04dfbba5eb816f5fc50a0742bc013c",
+      "characters": 657
+    },
+    {
+      "name": "memo/memo_0031.md",
+      "sha256": "9ce325e63bb0f22227c51f5bee2c1001e0d63d01774bf3103df7fa1d7b41c53d",
+      "characters": 6698
+    },
+    {
+      "name": "memo/memo_0032.txt",
+      "sha256": "97b7e91a4b62611069104d5d0b886fb2ef0be77a79c01418714710d45b8cebf7",
+      "characters": 541
+    },
+    {
+      "name": "memo/memo_0033.md",
+      "sha256": "59d42419cbd1cafe16ea85adc250faeedec643ad0d30314fcc5c2ca05639a4eb",
+      "characters": 587
+    },
+    {
+      "name": "memo/memo_0034.txt",
+      "sha256": "ee0060467e6d84d31b222f0ad9862d8f0e35527bc25aab990b94571463acdb38",
+      "characters": 502
+    },
+    {
+      "name": "memo/memo_0035.md",
+      "sha256": "2c563cc6a25090fc9211ea707a0711f9efb5e1421793b5baf34ceb3ab21d1015",
+      "characters": 513
+    },
+    {
+      "name": "memo/memo_0036.txt",
+      "sha256": "010d47f9386d955b601dccd8a544786081099edcde4c17732806b7cfde62b5cd",
+      "characters": 657
+    },
+    {
+      "name": "memo/memo_0037.md",
+      "sha256": "e30e19c600b46067f1bd1a83de471a107e106cfffe7f3884ade079dceb26a07c",
+      "characters": 6697
+    },
+    {
+      "name": "memo/memo_0038.txt",
+      "sha256": "9e3860c62cb599ea42e8b745949d75dbd5b90a8cde65c5c3adbdbc998261281f",
+      "characters": 540
+    },
+    {
+      "name": "memo/memo_0039.md",
+      "sha256": "56c5c476d0c21a875a98548d1e6470df770760f3ea8231797ffcfaa450a8a339",
+      "characters": 622
+    },
+    {
+      "name": "memo/memo_0040.txt",
+      "sha256": "50bceeb0fcb245dcb6b353ab8a1c012ad0ffa257b95873947b0fcb0c38c38ea3",
+      "characters": 476
+    },
+    {
+      "name": "memo/memo_0041.md",
+      "sha256": "79ba670592500a22b83690c954168e33b25bc6952dcffc592529957544525d6e",
+      "characters": 513
+    },
+    {
+      "name": "memo/memo_0042.txt",
+      "sha256": "ea851fee38ffd3135e240357c1912b6caad047b22cdacbd9222f347b55bfc169",
+      "characters": 658
+    },
+    {
+      "name": "memo/memo_0043.md",
+      "sha256": "bb667997d6418b42dd26cf318c0ecb509507d795e7aa0404d0cb3dc2b82b7480",
+      "characters": 6698
+    },
+    {
+      "name": "memo/memo_0044.txt",
+      "sha256": "7ea14e4e936653b8fb3d039d55e5147e6dc853e6504143aca9b21c9ce819be04",
+      "characters": 502
+    },
+    {
+      "name": "memo/memo_0045.md",
+      "sha256": "bc11617f8e3d5bc4aa6310605d39b51f7c32bb97e2cd690d4a068dde2c86cc90",
+      "characters": 587
+    },
+    {
+      "name": "memo/memo_0046.txt",
+      "sha256": "39d2696de00f5e50a77bcb6204f52a0ae71dc649c5c88d1227bd22d4bdff6953",
+      "characters": 476
+    },
+    {
+      "name": "memo/memo_0047.md",
+      "sha256": "1cab7869aba92ea1ef63f703de1057a6959762ce55fdbda66e8333c060d4ac45",
+      "characters": 513
+    },
+    {
+      "name": "memo/memo_0048.txt",
+      "sha256": "a1c931704f6e458ac3796a9c379758a6a15c3c070e358d10345ebbc12b21259e",
+      "characters": 657
+    },
+    {
+      "name": "memo/memo_0049.md",
+      "sha256": "586ab0d8280db321f932df746915ead71b4c8a45231e44c0392359c79899fceb",
+      "characters": 518
+    },
+    {
+      "name": "memo/memo_0050.txt",
+      "sha256": "2bf5206512889e0f9f5b8e5140d7b7ba59c4a6fa699fe7423879df96a38921f7",
+      "characters": 540
+    },
+    {
+      "name": "memo/memo_0051.md",
+      "sha256": "dcd1ebe55ef314a8051b8af2857d41f17cbb018cb6a2d607cad6da3204c01c8c",
+      "characters": 587
+    },
+    {
+      "name": "memo/memo_0052.txt",
+      "sha256": "f41ce580800f6f7561ef4b340f1ba32cf4fdc06325c5084ace3e9db4ea447296",
+      "characters": 476
+    },
+    {
+      "name": "memo/memo_0053.md",
+      "sha256": "59e6e0c7bc9b9e534433d69b86f4f8feccb738cd325dbf25a5454b126b9382cd",
+      "characters": 514
+    },
+    {
+      "name": "memo/memo_0054.txt",
+      "sha256": "675a15a166190e690199625183827965bb3c162633294b6c5374ff742ca648f5",
+      "characters": 607
+    },
+    {
+      "name": "memo/memo_0055.md",
+      "sha256": "777af06bfab06662eade453719705d32c1453f6a0f8c1208298042828d0aa623",
+      "characters": 6697
+    },
+    {
+      "name": "memo/memo_0056.txt",
+      "sha256": "7681702f052909b5ee612d4e1f29b153cabbb04006acdef96ea7324923f81549",
+      "characters": 540
+    },
+    {
+      "name": "memo/memo_0057.md",
+      "sha256": "dd4d6c963867c205c053b73a9efda26998d12b726f74a3c4f1ffb7b3b79395f7",
+      "characters": 587
+    },
+    {
+      "name": "memo/memo_0058.txt",
+      "sha256": "1015d2f60407288c6190da5cbb8cb9355905ca9885bd9fa47f2cbac3a26879b6",
+      "characters": 476
+    },
+    {
+      "name": "memo/memo_0059.md",
+      "sha256": "1c43e71c4f7032d11b39623ffd23106bf3c7015e3d23243d100b71c3cf847507",
+      "characters": 518
+    },
+    {
+      "name": "memo/memo_0060.txt",
+      "sha256": "93fe902d2a90d77091586f6181fde74231db0665f2159745f871151bd0bbcaab",
+      "characters": 657
+    },
+    {
+      "name": "memo/memo_0061.md",
+      "sha256": "f3b044a106989c3055a9c7b4dbd14e42cc61505125c88cd9c8cfd84b7039db00",
+      "characters": 6697
+    },
+    {
+      "name": "memo/memo_0062.txt",
+      "sha256": "8518570b1abd768254f9333afac59ca1c9e27b50aa788f2fe5b478ed2c57fc2f",
+      "characters": 540
+    },
+    {
+      "name": "memo/memo_0063.md",
+      "sha256": "d1a156be49202e87f5a9cfb991ea0a3f0a16c2ca5c27288c7b12b384ef1bac58",
+      "characters": 587
+    },
+    {
+      "name": "memo/memo_0064.txt",
+      "sha256": "fb041de7fecaf3580fcdc09755356e91e4feabfc66db98d8a27b8274cbad62f0",
+      "characters": 503
+    },
+    {
+      "name": "memo/memo_0065.md",
+      "sha256": "a393360459038993d53a12932da9bc93dce7d80b851eb532b93c4fb5b465788e",
+      "characters": 514
+    },
+    {
+      "name": "memo/memo_0066.txt",
+      "sha256": "0583fddbf1051e78071502b457eb2589b0c01d03bb7856095edc2719f3179e9b",
+      "characters": 657
+    },
+    {
+      "name": "memo/memo_0067.md",
+      "sha256": "3719651ddaf6fa79d617f94fb5cd31212318eed2bcf033d3c4fa10b8d69ad9d2",
+      "characters": 6697
+    },
+    {
+      "name": "memo/memo_0068.txt",
+      "sha256": "0b11483f4b08d7ed004d4ac4cffcb68ea99ceb413c0309af6ea8d8c66b357208",
+      "characters": 540
+    },
+    {
+      "name": "memo/memo_0069.md",
+      "sha256": "ceb626f86c8d41d74f79a8953414dd9daf11d97d7f51cf0bd491b0983e9f6779",
+      "characters": 622
+    },
+    {
+      "name": "memo/memo_0070.txt",
+      "sha256": "b61509f7804162dddee4ef77b12561e8f67bc0869c52154543958d8bb5a5004d",
+      "characters": 476
+    },
+    {
+      "name": "memo/memo_0071.md",
+      "sha256": "abb1898e07cd3e031b28c88f96e57515233c715d0a979dc3b0e404ddc8e3c211",
+      "characters": 513
+    },
+    {
+      "name": "memo/memo_0072.txt",
+      "sha256": "4da81e03767585d696dd22d76df4352da176d892f9a621cd21fb6bb03d74aba8",
+      "characters": 657
+    },
+    {
+      "name": "memo/memo_0073.md",
+      "sha256": "1c3ecfb9a607d2c9a31e3a5af9fff11e19eb88f81dff8a08a761387c0d934055",
+      "characters": 6697
+    },
+    {
+      "name": "memo/memo_0074.txt",
+      "sha256": "11bc24e56df7dc7ed6459fe6deab4ecb9a90e9ba8dc247b1d951d75470cd07bd",
+      "characters": 502
+    },
+    {
+      "name": "memo/memo_0075.md",
+      "sha256": "d2ce9837d81b42307b8b7c8f47462bf035251acae08574f003e193b57ed62b29",
+      "characters": 588
+    },
+    {
+      "name": "memo/memo_0076.txt",
+      "sha256": "1d7ad9791dcacda90781fe6d1c2ac9e5319834e9fe59f629dc35479abbdbc636",
+      "characters": 477
+    },
+    {
+      "name": "memo/memo_0077.md",
+      "sha256": "d3be864e8259b2f739db8282bf64210c45c5171fe41110749c26b9bcdb295e01",
+      "characters": 513
+    },
+    {
+      "name": "memo/memo_0078.txt",
+      "sha256": "61a306cdd4d3429198235092e4abe5e54f258ce2036c77d000e98ac0ad71a7b9",
+      "characters": 657
+    },
+    {
+      "name": "memo/memo_0079.md",
+      "sha256": "c064e3bc5fe42427a3bebc8f3e592c3f89feff21beb98e66e63f9e11323dce5f",
+      "characters": 518
+    },
+    {
+      "name": "memo/memo_0080.txt",
+      "sha256": "d5cfe3a2ee82834baad28cdb01ff6fc16fca355736501701bbe6b30f8c97a598",
+      "characters": 540
+    },
+    {
+      "name": "memo/memo_0081.md",
+      "sha256": "e47916ada2b198ba24ebb051a1a592bf4b9d4a4d34b52f946f844d3545c9f345",
+      "characters": 587
+    },
+    {
+      "name": "memo/memo_0082.txt",
+      "sha256": "82f12584bf9756d65e90ecd63ccaee135f907300bcb8da23063dc25f159bf6b8",
+      "characters": 476
+    },
+    {
+      "name": "memo/memo_0083.md",
+      "sha256": "7201558c991bc88392c1eca589e681ae06238deaf92a9ad43d4b276940e117bf",
+      "characters": 513
+    },
+    {
+      "name": "memo/memo_0084.txt",
+      "sha256": "48c08a8a53c5a487508d8db78614fac3ea9a046318fb1cc32d102ee7d26f4fca",
+      "characters": 606
+    },
+    {
+      "name": "memo/memo_0085.md",
+      "sha256": "580a5c73a453de02969ca4353d96f5cf326015cacf6cfdd3def9107dd9e4d59d",
+      "characters": 6697
+    },
+    {
+      "name": "memo/memo_0086.txt",
+      "sha256": "17b78fc320adf191a1383bf4652a7bf79c19a689f497ffd4b41b9e7e2e00780e",
+      "characters": 541
+    },
+    {
+      "name": "memo/memo_0087.md",
+      "sha256": "7520a4155b34cc15b4f5619ebd06cf0fb4b606f8249e5c69840883b44598474f",
+      "characters": 588
+    },
+    {
+      "name": "memo/memo_0088.txt",
+      "sha256": "9157c260aaed787af7fa09532007e906b17fc3279484b57ee9b022d225a17766",
+      "characters": 476
+    },
+    {
+      "name": "memo/memo_0089.md",
+      "sha256": "108e4a2985263aea365984fcd858fe4339a8877d49b823f98ae4ab3909df6a72",
+      "characters": 518
+    },
+    {
+      "name": "memo/memo_0090.txt",
+      "sha256": "6a6a27d7220f37b2f13db680150bc40dae5e325466d9a3aef49cef42dc82866c",
+      "characters": 657
+    },
+    {
+      "name": "memo/memo_0091.md",
+      "sha256": "9b7bab106a78b6e84db10a049a4fcb605c5d07a9370ccb84cc7f450ab42ecb31",
+      "characters": 6697
+    },
+    {
+      "name": "memo/memo_0092.txt",
+      "sha256": "89b743d7f059c7633ca3136d2e80b0380bbaf3022092fb7f96fcdd6a96cecda4",
+      "characters": 540
+    },
+    {
+      "name": "memo/memo_0093.md",
+      "sha256": "a83d366981091d903b112d4cdd85b68e08b2db11dfa248b090638b6bd982284c",
+      "characters": 587
+    },
+    {
+      "name": "memo/memo_0094.txt",
+      "sha256": "df68cad348fda4419d901aba2c001b596961e4bd73b21b8dc81407a59b22e860",
+      "characters": 502
+    },
+    {
+      "name": "memo/memo_0095.md",
+      "sha256": "31a9dcff38c8a2b8f833a7bfc4d2ad0120f933c15b25e6d8f3b5226f5ce70f0a",
+      "characters": 513
+    },
+    {
+      "name": "memo/memo_0096.txt",
+      "sha256": "bedffafba2283d9440fa42b641ac5e3d2b4befdc13359f23a0c325370edd0f21",
+      "characters": 657
+    },
+    {
+      "name": "memo/memo_0097.md",
+      "sha256": "db89660e62ee483d2bdb9836c2cb6c67a00823453b57d3684ae704de8a119877",
+      "characters": 6698
+    },
+    {
+      "name": "memo/memo_0098.txt",
+      "sha256": "151a05b8a4720a31b914d403774e8c2246b6a9efe5299b53f889960290905378",
+      "characters": 541
+    },
+    {
+      "name": "memo/memo_0099.md",
+      "sha256": "1f6b6543ed751a67229b82e9b26ae6b5eca5331b4743b780df8cddd25f84d3cf",
+      "characters": 626
+    },
+    {
+      "name": "memo/memo_0100.txt",
+      "sha256": "af2c0b9bdf9c898d9cf1a365ae692ea3347e738770a0ec9876a3b1a9f785ced5",
+      "characters": 471
+    },
+    {
+      "name": "memo/memo_0101.md",
+      "sha256": "3720edcd369c04db24efb47704c70eaef2f25bd28e4d15e6fba39c074cd41c83",
+      "characters": 508
+    },
+    {
+      "name": "memo/memo_0102.txt",
+      "sha256": "ce7524e2c43bca2884ac86fa2165c673ac14192fae259836535dee96c5c60e0e",
+      "characters": 652
+    },
+    {
+      "name": "memo/memo_0103.md",
+      "sha256": "c83d3317afbf3042bbc1f69dc2a13f1ba5c72859c9ba827aef325c10272d7817",
+      "characters": 6692
+    },
+    {
+      "name": "memo/memo_0104.txt",
+      "sha256": "ad008db2e278853c89ca18ae6189fe215c3a1072175c81173aa9bca97e1c8e42",
+      "characters": 497
+    },
+    {
+      "name": "memo/memo_0105.md",
+      "sha256": "10766e2b3d80c0ec744042420e4051ede551d3a1d0aef5542c92d55de7c0949f",
+      "characters": 582
+    },
+    {
+      "name": "memo/memo_0106.txt",
+      "sha256": "70bf90d6caf36cbf9496afd0ad7223ef82d2e4710181a3378e77b1e7bc8bc23e",
+      "characters": 471
+    },
+    {
+      "name": "memo/memo_0107.md",
+      "sha256": "b5e5dad8f6ff96235488994bbe59b4fe0c7ce682c72be08d009250aff5401c1f",
+      "characters": 508
+    },
+    {
+      "name": "memo/memo_0108.txt",
+      "sha256": "cf7efce2031b5e08a6755ea93f23e41041376675f0e0e6629dbc216c6d31088f",
+      "characters": 653
+    },
+    {
+      "name": "memo/memo_0109.md",
+      "sha256": "e1f3b5880459c477ced24bff50ef9f8859383a1503e93d464d5f79ac98bd0d4d",
+      "characters": 518
+    },
+    {
+      "name": "memo/memo_0110.txt",
+      "sha256": "57ce56c3237a63dc3c89cefd490e44cd0093f5c3b1f0a764775a1faf06f69bab",
+      "characters": 540
+    },
+    {
+      "name": "memo/memo_0111.md",
+      "sha256": "946ba37b26263d53b68eb143b453257feadd427befd857b1ab2c533958e0e670",
+      "characters": 587
+    },
+    {
+      "name": "memo/memo_0112.txt",
+      "sha256": "19b2a0fca96a4a4c6eccc2a3b7754f58a43c1e7cbac9b0e8df11b99fc2ff6c49",
+      "characters": 476
+    },
+    {
+      "name": "memo/memo_0113.md",
+      "sha256": "3bab11b5e67ae9a9bcd658eebc1b6bc4cf4e44cd2d8ccf5979c28b1e47b92dfd",
+      "characters": 513
+    },
+    {
+      "name": "memo/memo_0114.txt",
+      "sha256": "5a402b487a7e990fc3a36ab6494ce2027e28eed7a3762f505a9c49a8307134a7",
+      "characters": 606
+    },
+    {
+      "name": "memo/memo_0115.md",
+      "sha256": "cd9290c78b02f0da322a1a9b850efaf4d7d95214e0bba5febf6a5903cb91f09f",
+      "characters": 6697
+    },
+    {
+      "name": "memo/memo_0116.txt",
+      "sha256": "ff5ac443fb9c38037014f0e4ea1447c49b64e0fdb3ff3b3de25a9236ed179cc3",
+      "characters": 540
+    },
+    {
+      "name": "memo/memo_0117.md",
+      "sha256": "7cfcd9f5c9bb5b50da5cb3d58b4d1c0610eb1b648371fd9d8cdd12a277b90fcd",
+      "characters": 587
+    },
+    {
+      "name": "memo/memo_0118.txt",
+      "sha256": "9fe9a5bfa075aa9b264fd6d55d5ff09b8ae606f203998dbebbe38abd89b80212",
+      "characters": 476
+    },
+    {
+      "name": "memo/memo_0119.md",
+      "sha256": "ba08d2f4daac321f80c50409760947df801fb935e47ed7687ba470e66763e54d",
+      "characters": 519
+    },
+    {
+      "name": "memo/memo_0120.txt",
+      "sha256": "1ad02e1004867d301cba2c4810b1510f7e8569ec587e8143f0faf4357a730cf8",
+      "characters": 658
+    },
+    {
+      "name": "memo/memo_0121.md",
+      "sha256": "87441140404c0e30406d2e685d3530f2660c7a82af1eb02a1c2e19ff3627a308",
+      "characters": 6697
+    },
+    {
+      "name": "memo/memo_0122.txt",
+      "sha256": "0f2315381ee30c44c0d032ecf161cdf37bee8b823f3eca9a7c4b15c4eb13c72d",
+      "characters": 540
+    },
+    {
+      "name": "memo/memo_0123.md",
+      "sha256": "7a4f21dca73557340b84759b2ea48c67e4b59440586e356c508f3915779d205a",
+      "characters": 587
+    },
+    {
+      "name": "memo/memo_0124.txt",
+      "sha256": "0050af2fc1ca889259d166487997876c06eae570f197d6c1c4293a0e481fec17",
+      "characters": 502
+    },
+    {
+      "name": "memo/memo_0125.md",
+      "sha256": "73995ff1021ab273c7b492f40cf2aeb6748896faf5944f70146b840726fea3ee",
+      "characters": 513
+    },
+    {
+      "name": "memo/memo_0126.txt",
+      "sha256": "42c540f8f554785b9da1170dae8821990c85615ba514887be70db09e25ad066d",
+      "characters": 657
+    },
+    {
+      "name": "memo/memo_0127.md",
+      "sha256": "ab7453256d97e3acb1eed699ea60bd3d880d9bc3a82cd105c36754b739ec42e6",
+      "characters": 6697
+    },
+    {
+      "name": "memo/memo_0128.txt",
+      "sha256": "e9bcc8b454dd0d4b5080bb05355551a51c3ac1f4085336c291098ebda109dc5e",
+      "characters": 540
+    },
+    {
+      "name": "memo/memo_0129.md",
+      "sha256": "00711c6d8058da26111de2ba3941221bbf2eb93f6b2a8f556763c256c44fa811",
+      "characters": 622
+    },
+    {
+      "name": "memo/memo_0130.txt",
+      "sha256": "992e07bc19723edabbf6a29a7c2c89d6041d7624c198f76459f6af6f45e3a0fc",
+      "characters": 477
+    },
+    {
+      "name": "memo/memo_0131.md",
+      "sha256": "568730ab06cb0188e2eb2c425a15ffbf7707dac128e5d251f73656c79b5e942a",
+      "characters": 514
+    },
+    {
+      "name": "memo/memo_0132.txt",
+      "sha256": "ed79552a613f50fec2efd04ef8c7c566456e23c161ba0cee37c6136aa04511c0",
+      "characters": 657
+    },
+    {
+      "name": "memo/memo_0133.md",
+      "sha256": "5e9eba4d6e96c316b13778ef0bf0c02a94a862135fcd425fef87a429c5526d3c",
+      "characters": 6697
+    },
+    {
+      "name": "memo/memo_0134.txt",
+      "sha256": "fbfc8376a4e8fdd981129d42e3b6f87ed998119d0b47eba9e163faa8b933db41",
+      "characters": 502
+    },
+    {
+      "name": "memo/memo_0135.md",
+      "sha256": "5f545c12a0757b9aec9c2a827b482c3476a2e222ac5e03665c6b5110b3083c8a",
+      "characters": 587
+    },
+    {
+      "name": "memo/memo_0136.txt",
+      "sha256": "c8670a764d9407378fd78952624cadf148eb0e1015739d7199cb69eb78c77aa7",
+      "characters": 476
+    },
+    {
+      "name": "memo/memo_0137.md",
+      "sha256": "55f2be7563d79774a19f07869513a9f937d4605df20d754a1f2e8a2a1deba6f6",
+      "characters": 513
+    },
+    {
+      "name": "memo/memo_0138.txt",
+      "sha256": "7725f589721f52a2489523e93da9cf7719d0748f557abda5e0710b0e32b39f0f",
+      "characters": 657
+    },
+    {
+      "name": "memo/memo_0139.md",
+      "sha256": "efcdc555ec963b79fe28a14c6430882959d75efdb5e2953d905f8ca424ae6699",
+      "characters": 518
+    },
+    {
+      "name": "memo/memo_0140.txt",
+      "sha256": "b272dc4761102e7e39add853a26f7fb8e141067a95f61f945175490e53a29d62",
+      "characters": 540
+    },
+    {
+      "name": "memo/memo_0141.md",
+      "sha256": "84fb5e1896d55f1baeac1b31b6aed4073b514e466347752f6437e501ea6623cf",
+      "characters": 588
+    },
+    {
+      "name": "memo/memo_0142.txt",
+      "sha256": "0fb36bc9ae04fc3b9dfed016944a98730b90e519c029f5d1ac8e977da5d5bbb6",
+      "characters": 477
+    },
+    {
+      "name": "memo/memo_0143.md",
+      "sha256": "86235ced962602970b90a2b9754f9acab0bbc87b3d77471fed7e2c6e124ecfe1",
+      "characters": 513
+    },
+    {
+      "name": "memo/memo_0144.txt",
+      "sha256": "9881e76805ea9b6def493ae6e3cd8da50adaa6ae071f8d2e37648e77c3ee69c3",
+      "characters": 606
+    },
+    {
+      "name": "memo/memo_0145.md",
+      "sha256": "ad412280c1d74be1d42c945b7a2d89f9760916256022da99510aa2c3037fb8ac",
+      "characters": 6697
+    },
+    {
+      "name": "memo/memo_0146.txt",
+      "sha256": "8419e39c08435c7190a2be3f0e515da98e509d166302d7f58051bd88f5a356ef",
+      "characters": 540
+    },
+    {
+      "name": "memo/memo_0147.md",
+      "sha256": "e828fe8f26621ea77f53249b0aea3d7e77a6cd6b235af8481ba52c63e05e198f",
+      "characters": 587
+    },
+    {
+      "name": "memo/memo_0148.txt",
+      "sha256": "ef8c23860dad6f841032393e6b66915aeb119a048c2fcf2abce4b8dbdb0b13dc",
+      "characters": 476
+    },
+    {
+      "name": "memo/memo_0149.md",
+      "sha256": "877c2429d3777af72edb183bc678007254da48b8ea861a89a5418d478f61181d",
+      "characters": 518
+    },
+    {
+      "name": "regulation/regulation_0000.txt",
+      "sha256": "9a348f55376e11ee9ded23e38e130f84017fd9995821a76a08f85d66bab978d1",
+      "characters": 306
+    },
+    {
+      "name": "regulation/regulation_0001.md",
+      "sha256": "082b20e5d5b4b9ff48756e1a9e26e8c802b8812cd9a25701222371670a68457e",
+      "characters": 351
+    },
+    {
+      "name": "regulation/regulation_0002.txt",
+      "sha256": "9d9cd05fde4c46ea971127ebfe84c3f193b950f524373f52083c48efb8c9e21a",
+      "characters": 391
+    },
+    {
+      "name": "regulation/regulation_0003.md",
+      "sha256": "3495bfeed7e40544d464e4c53b0f8c4dd0b500495ba0b5b8b6ea24029aa85a1c",
+      "characters": 6535
+    },
+    {
+      "name": "regulation/regulation_0004.txt",
+      "sha256": "b1559f585e4571f5bef78d379bbf46e05a6cefdf82bf3b6951b7afc7f29d7493",
+      "characters": 298
+    },
+    {
+      "name": "regulation/regulation_0005.md",
+      "sha256": "f0ec41a455154eb32c3f5d19140aa56f2b7ad56dd0da5919009b184f84eb1551",
+      "characters": 318
+    },
+    {
+      "name": "regulation/regulation_0006.txt",
+      "sha256": "16a8641c873099960bd90623fbfdae82894c503809a1d1eb8317a7da34f4e139",
+      "characters": 306
+    },
+    {
+      "name": "regulation/regulation_0007.md",
+      "sha256": "9c268eaa1d045ad896dd8de833973bc9e784244a6c07bfddb224bd0b29887aa3",
+      "characters": 351
+    },
+    {
+      "name": "regulation/regulation_0008.txt",
+      "sha256": "87f7ee77b9241cd822a601fa05cfe39463d345a7474412948a2d6f6684baf232",
+      "characters": 391
+    },
+    {
+      "name": "regulation/regulation_0009.md",
+      "sha256": "7c1f75dc2a9bfec452e37d7134c4da3fcfa75ea99b1c30934e7499e9375efda5",
+      "characters": 359
+    },
+    {
+      "name": "regulation/regulation_0010.txt",
+      "sha256": "14237827712c840fac3a179d9447bffe67d2d1f02c5067726aac511ae79da763",
+      "characters": 382
+    },
+    {
+      "name": "regulation/regulation_0011.md",
+      "sha256": "0f115e65e1de6ba467dcb1ac5d03101d8417159c9097e3dea90955bfee7ecdcc",
+      "characters": 322
+    },
+    {
+      "name": "regulation/regulation_0012.txt",
+      "sha256": "70e7fc8454484d01a6186da4cef8679e05036092e4405757f00b12009a0531d0",
+      "characters": 310
+    },
+    {
+      "name": "regulation/regulation_0013.md",
+      "sha256": "666f272486d1adcc8f89f1098377b329e046a23acecdfaafb878bdb3a7fb2c0b",
+      "characters": 355
+    },
+    {
+      "name": "regulation/regulation_0014.txt",
+      "sha256": "09e665ae23f4fd7abfc93c7ac61051d9dc77f640cc7ca420fdb3dced9c3c6e0f",
+      "characters": 302
+    },
+    {
+      "name": "regulation/regulation_0015.md",
+      "sha256": "fc4add6d21415beee6bc37ac23a81948c63497de40640a30651f273ad2412351",
+      "characters": 6539
+    },
+    {
+      "name": "regulation/regulation_0016.txt",
+      "sha256": "35dcc4d676de5127afefd3b5b83e9993a76c4c8cce051d84950ccf4f8c45bcf0",
+      "characters": 382
+    },
+    {
+      "name": "regulation/regulation_0017.md",
+      "sha256": "01e0942e3472b8b7a62d489d319084705f3f2f896e9f371a8c935723d0f4c9c7",
+      "characters": 322
+    },
+    {
+      "name": "regulation/regulation_0018.txt",
+      "sha256": "2aeb4967881364d01542b9b2e6fcc8173dc23ad74c0e55920980660bfd2a7f00",
+      "characters": 310
+    },
+    {
+      "name": "regulation/regulation_0019.md",
+      "sha256": "a0728ff92f9fe68252bd4455aeefb72c8428395538eb225fbd0e0a9149259778",
+      "characters": 360
+    },
+    {
+      "name": "regulation/regulation_0020.txt",
+      "sha256": "0d5a8d563535c54205ca0325920f9c981b66f5974bd1a32b63f1177dbd8bdbde",
+      "characters": 395
+    },
+    {
+      "name": "regulation/regulation_0021.md",
+      "sha256": "95ea70b305a5aabcd9cb949c23b79de37bff569f7499c1c27228616de9c31f65",
+      "characters": 6539
+    },
+    {
+      "name": "regulation/regulation_0022.txt",
+      "sha256": "2adb10644f0fca40ba3920c1896be886a0ca7d6dc817a63ded0d1ee5fed2b16b",
+      "characters": 382
+    },
+    {
+      "name": "regulation/regulation_0023.md",
+      "sha256": "a722b8ee013fd1e40b4c4ff6836fadf7a34ab0c06c3bec1bd2758266642b1d3a",
+      "characters": 322
+    },
+    {
+      "name": "regulation/regulation_0024.txt",
+      "sha256": "5816971be7dcfb89b86534bbe1e94baba951f4493bba63c42f188695d3b58dda",
+      "characters": 302
+    },
+    {
+      "name": "regulation/regulation_0025.md",
+      "sha256": "9f1f07bb0ebac18bb2187122e6e630bcf742b46109d808bb5179b1f387feb151",
+      "characters": 355
+    },
+    {
+      "name": "regulation/regulation_0026.txt",
+      "sha256": "6293c4146d92ac96a2877d47840e0133685bbf1888233195b85e63a41acb494c",
+      "characters": 395
+    },
+    {
+      "name": "regulation/regulation_0027.md",
+      "sha256": "f1cce77f54522d1179b5e71a4a89eb079b0627017e132afb5aebdacdbaaaeb30",
+      "characters": 6539
+    },
+    {
+      "name": "regulation/regulation_0028.txt",
+      "sha256": "8be0b8fa74a176d58a7a4342118334f0372e8e602b34e1a249b4a53c4c8424f2",
+      "characters": 382
+    },
+    {
+      "name": "regulation/regulation_0029.md",
+      "sha256": "560701f064a86b0547f99126aaadb20d5fede0705e628518c65ceecf2664095d",
+      "characters": 360
+    },
+    {
+      "name": "regulation/regulation_0030.txt",
+      "sha256": "99211d19a533754f3975e314220f23c636d940ebeaa7340441e33cfe709f3996",
+      "characters": 310
+    },
+    {
+      "name": "regulation/regulation_0031.md",
+      "sha256": "5089aa922000964efc009401a415da97383b36040d775b0c0bad0144abaaf3a1",
+      "characters": 355
+    },
+    {
+      "name": "regulation/regulation_0032.txt",
+      "sha256": "c65df77f812553ad246ff7f6d9b138177037793be60aa00fc1f0f41f2decc9e2",
+      "characters": 395
+    },
+    {
+      "name": "regulation/regulation_0033.md",
+      "sha256": "9bf6a74c8a0982abda354c695d28a2740fd8adf8945cc3da75ca24e0733a4253",
+      "characters": 6539
+    },
+    {
+      "name": "regulation/regulation_0034.txt",
+      "sha256": "3b198f450a16449e51dbea23a279f998caf10de752699de991eed7f41f6840b8",
+      "characters": 302
+    },
+    {
+      "name": "regulation/regulation_0035.md",
+      "sha256": "e575deeaa578b8a5f16241eb45b90cef280646455cf7ac09b53ec4a4a217b77d",
+      "characters": 322
+    },
+    {
+      "name": "regulation/regulation_0036.txt",
+      "sha256": "7684d31bd6624cc5e1cdb9076e28f6e0a1cf9e3f8b5e8a58106229a100847391",
+      "characters": 310
+    },
+    {
+      "name": "regulation/regulation_0037.md",
+      "sha256": "1120a95d1b012e3303133a64905ff6eeecfb04264cddc1b1c47bf9849965e770",
+      "characters": 355
+    },
+    {
+      "name": "regulation/regulation_0038.txt",
+      "sha256": "8c0234fbb4cb3c2ff2273f75d6e4016dcc48ecd1ba7265d2473cca5424cf0174",
+      "characters": 395
+    },
+    {
+      "name": "regulation/regulation_0039.md",
+      "sha256": "83048b6ff5d93b9a3c6ae09e16013970439857a735b3fb8a3757c72f44569cc9",
+      "characters": 360
+    },
+    {
+      "name": "regulation/regulation_0040.txt",
+      "sha256": "80b093c0af31b8b0d858f294b80ae06a0105ec07772687ed3aa2accd43744ebb",
+      "characters": 382
+    },
+    {
+      "name": "regulation/regulation_0041.md",
+      "sha256": "387fe2796f0309900bcd6b994c7410b60b5b0af92d215bc4fdb047d21ec25504",
+      "characters": 322
+    },
+    {
+      "name": "regulation/regulation_0042.txt",
+      "sha256": "6f6cf8ce72229f03381cdfc183d5a7557da4ae3b0078d74e19fec09eb45a52ca",
+      "characters": 310
+    },
+    {
+      "name": "regulation/regulation_0043.md",
+      "sha256": "081d92c4feea3944babf2d3548c55b6a7072a8b1b20fab59b9c8dc6c9846c245",
+      "characters": 355
+    },
+    {
+      "name": "regulation/regulation_0044.txt",
+      "sha256": "1f0467fb61ae2cf9584f89763e1ccca908a7308f08089d76099346cddd16d887",
+      "characters": 302
+    },
+    {
+      "name": "regulation/regulation_0045.md",
+      "sha256": "b6df2078e2e8e324ba9363316678f77c5ee1c012b5d37b79ac5142e58f8f23f8",
+      "characters": 6539
+    },
+    {
+      "name": "regulation/regulation_0046.txt",
+      "sha256": "2e09a2bb156df1e6618db934b39c488ecbbd98e37c08e588cee074d1262d32e1",
+      "characters": 382
+    },
+    {
+      "name": "regulation/regulation_0047.md",
+      "sha256": "20ce3c6cd68ccaedf41411b705a88a06aca20aa6f0660ec2d90d2fa8ae504aee",
+      "characters": 322
+    },
+    {
+      "name": "regulation/regulation_0048.txt",
+      "sha256": "3d131a4af0feabbc1e7af25a2e02c735b791f6801d8fbb8eba9221cf0dbe886f",
+      "characters": 310
+    },
+    {
+      "name": "regulation/regulation_0049.md",
+      "sha256": "1cbeef3f83a84c05f4d8f016791f15798434d08ef9fafb4769d089fb681b667c",
+      "characters": 360
+    },
+    {
+      "name": "regulation/regulation_0050.txt",
+      "sha256": "9245b79f76b0426c1c24de0f79a1aa86c248cbbe59798d4d39e447dd71f7949f",
+      "characters": 395
+    },
+    {
+      "name": "regulation/regulation_0051.md",
+      "sha256": "f2adc02abee22770bf80ce599a9d7e774cbffe3867ac2f72fc8cf426eced4892",
+      "characters": 6539
+    },
+    {
+      "name": "regulation/regulation_0052.txt",
+      "sha256": "ff51f0778bf001cb5bc4d991c160d88b3a3b6f9c39bbcb98f90689e900ee8fd2",
+      "characters": 382
+    },
+    {
+      "name": "regulation/regulation_0053.md",
+      "sha256": "fd0894c2633b8d4024f9ff5a1e392ac2105999136b72d0482ba9f943b612b693",
+      "characters": 322
+    },
+    {
+      "name": "regulation/regulation_0054.txt",
+      "sha256": "61523ea1ca110331146d7777998070831457ef803666fe6adbf290275868c2d8",
+      "characters": 302
+    },
+    {
+      "name": "regulation/regulation_0055.md",
+      "sha256": "90e7782f0a9ad2751a95915dbf304d72f384443a435c62090f791319f25164cc",
+      "characters": 355
+    },
+    {
+      "name": "regulation/regulation_0056.txt",
+      "sha256": "4fe1b3c3ca0213a2c16d959a7bca7c40677dc63a7491fb51fc99afbf12ad19ae",
+      "characters": 395
+    },
+    {
+      "name": "regulation/regulation_0057.md",
+      "sha256": "a2682d9685530ec3624c0cabf8c61e86d31e61236fef089db937ebe9aecf8ced",
+      "characters": 6539
+    },
+    {
+      "name": "regulation/regulation_0058.txt",
+      "sha256": "b9257e9c6c53591fbd83777bf4d0bac428ce141f7eeff393d842ae36c786370f",
+      "characters": 382
+    },
+    {
+      "name": "regulation/regulation_0059.md",
+      "sha256": "38f03c8b0cdde2ab96ed41d375526c92e533fbcfe35dfef1b63f1e38b786787e",
+      "characters": 360
+    },
+    {
+      "name": "regulation/regulation_0060.txt",
+      "sha256": "4e7b8fcd6ecb34bf4430a766e7c2b1bf8354553af4ae1c21bbe25f73f4e61f79",
+      "characters": 310
+    },
+    {
+      "name": "regulation/regulation_0061.md",
+      "sha256": "1f38f0a36fa1dc4ed510ed21b7df38b7977df64fef8511b7acbbb3df1407a9ef",
+      "characters": 355
+    },
+    {
+      "name": "regulation/regulation_0062.txt",
+      "sha256": "f0cc1cad316a8674ea2d6e2c77be477644b0e684027d0d9357015dc0b0f415c3",
+      "characters": 395
+    },
+    {
+      "name": "regulation/regulation_0063.md",
+      "sha256": "12bd25b56a8783b3cdc9d6b2707dfc0356ad859fe0c0501fb326da262a1601a8",
+      "characters": 6539
+    },
+    {
+      "name": "regulation/regulation_0064.txt",
+      "sha256": "c7b98a6393dd2fba36ab96221b514a580b1bfcb787c38ddc81e7fed000e88e10",
+      "characters": 302
+    },
+    {
+      "name": "regulation/regulation_0065.md",
+      "sha256": "74f68ba2b3c2dd605aa64423e8c8eb7966a07acb98908dd62f4c8963bae7352b",
+      "characters": 322
+    },
+    {
+      "name": "regulation/regulation_0066.txt",
+      "sha256": "817ad1bcd340d7e1a94ee1ba9a7592c1558295ff7405dd67c9d72db4d0a95134",
+      "characters": 310
+    },
+    {
+      "name": "regulation/regulation_0067.md",
+      "sha256": "acc3a5c93f95ae055c446dd0769a3bba5bab6d4beb7a475383b39987f01a06c4",
+      "characters": 355
+    },
+    {
+      "name": "regulation/regulation_0068.txt",
+      "sha256": "17d623f8567ba197d4e31ba99c0626f21852bd6c39286d3cb07d300cf6be2902",
+      "characters": 395
+    },
+    {
+      "name": "regulation/regulation_0069.md",
+      "sha256": "47af30a21d72ca092b24ca981f29c3348427bc30c5619a198d2f7325c8e471f5",
+      "characters": 360
+    },
+    {
+      "name": "regulation/regulation_0070.txt",
+      "sha256": "8837893d0e5fd0e29be389369a025a752dde1fa3b8315c4f53ae091d82b9c92b",
+      "characters": 382
+    },
+    {
+      "name": "regulation/regulation_0071.md",
+      "sha256": "dc36738d6a82c2cca894ce8fb975b5dffd5e3207810970d3a83bda3473104222",
+      "characters": 322
+    },
+    {
+      "name": "regulation/regulation_0072.txt",
+      "sha256": "82bb0281f8418b40aa7c34d16d42b66cfe203da1f75777d6265295c5cbc2e211",
+      "characters": 310
+    },
+    {
+      "name": "regulation/regulation_0073.md",
+      "sha256": "9a22454e418f9dfb5880b54d7449d992148008f726d522a28836c2f16e5a638f",
+      "characters": 355
+    },
+    {
+      "name": "regulation/regulation_0074.txt",
+      "sha256": "cc3e16418e327bf1bdcf032a37afa3c430589315dd5a7c95c25d2fcc87c81d59",
+      "characters": 302
+    },
+    {
+      "name": "regulation/regulation_0075.md",
+      "sha256": "9b5c2f0d70b154cfafbbe424bf7b67143e9ca30addeea40a3683a10191dbe6f1",
+      "characters": 6539
+    },
+    {
+      "name": "regulation/regulation_0076.txt",
+      "sha256": "916c46f00b6fd176e6676bf189e09a53f1306c3aba9a2eb2cd91c77f01c861ca",
+      "characters": 382
+    },
+    {
+      "name": "regulation/regulation_0077.md",
+      "sha256": "8e0f8d37c66556870b9617019e75b880d4b57d794481a5b1392d79962327add2",
+      "characters": 322
+    },
+    {
+      "name": "regulation/regulation_0078.txt",
+      "sha256": "22ae210e9aff8c68abc74d037e74ad83e5b3599928cc1c645c3f5a49af32e495",
+      "characters": 310
+    },
+    {
+      "name": "regulation/regulation_0079.md",
+      "sha256": "59bb1627b29129baccf3eb921fe789fa5492bf9e6220724688195cc1b16f31be",
+      "characters": 360
+    },
+    {
+      "name": "regulation/regulation_0080.txt",
+      "sha256": "8a08f41300cb7347b289c935204913bd35a2e7029a798397ba3fd89da4e7dd00",
+      "characters": 395
+    },
+    {
+      "name": "regulation/regulation_0081.md",
+      "sha256": "115a1582b79beb4ba1b05036f9afab708560b6e1831b9838e2adceed13dc4e29",
+      "characters": 6539
+    },
+    {
+      "name": "regulation/regulation_0082.txt",
+      "sha256": "d18f19a2ebbbfb86d1b8a09a18a18ccca82d9faed986fcf3fa3256620b43e39a",
+      "characters": 382
+    },
+    {
+      "name": "regulation/regulation_0083.md",
+      "sha256": "576f0210f79a2d24618cbd6eb64ea50642191ec1df8dab22e2119f78a3449724",
+      "characters": 322
+    },
+    {
+      "name": "regulation/regulation_0084.txt",
+      "sha256": "2d9d603cb02744cff41ebe250d68eef8745b7ca11148f44eb35e41533b8e6595",
+      "characters": 302
+    },
+    {
+      "name": "regulation/regulation_0085.md",
+      "sha256": "466bcdd122e5af5c0860a0375bae8c6a500b652204c5b025e44759649b20edf6",
+      "characters": 355
+    },
+    {
+      "name": "regulation/regulation_0086.txt",
+      "sha256": "cfbd0ef2951546a0f18787db88aa08250bb3124fd17c0c356238ba88ac0fb85f",
+      "characters": 395
+    },
+    {
+      "name": "regulation/regulation_0087.md",
+      "sha256": "be40d932f8c472ba1ddb070781a4e7849d4ba748f377cc5dfe6784470b7eda16",
+      "characters": 6539
+    },
+    {
+      "name": "regulation/regulation_0088.txt",
+      "sha256": "47b01eb61bbd80b867d6a388420263699a4aaf20f413f6b6a35efcc0b30969cd",
+      "characters": 382
+    },
+    {
+      "name": "regulation/regulation_0089.md",
+      "sha256": "f35c5fa7ccd550d43e93597ba233e764e81234c830b3955b9c0b3174571e3c48",
+      "characters": 360
+    },
+    {
+      "name": "regulation/regulation_0090.txt",
+      "sha256": "8b5f2d80ebcabc838be387f8d7321e28c209d746e0aaffcca474c2cb0ff4b35b",
+      "characters": 310
+    },
+    {
+      "name": "regulation/regulation_0091.md",
+      "sha256": "efcc55f36b4a60e957a6a7606c9d024ba8a4a476f208eb053017befbfdc25783",
+      "characters": 355
+    },
+    {
+      "name": "regulation/regulation_0092.txt",
+      "sha256": "05a813b9e3018d978fb5012cd3081be8cabca534774f27ef4e7f204fa5539ddf",
+      "characters": 395
+    },
+    {
+      "name": "regulation/regulation_0093.md",
+      "sha256": "aaa2aec57cface73539f1aec4c86047c9e6e7c1672a287531345a3b0cedb7da8",
+      "characters": 6539
+    },
+    {
+      "name": "regulation/regulation_0094.txt",
+      "sha256": "1e8a58b8f0fafc9e66813e67d8098a3364762e2ae4cd7336ccdb7ed44e378605",
+      "characters": 302
+    },
+    {
+      "name": "regulation/regulation_0095.md",
+      "sha256": "42f572a2e83efd3d088fad173c53c40396ba14f6fb01a5529787166b5b1fac06",
+      "characters": 322
+    },
+    {
+      "name": "regulation/regulation_0096.txt",
+      "sha256": "5d70ef9ad16f40d28410fad94507f31c1b77da472d0c18b80b1ef6961950d650",
+      "characters": 310
+    },
+    {
+      "name": "regulation/regulation_0097.md",
+      "sha256": "3de3ecd724b2a95ace7872342c3423933f36393e142b002b8da9094626301697",
+      "characters": 355
+    },
+    {
+      "name": "regulation/regulation_0098.txt",
+      "sha256": "a61bffc95cd6763d5cf22958557dfc3dbd846dfcc35146e79cab85a502c70086",
+      "characters": 395
+    },
+    {
+      "name": "regulation/regulation_0099.md",
+      "sha256": "6b13d06430c5e782d71604a945cd9e7c3e347d00191f15a3bad3137ac7dc46b9",
+      "characters": 363
+    },
+    {
+      "name": "regulation/regulation_0100.txt",
+      "sha256": "0af9acc1ea5cca3947517f2d7f3cf587716d54057cf4a61bd967d5e203a003ca",
+      "characters": 378
+    },
+    {
+      "name": "regulation/regulation_0101.md",
+      "sha256": "110ae091f89244953b378d829eb643a84487c6b460625051694f389db854969b",
+      "characters": 318
+    },
+    {
+      "name": "regulation/regulation_0102.txt",
+      "sha256": "9ba57eb1d4fde5bd2a6cd5e71c9bce3587b3cd6ddea30588ae7aea51660403ef",
+      "characters": 306
+    },
+    {
+      "name": "regulation/regulation_0103.md",
+      "sha256": "9a8173dab4576894435a45aea0d2a90e721773e287cdd58e91245e0f2ddf986e",
+      "characters": 351
+    },
+    {
+      "name": "regulation/regulation_0104.txt",
+      "sha256": "0a5d48b8a51239da2cf7c55854c5d37c271cef3fb4f38c066ec80584cebc3e05",
+      "characters": 298
+    },
+    {
+      "name": "regulation/regulation_0105.md",
+      "sha256": "0750c65587848c534485a0f0e7ffd8eaaf8ac54b6ffcdbbf15643acab99ea3f6",
+      "characters": 6535
+    },
+    {
+      "name": "regulation/regulation_0106.txt",
+      "sha256": "e12b2278b767cb39352f3a1417cda18b206ac07402291510124d0672fdb0d47e",
+      "characters": 378
+    },
+    {
+      "name": "regulation/regulation_0107.md",
+      "sha256": "7d4c70de21adf09066ee652725c94640669bfcf64c883997e05d7094b82c2bf9",
+      "characters": 318
+    },
+    {
+      "name": "regulation/regulation_0108.txt",
+      "sha256": "795d88af58df13e5b237e70d2c6d362cc749f7e8152a887d30db3a904c18d5dd",
+      "characters": 306
+    },
+    {
+      "name": "regulation/regulation_0109.md",
+      "sha256": "2c3dcdc40c86adf5280cf396903f20af92f3ad68b1ba7abd79f6b090ff58bdc5",
+      "characters": 359
+    },
+    {
+      "name": "regulation/regulation_0110.txt",
+      "sha256": "8e30e0acbc9c9894a1aab4f7c1b0a603e7c25c549596917f11474705deb58e3a",
+      "characters": 395
+    },
+    {
+      "name": "regulation/regulation_0111.md",
+      "sha256": "fa22db77ed45ab2ed905e89720344927c919f88bc7725b10a8b6bcec1c89926f",
+      "characters": 6539
+    },
+    {
+      "name": "regulation/regulation_0112.txt",
+      "sha256": "e940032b660de2f6820412cf62f7df532f0baf77c333730b50f8f05feee42b15",
+      "characters": 382
+    },
+    {
+      "name": "regulation/regulation_0113.md",
+      "sha256": "ac8b044bdc88817ed730797a8e52237051aba2ebadab119e7f09b7e6a4f5d7d6",
+      "characters": 322
+    },
+    {
+      "name": "regulation/regulation_0114.txt",
+      "sha256": "1a936497a18986a713f0b4c9387ee6768c771b85243b2fb87e6581919813d808",
+      "characters": 302
+    },
+    {
+      "name": "regulation/regulation_0115.md",
+      "sha256": "ca679cac0630d9fa803e3b03d0bcb4d91548bb51b5c9b0e2f6d832524329ada7",
+      "characters": 355
+    },
+    {
+      "name": "regulation/regulation_0116.txt",
+      "sha256": "583aafee5c9b9f977b8329f5692c44ee8096c7dfdd5704d530b1d474c0829a37",
+      "characters": 395
+    },
+    {
+      "name": "regulation/regulation_0117.md",
+      "sha256": "2b979f88f4a5d0525a4b8376a6ffd214e18b55699e1e7500920a50f17ec16c42",
+      "characters": 6539
+    },
+    {
+      "name": "regulation/regulation_0118.txt",
+      "sha256": "240d60aadd8a42ab9266b8034d7060cae79f42575311affd47371a62cfd8278e",
+      "characters": 382
+    },
+    {
+      "name": "regulation/regulation_0119.md",
+      "sha256": "c2b2d99b40315d1a7c62d876c78b5295acd3d6d99696d6cdf9bd87cf6e4b14cc",
+      "characters": 360
+    },
+    {
+      "name": "regulation/regulation_0120.txt",
+      "sha256": "5842fbf9cde535769fc144942d9a75582d7ecc280855e3412dee5f779530e459",
+      "characters": 310
+    },
+    {
+      "name": "regulation/regulation_0121.md",
+      "sha256": "7c30a2b4e4ebd164fe65dfa7af58735876d61dfc21556aeeacb0f4a5922f4ba2",
+      "characters": 355
+    },
+    {
+      "name": "regulation/regulation_0122.txt",
+      "sha256": "746477ccd9e7fdda99fefc798adb8b4b9051fb6b94d06123e129df12a8273d5d",
+      "characters": 395
+    },
+    {
+      "name": "regulation/regulation_0123.md",
+      "sha256": "41b1fe31c084f37c0abd1c5c7533a3a793a95f619c4ec30cb9bd179259ae3084",
+      "characters": 6539
+    },
+    {
+      "name": "regulation/regulation_0124.txt",
+      "sha256": "6af7a1743363809595a5040babb32390593dfedc82b95e1a3e9c28c02f431136",
+      "characters": 302
+    },
+    {
+      "name": "regulation/regulation_0125.md",
+      "sha256": "a05dd85e03c681b1b7fbee837d1905be937f1386faf2d7d04786fe23eff2b5f7",
+      "characters": 322
+    },
+    {
+      "name": "regulation/regulation_0126.txt",
+      "sha256": "69aa8f6ea32a6089c2f487f507bf5fd8486ba3a00a107c44514c2b3ef84e5d1f",
+      "characters": 310
+    },
+    {
+      "name": "regulation/regulation_0127.md",
+      "sha256": "966f354f87221ed65acfa51960d30a9bc45ae76e65deff142f724184b0ef1a4d",
+      "characters": 355
+    },
+    {
+      "name": "regulation/regulation_0128.txt",
+      "sha256": "f9f54f0ebb069cd3fbc8cd5163c3cce8772322f2e52a3ef0103520521d29216a",
+      "characters": 395
+    },
+    {
+      "name": "regulation/regulation_0129.md",
+      "sha256": "82d36c69b2a13c0e3a9c19a5cb7ba4195cc149e42f6edd31d2d645c50c0db176",
+      "characters": 360
+    },
+    {
+      "name": "regulation/regulation_0130.txt",
+      "sha256": "8c4916140944e0c7c91ab4a7e0f8b380300f228d8bac1160d58056e1d86a9ba7",
+      "characters": 382
+    },
+    {
+      "name": "regulation/regulation_0131.md",
+      "sha256": "f87b148354cbfa1b16d661126df60ec1f116e35cad71ac744a9cbb6ca467b708",
+      "characters": 322
+    },
+    {
+      "name": "regulation/regulation_0132.txt",
+      "sha256": "580787d154550885ab05913fc5350810cca7392f4fa1b02122cee6ded3b2ebfd",
+      "characters": 310
+    },
+    {
+      "name": "regulation/regulation_0133.md",
+      "sha256": "ef529dc20967f877b9ffc43734418a691eb02ebeb5d20edc1b7a34df46d86425",
+      "characters": 355
+    },
+    {
+      "name": "regulation/regulation_0134.txt",
+      "sha256": "4643849cbc7181bac26051b57f66059e6f1e105292ef574c27f1cedbe755854b",
+      "characters": 302
+    },
+    {
+      "name": "regulation/regulation_0135.md",
+      "sha256": "e7ed0112da94c35f95cb16f134fec14c4c7b36dd9946fa0c5eb4372eac285317",
+      "characters": 6539
+    },
+    {
+      "name": "regulation/regulation_0136.txt",
+      "sha256": "79999cdbfc24a3da3d428f8af272048622399373594010b5020671026d3e261d",
+      "characters": 382
+    },
+    {
+      "name": "regulation/regulation_0137.md",
+      "sha256": "3eba278b8528f0fb9689135c0219fd22270cbf54b55d91d550916df6c8207e47",
+      "characters": 322
+    },
+    {
+      "name": "regulation/regulation_0138.txt",
+      "sha256": "9b9e659d4eb649d26b351e869d5c78b6a6044207b92cf5fd6abd72c4efa78276",
+      "characters": 310
+    },
+    {
+      "name": "regulation/regulation_0139.md",
+      "sha256": "b715fe9f8b280131ab84830d44a0fe2a9981b4f1cc8365f966017825238fcf1e",
+      "characters": 360
+    },
+    {
+      "name": "regulation/regulation_0140.txt",
+      "sha256": "030c4f4d2ea88cc9813077734cc9dd6d2b542d53010ab2ed09e071307453343d",
+      "characters": 395
+    },
+    {
+      "name": "regulation/regulation_0141.md",
+      "sha256": "80d2c3ef96c6fc8e581374f81624bb09f9480c83809102262b5e256e24050d75",
+      "characters": 6539
+    },
+    {
+      "name": "regulation/regulation_0142.txt",
+      "sha256": "fff40122e908f23ce0f6e2fdcc9b96d9dc56e4536f300cca402fc02121a5ca32",
+      "characters": 382
+    },
+    {
+      "name": "regulation/regulation_0143.md",
+      "sha256": "20be6784329240586b86fbc393d0a2c6e84ef73af985788b18aec5f2caeb49a3",
+      "characters": 322
+    },
+    {
+      "name": "regulation/regulation_0144.txt",
+      "sha256": "18ab55cd5d501e961ebac006d87ce014273586b048700b7c6b4a828da3d27609",
+      "characters": 302
+    },
+    {
+      "name": "regulation/regulation_0145.md",
+      "sha256": "4e161fa09ee437cf6cf4c851d4d695e81409610ae1f24e7a078c2e87ac21d30a",
+      "characters": 355
+    },
+    {
+      "name": "regulation/regulation_0146.txt",
+      "sha256": "4035e2bccda92d0bc530916e9f8a0c25e30381e08d3d529c985f225085ce8a27",
+      "characters": 395
+    },
+    {
+      "name": "regulation/regulation_0147.md",
+      "sha256": "a6fd49fe43c4386b57f778b955ee9c922276946c33c42d7c5a2360af4dba70ee",
+      "characters": 6539
+    },
+    {
+      "name": "regulation/regulation_0148.txt",
+      "sha256": "8ad7b23fc9db87876d2dc73b5f658274db6fff270396d95ec3337c5ab69cc061",
+      "characters": 382
+    },
+    {
+      "name": "regulation/regulation_0149.md",
+      "sha256": "5421ba6291df1e3a4d59e2480f34ff464895453439b168e09ea451421749675f",
+      "characters": 360
+    },
+    {
+      "name": "regulation/regulation_0150.txt",
+      "sha256": "9805da2b3c47b74ecd572b928f74081d102db1ab0ddf26e2ade259d255572b5b",
+      "characters": 310
+    },
+    {
+      "name": "regulation/regulation_0151.md",
+      "sha256": "ad341fbe7dd8ff7f7fa042a476a4eadd90585d25c09bc6dc4cbccb3797ec6b7a",
+      "characters": 355
+    },
+    {
+      "name": "regulation/regulation_0152.txt",
+      "sha256": "19843e920e0037bc3d731ec0852fc76cd5d3b8772e451c4c60d644a2c2d2e7ff",
+      "characters": 395
+    },
+    {
+      "name": "regulation/regulation_0153.md",
+      "sha256": "48547d7c01a641e38c701ee3dc8492a8c5d03ecd18b4e97bbb5ad4ce79b26654",
+      "characters": 6539
+    },
+    {
+      "name": "regulation/regulation_0154.txt",
+      "sha256": "d7ba62f2278d5b04a804da67c18e7978edacd893b70cfd19f13351592c9fec0f",
+      "characters": 302
+    },
+    {
+      "name": "regulation/regulation_0155.md",
+      "sha256": "a3c0f85983ca7d8e674eb2930356f1dae04631be1f3847fee4864961a7de4e41",
+      "characters": 322
+    },
+    {
+      "name": "regulation/regulation_0156.txt",
+      "sha256": "27feb4922b66e5abc7fece82ac1b322ccd6d3cf14589776b9f79e480938a7249",
+      "characters": 310
+    },
+    {
+      "name": "regulation/regulation_0157.md",
+      "sha256": "841080f751e57236512b2ce7175f56b0d13d4eb96fcd4242713f174f661b7021",
+      "characters": 355
+    },
+    {
+      "name": "regulation/regulation_0158.txt",
+      "sha256": "2054c11c477ed0a992eea8b670f15dd18343333d73a7ed976cc8e228a12aa36f",
+      "characters": 395
+    },
+    {
+      "name": "regulation/regulation_0159.md",
+      "sha256": "b3dc0886810fdfb4ef58a97a026d5a291da082a24b20b3e17fae5f72bb86e291",
+      "characters": 360
+    },
+    {
+      "name": "regulation/regulation_0160.txt",
+      "sha256": "7781aa0f0b57fd31857a45feebd352519ba9f005f56d54c8a16a487eb15d1c8c",
+      "characters": 382
+    },
+    {
+      "name": "regulation/regulation_0161.md",
+      "sha256": "a208472f3dfd7655e0f9a35b14af285f5ff82b85ddab430c04bac24fc9b101ab",
+      "characters": 322
+    },
+    {
+      "name": "regulation/regulation_0162.txt",
+      "sha256": "37f15852286cce11f2b8c9e116952d9cf189036c50ac0dd4b1b3da4cd57cb7ad",
+      "characters": 310
+    },
+    {
+      "name": "regulation/regulation_0163.md",
+      "sha256": "43e3d195326c3b7fbc25c321aa03dba918df6c32cfa3c5a038d086ebc40752c9",
+      "characters": 355
+    },
+    {
+      "name": "regulation/regulation_0164.txt",
+      "sha256": "20ff898a73b59bc1dd5526b5f5edbb74bb5a9619dc6cb51b09dfdc6cb684f878",
+      "characters": 302
+    },
+    {
+      "name": "regulation/regulation_0165.md",
+      "sha256": "8acd6f47a57935f126926b39559d444ed0665aa0687efb91b17f1ff006532728",
+      "characters": 6539
+    },
+    {
+      "name": "regulation/regulation_0166.txt",
+      "sha256": "e9b0e08797d28a1e3cc7d562d76153c696b065653d33442963279f7ba2a0ffaf",
+      "characters": 382
+    },
+    {
+      "name": "regulation/regulation_0167.md",
+      "sha256": "aec59778e04b8f31c0d6bd1b96f8df7a0fc159eeabbea7068acbb0ccc150a1a7",
+      "characters": 322
+    },
+    {
+      "name": "regulation/regulation_0168.txt",
+      "sha256": "f693497d6587216e8395fb3c71895c7336d43501095d9aa918f4d9a1212a1307",
+      "characters": 310
+    },
+    {
+      "name": "regulation/regulation_0169.md",
+      "sha256": "7e3c133274da88e95c777a9c765bd34cd65a1f809f938c8f6b80fb6487a0fc69",
+      "characters": 360
+    },
+    {
+      "name": "regulation/regulation_0170.txt",
+      "sha256": "01c7c1fcd19f0c9fd24e404d4c8267fac6f3ba29cacb1a5e666cf353b1a05a8d",
+      "characters": 395
+    },
+    {
+      "name": "regulation/regulation_0171.md",
+      "sha256": "00bdc77709173d579f65039a3c7f7c481cac2db3897edc97a43ee475db38a7f4",
+      "characters": 6539
+    },
+    {
+      "name": "regulation/regulation_0172.txt",
+      "sha256": "e5e42b52592aca0af7f578df961d0e52dbdfdd38d79ceed31f702c0a639341e6",
+      "characters": 382
+    },
+    {
+      "name": "regulation/regulation_0173.md",
+      "sha256": "c8ed11e2c274ea778f771611a6cc6a87bad77f1d9aa83d3c5365e8ae6a844085",
+      "characters": 322
+    },
+    {
+      "name": "regulation/regulation_0174.txt",
+      "sha256": "7375c213d67fe3dbe99b289a807818cd98359291d1872627d5d3058ed8a3dfdc",
+      "characters": 302
+    },
+    {
+      "name": "regulation/regulation_0175.md",
+      "sha256": "fb1483fea055a34b009ac803cc514fcfbce7e365cfe671d12a490309692a213a",
+      "characters": 355
+    },
+    {
+      "name": "regulation/regulation_0176.txt",
+      "sha256": "c43d0e940207dad4f350514f47822d77e5248d661d919f4969d1168e157289a3",
+      "characters": 395
+    },
+    {
+      "name": "regulation/regulation_0177.md",
+      "sha256": "a1d09fe1a3bbea333879828da6e5a405214b25f742873aa87a7abb42cc427939",
+      "characters": 6539
+    },
+    {
+      "name": "regulation/regulation_0178.txt",
+      "sha256": "7e12f16d4cf834c6967d2703ed9dab2406a8d78ae03b2390f2af1e3e936cf3d0",
+      "characters": 382
+    },
+    {
+      "name": "regulation/regulation_0179.md",
+      "sha256": "a39772054dd94ac14c0ed7e4cead1c11368c5af9473d91c34e300fd8a9731e37",
+      "characters": 360
+    },
+    {
+      "name": "regulation/regulation_0180.txt",
+      "sha256": "ea5346019070c9bb7529be4dd22c8bc69ed1d410af8f098253d998b3ba2c9cb3",
+      "characters": 310
+    },
+    {
+      "name": "regulation/regulation_0181.md",
+      "sha256": "1a82dd0b16c10e2aee9951e5a867e246af863c3d742c6b1954ef8d91402b49ba",
+      "characters": 355
+    },
+    {
+      "name": "regulation/regulation_0182.txt",
+      "sha256": "b8389c1c2a74fd730ff799eeebd42958e3505c5f59704f9c81418dbb6576fa14",
+      "characters": 395
+    },
+    {
+      "name": "regulation/regulation_0183.md",
+      "sha256": "7cb320b966d8d574c789cf47aab9ae7edb3e928f6c31306078e5ba946b50b0e3",
+      "characters": 6539
+    },
+    {
+      "name": "regulation/regulation_0184.txt",
+      "sha256": "9b8d0687c5723ea529e917be31bfb5f63af721f9d2a437bedaef00474be53d2e",
+      "characters": 302
+    },
+    {
+      "name": "regulation/regulation_0185.md",
+      "sha256": "00da3cb1a2f75ff3d0f800e686d58324f7b7400cdf2b52d3b726f0b5a475f224",
+      "characters": 322
+    },
+    {
+      "name": "regulation/regulation_0186.txt",
+      "sha256": "f3f243e233466e658bc83f476a11eaf2a6423af9de13e063bf1a3e464f30a155",
+      "characters": 310
+    },
+    {
+      "name": "regulation/regulation_0187.md",
+      "sha256": "03819d046bf424b5009d827433af756ee2744aa9868cc2fc4b8b756c9252573b",
+      "characters": 355
+    },
+    {
+      "name": "regulation/regulation_0188.txt",
+      "sha256": "2d1612dbfaa370c1835e9e2179dfde66b1aabf21d033c65980be61e3e38f8270",
+      "characters": 395
+    },
+    {
+      "name": "regulation/regulation_0189.md",
+      "sha256": "28b336431f5c7b5db6a87664cc14299eed5a42417a3d6559f89b3d75dedb5d9b",
+      "characters": 360
+    },
+    {
+      "name": "regulation/regulation_0190.txt",
+      "sha256": "6725e1813d1b787f408699e5177157e8d42a3779d1c7a4f811d2dbc0f3281dd7",
+      "characters": 382
+    },
+    {
+      "name": "regulation/regulation_0191.md",
+      "sha256": "77eb929c4225cc9256bcba8fb66b42d5701c752678fac09d5268e5533b04cab4",
+      "characters": 322
+    },
+    {
+      "name": "regulation/regulation_0192.txt",
+      "sha256": "6f08ac9403bb35024548deac166dd59c7cb7d10508c5ddca27be20df9bf987a2",
+      "characters": 310
+    },
+    {
+      "name": "regulation/regulation_0193.md",
+      "sha256": "73f279299ca28a1289af712f635a58f809cadac59ad6439b4d5de13b743fb511",
+      "characters": 355
+    },
+    {
+      "name": "regulation/regulation_0194.txt",
+      "sha256": "bb3f66ebe70153c8ffce3eff7ecbe225d7d68dc6f4a0dcc62b99c0f0e33c6eb7",
+      "characters": 302
+    },
+    {
+      "name": "regulation/regulation_0195.md",
+      "sha256": "46393c49d9577e55915a11c01a6932eebd75586f120bcaa0c2c32d3682fe6a19",
+      "characters": 6539
+    },
+    {
+      "name": "regulation/regulation_0196.txt",
+      "sha256": "e6702c51f7360352e5a2d1d6b28fbdd57bacefdbe62928ee74f0588ccee546e8",
+      "characters": 382
+    },
+    {
+      "name": "regulation/regulation_0197.md",
+      "sha256": "5efc25f2997cf5a531a03f54cf8fed86e02f671ea588c1322bd719593e70e9e0",
+      "characters": 322
+    },
+    {
+      "name": "regulation/regulation_0198.txt",
+      "sha256": "efd0cd208cc10e9ae78515dbd3b144a23a4c369d8e2c30ca4f6e6e51a9b4720d",
+      "characters": 310
+    },
+    {
+      "name": "regulation/regulation_0199.md",
+      "sha256": "b351f88e832f20658ef8bb3d542b7a9ab461878e0231deb8c22221ab5d1aa8af",
+      "characters": 363
+    },
+    {
+      "name": "regulation/regulation_0200.txt",
+      "sha256": "2f21a039c1e789ad4b2ef8950d0c0e0de13163522570e3e1ebad411686e285a3",
+      "characters": 391
+    },
+    {
+      "name": "regulation/regulation_0201.md",
+      "sha256": "a3f3c1804e770b1773f6429308e15b572a7f63760f2bc96078c46c43556400e1",
+      "characters": 6535
+    },
+    {
+      "name": "regulation/regulation_0202.txt",
+      "sha256": "1ba7d29c2395226c96c98efc3d16ff506c9847f2ff5826c517f70acfc4c2bf1a",
+      "characters": 378
+    },
+    {
+      "name": "regulation/regulation_0203.md",
+      "sha256": "6635848986abb52d4ea40a962820655d49dd8286ead1cd0f821e99dba9bf9027",
+      "characters": 318
+    },
+    {
+      "name": "regulation/regulation_0204.txt",
+      "sha256": "cb45722ef0cab0b6d677f61f67aeb20f9b6dd10b74609032cb364a974fb91b50",
+      "characters": 298
+    },
+    {
+      "name": "regulation/regulation_0205.md",
+      "sha256": "eab8b8430f84fab6435052c5fa239767a03ef5434b693a93a9ce08409854a280",
+      "characters": 351
+    },
+    {
+      "name": "regulation/regulation_0206.txt",
+      "sha256": "3ee50d17aa4d884ba7325b96913f6755bb1e42fef83cb4e0a348265893c92169",
+      "characters": 391
+    },
+    {
+      "name": "regulation/regulation_0207.md",
+      "sha256": "e5bf1466e7caa1ccbddc59833df851da42f607e7d7bc3353e6d1d668a78a623e",
+      "characters": 6535
+    },
+    {
+      "name": "regulation/regulation_0208.txt",
+      "sha256": "136ad39725f7d7a1db7b14154caf06fc63868ae2036e8db5ae7785e374afe0ab",
+      "characters": 378
+    },
+    {
+      "name": "regulation/regulation_0209.md",
+      "sha256": "03d0956372ed95afb05f2b0c6b17664b1dde569fcf1aab8763c3844b6fd642ed",
+      "characters": 359
+    },
+    {
+      "name": "regulation/regulation_0210.txt",
+      "sha256": "4f7b02a972d05ddf66c314775bd9d06b25cbe9d48e1f67ada5f69c8541f23954",
+      "characters": 310
+    },
+    {
+      "name": "regulation/regulation_0211.md",
+      "sha256": "4466d1382c8365e9bb1effc618ee8b285782359ff88a65fe340b6586c847b0e7",
+      "characters": 355
+    },
+    {
+      "name": "regulation/regulation_0212.txt",
+      "sha256": "a6dd1c913d7d0ac0d7311e12ac40265071260e3ae137884e0f20469ff73d32d7",
+      "characters": 395
+    },
+    {
+      "name": "regulation/regulation_0213.md",
+      "sha256": "ccc58108e5496c677d2d7ea7db55620af7bfc6cc2be8c7c724248031009cf992",
+      "characters": 6539
+    },
+    {
+      "name": "regulation/regulation_0214.txt",
+      "sha256": "1e60a5ac3dde9ee0f213b7050e327031c06c8bca608a348028c868545fa54116",
+      "characters": 302
+    },
+    {
+      "name": "regulation/regulation_0215.md",
+      "sha256": "e8ef4ed2d87258284aa8015d56b4e76fe1a8816a756fa856a4132d1408c8866f",
+      "characters": 322
+    },
+    {
+      "name": "regulation/regulation_0216.txt",
+      "sha256": "9c8577e1b60fe30639c620018a0e6a0e8d6ece8951bcba4d5c13544ca6c09d5b",
+      "characters": 310
+    },
+    {
+      "name": "regulation/regulation_0217.md",
+      "sha256": "d7077c06393a6a126d825e8a893ab724feee3f1d188e9b2c05c58e7ccf660269",
+      "characters": 355
+    },
+    {
+      "name": "regulation/regulation_0218.txt",
+      "sha256": "7e8a678818726039fc7d05c86bbcd2efacdd21031e3f9215a9d5f0d9e47e28ef",
+      "characters": 395
+    },
+    {
+      "name": "regulation/regulation_0219.md",
+      "sha256": "fb0032fd2cc888369e55bc7322a130f8ece8dbaba6e17a772445454794e43c75",
+      "characters": 360
+    },
+    {
+      "name": "regulation/regulation_0220.txt",
+      "sha256": "685cdafe187af1607b923181351749c7a22f35a4029c2c1b31376e3b9888cbcf",
+      "characters": 382
+    },
+    {
+      "name": "regulation/regulation_0221.md",
+      "sha256": "0f7939e25b00f09bd1297bb8991f2bfc39c52ecebf3a0fa3c9c6af86d7b14c20",
+      "characters": 322
+    },
+    {
+      "name": "regulation/regulation_0222.txt",
+      "sha256": "94de9d9bc9f00b07cdb567037829ef0086fc23fc2e754a785b32c77c15c26ac5",
+      "characters": 310
+    },
+    {
+      "name": "regulation/regulation_0223.md",
+      "sha256": "d8bc5a408f308a3cd784c22d0138a36ef1615239dab860c399f2e0855bcd0918",
+      "characters": 355
+    },
+    {
+      "name": "regulation/regulation_0224.txt",
+      "sha256": "8d3003995381dff9a54a4c7dfcceb8a3740b3b3728377902ebf83174a1b2490b",
+      "characters": 302
+    },
+    {
+      "name": "regulation/regulation_0225.md",
+      "sha256": "9fdd9b529abaea5872b8126566e108ca2ec73507115363dcc3c7c7cb55c4a389",
+      "characters": 6539
+    },
+    {
+      "name": "regulation/regulation_0226.txt",
+      "sha256": "a6db095ad1049eaef80a2837bc4eecef487f4b0b1c121849f423389ab73a2b68",
+      "characters": 382
+    },
+    {
+      "name": "regulation/regulation_0227.md",
+      "sha256": "61d3550f38f3ce739fe479137f24fd1ac1e3d467e44251124c319e158ab5510c",
+      "characters": 322
+    },
+    {
+      "name": "regulation/regulation_0228.txt",
+      "sha256": "7f2c08a0fece95187982e67349c71492394ddd62e6d15126e30dafeba003b05f",
+      "characters": 310
+    },
+    {
+      "name": "regulation/regulation_0229.md",
+      "sha256": "a3fd9dabe4e659e8b321e774a738daf51f0956155c00d6e67243aace22c81388",
+      "characters": 360
+    },
+    {
+      "name": "regulation/regulation_0230.txt",
+      "sha256": "71f2204cdae18c7ab656558aa77961d0bea08ad4157eca4cca3d35226a93b4db",
+      "characters": 395
+    },
+    {
+      "name": "regulation/regulation_0231.md",
+      "sha256": "faf7696c82b8cc1c9ac2fae05b216054553c1ea74eec45218fcc9cf9096910b8",
+      "characters": 6539
+    },
+    {
+      "name": "regulation/regulation_0232.txt",
+      "sha256": "cbd0968e1022f07907c8ad0a049504acc5103366a88d437bb621e3a8a4a6c519",
+      "characters": 382
+    },
+    {
+      "name": "regulation/regulation_0233.md",
+      "sha256": "9f72388def461112c034cb51ba433257b27534ed32a7a8326a9b0d6ea637c3ed",
+      "characters": 322
+    },
+    {
+      "name": "regulation/regulation_0234.txt",
+      "sha256": "e2ba716dd8e12cd03906635b3764d0e06f32fe9e9b8ce2079f49b7b00078454b",
+      "characters": 302
+    },
+    {
+      "name": "regulation/regulation_0235.md",
+      "sha256": "de841d5200285f8da1093e476572fc81b6a3d6bab6f338070a1b055fef3106f0",
+      "characters": 355
+    },
+    {
+      "name": "regulation/regulation_0236.txt",
+      "sha256": "0d51d3672f3217be8b0c86bcb7680cda9bb624f579e048b5cfbabbcdced00f9d",
+      "characters": 395
+    },
+    {
+      "name": "regulation/regulation_0237.md",
+      "sha256": "00cc86749f03392e3290bc2546ce71c0750658ed82c63542bcc08ee7fee3da7e",
+      "characters": 6539
+    },
+    {
+      "name": "regulation/regulation_0238.txt",
+      "sha256": "1cd3c8deb5d23f22988b0a138f1e0898cfa6142df98b3d8860c6f82d44b36607",
+      "characters": 382
+    },
+    {
+      "name": "regulation/regulation_0239.md",
+      "sha256": "5bc42a0afd4e9e1d4fea96597da09c8148ead45290e148f40d025b6647a7ad2d",
+      "characters": 360
+    },
+    {
+      "name": "regulation/regulation_0240.txt",
+      "sha256": "1f5e9fa27adb1c0cf9da66a9400468f91800c34a7c2ce186dae432e0480133f8",
+      "characters": 310
+    },
+    {
+      "name": "regulation/regulation_0241.md",
+      "sha256": "0dad628abb734a9ecbce276e513935884b328895827cdb50e0ade31d55e0abee",
+      "characters": 355
+    },
+    {
+      "name": "regulation/regulation_0242.txt",
+      "sha256": "b9032f75633ec5e47fae7bede1cd75810d38714a25b39ae4cf5e12a59edbb678",
+      "characters": 395
+    },
+    {
+      "name": "regulation/regulation_0243.md",
+      "sha256": "b0303ee91731cb6ae2448cd59863543819f4bf4947f84062f366b2865ea17cd6",
+      "characters": 6539
+    },
+    {
+      "name": "regulation/regulation_0244.txt",
+      "sha256": "cfb89ae300cd6885f122189441c3a28dada3c841ded75e082a175eccb5562929",
+      "characters": 302
+    },
+    {
+      "name": "regulation/regulation_0245.md",
+      "sha256": "2e45fd223440fc2b0cfa76eb749aeb7b9271043096bf7effdd57aa7ea2e294bd",
+      "characters": 322
+    },
+    {
+      "name": "regulation/regulation_0246.txt",
+      "sha256": "157fe425d9a0ca2985da170ffdbce6d676511424a15020adf84da5760d895c54",
+      "characters": 310
+    },
+    {
+      "name": "regulation/regulation_0247.md",
+      "sha256": "d4d63637e994547b91e361bc10ae0c77d40cf5f159bd7e638a729096faaa0230",
+      "characters": 355
+    },
+    {
+      "name": "regulation/regulation_0248.txt",
+      "sha256": "1342d1b4177071ac95ee23b562b04d381b2aa51cb0609fe0dadffebcf729fd98",
+      "characters": 395
+    },
+    {
+      "name": "regulation/regulation_0249.md",
+      "sha256": "44e50662a36acfdb40be41f7b1651e892cb06df31d4702081044a210a82a1cb3",
+      "characters": 360
+    }
+  ]
+}

@@ -1,0 +1,14 @@
+{
+  "case_id": "fact-0065",
+  "question": "Возникает ли обязанность уведомления для КТ-66/2026 при отсутствии изменения реквизитов?",
+  "history": [],
+  "corpus": "evaluation\\generated_corpora\\synthetic\\knowledge-base.zip",
+  "candidate_documents": [
+    "memo/memo_0065.md"
+  ],
+  "command": "python -m evaluation.run_benchmark --corpus synthetic --mode full --engine retrieval --case-id fact-0065 --run-id repro-fact-0065",
+  "caution": "candidate reduced context; full corpus is authoritative for rank reproduction",
+  "failures": [
+    "system_error"
+  ]
+}

@@ -1,0 +1,789 @@
+{
+  "version": "1.0.0",
+  "corpus_id": "public-24b8adf1546470b5",
+  "sources": {
+    "capysta2016__samozanyaty-docs-templates/acts/vypolnennyh-rabot.md:anchor": {
+      "id": "capysta2016__samozanyaty-docs-templates/acts/vypolnennyh-rabot.md:anchor",
+      "document": "capysta2016__samozanyaty-docs-templates/acts/vypolnennyh-rabot.md",
+      "start": 1129,
+      "end": 1299,
+      "quote": "> **Совет**: чтобы автоматически генерировать акты с автоподстановкой клиента и сумм, используйте веб-сервис «Помощник Самозанятого»: <https://samozanyaty.capystaone.ru/>",
+      "document_sha256": "c714da1372a98fecb2e42a39aa391315d1b2b5432ff9ccedc1c21bec105fdc9e",
+      "revision": "downloaded",
+      "fact": {}
+    },
+    "capysta2016__samozanyaty-docs-templates/contracts/uslug.md:anchor": {
+      "id": "capysta2016__samozanyaty-docs-templates/contracts/uslug.md:anchor",
+      "document": "capysta2016__samozanyaty-docs-templates/contracts/uslug.md",
+      "start": 2216,
+      "end": 2363,
+      "quote": "4.2. За нарушение Заказчиком сроков оплаты Исполнитель вправе требовать уплаты пени в размере 0,1% от суммы задолженности за каждый день просрочки.",
+      "document_sha256": "e2e4711c03fd77a6dcd93d59a3191c2cc35b171880db110303653d2d0bbb9df6",
+      "revision": "downloaded",
+      "fact": {}
+    },
+    "dshushin__nvim.bilingual/templates/contracts/en-ru.md:anchor": {
+      "id": "dshushin__nvim.bilingual/templates/contracts/en-ru.md:anchor",
+      "document": "dshushin__nvim.bilingual/templates/contracts/en-ru.md",
+      "start": 4199,
+      "end": 4324,
+      "quote": "8.2. The affected party shall notify the other party in writing within [___] days of the occurrence of a force majeure event.",
+      "document_sha256": "aac3b5d3ae74b150bc68dd2f05fe00719eb2c813d3b0e7730b30e30c42a5a10f",
+      "revision": "downloaded",
+      "fact": {}
+    },
+    "mozilla__legal-docs/ru/acceptable_use_policy.md:anchor": {
+      "id": "mozilla__legal-docs/ru/acceptable_use_policy.md:anchor",
+      "document": "mozilla__legal-docs/ru/acceptable_use_policy.md",
+      "start": 1509,
+      "end": 1670,
+      "quote": "* сбора персональной информации без соответствующего разрешения. Эта информация включает, в частности, ФИО владельцев учетных записей и адреса электронной почты;",
+      "document_sha256": "54bc7ecf0a6cd9e02756246ff2518ef87913127c4758279addba4ab7218db3a4",
+      "revision": "downloaded",
+      "fact": {}
+    },
+    "mozilla__legal-docs/ru/amo_policies.md:anchor": {
+      "id": "mozilla__legal-docs/ru/amo_policies.md:anchor",
+      "document": "mozilla__legal-docs/ru/amo_policies.md",
+      "start": 1899,
+      "end": 2021,
+      "quote": "- Для расширений, тем, коллекций и профилей пользователей: Перейдите на страницу листинга и нажмите кнопку «Пожаловаться».",
+      "document_sha256": "0630e089b9649708ca99784d4afb494ac14c751aa726dc0c30752f88c62421e9",
+      "revision": "downloaded",
+      "fact": {}
+    },
+    "mozilla__legal-docs/ru/content_moderation_practices.md:anchor": {
+      "id": "mozilla__legal-docs/ru/content_moderation_practices.md:anchor",
+      "document": "mozilla__legal-docs/ru/content_moderation_practices.md",
+      "start": 3995,
+      "end": 4109,
+      "quote": "* от пользователей, чей контент удален или чьи аккаунты наказаны за нарушение нашей политики в отношении контента.",
+      "document_sha256": "45492d7e6d0e8fdc075000118b81c632b9a16bae5c53bdcd7bedc904ee901dc7",
+      "revision": "downloaded",
+      "fact": {}
+    },
+    "mozilla__legal-docs/ru/firefox_about_rights.md:anchor": {
+      "id": "mozilla__legal-docs/ru/firefox_about_rights.md:anchor",
+      "document": "mozilla__legal-docs/ru/firefox_about_rights.md",
+      "start": 2593,
+      "end": 2996,
+      "quote": "1. Вам разрешается использовать эти Службы вместе с сопутствующей версией Firefox, и Mozilla предоставляет вам на это права. Mozilla и её лицензиары сохраняют за собой все остальные права на Службы. Данные условия не предназначены для ограничения каких-либо прав, предоставляемых на условиях лицензий для открытого исходного кода, применимых к Firefox и к соответствующим версиям исходного кода Firefox.",
+      "document_sha256": "2f4c8c8c207535f79ef7fdeb549110f4a305a9835fcadebebc6c0624078339f2",
+      "revision": "downloaded",
+      "fact": {}
+    },
+    "mozilla__legal-docs/ru/firefox_cloud_services_tos.md:anchor": {
+      "id": "mozilla__legal-docs/ru/firefox_cloud_services_tos.md:anchor",
+      "document": "mozilla__legal-docs/ru/firefox_cloud_services_tos.md",
+      "start": 3807,
+      "end": 3981,
+      "quote": "    (f) Pocket помогает находить отличный контент, подобранный с учетом ваших интересов, и сохранять его, чтобы вернуться к нему позже — на любом устройстве и в любое время. ",
+      "document_sha256": "25ad975cbe0e23beb6e361f7d293d0cbf5f55d939eae0812b0c982976c3a022b",
+      "revision": "downloaded",
+      "fact": {}
+    },
+    "mozilla__legal-docs/ru/firefox_privacy_notice.md:anchor": {
+      "id": "mozilla__legal-docs/ru/firefox_privacy_notice.md:anchor",
+      "document": "mozilla__legal-docs/ru/firefox_privacy_notice.md",
+      "start": 32912,
+      "end": 33085,
+      "quote": "Если вы находитесь в Великобритании или ЕЭЗ, вы также можете связаться с нашим сотрудником по защите данных по адресу [dpo@mozilla.com](mailto:dpo@mozilla.com) или по почте:",
+      "document_sha256": "f0f6cc0899fabcbe460d1f03d094d6b98e9e975f5ef35fa8b4c404fd57b4f269",
+      "revision": "downloaded",
+      "fact": {}
+    },
+    "mozilla__legal-docs/ru/firefox_terms_of_use.md:anchor": {
+      "id": "mozilla__legal-docs/ru/firefox_terms_of_use.md:anchor",
+      "document": "mozilla__legal-docs/ru/firefox_terms_of_use.md",
+      "start": 3645,
+      "end": 3992,
+      "quote": "Время от времени Mozilla имеет право обновлять настоящие Условия. Мы опубликуем обновленные Условия и они будут доступны онлайн. Мы будем рассматривать ваше дальнейшее использование Firefox согласие с такими обновлениями. Мы опубликуем дату вступления в силу в верхней части этой страницы, чтобы было понятно, когда мы внесли последнее обновление.",
+      "document_sha256": "65225c6e9fc29ca68eae50556c9612311e90d2df6628359b5d83f5ecc2ed67a7",
+      "revision": "downloaded",
+      "fact": {}
+    },
+    "mozilla__legal-docs/ru/focus_privacy_notice.md:anchor": {
+      "id": "mozilla__legal-docs/ru/focus_privacy_notice.md:anchor",
+      "document": "mozilla__legal-docs/ru/focus_privacy_notice.md",
+      "start": 7981,
+      "end": 8544,
+      "quote": "Чтобы направить любой из вышеуказанных запросов относительно ваших персональных данных, свяжитесь с нами (Корпорацией Mozilla) через наш [Портал запросов на доступ к данным субъектов](https://privacyportal.onetrust.com/webform/1350748f-7139-405c-8188-22740b3b5587/4ba08202-2ede-4934-a89e-f0b0870f95f0); мы никогда не будем дискриминировать кого-либо за осуществление им своих прав на конфиденциальность. Если у вас остались вопросы о наших методах обеспечения конфиденциальности, свяжитесь с нами по адресу [compliance@mozilla.com](mailto:compliance@mozilla.com).",
+      "document_sha256": "050fc059b5062d598c40bb1a81fdf3848f226887a022f0115979284ee4034bba",
+      "revision": "downloaded",
+      "fact": {}
+    },
+    "mozilla__legal-docs/ru/mdn_plus_privacy.md:anchor": {
+      "id": "mozilla__legal-docs/ru/mdn_plus_privacy.md:anchor",
+      "document": "mozilla__legal-docs/ru/mdn_plus_privacy.md",
+      "start": 2192,
+      "end": 2446,
+      "quote": "__Сведения о взаимодействии.__ Mozilla получает данные о ваших взаимодействиях с MDN Plus, в том числе, когда вы входите в систему и когда вы вносите изменения в свой аккаунт Mozilla, такие как изменение адреса электронной почты или подписки на продукты.",
+      "document_sha256": "bcd1e22c437862f53e93d2868aea65e7b169033649ddcf859a06ca280c5e53e4",
+      "revision": "downloaded",
+      "fact": {}
+    },
+    "mozilla__legal-docs/ru/mdn_plus_terms.md:anchor": {
+      "id": "mozilla__legal-docs/ru/mdn_plus_terms.md:anchor",
+      "document": "mozilla__legal-docs/ru/mdn_plus_terms.md",
+      "start": 4533,
+      "end": 4964,
+      "quote": "__30-дневная политика возврата.__ При первичной подписке на MDN Plus через веб-сайт Mozilla, в случае аннулирования аккаунта в течение первых 30 дней, вы можете запросить возмещение, и Mozilla возместит ваш платеж за первый период подписки. Это предложение действует только при первичной подписке. Это положение действует в дополнение к любым правам, действующим в рамках законодательства о защите прав потребителей в вашей стране.",
+      "document_sha256": "cf83089bdeb6f495deef8d3a6f94c605f1fcfcae74430f0a64d46716b00aaf02",
+      "revision": "downloaded",
+      "fact": {}
+    },
+    "mozilla__legal-docs/ru/mozilla_accounts_privacy_notice.md:anchor": {
+      "id": "mozilla__legal-docs/ru/mozilla_accounts_privacy_notice.md:anchor",
+      "document": "mozilla__legal-docs/ru/mozilla_accounts_privacy_notice.md",
+      "start": 13183,
+      "end": 13575,
+      "quote": "Наши сервисы также используют зашифрованное хранилище резервных копий в качестве еще одного уровня защиты, помогающего восстанавливаться после потенциальных сбоев; данные в этих средах не подлежат использованию и обрабатываются только в целях обеспечения непрерывности работы бизнеса. Мы также можем хранить данные в течение длительных периодов времени в обезличенном или агрегированном виде.",
+      "document_sha256": "d07eb73e543f15880acdcc271da1e715adcf42f7d3f50242fcc011107e127e60",
+      "revision": "downloaded",
+      "fact": {}
+    },
+    "mozilla__legal-docs/ru/mozilla_privacy_policy.md:anchor": {
+      "id": "mozilla__legal-docs/ru/mozilla_privacy_policy.md:anchor",
+      "document": "mozilla__legal-docs/ru/mozilla_privacy_policy.md",
+      "start": 2671,
+      "end": 2870,
+      "quote": "* Для обработки данных или предоставления вам продуктов и сервисов, но только если лица, получающие вашу информацию, обязаны по контракту обрабатывать данные способом, одобренным корпорацией Mozilla.",
+      "document_sha256": "1c57d58397dcfbaee8ac26923a479c3a35d7ab21ae44cc6d4a0e54186ebb2671",
+      "revision": "downloaded",
+      "fact": {}
+    },
+    "mozilla__legal-docs/ru/pocket_privacy_policy.md:anchor": {
+      "id": "mozilla__legal-docs/ru/pocket_privacy_policy.md:anchor",
+      "document": "mozilla__legal-docs/ru/pocket_privacy_policy.md",
+      "start": 8012,
+      "end": 8682,
+      "quote": "В дополнение к методам, описанным выше, мы также можем собирать информацию с помощью файлов cookie или других технологий, когда вы заходите на наш сайт или используете Pocket Technologies. Вы можете отказаться от наших файлов cookie, если ваш браузер допускает это, но в этом случае вы не сможете использовать определенные функции, вам может потребоваться чаще вводить пароль во время сеанса и вы не сможете установить или использовать определенные технологии Pocket. Файлы cookie и другие технологии упрощают использование наших сервисов Pocket Technologies и помогают нам настраивать и персонализировать предоставляемые нами услуги с учетом ваших интересов и действий.",
+      "document_sha256": "ba3248d21ec651c839c0a18c73540617c73b00014c183d827d5e2d2c9385e0a2",
+      "revision": "downloaded",
+      "fact": {}
+    },
+    "mozilla__legal-docs/ru/pocket_tos.md:anchor": {
+      "id": "mozilla__legal-docs/ru/pocket_tos.md:anchor",
+      "document": "mozilla__legal-docs/ru/pocket_tos.md",
+      "start": 33142,
+      "end": 33647,
+      "quote": "Мы оставляем за собой право в будущем взимать плату за использование наших услуг, которые в данный момент доступны бесплатно. С вас не будет взиматься плата за использование каких-либо услуг, если вы не выбрали платный план подписки. Мы будем уведомлять пользователей о любых существенных изменениях условий, применимых к сервису подписки, минимум за тридцать дней до вступления таких изменений в силу. Продолжая пользоваться нашими услугами после вступления изменений в силу, вы принимаете новые условия.",
+      "document_sha256": "60e7cd9b8d2d3d329507a3e10880e350835fdb774af0f7779dc95e470e24e52d",
+      "revision": "downloaded",
+      "fact": {}
+    },
+    "mozilla__legal-docs/ru/report_infringement.md:anchor": {
+      "id": "mozilla__legal-docs/ru/report_infringement.md:anchor",
+      "document": "mozilla__legal-docs/ru/report_infringement.md",
+      "start": 2522,
+      "end": 2820,
+      "quote": "Примечание. Вы можете быть привлечены к ответственности за ущерб, включая расходы и гонорары адвокатов, если в вашем Уведомлении DMCA содержатся значительные искажения. Прежде чем подавать Уведомление DMCA, проконсультируйтесь с адвокатом, если вы не уверены, были ли нарушены ваши авторские права.",
+      "document_sha256": "4d3eabbf1e943342d9776d0ff793403a22742087ab216872c66eecd324fc83e0",
+      "revision": "downloaded",
+      "fact": {}
+    },
+    "mozilla__legal-docs/ru/subscription_services_privacy_notice.md:anchor": {
+      "id": "mozilla__legal-docs/ru/subscription_services_privacy_notice.md:anchor",
+      "document": "mozilla__legal-docs/ru/subscription_services_privacy_notice.md",
+      "start": 6564,
+      "end": 6854,
+      "quote": "* [Formstack.](https://www.formstack.com/) Mozilla Monitor использует Formstack для сбора отзывов, которые пользователи могут предоставлять по желанию. Информацию о политике конфиденциальности Formstack можно найти в [Политике конфиденциальности Formstack](https://www.formstack.com/legal).",
+      "document_sha256": "5004f610e37b08b54764a385ca6b09038902a36d9ac1b93425c8dfea7ae58d75",
+      "revision": "downloaded",
+      "fact": {}
+    },
+    "mozilla__legal-docs/ru/subscription_services_tos.md:anchor": {
+      "id": "mozilla__legal-docs/ru/subscription_services_tos.md:anchor",
+      "document": "mozilla__legal-docs/ru/subscription_services_tos.md",
+      "start": 9626,
+      "end": 9953,
+      "quote": "Выбрав маску для телефонного номера, изменить ее уже нельзя. Поскольку вы можете выбрать только одну маску для номера телефона, вы сможете ответить только на последнее полученное вами текстовое сообщение. Firefox Relay не поддерживает отправку текстовых сообщений, за исключением ответа на последнее полученное вами сообщение. ",
+      "document_sha256": "0b3bcd376b6ec55b96f2766b29b60fd3ebb67a1a504fbf886f2989bcd221da25",
+      "revision": "downloaded",
+      "fact": {}
+    }
+  },
+  "cases": [
+    {
+      "case_id": "public-000",
+      "corpus_id": "public-24b8adf1546470b5",
+      "scenario_id": "public-000",
+      "question": "Найдите в документе vypolnennyh-rabot.md положение, начинающееся словами «> **Совет**: чтобы автоматически генерировать акты с автоподстановкой клиента и сумм, испо», и приведите его дословно. Не давайте правовой оценки.",
+      "history": [],
+      "category": "public_span_retrieval",
+      "difficulty": 1,
+      "split": "development",
+      "event_date": null,
+      "expected": {
+        "allowed_statuses": [
+          "answer"
+        ],
+        "required_claims": [
+          {
+            "fact": {},
+            "acceptable_evidence_sets": [
+              [
+                "capysta2016__samozanyaty-docs-templates/acts/vypolnennyh-rabot.md:anchor"
+              ]
+            ]
+          }
+        ],
+        "forbidden_claims": [],
+        "missing": [],
+        "issue": ""
+      }
+    },
+    {
+      "case_id": "public-001",
+      "corpus_id": "public-24b8adf1546470b5",
+      "scenario_id": "public-001",
+      "question": "Найдите в документе uslug.md положение, начинающееся словами «4.2. За нарушение Заказчиком сроков оплаты Исполнитель вправе требовать уплаты пени в разм», и приведите его дословно. Не давайте правовой оценки.",
+      "history": [],
+      "category": "public_span_retrieval",
+      "difficulty": 1,
+      "split": "development",
+      "event_date": null,
+      "expected": {
+        "allowed_statuses": [
+          "answer"
+        ],
+        "required_claims": [
+          {
+            "fact": {},
+            "acceptable_evidence_sets": [
+              [
+                "capysta2016__samozanyaty-docs-templates/contracts/uslug.md:anchor"
+              ]
+            ]
+          }
+        ],
+        "forbidden_claims": [],
+        "missing": [],
+        "issue": ""
+      }
+    },
+    {
+      "case_id": "public-002",
+      "corpus_id": "public-24b8adf1546470b5",
+      "scenario_id": "public-002",
+      "question": "Найдите в документе en-ru.md положение, начинающееся словами «8.2. The affected party shall notify the other party in writing within [___] days of the o», и приведите его дословно. Не давайте правовой оценки.",
+      "history": [],
+      "category": "public_span_retrieval",
+      "difficulty": 1,
+      "split": "development",
+      "event_date": null,
+      "expected": {
+        "allowed_statuses": [
+          "answer"
+        ],
+        "required_claims": [
+          {
+            "fact": {},
+            "acceptable_evidence_sets": [
+              [
+                "dshushin__nvim.bilingual/templates/contracts/en-ru.md:anchor"
+              ]
+            ]
+          }
+        ],
+        "forbidden_claims": [],
+        "missing": [],
+        "issue": ""
+      }
+    },
+    {
+      "case_id": "public-003",
+      "corpus_id": "public-24b8adf1546470b5",
+      "scenario_id": "public-003",
+      "question": "Найдите в документе acceptable_use_policy.md положение, начинающееся словами «* сбора персональной информации без соответствующего разрешения. Эта информация включает, », и приведите его дословно. Не давайте правовой оценки.",
+      "history": [],
+      "category": "public_span_retrieval",
+      "difficulty": 1,
+      "split": "development",
+      "event_date": null,
+      "expected": {
+        "allowed_statuses": [
+          "answer"
+        ],
+        "required_claims": [
+          {
+            "fact": {},
+            "acceptable_evidence_sets": [
+              [
+                "mozilla__legal-docs/ru/acceptable_use_policy.md:anchor"
+              ]
+            ]
+          }
+        ],
+        "forbidden_claims": [],
+        "missing": [],
+        "issue": ""
+      }
+    },
+    {
+      "case_id": "public-004",
+      "corpus_id": "public-24b8adf1546470b5",
+      "scenario_id": "public-004",
+      "question": "Найдите в документе amo_policies.md положение, начинающееся словами «- Для расширений, тем, коллекций и профилей пользователей: Перейдите на страницу листинга », и приведите его дословно. Не давайте правовой оценки.",
+      "history": [],
+      "category": "public_span_retrieval",
+      "difficulty": 1,
+      "split": "development",
+      "event_date": null,
+      "expected": {
+        "allowed_statuses": [
+          "answer"
+        ],
+        "required_claims": [
+          {
+            "fact": {},
+            "acceptable_evidence_sets": [
+              [
+                "mozilla__legal-docs/ru/amo_policies.md:anchor"
+              ]
+            ]
+          }
+        ],
+        "forbidden_claims": [],
+        "missing": [],
+        "issue": ""
+      }
+    },
+    {
+      "case_id": "public-005",
+      "corpus_id": "public-24b8adf1546470b5",
+      "scenario_id": "public-005",
+      "question": "Найдите в документе content_moderation_practices.md положение, начинающееся словами «* от пользователей, чей контент удален или чьи аккаунты наказаны за нарушение нашей полити», и приведите его дословно. Не давайте правовой оценки.",
+      "history": [],
+      "category": "public_span_retrieval",
+      "difficulty": 1,
+      "split": "development",
+      "event_date": null,
+      "expected": {
+        "allowed_statuses": [
+          "answer"
+        ],
+        "required_claims": [
+          {
+            "fact": {},
+            "acceptable_evidence_sets": [
+              [
+                "mozilla__legal-docs/ru/content_moderation_practices.md:anchor"
+              ]
+            ]
+          }
+        ],
+        "forbidden_claims": [],
+        "missing": [],
+        "issue": ""
+      }
+    },
+    {
+      "case_id": "public-006",
+      "corpus_id": "public-24b8adf1546470b5",
+      "scenario_id": "public-006",
+      "question": "Найдите в документе firefox_about_rights.md положение, начинающееся словами «1. Вам разрешается использовать эти Службы вместе с сопутствующей версией Firefox, и Mozil», и приведите его дословно. Не давайте правовой оценки.",
+      "history": [],
+      "category": "public_span_retrieval",
+      "difficulty": 1,
+      "split": "development",
+      "event_date": null,
+      "expected": {
+        "allowed_statuses": [
+          "answer"
+        ],
+        "required_claims": [
+          {
+            "fact": {},
+            "acceptable_evidence_sets": [
+              [
+                "mozilla__legal-docs/ru/firefox_about_rights.md:anchor"
+              ]
+            ]
+          }
+        ],
+        "forbidden_claims": [],
+        "missing": [],
+        "issue": ""
+      }
+    },
+    {
+      "case_id": "public-007",
+      "corpus_id": "public-24b8adf1546470b5",
+      "scenario_id": "public-007",
+      "question": "Найдите в документе firefox_cloud_services_tos.md положение, начинающееся словами «    (f) Pocket помогает находить отличный контент, подобранный с учетом ваших интересов, и», и приведите его дословно. Не давайте правовой оценки.",
+      "history": [],
+      "category": "public_span_retrieval",
+      "difficulty": 1,
+      "split": "development",
+      "event_date": null,
+      "expected": {
+        "allowed_statuses": [
+          "answer"
+        ],
+        "required_claims": [
+          {
+            "fact": {},
+            "acceptable_evidence_sets": [
+              [
+                "mozilla__legal-docs/ru/firefox_cloud_services_tos.md:anchor"
+              ]
+            ]
+          }
+        ],
+        "forbidden_claims": [],
+        "missing": [],
+        "issue": ""
+      }
+    },
+    {
+      "case_id": "public-008",
+      "corpus_id": "public-24b8adf1546470b5",
+      "scenario_id": "public-008",
+      "question": "Найдите в документе firefox_privacy_notice.md положение, начинающееся словами «Если вы находитесь в Великобритании или ЕЭЗ, вы также можете связаться с нашим сотрудником», и приведите его дословно. Не давайте правовой оценки.",
+      "history": [],
+      "category": "public_span_retrieval",
+      "difficulty": 1,
+      "split": "development",
+      "event_date": null,
+      "expected": {
+        "allowed_statuses": [
+          "answer"
+        ],
+        "required_claims": [
+          {
+            "fact": {},
+            "acceptable_evidence_sets": [
+              [
+                "mozilla__legal-docs/ru/firefox_privacy_notice.md:anchor"
+              ]
+            ]
+          }
+        ],
+        "forbidden_claims": [],
+        "missing": [],
+        "issue": ""
+      }
+    },
+    {
+      "case_id": "public-009",
+      "corpus_id": "public-24b8adf1546470b5",
+      "scenario_id": "public-009",
+      "question": "Найдите в документе firefox_terms_of_use.md положение, начинающееся словами «Время от времени Mozilla имеет право обновлять настоящие Условия. Мы опубликуем обновленны», и приведите его дословно. Не давайте правовой оценки.",
+      "history": [],
+      "category": "public_span_retrieval",
+      "difficulty": 1,
+      "split": "development",
+      "event_date": null,
+      "expected": {
+        "allowed_statuses": [
+          "answer"
+        ],
+        "required_claims": [
+          {
+            "fact": {},
+            "acceptable_evidence_sets": [
+              [
+                "mozilla__legal-docs/ru/firefox_terms_of_use.md:anchor"
+              ]
+            ]
+          }
+        ],
+        "forbidden_claims": [],
+        "missing": [],
+        "issue": ""
+      }
+    },
+    {
+      "case_id": "public-010",
+      "corpus_id": "public-24b8adf1546470b5",
+      "scenario_id": "public-010",
+      "question": "Найдите в документе focus_privacy_notice.md положение, начинающееся словами «Чтобы направить любой из вышеуказанных запросов относительно ваших персональных данных, св», и приведите его дословно. Не давайте правовой оценки.",
+      "history": [],
+      "category": "public_span_retrieval",
+      "difficulty": 1,
+      "split": "development",
+      "event_date": null,
+      "expected": {
+        "allowed_statuses": [
+          "answer"
+        ],
+        "required_claims": [
+          {
+            "fact": {},
+            "acceptable_evidence_sets": [
+              [
+                "mozilla__legal-docs/ru/focus_privacy_notice.md:anchor"
+              ]
+            ]
+          }
+        ],
+        "forbidden_claims": [],
+        "missing": [],
+        "issue": ""
+      }
+    },
+    {
+      "case_id": "public-011",
+      "corpus_id": "public-24b8adf1546470b5",
+      "scenario_id": "public-011",
+      "question": "Найдите в документе mdn_plus_privacy.md положение, начинающееся словами «__Сведения о взаимодействии.__ Mozilla получает данные о ваших взаимодействиях с MDN Plus,», и приведите его дословно. Не давайте правовой оценки.",
+      "history": [],
+      "category": "public_span_retrieval",
+      "difficulty": 1,
+      "split": "development",
+      "event_date": null,
+      "expected": {
+        "allowed_statuses": [
+          "answer"
+        ],
+        "required_claims": [
+          {
+            "fact": {},
+            "acceptable_evidence_sets": [
+              [
+                "mozilla__legal-docs/ru/mdn_plus_privacy.md:anchor"
+              ]
+            ]
+          }
+        ],
+        "forbidden_claims": [],
+        "missing": [],
+        "issue": ""
+      }
+    },
+    {
+      "case_id": "public-012",
+      "corpus_id": "public-24b8adf1546470b5",
+      "scenario_id": "public-012",
+      "question": "Найдите в документе mdn_plus_terms.md положение, начинающееся словами «__30-дневная политика возврата.__ При первичной подписке на MDN Plus через веб-сайт Mozill», и приведите его дословно. Не давайте правовой оценки.",
+      "history": [],
+      "category": "public_span_retrieval",
+      "difficulty": 1,
+      "split": "development",
+      "event_date": null,
+      "expected": {
+        "allowed_statuses": [
+          "answer"
+        ],
+        "required_claims": [
+          {
+            "fact": {},
+            "acceptable_evidence_sets": [
+              [
+                "mozilla__legal-docs/ru/mdn_plus_terms.md:anchor"
+              ]
+            ]
+          }
+        ],
+        "forbidden_claims": [],
+        "missing": [],
+        "issue": ""
+      }
+    },
+    {
+      "case_id": "public-013",
+      "corpus_id": "public-24b8adf1546470b5",
+      "scenario_id": "public-013",
+      "question": "Найдите в документе mozilla_accounts_privacy_notice.md положение, начинающееся словами «Наши сервисы также используют зашифрованное хранилище резервных копий в качестве еще одног», и приведите его дословно. Не давайте правовой оценки.",
+      "history": [],
+      "category": "public_span_retrieval",
+      "difficulty": 1,
+      "split": "development",
+      "event_date": null,
+      "expected": {
+        "allowed_statuses": [
+          "answer"
+        ],
+        "required_claims": [
+          {
+            "fact": {},
+            "acceptable_evidence_sets": [
+              [
+                "mozilla__legal-docs/ru/mozilla_accounts_privacy_notice.md:anchor"
+              ]
+            ]
+          }
+        ],
+        "forbidden_claims": [],
+        "missing": [],
+        "issue": ""
+      }
+    },
+    {
+      "case_id": "public-014",
+      "corpus_id": "public-24b8adf1546470b5",
+      "scenario_id": "public-014",
+      "question": "Найдите в документе mozilla_privacy_policy.md положение, начинающееся словами «* Для обработки данных или предоставления вам продуктов и сервисов, но только если лица, п», и приведите его дословно. Не давайте правовой оценки.",
+      "history": [],
+      "category": "public_span_retrieval",
+      "difficulty": 1,
+      "split": "development",
+      "event_date": null,
+      "expected": {
+        "allowed_statuses": [
+          "answer"
+        ],
+        "required_claims": [
+          {
+            "fact": {},
+            "acceptable_evidence_sets": [
+              [
+                "mozilla__legal-docs/ru/mozilla_privacy_policy.md:anchor"
+              ]
+            ]
+          }
+        ],
+        "forbidden_claims": [],
+        "missing": [],
+        "issue": ""
+      }
+    },
+    {
+      "case_id": "public-015",
+      "corpus_id": "public-24b8adf1546470b5",
+      "scenario_id": "public-015",
+      "question": "Найдите в документе pocket_privacy_policy.md положение, начинающееся словами «В дополнение к методам, описанным выше, мы также можем собирать информацию с помощью файло», и приведите его дословно. Не давайте правовой оценки.",
+      "history": [],
+      "category": "public_span_retrieval",
+      "difficulty": 1,
+      "split": "development",
+      "event_date": null,
+      "expected": {
+        "allowed_statuses": [
+          "answer"
+        ],
+        "required_claims": [
+          {
+            "fact": {},
+            "acceptable_evidence_sets": [
+              [
+                "mozilla__legal-docs/ru/pocket_privacy_policy.md:anchor"
+              ]
+            ]
+          }
+        ],
+        "forbidden_claims": [],
+        "missing": [],
+        "issue": ""
+      }
+    },
+    {
+      "case_id": "public-016",
+      "corpus_id": "public-24b8adf1546470b5",
+      "scenario_id": "public-016",
+      "question": "Найдите в документе pocket_tos.md положение, начинающееся словами «Мы оставляем за собой право в будущем взимать плату за использование наших услуг, которые », и приведите его дословно. Не давайте правовой оценки.",
+      "history": [],
+      "category": "public_span_retrieval",
+      "difficulty": 1,
+      "split": "development",
+      "event_date": null,
+      "expected": {
+        "allowed_statuses": [
+          "answer"
+        ],
+        "required_claims": [
+          {
+            "fact": {},
+            "acceptable_evidence_sets": [
+              [
+                "mozilla__legal-docs/ru/pocket_tos.md:anchor"
+              ]
+            ]
+          }
+        ],
+        "forbidden_claims": [],
+        "missing": [],
+        "issue": ""
+      }
+    },
+    {
+      "case_id": "public-017",
+      "corpus_id": "public-24b8adf1546470b5",
+      "scenario_id": "public-017",
+      "question": "Найдите в документе report_infringement.md положение, начинающееся словами «Примечание. Вы можете быть привлечены к ответственности за ущерб, включая расходы и гонора», и приведите его дословно. Не давайте правовой оценки.",
+      "history": [],
+      "category": "public_span_retrieval",
+      "difficulty": 1,
+      "split": "development",
+      "event_date": null,
+      "expected": {
+        "allowed_statuses": [
+          "answer"
+        ],
+        "required_claims": [
+          {
+            "fact": {},
+            "acceptable_evidence_sets": [
+              [
+                "mozilla__legal-docs/ru/report_infringement.md:anchor"
+              ]
+            ]
+          }
+        ],
+        "forbidden_claims": [],
+        "missing": [],
+        "issue": ""
+      }
+    },
+    {
+      "case_id": "public-018",
+      "corpus_id": "public-24b8adf1546470b5",
+      "scenario_id": "public-018",
+      "question": "Найдите в документе subscription_services_privacy_notice.md положение, начинающееся словами «* [Formstack.](https://www.formstack.com/) Mozilla Monitor использует Formstack для сбора », и приведите его дословно. Не давайте правовой оценки.",
+      "history": [],
+      "category": "public_span_retrieval",
+      "difficulty": 1,
+      "split": "development",
+      "event_date": null,
+      "expected": {
+        "allowed_statuses": [
+          "answer"
+        ],
+        "required_claims": [
+          {
+            "fact": {},
+            "acceptable_evidence_sets": [
+              [
+                "mozilla__legal-docs/ru/subscription_services_privacy_notice.md:anchor"
+              ]
+            ]
+          }
+        ],
+        "forbidden_claims": [],
+        "missing": [],
+        "issue": ""
+      }
+    },
+    {
+      "case_id": "public-019",
+      "corpus_id": "public-24b8adf1546470b5",
+      "scenario_id": "public-019",
+      "question": "Найдите в документе subscription_services_tos.md положение, начинающееся словами «Выбрав маску для телефонного номера, изменить ее уже нельзя. Поскольку вы можете выбрать т», и приведите его дословно. Не давайте правовой оценки.",
+      "history": [],
+      "category": "public_span_retrieval",
+      "difficulty": 1,
+      "split": "development",
+      "event_date": null,
+      "expected": {
+        "allowed_statuses": [
+          "answer"
+        ],
+        "required_claims": [
+          {
+            "fact": {},
+            "acceptable_evidence_sets": [
+              [
+                "mozilla__legal-docs/ru/subscription_services_tos.md:anchor"
+              ]
+            ]
+          }
+        ],
+        "forbidden_claims": [],
+        "missing": [],
+        "issue": ""
+      }
+    }
+  ],
+  "scope": "Structural span retrieval only. Not annotated legal accuracy."
+}

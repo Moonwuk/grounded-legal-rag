@@ -1,0 +1,9 @@
+[
+  {
+    "case_id": "pair",
+    "corpus_id": "meta-reorder-f246c3997003c288",
+    "question": "Каков срок оплаты МТ-17/2026 для акта от 2026-07-01?",
+    "history": [],
+    "split": "development"
+  }
+]

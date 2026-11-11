@@ -1,0 +1,72 @@
+[
+  {
+    "name": "mozilla__legal-docs/ru/focus_terms_of_use.md",
+    "near": "mozilla__legal-docs/ru/firefox_terms_of_use.md",
+    "sha256": "7b51325a1a7853b6733fec5f516414b5c3b36526db244f496ee94495be473e93",
+    "source_url": "https://github.com/mozilla/legal-docs/blob/68c62051e7ca282a023a2560ca72edf227097a1f/ru/focus_terms_of_use.md",
+    "repository": "mozilla/legal-docs",
+    "license": "CC-BY-SA-3.0",
+    "license_url": "https://raw.githubusercontent.com/mozilla/legal-docs/68c62051e7ca282a023a2560ca72edf227097a1f/LICENSE.md",
+    "downloaded_utc": "2026-11-10T10:16:37.980487+00:00",
+    "original_format": ".md",
+    "origin": "public",
+    "language": "ru",
+    "excluded_from_index": true
+  },
+  {
+    "name": "mozilla__legal-docs/de/focus_terms_of_use.md",
+    "near": "mozilla__legal-docs/de/firefox_terms_of_use.md",
+    "sha256": "b10461926c692d8e4fa34916c2a83e0e08e78df2cb554877c61a5cf03f15721c",
+    "source_url": "https://github.com/mozilla/legal-docs/blob/68c62051e7ca282a023a2560ca72edf227097a1f/de/focus_terms_of_use.md",
+    "repository": "mozilla/legal-docs",
+    "license": "CC-BY-SA-3.0",
+    "license_url": "https://raw.githubusercontent.com/mozilla/legal-docs/68c62051e7ca282a023a2560ca72edf227097a1f/LICENSE.md",
+    "downloaded_utc": "2026-11-10T10:16:37.995510+00:00",
+    "original_format": ".md",
+    "origin": "public",
+    "language": "de",
+    "excluded_from_index": true
+  },
+  {
+    "name": "mozilla__legal-docs/en/focus_terms_of_use.md",
+    "near": "mozilla__legal-docs/en/firefox_terms_of_use.md",
+    "sha256": "60b8ba365c7357d47fc4c7d42e6a01d63e0f139596595f091d81decbcc2bb420",
+    "source_url": "https://github.com/mozilla/legal-docs/blob/68c62051e7ca282a023a2560ca72edf227097a1f/en/focus_terms_of_use.md",
+    "repository": "mozilla/legal-docs",
+    "license": "CC-BY-SA-3.0",
+    "license_url": "https://raw.githubusercontent.com/mozilla/legal-docs/68c62051e7ca282a023a2560ca72edf227097a1f/LICENSE.md",
+    "downloaded_utc": "2026-11-10T10:16:38.012473+00:00",
+    "original_format": ".md",
+    "origin": "public",
+    "language": "en",
+    "excluded_from_index": true
+  },
+  {
+    "name": "mozilla__legal-docs/fr/focus_terms_of_use.md",
+    "near": "mozilla__legal-docs/fr/firefox_terms_of_use.md",
+    "sha256": "2bd79498c8523cd4ba3e3e5b90dd9dcf69194e5d8a5324243f52cf44d3897aba",
+    "source_url": "https://github.com/mozilla/legal-docs/blob/68c62051e7ca282a023a2560ca72edf227097a1f/fr/focus_terms_of_use.md",
+    "repository": "mozilla/legal-docs",
+    "license": "CC-BY-SA-3.0",
+    "license_url": "https://raw.githubusercontent.com/mozilla/legal-docs/68c62051e7ca282a023a2560ca72edf227097a1f/LICENSE.md",
+    "downloaded_utc": "2026-11-10T10:16:38.037229+00:00",
+    "original_format": ".md",
+    "origin": "public",
+    "language": "fr",
+    "excluded_from_index": true
+  },
+  {
+    "name": "mozilla__legal-docs/it/focus_terms_of_use.md",
+    "near": "mozilla__legal-docs/it/firefox_terms_of_use.md",
+    "sha256": "b1047232fff9a7e01f7b839d5191b884cd7a1a4a35a9e575dd8e85ef986414be",
+    "source_url": "https://github.com/mozilla/legal-docs/blob/68c62051e7ca282a023a2560ca72edf227097a1f/it/focus_terms_of_use.md",
+    "repository": "mozilla/legal-docs",
+    "license": "CC-BY-SA-3.0",
+    "license_url": "https://raw.githubusercontent.com/mozilla/legal-docs/68c62051e7ca282a023a2560ca72edf227097a1f/LICENSE.md",
+    "downloaded_utc": "2026-11-10T10:16:40.738857+00:00",
+    "original_format": ".md",
+    "origin": "public",
+    "language": "it",
+    "excluded_from_index": true
+  }
+]
