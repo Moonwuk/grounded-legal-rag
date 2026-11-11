@@ -1,6 +1,8 @@
 name: psb-web
 services:
   web:
+    image: "${WEB_IMAGE:-psb-web-web}"
+    restart: unless-stopped
     build:
       context: .
       dockerfile: web/Dockerfile

@@ -25,12 +25,13 @@ const labels = {
   clarify: "Нужно уточнение",
   insufficient: "Недостаточно оснований",
   out_of_scope: "Вопрос вне юридической тематики",
-  disallowed: "Запрос отклонён",
+  disallowed: "Ограничение правовой помощи",
   unverified: "Ответ не прошёл проверку",
   technical_error: "Техническая ошибка"
 };
 
 let messages = [];
+let currentScene;
 let busy = false;
 let activeDocument;
 let catalog = [];
@@ -180,7 +181,9 @@ function renderAnswer(node, answer, retry) {
   if (labels[answer.status] || sources.length) {
     const status = document.createElement("strong");
     status.className = "message-status";
-    status.textContent = missingModel ? "Модель не настроена" : labels[answer.status] || "Найдены источники";
+    status.textContent = missingModel ? "Модель не настроена"
+      : answer.ui_state === "role_protection" ? "Защита роли"
+      : labels[answer.status] || "Найдены источники";
     node.content.before(status);
   }
   for (const source of sources) {
@@ -211,7 +214,9 @@ async function ask(question, existing, signal) {
   const userNode = existing || bubble("user", question).item;
   const node = bubble("assistant", "Ищем в документах…");
   const documentAtStart = activeDocument;
+  if (currentScene) ArchiveScene.stop(currentScene);
   const scene = ArchiveScene.create();
+  currentScene = scene;
   const progress = document.createElement("small");
   progress.textContent = "Подбираем подтверждающие положения";
   progress.setAttribute("aria-hidden", "true");
@@ -239,6 +244,7 @@ async function ask(question, existing, signal) {
     }
   } catch (error) {
     if (signal.aborted) {
+      ArchiveScene.stop(scene);
       node.item.remove();
       userNode.remove();
       if (!log.querySelector(".message")) welcome.hidden = false;
@@ -253,7 +259,7 @@ async function ask(question, existing, signal) {
     busy = false;
     reset.disabled = false;
   }
-  scene.dataset.state = ArchiveScene.stateFor(answer);
+  ArchiveScene.setState(scene, ArchiveScene.stateFor(answer));
   progress.remove();
   if (answer.status !== "technical_error" && answer.sources?.length) {
     if (activeDocument === documentAtStart && docText.hidden) {
@@ -311,6 +317,8 @@ input.addEventListener("keydown", event => {
   }
 });
 reset.addEventListener("click", () => {
+  if (currentScene) ArchiveScene.stop(currentScene);
+  currentScene = null;
   sendController.reset();
   messages = [];
   log.replaceChildren(welcome);
