@@ -2,7 +2,8 @@
 param(
     [string]$Root = (Join-Path $env:LOCALAPPDATA 'PsbLegalWeb'),
     [ValidateRange(1024,65535)][int]$Port = 8001,
-    [string]$CopyEnvFrom
+    [string]$CopyEnvFrom,
+    [ValidateSet('Required','CiOnly')][string]$ApprovalPolicy = 'Required'
 )
 $ErrorActionPreference = 'Stop'
 $Root = [IO.Path]::GetFullPath($Root)
@@ -24,7 +25,7 @@ if (-not (Test-Path -LiteralPath $envFile -PathType Leaf)) {
 }
 $user = [Security.Principal.WindowsIdentity]::GetCurrent().Name
 $agent = Join-Path $stable 'update.ps1'
-$action = New-ScheduledTaskAction -Execute $pwsh -Argument "-NoProfile -NonInteractive -WindowStyle Hidden -File `"$agent`" -Root `"$Root`" -Port $Port -StartDocker"
+$action = New-ScheduledTaskAction -Execute $pwsh -Argument "-NoProfile -NonInteractive -WindowStyle Hidden -File `"$agent`" -Root `"$Root`" -Port $Port -ApprovalPolicy $ApprovalPolicy -StartDocker"
 $triggers = @(
     (New-ScheduledTaskTrigger -AtLogOn -User $user)
     (New-ScheduledTaskTrigger -Once -At (Get-Date).AddMinutes(2) -RepetitionInterval (New-TimeSpan -Minutes 10))

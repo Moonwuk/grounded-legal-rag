@@ -26,6 +26,7 @@
 | Архитектура и известные границы | [README.md](README.md), [security_review.md](docs/security_review.md) | [pre_submission_audit.md](docs/pre_submission_audit.md), [PSB_next_step_report.md](PSB_next_step_report.md) |
 | Batch Docker, секреты и изоляция | [Dockerfile](Dockerfile), [entrypoint.py](containers/entrypoint.py), [compose.yml](deploy/compose.yml) | [deployment.md](docs/deployment.md), [test_container_entrypoint.py](tests/test_container_entrypoint.py), [HTTPS fixture](.github/container-tests/test_probe.py) |
 | Веб-чат и просмотр источников | [web/app.py](web/app.py), [интерфейс](web/static/), [compose.yaml](compose.yaml), [роадмап](docs/web_roadmap.md) | [web/tests/](web/tests/), [анимация поиска](docs/web_animation.md), [локальный запуск](README.md#веб-интерфейс) |
+| Хостинг сайта и Web CI | [deployment/](deployment/) (Windows), [deployment/linux/psb-deploy.sh](deployment/linux/psb-deploy.sh), [web-ci.yml](.github/workflows/web-ci.yml) | [test-psb-deploy.sh](deployment/linux/test-psb-deploy.sh), [LOCAL_HOSTING.md](docs/LOCAL_HOSTING.md), [CI_CD.md](docs/CI_CD.md) |
 | Развёртывание и ручной batch-запуск | [infra/ansible/](infra/ansible/), [run_batch.py](infra/ansible/roles/psb/files/run_batch.py) | [infra README](infra/ansible/README.md), [guards и runner tests](infra/ansible/tests/) |
 
 **Исполняемый код:** `prototype/solution.py` и модули `prototype/psb_*.py`. Сборщик переносит их в корень ZIP.

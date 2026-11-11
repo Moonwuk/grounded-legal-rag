@@ -1,4 +1,4 @@
-# Веб-сервис на Windows 11
+# Хостинг веб-сервиса: Windows и Linux
 
 ## Текущая локальная копия
 
@@ -23,6 +23,38 @@ pwsh -NoProfile -File deployment/status.ps1
 ```
 
 Служебные файлы находятся в %LOCALAPPDATA%\PsbLegalWeb. Задача PsbLegalWeb-Update работает с ограниченным токеном текущего пользователя, запускается после входа и повторяется раз в 10 минут. Планировщик не выполняет обновления после выхода пользователя. Docker Desktop, питание и интернет остаются зависимостями. При перезагрузке сайт возобновляется после входа и запуска Docker. Управляемый порт 8001 выбран отдельно от существующего сайта на 8000. Для команды stop отключите задачу, если нужно исключить последующее автоматическое развёртывание.
+
+## Linux
+
+Нужны Docker Engine с плагином Compose, Git, curl, `ss` (iproute2), `flock` и
+авторизованный GitHub CLI. Агент — [deployment/linux/psb-deploy.sh](../deployment/linux/psb-deploy.sh),
+политика та же, что у Windows-скриптов: только влитый в main SHA с зелёными
+Web CI и Security, отдельная сборка кандидата без ключа модели, проверка
+`/healthz` и `/`, журнал `pending` и откат на прежний образ при сбое.
+
+```bash
+deployment/linux/psb-deploy.sh install --copy-env-from .env
+deployment/linux/psb-deploy.sh update
+deployment/linux/psb-deploy.sh status
+```
+
+`install` копирует агент в `~/.local/share/psb-legal-web/agent` и включает
+пользовательский таймер systemd `psb-web-update.timer` (через 2 минуты после
+загрузки и каждые 10 минут). Чтобы обновления шли без открытой сессии,
+выполните `loginctl enable-linger $USER`. После перезагрузки контейнер
+поднимает сам Docker (`restart: unless-stopped`), если служба Docker включена.
+Команды `start`, `stop`, `restart`, `healthcheck` работают с активным выпуском.
+Порт по умолчанию 8001, каталог — `--root` или `PSB_ROOT`. Поведение агента
+проверяет `deployment/linux/test-psb-deploy.sh` с заглушками Docker и GitHub (Web CI).
+
+## Одобрение перед обновлением
+
+По умолчанию (`Required`) агент выкатывает SHA, только если PR одобрил другой
+участник на финальном коммите. Если команда не ставит одобрения, сайт будет
+оставаться на прежней версии: причину показывают `status.ps1` /
+`psb-deploy.sh status` и `deployment.log`. Для такой команды установите агент с
+`-ApprovalPolicy CiOnly` (Windows) или `--approval-policy CiOnly` (Linux):
+тогда достаточно влитого PR и зелёных проверок.
 
 ## Приватный доступ команды
 

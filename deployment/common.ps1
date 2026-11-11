@@ -4,6 +4,7 @@ $Root = [IO.Path]::GetFullPath($Root)
 $StatePath = Join-Path $Root 'active.json'
 $JournalPath = Join-Path $Root 'pending.json'
 $RejectedPath = Join-Path $Root 'rejected.json'
+$WaitingPath = Join-Path $Root 'waiting.json'
 $Repository = Join-Path $Root 'repository.git'
 $EnvFile = Join-Path $Root '.env'
 $EmptyEnv = Join-Path $Root 'stage.env'
@@ -15,6 +16,12 @@ $Remote = 'https://github.com/Moonwuk/grounded-legal-rag.git'
 function Write-DeployLog([string]$Message) {
     Add-Content -LiteralPath $Log -Value ('{0:o} {1}' -f [DateTimeOffset]::Now, $Message)
     Write-Host $Message
+}
+
+function Write-Waiting([string]$Sha, [string]$Reason) {
+    # The site keeps the previous release; status.ps1 shows why main is not deployed.
+    Write-DeployLog "Waiting: $Reason"
+    Write-State $WaitingPath @{sha = $Sha; reason = $Reason; since = [DateTimeOffset]::Now.ToString('o')}
 }
 
 function Assert-Engine([switch]$StartDesktop) {

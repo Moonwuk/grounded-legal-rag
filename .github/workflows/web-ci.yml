@@ -39,6 +39,10 @@ jobs:
             [void][System.Management.Automation.Language.Parser]::ParseFile($_.FullName, [ref]$tokens, [ref]$errors)
             if ($errors.Count) { throw ($errors -join [Environment]::NewLine) }
           }
+      - name: Check Linux deployment agent
+        run: |
+          shellcheck deployment/linux/psb-deploy.sh deployment/linux/test-psb-deploy.sh
+          bash deployment/linux/test-psb-deploy.sh
       - name: Build and probe web stack
         run: |
           docker compose config --quiet
