@@ -5,17 +5,22 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="color-scheme" content="light">
   <title>Юридический ассистент</title>
+  <link rel="stylesheet" href="/static/vendor/sl-ui/send/buttons.css">
+  <link rel="stylesheet" href="/static/vendor/sl-ui/copy/buttons.css">
   <link rel="stylesheet" href="/static/style.css">
+  <script defer src="/static/vendor/sl-ui/send/buttons.js"></script>
+  <script defer src="/static/vendor/sl-ui/copy/buttons.js"></script>
   <script defer src="/static/app.js"></script>
 </head>
 <body>
   <header class="top">
-    <div><span class="brand">ПСБ · Hack&amp;Change</span><h1>Юридический ассистент</h1></div>
+    <div class="brand-mark" aria-hidden="true">§</div>
+    <div class="identity"><span class="brand">ПСБ · Hack&amp;Change</span><h1>Юридический ассистент</h1></div>
     <button type="button" id="reset" disabled>Новый диалог</button>
   </header>
   <main class="workspace">
     <section class="chat" aria-labelledby="chat-title">
-      <h2 id="chat-title">Диалог</h2>
+      <div class="panel-heading"><h2 id="chat-title">Диалог</h2><span>По базе ПСБ</span></div>
       <div class="conversation" id="conversation" role="log" aria-label="Сообщения диалога">
         <div id="welcome">
           <h3>Какое положение найти?</h3>
@@ -27,7 +32,14 @@
       <form id="chat-form" novalidate>
         <label for="question">Вопрос</label>
         <textarea id="question" class="resize-none" rows="3" maxlength="10000" aria-describedby="input-error" placeholder="Например, какой срок оплаты предусмотрен договором?"></textarea>
-        <div class="form-footer"><span id="input-error" role="status"></span><button id="send" type="submit">Отправить</button></div>
+        <div class="form-footer"><span id="input-error" role="status"></span>
+<section class="sl-component" data-kind="buttons-send-message" data-phase="idle" aria-busy="false" aria-label="Отправить">
+    <button class="motion-button" type="button" id="send" data-action disabled aria-label="Отправить" >
+      <span class="button-surface" aria-hidden="true"><span class="button-icon"><svg viewBox="0 0 24 24" focusable="false"><path class="icon-primary icon-plane" d="m3.5 4.5 17 7.5-17 7.5 3.2-7.5Zm3.2 7.5H14"/><path class="icon-result" pathLength="1" d="m5 12 4.5 4.5L19 7"/></svg></span><span class="button-label" data-label>Отправить</span></span>
+    </button>
+    <p class="component-status" data-status role="status" aria-live="polite" aria-atomic="true">Можно отправить вопрос.</p>
+  </section>
+</div>
       </form>
     </section>
     <aside class="documents" aria-labelledby="doc-title">
@@ -36,6 +48,16 @@
         <button type="button" id="all-docs" hidden disabled>К списку</button>
       </div>
       <p id="doc-status" role="status"></p>
+      <div id="quote-tools" hidden><button class="sl-copy" id="copy-button" type="button" aria-label="Копировать цитату" data-state="idle" disabled>
+          <span class="sl-copy__surface" aria-hidden="true">
+            <span class="sl-copy__wash"></span>
+            <span class="sl-copy__icon">
+              <svg class="sl-copy__sheets" viewBox="0 0 24 24" fill="none" focusable="false"><rect class="sl-copy__back" x="3.5" y="3.5" width="12" height="14" rx="3"/><rect class="sl-copy__front" x="8.5" y="7.5" width="12" height="14" rx="3"/></svg>
+              <svg class="sl-copy__check" viewBox="0 0 24 24" fill="none" focusable="false"><path d="M4 12.5 9.2 17.5 20 6.5" pathLength="1"/></svg>
+            </span>
+            <span class="sl-copy__label">Цитата</span>
+          </span>
+        </button><p class="copy-feedback" role="status" aria-live="polite" aria-atomic="true"></p></div>
       <ul id="doc-list" aria-label="Документы базы"></ul>
       <div id="doc-text" tabindex="0" aria-label="Текст документа" hidden></div>
     </aside>

@@ -11,6 +11,12 @@ const docText = byId("doc-text");
 const docTitle = byId("doc-title");
 const docStatus = byId("doc-status");
 const allDocs = byId("all-docs");
+const quoteTools = byId("quote-tools");
+let selectedQuote = "";
+const copyController = MatteCopy.mount(quoteTools.querySelector(".sl-copy"), {
+  getText: () => selectedQuote,
+  feedback: quoteTools.querySelector(".copy-feedback")
+});
 const labels = {
   partial: "Подтверждена часть ответа",
   clarify: "Нужно уточнение",
@@ -41,6 +47,8 @@ function bubble(role, text) {
 
 function showList() {
   activeDocument?.abort();
+  activeDocument = null;
+  clearQuote();
   docTitle.textContent = "Документы";
   docStatus.textContent = "";
   docText.hidden = true;
@@ -48,8 +56,15 @@ function showList() {
   allDocs.hidden = true;
 }
 
+function clearQuote() {
+  selectedQuote = "";
+  quoteTools.hidden = true;
+  copyController.reset();
+}
+
 async function openDocument(id, source) {
   activeDocument?.abort();
+  clearQuote();
   const request = new AbortController();
   activeDocument = request;
   const timer = setTimeout(() => request.abort(), 10000);
@@ -75,6 +90,8 @@ async function openDocument(id, source) {
       }
       const mark = document.createElement("mark");
       mark.textContent = quote;
+      selectedQuote = quote;
+      quoteTools.hidden = false;
       docText.replaceChildren(characters.slice(0, source.start).join(""), mark, characters.slice(source.end).join(""));
       mark.scrollIntoView({block: "center"});
     } else {
@@ -137,10 +154,9 @@ function renderAnswer(node, answer, retry) {
   }
 }
 
-async function ask(question, existing) {
-  if (busy) return;
+async function ask(question, existing, signal) {
   busy = true;
-  send.disabled = reset.disabled = true;
+  reset.disabled = true;
   const pending = {role: "user", text: question};
   const userNode = existing || bubble("user", question).item;
   const node = bubble("assistant", "Готовим ответ…");
@@ -153,7 +169,7 @@ async function ask(question, existing) {
     const response = await fetch("/api/chat", {
       method: "POST", headers: {"Content-Type": "application/json"},
       body: JSON.stringify({messages: [...messages, pending]}),
-      signal: AbortSignal.timeout(180000)
+      signal: AbortSignal.any([signal, AbortSignal.timeout(180000)])
     });
     if (!response.ok) {
       const detail = response.status === 413 ? "Диалог слишком длинный. Начните новый." : "Сервис не ответил. Попробуйте снова.";
@@ -162,12 +178,19 @@ async function ask(question, existing) {
       answer = await response.json();
     }
   } catch (error) {
+    if (signal.aborted) {
+      node.item.remove();
+      userNode.remove();
+      if (!input.value) input.value = question;
+      input.focus();
+      throw error;
+    }
     answer = {status: "technical_error", text: error.name === "TimeoutError"
       ? "Истекло время ожидания. Повторите запрос." : "Нет связи с сервисом. Проверьте подключение и повторите запрос."};
   } finally {
     clearInterval(timer);
     busy = false;
-    send.disabled = reset.disabled = false;
+    reset.disabled = false;
   }
   if (answer.status !== "technical_error") {
     messages.push(pending, {role: "assistant", text: answer.text});
@@ -180,28 +203,45 @@ async function ask(question, existing) {
       input.focus();
       return;
     }
+    retryRequest = {question, userNode};
     node.item.remove();
-    ask(question, userNode);
+    sendController.start();
   });
   input.focus();
   log.scrollTop = log.scrollHeight;
+  if (answer.status === "technical_error") throw new Error("chat_request_failed");
 }
 
+let retryRequest;
+const sendController = SLComponent.mount(send.closest(".sl-component"), {
+  async onSend({signal}) {
+    const retry = retryRequest;
+    retryRequest = null;
+    const question = retry?.question || input.value.trim();
+    byId("input-error").textContent = question ? "" : "Введите вопрос.";
+    if (!question) {
+      input.setAttribute("aria-invalid", "true");
+      input.focus();
+      throw new Error("empty_question");
+    }
+    input.removeAttribute("aria-invalid");
+    if (!retry) input.value = "";
+    await ask(question, retry?.userNode, signal);
+  }
+});
+send.disabled = false;
 byId("chat-form").addEventListener("submit", event => {
   event.preventDefault();
-  if (busy) return;
-  const question = input.value.trim();
-  byId("input-error").textContent = question ? "" : "Введите вопрос.";
-  if (!question) {
-    input.setAttribute("aria-invalid", "true");
-    input.focus();
-    return;
+  sendController.start();
+});
+input.addEventListener("keydown", event => {
+  if (event.key === "Enter" && (event.ctrlKey || event.metaKey) && !event.isComposing) {
+    event.preventDefault();
+    sendController.start();
   }
-  input.removeAttribute("aria-invalid");
-  input.value = "";
-  ask(question);
 });
 reset.addEventListener("click", () => {
+  sendController.reset();
   messages = [];
   log.replaceChildren(welcome);
   welcome.hidden = false;
