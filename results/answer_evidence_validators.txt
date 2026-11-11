@@ -1,0 +1,93 @@
+test_budget_keeps_reservation_without_valid_usage (test_adapter.AdapterTests.test_budget_keeps_reservation_without_valid_usage) ... ok
+test_concurrent_request_budget_is_atomic (test_adapter.AdapterTests.test_concurrent_request_budget_is_atomic) ... ok
+test_deepseek_probe_retry_usage_and_no_gold (test_adapter.AdapterTests.test_deepseek_probe_retry_usage_and_no_gold) ... {"event": "provider_failure", "stage": "generate", "position": null, "logical_call": 1, "attempt": 1, "kind": "http_429", "elapsed_ms": 3}
+{"event": "model_response", "stage": "generate", "attempt": 2, "position": null, "logical_call": 1, "finish": "stop", "max_tokens": 8192, "completion_tokens": 4}
+ok
+test_invalid_question_and_missing_search_are_not_inferred_success (test_adapter.AdapterTests.test_invalid_question_and_missing_search_are_not_inferred_success) ... ok
+test_runtime_generation_defaults_and_settled_budget (test_adapter.AdapterTests.test_runtime_generation_defaults_and_settled_budget) ... {"event": "model_response", "stage": "generate", "attempt": 1, "position": null, "logical_call": 1, "finish": "stop", "max_tokens": 8192, "completion_tokens": 7}
+{"event": "model_response", "stage": "generate", "attempt": 1, "position": null, "logical_call": 1, "finish": "stop", "max_tokens": 512, "completion_tokens": 7}
+ok
+test_smoke_gate_blocks_api_failures_not_solution_errors (test_adapter.AdapterTests.test_smoke_gate_blocks_api_failures_not_solution_errors) ... ok
+test_solution_uses_synthetic_archive_and_preserves_contract (test_adapter.AdapterTests.test_solution_uses_synthetic_archive_and_preserves_contract) ... ok
+test_token_and_cost_limits (test_adapter.AdapterTests.test_token_and_cost_limits) ... ok
+test_demo_corpus_is_consistent_and_gold_is_not_a_question_field (test_elements.CorpusContractTests.test_demo_corpus_is_consistent_and_gold_is_not_a_question_field) ... ok
+test_missing_row_is_a_failure_and_summary_counts (test_elements.CorpusContractTests.test_missing_row_is_a_failure_and_summary_counts) ... ok
+test_every_corruption_stops_passing (test_elements.ElementTests.test_every_corruption_stops_passing) ... ok
+test_every_organizer_reference_answer_passes (test_elements.ElementTests.test_every_organizer_reference_answer_passes) ... ok
+test_refusal_and_technical_statuses (test_elements.ElementTests.test_refusal_and_technical_statuses) ... ok
+test_value_named_as_absent_is_not_asserted (test_elements.ElementTests.test_value_named_as_absent_is_not_asserted) ... ok
+test_values_units_words_and_refutation (test_elements.ElementTests.test_values_units_words_and_refutation) ... ok
+test_corpus_id_follows_rendered_text (test_generator_semantics.CorpusIdentityTests.test_corpus_id_follows_rendered_text) ... ok
+test_marker_detects_known_non_operative_wording (test_generator_semantics.LayoutSemanticsTests.test_marker_detects_known_non_operative_wording) ... ok
+test_no_layout_declares_its_conditions_non_operative (test_generator_semantics.LayoutSemanticsTests.test_no_layout_declares_its_conditions_non_operative) ... ok
+test_model_steps_explain_a_rejected_candidate (test_observation_fidelity.ObservationFidelityTests.test_model_steps_explain_a_rejected_candidate) ... ok
+test_observed_policy_equals_direct_policy (test_observation_fidelity.ObservationFidelityTests.test_observed_policy_equals_direct_policy) ... {"event": "policy_verdict", "position": null, "expanded": false, "reduced": false, "candidate_status": "answer", "approved": true, "prose": "published", "verdict_status": "answer", "check_count": 3, "source_gap_count": 0, "failed_claim_positions": []}
+{"event": "policy_verdict", "position": null, "expanded": false, "reduced": false, "candidate_status": "answer", "approved": true, "prose": "published", "verdict_status": "answer", "check_count": 3, "source_gap_count": 0, "failed_claim_positions": []}
+{"event": "policy_verdict", "position": null, "expanded": false, "reduced": false, "candidate_status": "answer", "approved": true, "prose": "published", "verdict_status": "answer", "check_count": 3, "source_gap_count": 0, "failed_claim_positions": []}
+{"event": "policy_verdict", "position": null, "expanded": false, "reduced": false, "candidate_status": "answer", "approved": true, "prose": "published", "verdict_status": "answer", "check_count": 3, "source_gap_count": 0, "failed_claim_positions": []}
+ok
+test_unobserved_citation_is_not_scored_as_runtime_failure (test_observation_fidelity.ObservationFidelityTests.test_unobserved_citation_is_not_scored_as_runtime_failure) ... ok
+test_worker_reports_cited_sources_from_accepted_evidence (test_observation_fidelity.ObservationFidelityTests.test_worker_reports_cited_sources_from_accepted_evidence) ... {"event": "policy_verdict", "position": null, "expanded": false, "reduced": false, "candidate_status": "answer", "approved": true, "prose": "published", "verdict_status": "answer", "check_count": 3, "source_gap_count": 0, "failed_claim_positions": []}
+{"event": "policy_verdict", "position": null, "expanded": false, "reduced": false, "candidate_status": "answer", "approved": true, "prose": "published", "verdict_status": "answer", "check_count": 3, "source_gap_count": 0, "failed_claim_positions": []}
+ok
+test_wrapper_forwards_every_public_retriever_member (test_observation_fidelity.ObservationFidelityTests.test_wrapper_forwards_every_public_retriever_member) ... ok
+test_other_unrecognized_prose_is_not_evaluated (test_observation_fidelity.PublishedTextTests.test_other_unrecognized_prose_is_not_evaluated) ... ok
+test_recognized_correct_prose_passes (test_observation_fidelity.PublishedTextTests.test_recognized_correct_prose_passes) ... ok
+test_recognized_wrong_prose_fails_despite_real_quote (test_observation_fidelity.PublishedTextTests.test_recognized_wrong_prose_fails_despite_real_quote) ... ok
+test_source_only_answer_must_publish_the_cited_provisions (test_observation_fidelity.PublishedTextTests.test_source_only_answer_must_publish_the_cited_provisions) ... ok
+test_upstream_false_acceptance_mutation_does_not_pass (test_observation_fidelity.PublishedTextTests.test_upstream_false_acceptance_mutation_does_not_pass) ... ok
+test_visible_text_must_start_with_checked_prose (test_observation_fidelity.PublishedTextTests.test_visible_text_must_start_with_checked_prose) ... ok
+test_block_without_required_provision_is_incomplete (test_observation_fidelity.RestoredBlockTests.test_block_without_required_provision_is_incomplete) ... ok
+test_forbidden_provision_in_cited_block_still_fails (test_observation_fidelity.RestoredBlockTests.test_forbidden_provision_in_cited_block_still_fails) ... ok
+test_heading_around_cited_decision_is_context (test_observation_fidelity.RestoredBlockTests.test_heading_around_cited_decision_is_context) ... ok
+test_neighbouring_provision_in_cited_table_is_context (test_observation_fidelity.RestoredBlockTests.test_neighbouring_provision_in_cited_table_is_context) ... ok
+test_rewritten_quote_is_not_context (test_observation_fidelity.RestoredBlockTests.test_rewritten_quote_is_not_context) ... ok
+test_conditional_answers_need_review (test_prose_reader.ProseReaderTests.test_conditional_answers_need_review) ... ok
+test_every_corruption_is_proven_wrong (test_prose_reader.ProseReaderTests.test_every_corruption_is_proven_wrong) ... ok
+test_fresh_correct_answers_pass (test_prose_reader.ProseReaderTests.test_fresh_correct_answers_pass) ... ok
+test_fresh_corruptions_are_proven_wrong (test_prose_reader.ProseReaderTests.test_fresh_corruptions_are_proven_wrong) ... ok
+test_missing_part_or_unknown_wording_is_not_accepted (test_prose_reader.ProseReaderTests.test_missing_part_or_unknown_wording_is_not_accepted) ... ok
+test_numbers_in_dates_identifiers_and_clause_numbers_are_not_values (test_prose_reader.ProseReaderTests.test_numbers_in_dates_identifiers_and_clause_numbers_are_not_values) ... ok
+test_real_correct_answers_pass (test_prose_reader.ProseReaderTests.test_real_correct_answers_pass) ... ok
+test_free_prose_with_the_gold_fact_passes (test_prose_reader.PublishedProseIntegrationTests.test_free_prose_with_the_gold_fact_passes) ... ok
+test_free_prose_with_wrong_value_fails_despite_real_quote (test_prose_reader.PublishedProseIntegrationTests.test_free_prose_with_wrong_value_fails_despite_real_quote) ... ok
+test_no_labelled_bad_answer_passes_and_no_good_answer_fails (test_validators.CalibrationTests.test_no_labelled_bad_answer_passes_and_no_good_answer_fails) ... ok
+test_report_calibrates_current_validator_not_stale_file (test_validators.CalibrationTests.test_report_calibrates_current_validator_not_stale_file) ... ok
+test_priority_rule_names_the_conflict_gap (test_validators.ConflictGapTests.test_priority_rule_names_the_conflict_gap) ... ok
+test_every_source_span_matches_generated_text (test_validators.GeneratorTests.test_every_source_span_matches_generated_text) ... ok
+test_holdout_families_not_in_development (test_validators.GeneratorTests.test_holdout_families_not_in_development) ... ok
+test_partial_amendment_keeps_unmodified_property_retrievable (test_validators.GeneratorTests.test_partial_amendment_keeps_unmodified_property_retrievable) ... ok
+test_physical_archive_order_does_not_change_production_retrieval (test_validators.GeneratorTests.test_physical_archive_order_does_not_change_production_retrieval) ... ok
+test_reproducibility_distributions_no_gold_in_zip (test_validators.GeneratorTests.test_reproducibility_distributions_no_gold_in_zip) ... ok
+test_additional_unparsed_claim_not_pass (test_validators.ValidatorTests.test_additional_unparsed_claim_not_pass) ... ok
+test_alternative_evidence_sets (test_validators.ValidatorTests.test_alternative_evidence_sets) ... ok
+test_benign_attack_marker_mention_is_not_proven_execution (test_validators.ValidatorTests.test_benign_attack_marker_mention_is_not_proven_execution) ... ok
+test_boolean_is_not_zero (test_validators.ValidatorTests.test_boolean_is_not_zero) ... ok
+test_bounded_paraphrase (test_validators.ValidatorTests.test_bounded_paraphrase) ... ok
+test_corpus_revision_checksum_spoof (test_validators.ValidatorTests.test_corpus_revision_checksum_spoof) ... ok
+test_correct_whole_fact (test_validators.ValidatorTests.test_correct_whole_fact) ... ok
+test_corrupt_document_and_fragment_offset (test_validators.ValidatorTests.test_corrupt_document_and_fragment_offset) ... ok
+test_event_boundaries_independent (test_validators.ValidatorTests.test_event_boundaries_independent) ... ok
+test_false_refusal (test_validators.ValidatorTests.test_false_refusal) ... ok
+test_final_text_changed_not_pass (test_validators.ValidatorTests.test_final_text_changed_not_pass) ... ok
+test_injection_marker_fails (test_validators.ValidatorTests.test_injection_marker_fails) ... ok
+test_missing_required_part (test_validators.ValidatorTests.test_missing_required_part) ... ok
+test_missing_source_and_false_quote (test_validators.ValidatorTests.test_missing_source_and_false_quote) ... ok
+test_network_error_not_refusal (test_validators.ValidatorTests.test_network_error_not_refusal) ... ok
+test_no_denominator_is_not_hundred_percent (test_validators.ValidatorTests.test_no_denominator_is_not_hundred_percent) ... ok
+test_number_in_quote_cannot_validate_bad_body (test_validators.ValidatorTests.test_number_in_quote_cannot_validate_bad_body) ... ok
+test_paraphrase_does_not_erase_gold_applicability (test_validators.ValidatorTests.test_paraphrase_does_not_erase_gold_applicability) ... ok
+test_permitted_whitespace_and_quotes (test_validators.ValidatorTests.test_permitted_whitespace_and_quotes) ... ok
+test_retrieval_only_is_not_generation_success (test_validators.ValidatorTests.test_retrieval_only_is_not_generation_success) ... ok
+test_retrieval_requires_full_set (test_validators.ValidatorTests.test_retrieval_requires_full_set) ... ok
+test_short_exact_quote_is_valid (test_validators.ValidatorTests.test_short_exact_quote_is_valid) ... ok
+test_stale_revision_failure (test_validators.ValidatorTests.test_stale_revision_failure) ... ok
+test_unknown_paraphrase_not_rejected_as_false (test_validators.ValidatorTests.test_unknown_paraphrase_not_rejected_as_false) ... ok
+test_valid_conditional_quotes_not_mislabelled_wrong (test_validators.ValidatorTests.test_valid_conditional_quotes_not_mislabelled_wrong) ... ok
+test_wrong_location_real_quote (test_validators.ValidatorTests.test_wrong_location_real_quote) ... ok
+test_wrong_subject_unit_condition_event (test_validators.ValidatorTests.test_wrong_subject_unit_condition_event) ... ok
+
+----------------------------------------------------------------------
+Ran 78 tests in 2.190s
+
+OK

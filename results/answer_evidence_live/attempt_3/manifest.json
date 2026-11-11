@@ -1,0 +1,17 @@
+{
+  "archive_name": "PSB_baseline_submission.zip",
+  "archive_sha256": "57ad5f1ebee39b632cbb1f8802b756920ebce51db2068ff79f1255e6c95279f8",
+  "corpus_sha256": "cea8ef2c8f6c8b9f498efacf705b97bf3da53cc78f366f9b1fef7a6de66327e0",
+  "questions_sha256": "e922cee1e155ed23f9f1c8f9758e396ed0e72e4309343dffe33824139bbf1423",
+  "base_url": "https://api.deepseek.com",
+  "model": "deepseek-flash",
+  "max_tokens": 8192,
+  "max_workers": 2,
+  "top_k": 6,
+  "temperature": 0,
+  "run_seconds": 1100,
+  "reasoning_effort": "not_set_archive_default",
+  "runtime_modified": false,
+  "official_platform_run": false,
+  "started_utc": "2026-11-11T11:48:18.308932+00:00"
+}

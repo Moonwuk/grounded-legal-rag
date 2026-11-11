@@ -1,0 +1,20 @@
+{
+  "version": "improved",
+  "exit_code": 0,
+  "seconds": 267.506,
+  "rows": 18,
+  "csv_valid": true,
+  "technical_ids": [],
+  "unverified_ids": [],
+  "statuses": {
+    "answer": 15,
+    "insufficient": 1,
+    "partial": 2
+  },
+  "model_responses_logged": 51,
+  "truncated_responses_logged": 0,
+  "provider_failures": {},
+  "completion_tokens_logged": 39646,
+  "reasoning_tokens_logged": 33682,
+  "log_error_codes": []
+}
