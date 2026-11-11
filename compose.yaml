@@ -11,6 +11,11 @@ services:
       LLM_API_KEY: "${LLM_API_KEY:-}"
       LLM_MODEL: "${LLM_MODEL:-}"
       WEB_WORKERS: "${WEB_WORKERS:-2}"
+      # Empty values keep the solution defaults (see README).
+      LLM_REASONING_EFFORT: "${LLM_REASONING_EFFORT:-}"
+      MAX_TOKENS: "${MAX_TOKENS:-}"
+      TEMPERATURE: "${TEMPERATURE:-}"
+      TOP_K: "${TOP_K:-}"
       KB_PATH: /data/knowledge-base.zip
     volumes:
       - type: bind

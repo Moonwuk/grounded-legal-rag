@@ -304,7 +304,8 @@ byId("chat-form").addEventListener("submit", event => {
   sendController.start();
 });
 input.addEventListener("keydown", event => {
-  if (event.key === "Enter" && (event.ctrlKey || event.metaKey) && !event.isComposing) {
+  // Enter sends, as in common chats; Shift+Enter keeps a line break.
+  if (event.key === "Enter" && !event.shiftKey && !event.altKey && !event.isComposing) {
     event.preventDefault();
     sendController.start();
   }

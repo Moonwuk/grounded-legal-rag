@@ -197,6 +197,7 @@ textarea { min-height: 64px; }
 #chat-form .button-icon { left: .75rem; width: 19px; height: 19px; }
 #chat-form .button-label { left: calc(50% + .65rem); }
 #chat-form .component-status { min-height: 1.3em; font-size: .72rem; }
+#input-hint { display: block; color: #5b6b85; font-size: .78rem; }
 #input-error { display: block; min-height: 1.2em; color: #962c29; font-size: .85rem; }
 .catalog-filter { padding: .8rem 1.15rem .1rem; flex: none; }
 .catalog-filter label { display: block; color: var(--muted); font-size: .82rem; font-weight: 650; margin-bottom: .3rem; }

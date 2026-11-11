@@ -47,7 +47,7 @@
       <form id="chat-form" novalidate>
         <label for="question">Вопрос</label>
         <div class="composer-fields">
-        <textarea id="question" class="resize-none" rows="3" maxlength="10000" aria-describedby="input-error" placeholder="Например, какой срок оплаты предусмотрен договором?"></textarea>
+        <textarea id="question" class="resize-none" rows="3" maxlength="10000" aria-describedby="input-hint input-error" placeholder="Например, какой срок оплаты предусмотрен договором?"></textarea>
 
 <section class="sl-component" data-kind="buttons-send-message" data-phase="idle" aria-busy="false" aria-label="Отправить">
     <button class="motion-button" type="button" id="send" data-action disabled aria-label="Отправить" >
@@ -56,6 +56,7 @@
     <p class="component-status" data-status role="status" aria-live="polite" aria-atomic="true">Можно отправить вопрос.</p>
   </section>
         </div>
+        <span id="input-hint">Enter — отправить, Shift+Enter — новая строка.</span>
         <span id="input-error" role="status"></span>
       </form>
     </section>
