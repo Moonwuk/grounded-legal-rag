@@ -3,6 +3,7 @@ $ErrorActionPreference = 'Stop'
 $Root = [IO.Path]::GetFullPath($Root)
 $StatePath = Join-Path $Root 'active.json'
 $JournalPath = Join-Path $Root 'pending.json'
+$RejectedPath = Join-Path $Root 'rejected.json'
 $Repository = Join-Path $Root 'repository.git'
 $EnvFile = Join-Path $Root '.env'
 $EmptyEnv = Join-Path $Root 'stage.env'
@@ -16,14 +17,22 @@ function Write-DeployLog([string]$Message) {
     Write-Host $Message
 }
 
-function Assert-Engine {
+function Assert-Engine([switch]$StartDesktop) {
     foreach ($tool in 'docker','git') {
         if (-not (Get-Command $tool -ErrorAction SilentlyContinue)) { throw "Missing dependency: $tool" }
     }
     & docker compose version --short | Out-Null
     if ($LASTEXITCODE -ne 0) { throw 'Docker Compose is unavailable.' }
-    & docker info --format '{{.ServerVersion}}' | Out-Null
-    if ($LASTEXITCODE -ne 0) { throw 'Start Docker Desktop and wait for the engine.' }
+    & docker info --format '{{.ServerVersion}}' 2>$null | Out-Null
+    if ($LASTEXITCODE -eq 0) { return }
+    if ($StartDesktop) {
+        Write-DeployLog 'Docker engine is offline. Starting Docker Desktop.'
+        & docker desktop start --timeout 120
+        if ($LASTEXITCODE -ne 0) { throw 'Docker Desktop could not be started.' }
+        & docker info --format '{{.ServerVersion}}' | Out-Null
+        if ($LASTEXITCODE -eq 0) { return }
+    }
+    throw 'Start Docker Desktop and wait for the engine.'
 }
 
 function Read-State([string]$Path) {
@@ -118,6 +127,11 @@ function Publish-Release([string]$Sha, [int]$ListenPort) {
     if ($Sha -notmatch '\A[0-9a-f]{40}\z') { throw 'Invalid commit SHA.' }
     if (-not (Test-Path -LiteralPath $EnvFile -PathType Leaf)) { throw "Create $EnvFile before deploying." }
     Restore-Pending
+    $rejected = Read-State $RejectedPath
+    if ($rejected -and $rejected.sha -eq $Sha) {
+        Write-DeployLog "Skipping $Sha after a failed activation. Review deployment.log before retrying."
+        return
+    }
     $prior = Read-State $StatePath
     if ($prior -and $prior.sha -eq $Sha) { Write-DeployLog "Already deployed $Sha."; return }
     if ($prior -and $prior.port -ne $ListenPort) { throw 'Changing the managed port requires an explicit migration.' }
@@ -132,8 +146,13 @@ function Publish-Release([string]$Sha, [int]$ListenPort) {
         $zip = Join-Path $Root "$Sha.zip"
         & git "--git-dir=$Repository" archive --format=zip "--output=$zip" $Sha compose.yaml web prototype organizer/knowledge-base.zip
         if ($LASTEXITCODE -ne 0) { throw 'Could not export the release.' }
-        Expand-Archive -LiteralPath $zip -DestinationPath $folder -Force
-        Remove-Item -LiteralPath $zip
+        $temporaryFolder = "$folder.$([guid]::NewGuid().ToString('N')).tmp"
+        try {
+            Expand-Archive -LiteralPath $zip -DestinationPath $temporaryFolder
+            [IO.Directory]::Move($temporaryFolder, $folder)
+        } finally {
+            Remove-Item -LiteralPath $zip
+        }
     }
     Write-DeployLog "Staging $Sha."
     try {
@@ -150,17 +169,17 @@ function Publish-Release([string]$Sha, [int]$ListenPort) {
         Write-DeployLog "Active $Sha at http://127.0.0.1:$ListenPort/."
     } catch {
         Write-DeployLog "Activation failed for $Sha. Attempting rollback."
-        Restore-Pending
+        try { Write-State $RejectedPath @{sha = $Sha} } finally { Restore-Pending }
         throw
     }
 }
 
-function Invoke-Locked([scriptblock]$Action) {
+function Invoke-Locked([scriptblock]$Action, [switch]$StartDesktop) {
     New-Item -ItemType Directory -Path $Root -Force | Out-Null
     $lock = [IO.File]::Open((Join-Path $Root 'deployment.lock'), 'OpenOrCreate', 'ReadWrite', 'None')
     try {
         if (-not (Test-Path -LiteralPath $EmptyEnv)) { New-Item -ItemType File -Path $EmptyEnv | Out-Null }
-        Assert-Engine
+        Assert-Engine -StartDesktop:$StartDesktop
         & $Action
     } catch {
         Write-DeployLog "Failed: $($_.Exception.Message)"

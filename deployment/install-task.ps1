@@ -24,7 +24,7 @@ if (-not (Test-Path -LiteralPath $envFile -PathType Leaf)) {
 }
 $user = [Security.Principal.WindowsIdentity]::GetCurrent().Name
 $agent = Join-Path $stable 'update.ps1'
-$action = New-ScheduledTaskAction -Execute $pwsh -Argument "-NoProfile -NonInteractive -WindowStyle Hidden -File `"$agent`" -Root `"$Root`" -Port $Port"
+$action = New-ScheduledTaskAction -Execute $pwsh -Argument "-NoProfile -NonInteractive -WindowStyle Hidden -File `"$agent`" -Root `"$Root`" -Port $Port -StartDocker"
 $triggers = @(
     (New-ScheduledTaskTrigger -AtLogOn -User $user)
     (New-ScheduledTaskTrigger -Once -At (Get-Date).AddMinutes(2) -RepetitionInterval (New-TimeSpan -Minutes 10))

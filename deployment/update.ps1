@@ -1,7 +1,8 @@
 [CmdletBinding()]
 param(
     [string]$Root = (Join-Path $env:LOCALAPPDATA 'PsbLegalWeb'),
-    [ValidateRange(1024,65535)][int]$Port = 8001
+    [ValidateRange(1024,65535)][int]$Port = 8001,
+    [switch]$StartDocker
 )
 . (Join-Path $PSScriptRoot 'common.ps1')
 
@@ -12,9 +13,9 @@ Invoke-Locked {
         & git init --bare $Repository | Out-Null
         if ($LASTEXITCODE -ne 0) { throw 'Could not initialize deployment repository.' }
     }
-    & git "--git-dir=$Repository" fetch --no-tags $Remote refs/heads/main
+    & git "--git-dir=$Repository" fetch --no-tags $Remote refs/heads/main:refs/heads/reviewed-main
     if ($LASTEXITCODE -ne 0) { throw 'Could not fetch official main.' }
-    $sha = & git "--git-dir=$Repository" rev-parse --verify FETCH_HEAD
+    $sha = & git "--git-dir=$Repository" rev-parse --verify refs/heads/reviewed-main
     if ($LASTEXITCODE -eq 0) { $sha = $sha.Trim() }
     if ($LASTEXITCODE -ne 0 -or $sha -notmatch '\A[0-9a-f]{40}\z') { throw 'Could not resolve main.' }
     $kind = & git "--git-dir=$Repository" cat-file -t $sha
@@ -55,4 +56,4 @@ Invoke-Locked {
         }
     }
     Publish-Release $sha $Port
-}
+} -StartDesktop:$StartDocker

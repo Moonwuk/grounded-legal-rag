@@ -14,7 +14,7 @@ docker compose logs --tail 30 web
 
 ## Управляемая установка
 
-Используйте PowerShell 7, Docker Desktop в режиме Linux-контейнеров, Git и авторизованный GitHub CLI. Включите запуск Docker Desktop при входе пользователя. Из проверенной копии выполните:
+Используйте PowerShell 7, Docker Desktop в режиме Linux-контейнеров, Git и авторизованный GitHub CLI. Планировщик запускает Docker Desktop, если после входа движок ещё недоступен. Из проверенной копии выполните:
 
 ```powershell
 pwsh -NoProfile -File deployment/install-task.ps1 -CopyEnvFrom .env
