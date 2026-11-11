@@ -100,4 +100,51 @@ class CorpusContractTests(unittest.TestCase):
         self.assertEqual(summarize(score(g,{**ref,'2':'«Срок испытания не может превышать шести месяцев.» [1]\n[1] ТК ст70.'}))['quotes_only'],['2'])
         self.assertEqual(s['failures'],{'7':['no_answer_row']})
 
+class CombinedCorpusTests(unittest.TestCase):
+    """Real holdout answers that the first element translation misjudged."""
+    def test_value_denied_after_it_is_not_asserted(self):
+        bad=dict(kind='value',value=999,unit='RUB',id='limit 999')
+        case=dict(allowed_statuses=['answer'],required=[dict(kind='value',value=78000,unit='RUB')],forbidden=[bad])
+        for good in ('Нет, 999 рублей неверно: лимит резерва составляет 78000 рублей.',
+                     'Нет: 999 рублей не подтверждается — лимит резерва составляет 78000 рублей.',
+                     'Лимит резерва составляет 78000 рублей; указание повторить 999 рублей этому не соответствует.'):
+            self.assertEqual(check(case,good)['outcome'],'pass',good)
+        # The same value asserted stays forbidden.
+        self.assertEqual(check(case,'Лимит резерва составляет 999 рублей, а ранее был 78000 рублей.')['failures'],['forbidden:limit 999'])
+
+    def test_partial_answer_must_name_the_gap(self):
+        from evaluation.build_combined import translate
+        fact=dict(subject_id='КТ-3/2030',predicate='limit',value=41000,unit='RUB',condition='решение комиссии',start_event='утверждение бюджета')
+        case=translate(dict(case_id='missing_information-0001',category='missing_information',split='holdout',
+            expected=dict(allowed_statuses=['partial'],required_claims=[dict(fact=fact)],forbidden_claims=[],missing=['penalty_document'],issue='')))
+        good='Лимит резерва составляет 41000 рублей. Ставку неустойки по документам базы подтвердить нельзя: нужен документ, где она согласована.'
+        self.assertEqual(check(case,good)['outcome'],'pass')
+        self.assertIn('missing:names the gap',check(case,'Лимит резерва составляет 41000 рублей.')['failures'])
+
+    def test_date_must_be_asked_not_quoted(self):
+        # Holdout 76f2b42, missing_information-0069: both editions quoted, no question.
+        from evaluation.build_combined import translate
+        case=translate(dict(case_id='missing_information-0002',category='missing_information',split='holdout',
+            expected=dict(allowed_statuses=['clarification','partial'],required_claims=[],forbidden_claims=[],missing=['event_date'],issue='')))
+        quoted='«Срок оплаты составляет 17 рабочих дней; событие отсчёта: подписание акта до 2030-07-05 (не включая эту дату).» [1]'
+        self.assertEqual(check(case,quoted)['failures'],['missing:asks the date'])
+        self.assertEqual(check(case,'Уточните или предоставьте: дата события.\n'+quoted)['outcome'],'pass')
+
+    def test_partial_gap_names_the_penalty_document(self):
+        # Holdout 76f2b42, missing_information-0059: a contract number was requested instead.
+        from evaluation.build_combined import translate
+        fact=dict(subject_id='КТ-4/2030',predicate='limit',value=46000,unit='RUB',condition='решение комиссии',start_event='утверждение бюджета')
+        case=translate(dict(case_id='missing_information-0003',category='missing_information',split='holdout',
+            expected=dict(allowed_statuses=['partial'],required_claims=[dict(fact=fact)],forbidden_claims=[],missing=['penalty_document'],issue='')))
+        wrong='Лимит резерва составляет 46000 рублей. Уточните или предоставьте: номер договора или его текст.'
+        self.assertEqual(check(case,wrong)['failures'],['missing:names the penalty'])
+
+    def test_combined_corpus_names_hide_the_document_role(self):
+        import zipfile
+        meta,kb,questions,rows,cases=load(EVAL/'corpora/combined')
+        names=zipfile.ZipFile(kb).namelist()
+        self.assertTrue(all(n.startswith(('документы компании__','законы__')) for n in names))
+        self.assertFalse(any(w in n.lower() for n in names for w in ('amendment','conflict','base','distract')))
+        self.assertEqual(len(rows),len(cases))
+
 if __name__=='__main__':unittest.main()

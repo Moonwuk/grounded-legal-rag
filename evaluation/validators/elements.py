@@ -12,10 +12,12 @@ Element kinds:
   phrase    {"any": ["круглосуточ", ...]}    one alternative must occur (lowercase stem/regex)
   polarity  {"value": "да"|"нет"}            the answer opens with this word
 Forbidden kinds: value (asserted, not refuted), phrase, polarity.
+Optional case key "required_for": statuses whose text must carry the required
+elements (default ["answer"]).
 """
 from __future__ import annotations
 import re
-from evaluation.validators.prose import _REFUTED
+from evaluation.validators.prose import _DENIED_AFTER, _REFUTED
 
 STATUS_TEXTS = (
     ('technical_error', 'Не удалось проверить ответ из-за технической ошибки'),
@@ -37,7 +39,8 @@ _ABSENT = re.compile(r'^[^.;!?]{0,80}?\b(?:нет|отсутству\w*|не\s+(
 
 
 def _refuted(text, start, end):
-    return bool(_REFUTED.search(text[max(0, start - 16):start]) or _ABSENT.search(text[end:]))
+    # "999 рублей неверно", "999 дней не подтверждается": the value is named and denied.
+    return bool(_REFUTED.search(text[max(0, start - 16):start]) or _ABSENT.search(text[end:]) or _DENIED_AFTER.search(text[end:]))
 
 
 def norm(text):
@@ -115,7 +118,9 @@ def check(case, answer):
         answerable = 'answer' in case['allowed_statuses']
         failures.append('false_refusal' if answerable and status != 'answer' else 'wrong_status')
     found = values(answer)
-    if status == 'answer':
+    # Required elements apply to an answer; a case may extend this to a
+    # clarification whose text must still name the gap ("required_for").
+    if status in case.get('required_for', ['answer']):
         for element in case.get('required', []):
             if not has(element, answer, found):
                 if element['kind'] == 'polarity' and opening(answer) is None:
