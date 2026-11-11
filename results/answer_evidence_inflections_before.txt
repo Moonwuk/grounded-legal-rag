@@ -1,0 +1,36 @@
+test_a_general_upper_bound_keeps_a_conditional_bound_for_the_same_subject (test_answer_evidence_completeness.AnswerEvidenceCompleteness.test_a_general_upper_bound_keeps_a_conditional_bound_for_the_same_subject) ... ok
+test_absence_of_other_requirements_needs_an_explicit_source (test_answer_evidence_completeness.AnswerEvidenceCompleteness.test_absence_of_other_requirements_needs_an_explicit_source) ... 
+  test_absence_of_other_requirements_needs_an_explicit_source (test_answer_evidence_completeness.AnswerEvidenceCompleteness.test_absence_of_other_requirements_needs_an_explicit_source) (extra='Положений об ином комплекте документов в порядке нет.') ... FAIL
+  test_absence_of_other_requirements_needs_an_explicit_source (test_answer_evidence_completeness.AnswerEvidenceCompleteness.test_absence_of_other_requirements_needs_an_explicit_source) (extra='Иного комплекта приложений не предусмотрено.') ... FAIL
+test_an_approving_judge_cannot_add_document_contents (test_answer_evidence_completeness.AnswerEvidenceCompleteness.test_an_approving_judge_cannot_add_document_contents) ... ok
+test_conditional_bound_must_match_the_subject_and_document (test_answer_evidence_completeness.AnswerEvidenceCompleteness.test_conditional_bound_must_match_the_subject_and_document) ... ok
+test_date_definition_is_not_borrowed_from_another_document (test_answer_evidence_completeness.AnswerEvidenceCompleteness.test_date_definition_is_not_borrowed_from_another_document) ... ok
+test_date_definition_is_selected_verified_and_published_even_if_model_omits_it (test_answer_evidence_completeness.AnswerEvidenceCompleteness.test_date_definition_is_selected_verified_and_published_even_if_model_omits_it) ... ok
+test_explicit_document_contents_are_allowed_but_wrong_fields_are_not (test_answer_evidence_completeness.AnswerEvidenceCompleteness.test_explicit_document_contents_are_allowed_but_wrong_fields_are_not) ... ok
+test_inline_date_definition_cannot_disappear_from_prose (test_answer_evidence_completeness.AnswerEvidenceCompleteness.test_inline_date_definition_cannot_disappear_from_prose) ... ok
+test_missing_date_dependency_is_explicit_not_silently_omitted (test_answer_evidence_completeness.AnswerEvidenceCompleteness.test_missing_date_dependency_is_explicit_not_silently_omitted) ... ok
+test_negative_document_contents_do_not_authorize_a_positive_claim (test_answer_evidence_completeness.AnswerEvidenceCompleteness.test_negative_document_contents_do_not_authorize_a_positive_claim) ... ok
+test_preamble_stays_in_verification_but_is_not_printed_for_a_value_question (test_answer_evidence_completeness.AnswerEvidenceCompleteness.test_preamble_stays_in_verification_but_is_not_printed_for_a_value_question) ... ok
+test_repeated_sources_share_one_document_reference_without_cutting_conditions (test_answer_evidence_completeness.AnswerEvidenceCompleteness.test_repeated_sources_share_one_document_reference_without_cutting_conditions) ... ok
+test_sufficiency_cannot_be_inferred_from_one_requirement (test_answer_evidence_completeness.AnswerEvidenceCompleteness.test_sufficiency_cannot_be_inferred_from_one_requirement) ... ok
+
+======================================================================
+FAIL: test_absence_of_other_requirements_needs_an_explicit_source (test_answer_evidence_completeness.AnswerEvidenceCompleteness.test_absence_of_other_requirements_needs_an_explicit_source) (extra='Положений об ином комплекте документов в порядке нет.')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "<repo>/tests/test_answer_evidence_completeness.py", line 74, in test_absence_of_other_requirements_needs_an_explicit_source
+    self.assertNotIn(extra, text)
+AssertionError: 'Положений об ином комплекте документов в порядке нет.' unexpectedly found in 'К заявке прилагается ведомость об осмотре оборудования. Положений об ином комплекте документов в порядке нет.\nИсточник: Порядок, п. 7.3.'
+
+======================================================================
+FAIL: test_absence_of_other_requirements_needs_an_explicit_source (test_answer_evidence_completeness.AnswerEvidenceCompleteness.test_absence_of_other_requirements_needs_an_explicit_source) (extra='Иного комплекта приложений не предусмотрено.')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "<repo>/tests/test_answer_evidence_completeness.py", line 74, in test_absence_of_other_requirements_needs_an_explicit_source
+    self.assertNotIn(extra, text)
+AssertionError: 'Иного комплекта приложений не предусмотрено.' unexpectedly found in 'К заявке прилагается ведомость об осмотре оборудования. Иного комплекта приложений не предусмотрено.\nИсточник: Порядок, п. 7.3.'
+
+----------------------------------------------------------------------
+Ran 13 tests in 0.075s
+
+FAILED (failures=2)

@@ -1,0 +1,200 @@
+test_a_general_upper_bound_keeps_a_conditional_bound_for_the_same_subject (test_answer_evidence_completeness.AnswerEvidenceCompleteness.test_a_general_upper_bound_keeps_a_conditional_bound_for_the_same_subject) ... 
+  test_a_general_upper_bound_keeps_a_conditional_bound_for_the_same_subject (test_answer_evidence_completeness.AnswerEvidenceCompleteness.test_a_general_upper_bound_keeps_a_conditional_bound_for_the_same_subject) (subject='проверки') ... FAIL
+  test_a_general_upper_bound_keeps_a_conditional_bound_for_the_same_subject (test_answer_evidence_completeness.AnswerEvidenceCompleteness.test_a_general_upper_bound_keeps_a_conditional_bound_for_the_same_subject) (subject='испытания') ... FAIL
+test_absence_of_other_requirements_needs_an_explicit_source (test_answer_evidence_completeness.AnswerEvidenceCompleteness.test_absence_of_other_requirements_needs_an_explicit_source) ... 
+  test_absence_of_other_requirements_needs_an_explicit_source (test_answer_evidence_completeness.AnswerEvidenceCompleteness.test_absence_of_other_requirements_needs_an_explicit_source) (extra='Иных приложений к заявке не требуется.') ... FAIL
+  test_absence_of_other_requirements_needs_an_explicit_source (test_answer_evidence_completeness.AnswerEvidenceCompleteness.test_absence_of_other_requirements_needs_an_explicit_source) (extra='Порядок не требует иных приложений к заявке.') ... FAIL
+  test_absence_of_other_requirements_needs_an_explicit_source (test_answer_evidence_completeness.AnswerEvidenceCompleteness.test_absence_of_other_requirements_needs_an_explicit_source) (extra='Порядок не требует отдельного разрешения.') ... FAIL
+  test_absence_of_other_requirements_needs_an_explicit_source (test_answer_evidence_completeness.AnswerEvidenceCompleteness.test_absence_of_other_requirements_needs_an_explicit_source) (extra='Положений об ином комплекте документов в порядке нет.') ... FAIL
+  test_absence_of_other_requirements_needs_an_explicit_source (test_answer_evidence_completeness.AnswerEvidenceCompleteness.test_absence_of_other_requirements_needs_an_explicit_source) (extra='Иного комплекта приложений не предусмотрено.') ... FAIL
+  test_absence_of_other_requirements_needs_an_explicit_source (test_answer_evidence_completeness.AnswerEvidenceCompleteness.test_absence_of_other_requirements_needs_an_explicit_source) (extra='Другие документы прикладывать не нужно.') ... FAIL
+  test_absence_of_other_requirements_needs_an_explicit_source (test_answer_evidence_completeness.AnswerEvidenceCompleteness.test_absence_of_other_requirements_needs_an_explicit_source) (extra='Дополнительные требования отсутствуют.') ... FAIL
+test_an_approving_judge_cannot_add_document_contents (test_answer_evidence_completeness.AnswerEvidenceCompleteness.test_an_approving_judge_cannot_add_document_contents) ... 
+  test_an_approving_judge_cannot_add_document_contents (test_answer_evidence_completeness.AnswerEvidenceCompleteness.test_an_approving_judge_cannot_add_document_contents) (extra='В протоколе фиксируется состояние оборудования.') ... FAIL
+  test_an_approving_judge_cannot_add_document_contents (test_answer_evidence_completeness.AnswerEvidenceCompleteness.test_an_approving_judge_cannot_add_document_contents) (extra='Состояние оборудования указывается в протоколе.') ... FAIL
+  test_an_approving_judge_cannot_add_document_contents (test_answer_evidence_completeness.AnswerEvidenceCompleteness.test_an_approving_judge_cannot_add_document_contents) (extra='Протокол содержит сведения о состоянии оборудования.') ... FAIL
+  test_an_approving_judge_cannot_add_document_contents (test_answer_evidence_completeness.AnswerEvidenceCompleteness.test_an_approving_judge_cannot_add_document_contents) (extra='В протоколе должны быть указаны сведения о состоянии оборудования.') ... FAIL
+test_conditional_bound_must_match_the_subject_and_document (test_answer_evidence_completeness.AnswerEvidenceCompleteness.test_conditional_bound_must_match_the_subject_and_document) ... ok
+test_date_definition_is_not_borrowed_from_another_document (test_answer_evidence_completeness.AnswerEvidenceCompleteness.test_date_definition_is_not_borrowed_from_another_document) ... ok
+test_date_definition_is_selected_verified_and_published_even_if_model_omits_it (test_answer_evidence_completeness.AnswerEvidenceCompleteness.test_date_definition_is_selected_verified_and_published_even_if_model_omits_it) ... FAIL
+test_explicit_document_contents_are_allowed_but_wrong_fields_are_not (test_answer_evidence_completeness.AnswerEvidenceCompleteness.test_explicit_document_contents_are_allowed_but_wrong_fields_are_not) ... FAIL
+test_inline_date_definition_cannot_disappear_from_prose (test_answer_evidence_completeness.AnswerEvidenceCompleteness.test_inline_date_definition_cannot_disappear_from_prose) ... FAIL
+test_missing_date_dependency_is_explicit_not_silently_omitted (test_answer_evidence_completeness.AnswerEvidenceCompleteness.test_missing_date_dependency_is_explicit_not_silently_omitted) ... FAIL
+test_negative_document_contents_do_not_authorize_a_positive_claim (test_answer_evidence_completeness.AnswerEvidenceCompleteness.test_negative_document_contents_do_not_authorize_a_positive_claim) ... FAIL
+test_preamble_stays_in_verification_but_is_not_printed_for_a_value_question (test_answer_evidence_completeness.AnswerEvidenceCompleteness.test_preamble_stays_in_verification_but_is_not_printed_for_a_value_question) ... FAIL
+test_repeated_sources_share_one_document_reference_without_cutting_conditions (test_answer_evidence_completeness.AnswerEvidenceCompleteness.test_repeated_sources_share_one_document_reference_without_cutting_conditions) ... FAIL
+test_sufficiency_cannot_be_inferred_from_one_requirement (test_answer_evidence_completeness.AnswerEvidenceCompleteness.test_sufficiency_cannot_be_inferred_from_one_requirement) ... FAIL
+
+======================================================================
+FAIL: test_a_general_upper_bound_keeps_a_conditional_bound_for_the_same_subject (test_answer_evidence_completeness.AnswerEvidenceCompleteness.test_a_general_upper_bound_keeps_a_conditional_bound_for_the_same_subject) (subject='проверки')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "<baseline-worktree>/tests/test_answer_evidence_completeness.py", line 143, in test_a_general_upper_bound_keeps_a_conditional_bound_for_the_same_subject
+    self.assertIn(condition, text)
+AssertionError: '4.2. При аренде на срок до месяца проверка не может превышать 2 дней.' not found in 'Срок проверки не может превышать 19 дней.\n«4.1. Срок проверки не может превышать 19 дней.» [1]\n[1] Условия.'
+
+======================================================================
+FAIL: test_a_general_upper_bound_keeps_a_conditional_bound_for_the_same_subject (test_answer_evidence_completeness.AnswerEvidenceCompleteness.test_a_general_upper_bound_keeps_a_conditional_bound_for_the_same_subject) (subject='испытания')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "<baseline-worktree>/tests/test_answer_evidence_completeness.py", line 143, in test_a_general_upper_bound_keeps_a_conditional_bound_for_the_same_subject
+    self.assertIn(condition, text)
+AssertionError: '4.2. При аренде на срок до месяца испытание не может превышать 2 дней.' not found in 'Срок испытания не может превышать 19 дней.\n«4.1. Срок испытания не может превышать 19 дней.» [1]\n[1] Условия.'
+
+======================================================================
+FAIL: test_absence_of_other_requirements_needs_an_explicit_source (test_answer_evidence_completeness.AnswerEvidenceCompleteness.test_absence_of_other_requirements_needs_an_explicit_source) (extra='Иных приложений к заявке не требуется.')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "<baseline-worktree>/tests/test_answer_evidence_completeness.py", line 74, in test_absence_of_other_requirements_needs_an_explicit_source
+    self.assertNotIn(extra, text)
+AssertionError: 'Иных приложений к заявке не требуется.' unexpectedly found in 'К заявке прилагается ведомость об осмотре оборудования. Иных приложений к заявке не требуется.\nИсточник: Порядок, п. 7.3.'
+
+======================================================================
+FAIL: test_absence_of_other_requirements_needs_an_explicit_source (test_answer_evidence_completeness.AnswerEvidenceCompleteness.test_absence_of_other_requirements_needs_an_explicit_source) (extra='Порядок не требует иных приложений к заявке.')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "<baseline-worktree>/tests/test_answer_evidence_completeness.py", line 74, in test_absence_of_other_requirements_needs_an_explicit_source
+    self.assertNotIn(extra, text)
+AssertionError: 'Порядок не требует иных приложений к заявке.' unexpectedly found in 'К заявке прилагается ведомость об осмотре оборудования. Порядок не требует иных приложений к заявке.\nИсточник: Порядок, п. 7.3.'
+
+======================================================================
+FAIL: test_absence_of_other_requirements_needs_an_explicit_source (test_answer_evidence_completeness.AnswerEvidenceCompleteness.test_absence_of_other_requirements_needs_an_explicit_source) (extra='Порядок не требует отдельного разрешения.')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "<baseline-worktree>/tests/test_answer_evidence_completeness.py", line 74, in test_absence_of_other_requirements_needs_an_explicit_source
+    self.assertNotIn(extra, text)
+AssertionError: 'Порядок не требует отдельного разрешения.' unexpectedly found in 'К заявке прилагается ведомость об осмотре оборудования. Порядок не требует отдельного разрешения.\nИсточник: Порядок, п. 7.3.'
+
+======================================================================
+FAIL: test_absence_of_other_requirements_needs_an_explicit_source (test_answer_evidence_completeness.AnswerEvidenceCompleteness.test_absence_of_other_requirements_needs_an_explicit_source) (extra='Положений об ином комплекте документов в порядке нет.')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "<baseline-worktree>/tests/test_answer_evidence_completeness.py", line 74, in test_absence_of_other_requirements_needs_an_explicit_source
+    self.assertNotIn(extra, text)
+AssertionError: 'Положений об ином комплекте документов в порядке нет.' unexpectedly found in 'К заявке прилагается ведомость об осмотре оборудования. Положений об ином комплекте документов в порядке нет.\nИсточник: Порядок, п. 7.3.'
+
+======================================================================
+FAIL: test_absence_of_other_requirements_needs_an_explicit_source (test_answer_evidence_completeness.AnswerEvidenceCompleteness.test_absence_of_other_requirements_needs_an_explicit_source) (extra='Иного комплекта приложений не предусмотрено.')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "<baseline-worktree>/tests/test_answer_evidence_completeness.py", line 74, in test_absence_of_other_requirements_needs_an_explicit_source
+    self.assertNotIn(extra, text)
+AssertionError: 'Иного комплекта приложений не предусмотрено.' unexpectedly found in 'К заявке прилагается ведомость об осмотре оборудования. Иного комплекта приложений не предусмотрено.\nИсточник: Порядок, п. 7.3.'
+
+======================================================================
+FAIL: test_absence_of_other_requirements_needs_an_explicit_source (test_answer_evidence_completeness.AnswerEvidenceCompleteness.test_absence_of_other_requirements_needs_an_explicit_source) (extra='Другие документы прикладывать не нужно.')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "<baseline-worktree>/tests/test_answer_evidence_completeness.py", line 74, in test_absence_of_other_requirements_needs_an_explicit_source
+    self.assertNotIn(extra, text)
+AssertionError: 'Другие документы прикладывать не нужно.' unexpectedly found in 'К заявке прилагается ведомость об осмотре оборудования. Другие документы прикладывать не нужно.\nИсточник: Порядок, п. 7.3.'
+
+======================================================================
+FAIL: test_absence_of_other_requirements_needs_an_explicit_source (test_answer_evidence_completeness.AnswerEvidenceCompleteness.test_absence_of_other_requirements_needs_an_explicit_source) (extra='Дополнительные требования отсутствуют.')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "<baseline-worktree>/tests/test_answer_evidence_completeness.py", line 74, in test_absence_of_other_requirements_needs_an_explicit_source
+    self.assertNotIn(extra, text)
+AssertionError: 'Дополнительные требования отсутствуют.' unexpectedly found in 'К заявке прилагается ведомость об осмотре оборудования. Дополнительные требования отсутствуют.\nИсточник: Порядок, п. 7.3.'
+
+======================================================================
+FAIL: test_an_approving_judge_cannot_add_document_contents (test_answer_evidence_completeness.AnswerEvidenceCompleteness.test_an_approving_judge_cannot_add_document_contents) (extra='В протоколе фиксируется состояние оборудования.')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "<baseline-worktree>/tests/test_answer_evidence_completeness.py", line 32, in test_an_approving_judge_cannot_add_document_contents
+    self.assertNotIn(extra, text)
+AssertionError: 'В протоколе фиксируется состояние оборудования.' unexpectedly found in 'Оборудование возвращается по протоколу. В протоколе фиксируется состояние оборудования.\nИсточник: Прокат, п. 8.4.'
+
+======================================================================
+FAIL: test_an_approving_judge_cannot_add_document_contents (test_answer_evidence_completeness.AnswerEvidenceCompleteness.test_an_approving_judge_cannot_add_document_contents) (extra='Состояние оборудования указывается в протоколе.')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "<baseline-worktree>/tests/test_answer_evidence_completeness.py", line 32, in test_an_approving_judge_cannot_add_document_contents
+    self.assertNotIn(extra, text)
+AssertionError: 'Состояние оборудования указывается в протоколе.' unexpectedly found in 'Оборудование возвращается по протоколу. Состояние оборудования указывается в протоколе.\nИсточник: Прокат, п. 8.4.'
+
+======================================================================
+FAIL: test_an_approving_judge_cannot_add_document_contents (test_answer_evidence_completeness.AnswerEvidenceCompleteness.test_an_approving_judge_cannot_add_document_contents) (extra='Протокол содержит сведения о состоянии оборудования.')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "<baseline-worktree>/tests/test_answer_evidence_completeness.py", line 32, in test_an_approving_judge_cannot_add_document_contents
+    self.assertNotIn(extra, text)
+AssertionError: 'Протокол содержит сведения о состоянии оборудования.' unexpectedly found in 'Оборудование возвращается по протоколу. Протокол содержит сведения о состоянии оборудования.\nИсточник: Прокат, п. 8.4.'
+
+======================================================================
+FAIL: test_an_approving_judge_cannot_add_document_contents (test_answer_evidence_completeness.AnswerEvidenceCompleteness.test_an_approving_judge_cannot_add_document_contents) (extra='В протоколе должны быть указаны сведения о состоянии оборудования.')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "<baseline-worktree>/tests/test_answer_evidence_completeness.py", line 32, in test_an_approving_judge_cannot_add_document_contents
+    self.assertNotIn(extra, text)
+AssertionError: 'В протоколе должны быть указаны сведения о состоянии оборудования.' unexpectedly found in 'Оборудование возвращается по протоколу. В протоколе должны быть указаны сведения о состоянии оборудования.\nИсточник: Прокат, п. 8.4.'
+
+======================================================================
+FAIL: test_date_definition_is_selected_verified_and_published_even_if_model_omits_it (test_answer_evidence_completeness.AnswerEvidenceCompleteness.test_date_definition_is_selected_verified_and_published_even_if_model_omits_it)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "<baseline-worktree>/tests/test_answer_evidence_completeness.py", line 102, in test_date_definition_is_selected_verified_and_published_even_if_model_omits_it
+    self.assertIn(definition, text)
+AssertionError: '2.8. Датой приёмки считается дата подписания ведомости обеими сторонами.' not found in 'Проверка выполняется в течение 9 рабочих дней с даты приёмки.\nИсточник: Условия, п. 6.2.'
+
+======================================================================
+FAIL: test_explicit_document_contents_are_allowed_but_wrong_fields_are_not (test_answer_evidence_completeness.AnswerEvidenceCompleteness.test_explicit_document_contents_are_allowed_but_wrong_fields_are_not)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "<baseline-worktree>/tests/test_answer_evidence_completeness.py", line 50, in test_explicit_document_contents_are_allowed_but_wrong_fields_are_not
+    self.assertNotIn(other, text)
+AssertionError: 'Стоимость оборудования указывается в протоколе.' unexpectedly found in 'Стоимость оборудования указывается в протоколе.\nИсточник: Прокат, п. 8.4.'
+
+======================================================================
+FAIL: test_inline_date_definition_cannot_disappear_from_prose (test_answer_evidence_completeness.AnswerEvidenceCompleteness.test_inline_date_definition_cannot_disappear_from_prose)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "<baseline-worktree>/tests/test_answer_evidence_completeness.py", line 123, in test_inline_date_definition_cannot_disappear_from_prose
+    self.assertIn('дата подписания ведомости обеими сторонами', text)
+AssertionError: 'дата подписания ведомости обеими сторонами' not found in 'Проверка выполняется в течение 11 дней с даты передачи.\nИсточник: Условия, п. 6.2.'
+
+======================================================================
+FAIL: test_missing_date_dependency_is_explicit_not_silently_omitted (test_answer_evidence_completeness.AnswerEvidenceCompleteness.test_missing_date_dependency_is_explicit_not_silently_omitted)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "<baseline-worktree>/tests/test_answer_evidence_completeness.py", line 131, in test_missing_date_dependency_is_explicit_not_silently_omitted
+    with self.assertRaises(ValueError):
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: ValueError not raised
+
+======================================================================
+FAIL: test_negative_document_contents_do_not_authorize_a_positive_claim (test_answer_evidence_completeness.AnswerEvidenceCompleteness.test_negative_document_contents_do_not_authorize_a_positive_claim)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "<baseline-worktree>/tests/test_answer_evidence_completeness.py", line 57, in test_negative_document_contents_do_not_authorize_a_positive_claim
+    self.assertNotIn(wrong, text)
+AssertionError: 'В протоколе указывается стоимость оборудования.' unexpectedly found in 'В протоколе указывается стоимость оборудования.\nИсточник: Прокат, п. 8.4.'
+
+======================================================================
+FAIL: test_preamble_stays_in_verification_but_is_not_printed_for_a_value_question (test_answer_evidence_completeness.AnswerEvidenceCompleteness.test_preamble_stays_in_verification_but_is_not_printed_for_a_value_question)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "<baseline-worktree>/tests/test_answer_evidence_completeness.py", line 172, in test_preamble_stays_in_verification_but_is_not_printed_for_a_value_question
+    self.assertNotIn('7000000000', text)
+AssertionError: '7000000000' unexpectedly found in '«ДОГОВОР ПОСТАВКИ № М-42/2031 г. Томск — 4 мая 2031 г. ООО «Орион» (ИНН 7000000000), именуемое в дальнейшем «Поставщик», в лице директора Петрова, действующего на основании Устава, с одной стороны, и ООО «Вега», именуемое в дальнейшем «Покупатель», с другой стороны, заключили настоящий договор о нижеследующем.» [1]\n«7.2. Срок обслуживания определяется изготовителем и указывается в сервисном паспорте.» [2]\nНайденное положение отсылает к отдельному документу: «указывается в сервисном паспорте». Предоставьте этот документ, чтобы определить запрошенное значение.\n[1] Договор Орион.\n[2] Договор Орион.'
+
+======================================================================
+FAIL: test_repeated_sources_share_one_document_reference_without_cutting_conditions (test_answer_evidence_completeness.AnswerEvidenceCompleteness.test_repeated_sources_share_one_document_reference_without_cutting_conditions)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "<baseline-worktree>/tests/test_answer_evidence_completeness.py", line 192, in test_repeated_sources_share_one_document_reference_without_cutting_conditions
+    self.assertEqual(text.count('Правила.'),1)
+AssertionError: 2 != 1
+
+======================================================================
+FAIL: test_sufficiency_cannot_be_inferred_from_one_requirement (test_answer_evidence_completeness.AnswerEvidenceCompleteness.test_sufficiency_cannot_be_inferred_from_one_requirement)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "<baseline-worktree>/tests/test_answer_evidence_completeness.py", line 87, in test_sufficiency_cannot_be_inferred_from_one_requirement
+    self.assertNotIn(wrong, text)
+AssertionError: 'Для заявки достаточно ведомости об осмотре оборудования.' unexpectedly found in 'Для заявки достаточно ведомости об осмотре оборудования.\nИсточник: Порядок, п. 7.3.'
+
+----------------------------------------------------------------------
+Ran 13 tests in 0.048s
+
+FAILED (failures=21)

@@ -25,7 +25,7 @@ sys.path.insert(0, str(ROOT / 'prototype'))
 from psb_corpus import load_corpus, read_docx, Fragment
 from psb_llm import ProxyClient, ProviderError, strict_json
 from psb_policy import validate_candidate, approved, render, answer_question, TECHNICAL
-from solution import read_questions, write_output
+from solution import input_directory, read_questions, write_output
 
 TEST_KEY = 'SYNTHETIC_SECURITY_TEST_TOKEN'
 CANDIDATE = {'status': 'answer', 'claims': [
@@ -274,7 +274,7 @@ class ArchiveTests(unittest.TestCase):
 
 class CSVTests(unittest.TestCase):
     def test_malformed_csv_and_duplicate_ids(self):
-        values = ['question,id\nq,1\n', 'id,question\n1,q\n1,other\n',
+        values = ['id,id,question\n1,2,q\n', 'id,question\n1,q\n1,other\n',
                   'id,question\n1,q,extra\n', 'id,question\n1\n', 'id,question\n1,\n']
         with tempfile.TemporaryDirectory() as temp:
             p = Path(temp) / 'questions.csv'
@@ -282,6 +282,24 @@ class CSVTests(unittest.TestCase):
                 p.write_text(value)
                 with self.assertRaises(ValueError):
                     read_questions(p)
+
+    def test_reordered_columns_and_declared_metadata_preserve_ids(self):
+        with tempfile.TemporaryDirectory() as temp:
+            p = Path(temp) / 'questions.csv'
+            for value in ['question,id\n"Как вернуть, если сломалось?",001\n',
+                          'tag,id,question\ndemo,001,"Как вернуть, если сломалось?"\n']:
+                with self.subTest(value=value):
+                    p.write_text(value, encoding='utf-8')
+                    self.assertEqual(read_questions(p), [('001', 'Как вернуть, если сломалось?')])
+
+    def test_unclosed_or_malformed_quotes_are_rejected(self):
+        with tempfile.TemporaryDirectory() as temp:
+            p = Path(temp) / 'questions.csv'
+            for value in ['id,question\n1,"unfinished\n', 'id,question\n1,"text"tail\n']:
+                with self.subTest(value=value):
+                    p.write_text(value, encoding='utf-8')
+                    with self.assertRaises(csv.Error):
+                        read_questions(p)
 
     def test_bom_quoted_lines_and_exact_ids(self):
         with tempfile.TemporaryDirectory() as temp:
@@ -305,6 +323,35 @@ class CSVTests(unittest.TestCase):
             with self.assertRaises(ValueError):
                 write_output(p, q, ['X' * 10001])
             self.assertEqual(p.read_bytes(), before)
+
+
+class InputDirectoryTests(unittest.TestCase):
+    def test_explicit_directory_is_not_replaced_by_a_fallback(self):
+        with tempfile.TemporaryDirectory() as temp:
+            working = Path(temp)
+            (working / 'questions.csv').write_text('id,question\n1,q\n')
+            configured = working / 'not-yet-created'
+            with patch('solution.Path.cwd', return_value=working), patch.dict(
+                    os.environ, {'DATA_DIR':str(configured)}):
+                self.assertEqual(input_directory(), configured)
+
+    def test_default_precedence_never_mixes_questions_and_corpus(self):
+        with tempfile.TemporaryDirectory() as temp:
+            root = Path(temp)
+            working, script = root / 'work', root / 'app'
+            (working / 'data').mkdir(parents=True)
+            (script / 'data').mkdir(parents=True)
+            for directory in [working, script / 'data', working / 'data']:
+                (directory / 'questions.csv').write_text('id,question\n1,q\n')
+            # Only the lower-priority location has a corpus. Selection must not
+            # silently borrow it for questions found in a different directory.
+            (script / 'data' / 'knowledge-base.zip').write_bytes(b'fixture')
+            with patch('solution.Path.cwd', return_value=working), patch(
+                    'solution.__file__', str(script / 'solution.py')), patch.dict(os.environ, {'DATA_DIR':''}):
+                for expected in [working / 'data', script / 'data', working]:
+                    self.assertEqual(input_directory(), expected)
+                    (expected / 'questions.csv').unlink()
+                self.assertEqual(input_directory(), working / 'data')
 
 
 class ProxyTests(unittest.TestCase):
@@ -377,6 +424,16 @@ class ProxyTests(unittest.TestCase):
             self.assertEqual(calls[0]['body']['model'], 'alternative-model')
             self.assertEqual([m['role'] for m in calls[0]['body']['messages']], ['system', 'user'])
             self.assertNotIn(TEST_KEY, json.dumps(calls[0]['body']))
+
+    def test_base_url_compatibility_alias_has_lowest_precedence(self):
+        with patch.dict(os.environ, {'LLM_BASE_URL':'https://primary.invalid',
+                        'OPENAI_BASE_URL':'https://openai.invalid', 'BASE_URL':'https://legacy.invalid',
+                        'LLM_API_KEY':TEST_KEY, 'LLM_MODEL':'test'}):
+            self.assertEqual(ProxyClient(time.monotonic()+10).base, 'https://primary.invalid')
+            with patch.dict(os.environ, {'LLM_BASE_URL':''}):
+                self.assertEqual(ProxyClient(time.monotonic()+10).base, 'https://openai.invalid')
+                with patch.dict(os.environ, {'OPENAI_BASE_URL':''}):
+                    self.assertEqual(ProxyClient(time.monotonic()+10).base, 'https://legacy.invalid')
 
 
 class EntrypointTests(unittest.TestCase):

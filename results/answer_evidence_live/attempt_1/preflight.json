@@ -1,0 +1,51 @@
+{
+  "started_utc": "2026-11-11T11:39:14.608000+00:00",
+  "base_url": "https://api.deepseek.com",
+  "requested_model": "deepseek-flash",
+  "models": [
+    "deepseek-flash",
+    "deepseek-v4-pro"
+  ],
+  "selected_model_metadata": {
+    "id": "deepseek-flash",
+    "object": "model",
+    "owned_by": "deepseek",
+    "name": "DeepSeek-V4.1-Flash",
+    "context_window": 1048576,
+    "max_output_tokens": 393216,
+    "input_modalities": [
+      "text",
+      "image"
+    ],
+    "output_modalities": [
+      "text"
+    ],
+    "effort": {
+      "supported_levels": [
+        "low",
+        "high",
+        "max"
+      ],
+      "default_level": "high"
+    },
+    "api_capabilities": {
+      "anthropic_messages": {
+        "system_prompt_update": "in-history",
+        "tool_update": "addition-only"
+      }
+    }
+  },
+  "status": "ok",
+  "returned_model": "deepseek-flash",
+  "finish": "stop",
+  "usage": {
+    "prompt_tokens": 14,
+    "completion_tokens": 5,
+    "total_tokens": 19,
+    "prompt_tokens_details": {
+      "cached_tokens": 0
+    },
+    "prompt_cache_hit_tokens": 0,
+    "prompt_cache_miss_tokens": 14
+  }
+}

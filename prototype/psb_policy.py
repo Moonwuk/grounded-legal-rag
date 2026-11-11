@@ -6,7 +6,7 @@ import sys
 from decimal import Decimal, localcontext
 from psb_corpus import Fragment, norm
 from psb_llm import ProviderError, QUESTION_CALL_LIMIT
-from psb_retrieval import user_turns, tokens
+from psb_retrieval import user_turns, tokens, STOP
 
 FOLLOWUPS = {
     "contract": "номер договора или его текст",
@@ -100,10 +100,16 @@ partial: дай подтверждённую часть и назови, как�
 answer_numbers_not_in_sources — в тексте были числа или номера пунктов, которых нет
 в выбранных положениях и в вопросе; answer_not_supported — текст не подтверждён
 выбранными положениями. Исправь именно это.
-Если retry_scope_guard=true, приложение заблокировало добавленную ограничительную
-формулировку. Переформулируй ответ положительно по исходным положениям, без «лишь»,
-«только», «исключительно» и отрицания иных функций. Не повторяй необязательные
-соседние выводы; существенные условия и исключения источника сохраняй полностью.
+Если retry_scope_guard=true, приложение заблокировало неподтверждённое добавление:
+ограничение функций, отсутствие иных требований или утверждение о содержании
+документа. Удали такое добавление. Не выводи состав акта из обязанности вернуть
+имущество по акту и не выводи отсутствие других требований из одной нормы.
+Существенные условия и исключения источника сохраняй полностью.
+Выбирай положения по существу вопроса. Не добавляй преамбулу с именами и реквизитами,
+если они не спрашиваются: документ уже обозначен в поле document. При ответе о
+сроке сохрани событие начала отсчёта и выбери его явное определение из того же
+документа, если оно есть. Приложение добавляет выбранное определение даты дословно:
+не дублируй его пересказом в answer. Не заменяй событие начала отсчёта соседним событием.
 При partial/insufficient/clarify назови конкретный тип недостающих сведений в requested_facts:
 contract, counterparty, event_date, specification_date, warranty_document, document,
 facts, referenced_documents, priority_rule. При answer requested_facts пуст.
@@ -183,7 +189,7 @@ answer_supported=true только если всё подтверждено и �
 # of their documents or in the user's own turns. This is a formal check: it does
 # not establish meaning, negation or applicability (the verifier call does).
 PROSE_LIMIT = 2000
-_EXCLUSIVE = re.compile(r'\b(?:лишь|только|исключительно|единственн\w*|никогда)\b', re.I)
+_EXCLUSIVE = re.compile(r'\b(?:лишь|только|исключительно|единственн\w*|никогда|достаточно)\b', re.I)
 _ROLE_NEGATION = re.compile(
     r'\b(?:отдел|служб\w*|юрист\w*|сотрудник\w*|подразделени\w*|руководител\w*)\b'
     r'[^.!?\n]{0,60}?\bне\s+(?:[а-яё]+(?:ет|ют|ит|ат|ят)|должен|вправе|может|могут)\b', re.I)
@@ -390,7 +396,96 @@ def prose_scope_safe(text: str, selected: list[Fragment]) -> bool:
     source = "\n".join(f.text for f in selected).lower().replace("ё", "е")
     operators = {m.group() for m in _EXCLUSIVE.finditer(source)}
     return (all(m.group().lower().replace("ё", "е") in operators for m in _EXCLUSIVE.finditer(text))
-            and not (_ROLE_NEGATION.search(text) and not _ROLE_NEGATION.search(source)))
+            and not (_ROLE_NEGATION.search(text) and not _ROLE_NEGATION.search(source))
+            and added_assertions_safe(text, selected))
+
+
+# Narrow syntactic barriers for reproduced unsupported additions, not a general
+# entailment engine. Each comparison uses one source sentence, never a bag of
+# words assembled from unrelated clauses or documents.
+_RECORD_VERB = r'(?:фиксир\w*|указ\w*|отраж\w*|запис\w*|перечисл\w*|содерж\w*)'
+_DOCUMENT_NOUN = (r'акт\w*|протокол\w*|ведомост\w*|реестр\w*|журнал\w*|отчет\w*|'
+                  r'спецификаци\w*|талон\w*|паспорт\w*')
+_RECORD_DOCUMENT = re.compile(
+    r'\bв(?:о)?\s+(?:[а-яё]+\s+){0,2}?(' + _DOCUMENT_NOUN + r')\b', re.I)
+_RECORD_SUBJECT = re.compile(r'\b(' + _DOCUMENT_NOUN + r')\b[^.!?;\n]{0,40}?\b' + _RECORD_VERB, re.I)
+_OTHER = r'\b(?:ин(?:ой|ого|ому|ым|ом|ая|ую|ою|ое|ые|ых|ыми)|друг\w*|дополнительн\w*|отдельн\w*)\b'
+_ABSENCE = r'(?:\bне\s+(?:треб\w*|нуж\w*|предусмотр\w*)|\bнет\b|\bотсутств\w*)'
+_OTHER_ABSENCE = re.compile(
+    _OTHER + r'[^.!?;\n]{0,140}?' + _ABSENCE + '|' +
+    _ABSENCE + r'[^.!?;\n]{0,140}?' + _OTHER, re.I)
+
+
+def _sentences(text):
+    return [s.strip() for s in re.split(r'[.!?;]\s+|\n', text.lower().replace('ё', 'е')) if s.strip()]
+
+
+def _assertion_words(text):
+    ignored = {'быть', 'был', 'была', 'были', 'должен', 'должна', 'должно', 'должны',
+               'сведения', 'согласно', 'следует', 'необходимо', 'иные', 'иных', 'другие', 'других'}
+    words = [w for w in re.findall(r'[а-яё]+', text.lower().replace('ё', 'е'))
+             if len(w) >= 3 and w not in STOP | ignored
+             and not re.fullmatch(_RECORD_VERB, w)]
+    return {w[:3 if len(w) <= 4 else 4] for w in words}
+
+
+def _record_facts(text):
+    result = []
+    for sentence in _sentences(text):
+        document = _RECORD_DOCUMENT.search(sentence) or _RECORD_SUBJECT.search(sentence)
+        if document and re.search(r'\b' + _RECORD_VERB, sentence):
+            negative = bool(re.search(r'\bне\s+(?:долж\w*\s+)?(?:быть\s+)?' + _RECORD_VERB, sentence))
+            optional = bool(re.search(r'\b(?:может|могут|допускается)\b', sentence))
+            doc = next(iter(_assertion_words(document[1])))
+            result.append((doc, negative, optional, _assertion_words(sentence)))
+    return result
+
+
+def added_assertions_safe(text, selected):
+    source_facts = [fact for f in selected for fact in _record_facts(f.text)]
+    for doc, negative, optional, words in _record_facts(text):
+        if not any(doc == sd and negative == sn and (not so or optional) and words <= sw
+                   for sd, sn, so, sw in source_facts):
+            return False
+    source_absences = [_assertion_words(s) for f in selected for s in _sentences(f.text)
+                       if _OTHER_ABSENCE.search(s)]
+    return all(any(_assertion_words(s) <= source for source in source_absences)
+               for s in _sentences(text) if _OTHER_ABSENCE.search(s))
+
+
+_IDENTITY_QUESTION = re.compile(
+    r'\b(?:кто|кем|кого|когда|дат[ауы]|номер|названи\w*|сторон\w*|контрагент\w*|'
+    r'реквизит\w*|инн|адрес\w*|имен\w*|директор\w*|представител\w*|подписа\w*)\b', re.I)
+
+
+def identity_preamble(fragment, question):
+    """Only recognize complete, purely identifying contract opening lines.
+
+    Unrecognized text, dates of applicability, duties or conditions are retained.
+    Verification still receives the complete selected source; this controls only
+    whether that opening is copied into an unrelated answer.
+    """
+    if _IDENTITY_QUESTION.search(user_turns(question)[-1]):
+        return False
+    value = fragment.text.strip()
+    if re.search(r'\b(?:обязан\w*|долж\w*|вправе|запрещ\w*|разреш\w*|'
+                 r'допуска\w*|не\s|при\s+условии|действует|вступает|применяется)\b', value, re.I):
+        return False
+    lines = [s.strip() for s in value.splitlines() if s.strip()]
+    party = False
+    for line in lines:
+        if re.fullmatch(r'(?:ДОГОВОР|ДОПОЛНИТЕЛЬНОЕ СОГЛАШЕНИЕ)[^.!?;\n]{0,90}\s№\s[^.!?;\n]{1,40}', line):
+            continue
+        if re.fullmatch(r'(?:г\.\s*)?[А-ЯЁ][а-яё -]{1,50}\s[—–-]\s\d{1,2}\s[а-яё]+\s\d{4}\sг\.', line):
+            continue
+        if re.fullmatch(r'(?:ООО|АО|ПАО|ЗАО|ИП)\s+«[^»\n]+»[^.!?;\n]{0,900}'
+                        r'именуем[^.!?;\n]{0,900}стороны(?:,\s*и|,)?', line):
+            party = True
+            continue
+        if re.fullmatch(r'заключили (?:настоящий )?договор о нижеследующем\.', line, re.I):
+            continue
+        return False
+    return party
 
 
 def _title_stems(text: str) -> set[str]:
@@ -623,7 +718,7 @@ def gap_lines(source_gaps) -> list[str]:
             "по доступным материалам установить нельзя. Предоставьте эти статьи." for gap in source_gaps]
 
 
-def render(candidate: dict, evidence: list[Fragment], source_gaps=(), prose: str = "", *, question: str = "", value_gaps=(), keep_sources: bool = False) -> str:
+def render(candidate: dict, evidence: list[Fragment], source_gaps=(), prose: str = "", *, question: str = "", value_gaps=(), keep_sources: bool = False, context_sources=()) -> str:
     """Build the published text.
 
     prose is the model-written answer that already passed prose_grounded();
@@ -636,6 +731,10 @@ def render(candidate: dict, evidence: list[Fragment], source_gaps=(), prose: str
     conflict = candidate.get("issue") == CONFLICT and bool(candidate["claims"])
     if prose and not ((keep_sources or conflict) and candidate["claims"]):
         lines = [prose]
+        # A model can omit a start event or conditional bound while citing the
+        # general duration correctly. Keep the source-owned context in prose mode.
+        lines.extend('«' + norm(f.text) + '»' for f in context_sources
+                     if norm(f.text) not in prose)
         if candidate["claims"]:
             lines.append(source_line(candidate, evidence))
         # Mentioning an article number does not explain that its text is absent.
@@ -664,7 +763,11 @@ def render(candidate: dict, evidence: list[Fragment], source_gaps=(), prose: str
                 if scope else "В найденных документах недостаточно оснований для ответа по существу. ") +
                 (followup(candidate) or "Нужен документ, содержащий сведения по этому вопросу."))
     by_id = {f.id: f for f in evidence}
-    references, numbers, lines = [], {}, [clarification_line] if clarification_line else []
+    references, numbers, lines = {}, {}, [clarification_line] if clarification_line else []
+    cited = {c['fragment_id']:by_id[c['fragment_id']] for claim in candidate['claims'] for c in claim['sources']}
+    substance_docs = {f.document for f in cited.values() if not identity_preamble(f, question)}
+    hidden_identity = {f.id for f in cited.values() if not conflict and f.document in substance_docs
+                       and identity_preamble(f, question)}
     if conflict:
         # Application-owned statement first; then each side verbatim; then what is needed.
         lines = [issue]
@@ -673,16 +776,18 @@ def render(candidate: dict, evidence: list[Fragment], source_gaps=(), prose: str
     for claim in candidate["claims"]:
         used = []
         for cite in claim["sources"]:
+            if cite['fragment_id'] in hidden_identity:
+                continue
             key = (cite["fragment_id"], norm(by_id[cite["fragment_id"]].text))
             if key not in numbers:
                 numbers[key] = len(numbers) + 1
                 # The provision is published once, in the body; the reference
                 # names its document.
-                references.append(f'[{numbers[key]}] {display_name(by_id[key[0]].document)}.')
-            used.append(f"[{numbers[key]}]")
+                references.setdefault(by_id[key[0]].document, []).append(numbers[key])
+            used.append((cite, f"[{numbers[key]}]"))
         # Publish only source-backed wording. Arbitrary generated legal prose
         # cannot escape through a positive model verdict.
-        for cite, marker in zip(claim["sources"], used):
+        for cite, marker in used:
             line = "«" + norm(by_id[cite["fragment_id"]].text) + "» " + marker
             if line not in lines:
                 lines.append(line)
@@ -695,7 +800,9 @@ def render(candidate: dict, evidence: list[Fragment], source_gaps=(), prose: str
     if value_gaps:
         lines.append("Найденное положение отсылает к отдельному документу: «" +
                      "; ".join(value_gaps) + "». Предоставьте этот документ, чтобы определить запрошенное значение.")
-    answer = "\n".join(lines + references)
+    reference_lines = [', '.join(f'[{n}]' for n in values) + ' ' + display_name(name) + '.'
+                       for name, values in references.items()]
+    answer = "\n".join(lines + reference_lines)
     if len(answer) > 10000:
         raise ProviderError("answer_length_limit")
     return answer
@@ -749,6 +856,8 @@ def answer_question(question: str, retriever, client, top_k: int = 6) -> tuple[s
             # Verify exactly the wording that may be published, not a discarded draft.
             by_id = {f.id:f for f in evidence}
             selected = [by_id[cite["fragment_id"]] for c in candidate["claims"] for cite in c["sources"]]
+            context_sources = list({f.id:f for source in selected
+                                    for f in retriever.publication_context(source)}.values()) if hasattr(retriever, 'publication_context') else []
             source_gaps = retriever.reference_gaps(selected) if hasattr(retriever, "reference_gaps") else []
             value_gaps = value_dependencies(question, selected, getattr(retriever, "documents", {}))
             candidate = {**candidate, "claims": [{**c, "text": source_wording(c, evidence),
@@ -781,7 +890,7 @@ def answer_question(question: str, retriever, client, top_k: int = 6) -> tuple[s
             if prose:
                 candidate["answer"] = prose
             rendered = render(candidate, evidence, source_gaps, prose, question=question, value_gaps=value_gaps,
-                              keep_sources=restricted)
+                              keep_sources=restricted, context_sources=context_sources)
             calls += 1
             verdict = client.complete(VERIFY, {**payload, "candidate": candidate,
                                                "rendered_answer": rendered,
@@ -790,7 +899,8 @@ def answer_question(question: str, retriever, client, top_k: int = 6) -> tuple[s
             if prose and allowed and verdict.get("answer_supported") is not True:
                 # The provisions are confirmed, the model text is not.
                 prose_state = "rejected"
-                rendered = render(candidate, evidence, source_gaps, question=question, value_gaps=value_gaps)
+                rendered = render(candidate, evidence, source_gaps, question=question, value_gaps=value_gaps,
+                                  context_sources=context_sources)
             elif prose and allowed:
                 prose_state = "published"
             checks = verdict.get("claim_checks") if isinstance(verdict, dict) else None

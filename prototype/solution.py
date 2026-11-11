@@ -14,17 +14,32 @@ from psb_llm import ProxyClient, ProviderError, env, integer
 from psb_policy import answer_question, TECHNICAL
 
 
+def input_directory() -> Path:
+    configured = env("DATA_DIR")
+    if configured:
+        return Path(configured)
+    # The organizer sample may run the script from a separate working directory.
+    # Select a single directory for both input files, even if its corpus is missing.
+    working = Path.cwd()
+    default = working / "data"
+    for directory in (default, Path(__file__).resolve().parent / "data", working):
+        if (directory / "questions.csv").is_file():
+            return directory
+    return default
+
+
 def read_questions(path: Path) -> list[tuple[str, str]]:
     if path.stat().st_size > 64 * 1024 * 1024:
         raise ValueError("questions_size_limit")
     csv.field_size_limit(4 * 1024 * 1024)
     with path.open(encoding="utf-8-sig", newline="") as handle:
-        reader = csv.DictReader(handle)
-        if reader.fieldnames != ["id", "question"]:
+        reader = csv.DictReader(handle, strict=True)
+        fields = reader.fieldnames or []
+        if fields.count("id") != 1 or fields.count("question") != 1:
             raise ValueError("questions_header")
         result = []
         for row in reader:
-            if None in row or not isinstance(row.get("question"), str) or not isinstance(row.get("id"), str):
+            if None in row or None in row.values():
                 raise ValueError("questions_row")
             result.append((row["id"], row["question"].strip()))
             if len(result) > 50000 or len(row["id"]) > 512:
@@ -53,7 +68,7 @@ def write_output(path: Path, questions: list[tuple[str, str]], answers: list[str
 def main() -> int:
     start = time.monotonic()
     deadline = start + integer("PSB_RUN_SECONDS", 1100, 1, 1150)
-    data = Path(env("DATA_DIR", default="data"))
+    data = input_directory()
     questions = read_questions(data / "questions.csv")
     answers = [TECHNICAL] * len(questions)
     output = Path.cwd() / "submission.csv"

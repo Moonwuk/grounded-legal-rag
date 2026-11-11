@@ -1,0 +1,36 @@
+test_a_general_upper_bound_keeps_a_conditional_bound_for_the_same_subject (test_answer_evidence_completeness.AnswerEvidenceCompleteness.test_a_general_upper_bound_keeps_a_conditional_bound_for_the_same_subject) ... 
+  test_a_general_upper_bound_keeps_a_conditional_bound_for_the_same_subject (test_answer_evidence_completeness.AnswerEvidenceCompleteness.test_a_general_upper_bound_keeps_a_conditional_bound_for_the_same_subject) (subject='проверки') ... FAIL
+  test_a_general_upper_bound_keeps_a_conditional_bound_for_the_same_subject (test_answer_evidence_completeness.AnswerEvidenceCompleteness.test_a_general_upper_bound_keeps_a_conditional_bound_for_the_same_subject) (subject='испытания') ... FAIL
+test_absence_of_other_requirements_needs_an_explicit_source (test_answer_evidence_completeness.AnswerEvidenceCompleteness.test_absence_of_other_requirements_needs_an_explicit_source) ... ok
+test_an_approving_judge_cannot_add_document_contents (test_answer_evidence_completeness.AnswerEvidenceCompleteness.test_an_approving_judge_cannot_add_document_contents) ... ok
+test_conditional_bound_must_match_the_subject_and_document (test_answer_evidence_completeness.AnswerEvidenceCompleteness.test_conditional_bound_must_match_the_subject_and_document) ... ok
+test_date_definition_is_not_borrowed_from_another_document (test_answer_evidence_completeness.AnswerEvidenceCompleteness.test_date_definition_is_not_borrowed_from_another_document) ... ok
+test_date_definition_is_selected_verified_and_published_even_if_model_omits_it (test_answer_evidence_completeness.AnswerEvidenceCompleteness.test_date_definition_is_selected_verified_and_published_even_if_model_omits_it) ... ok
+test_explicit_document_contents_are_allowed_but_wrong_fields_are_not (test_answer_evidence_completeness.AnswerEvidenceCompleteness.test_explicit_document_contents_are_allowed_but_wrong_fields_are_not) ... ok
+test_inline_date_definition_cannot_disappear_from_prose (test_answer_evidence_completeness.AnswerEvidenceCompleteness.test_inline_date_definition_cannot_disappear_from_prose) ... ok
+test_missing_date_dependency_is_explicit_not_silently_omitted (test_answer_evidence_completeness.AnswerEvidenceCompleteness.test_missing_date_dependency_is_explicit_not_silently_omitted) ... ok
+test_negative_document_contents_do_not_authorize_a_positive_claim (test_answer_evidence_completeness.AnswerEvidenceCompleteness.test_negative_document_contents_do_not_authorize_a_positive_claim) ... ok
+test_preamble_stays_in_verification_but_is_not_printed_for_a_value_question (test_answer_evidence_completeness.AnswerEvidenceCompleteness.test_preamble_stays_in_verification_but_is_not_printed_for_a_value_question) ... ok
+test_repeated_sources_share_one_document_reference_without_cutting_conditions (test_answer_evidence_completeness.AnswerEvidenceCompleteness.test_repeated_sources_share_one_document_reference_without_cutting_conditions) ... ok
+test_sufficiency_cannot_be_inferred_from_one_requirement (test_answer_evidence_completeness.AnswerEvidenceCompleteness.test_sufficiency_cannot_be_inferred_from_one_requirement) ... ok
+
+======================================================================
+FAIL: test_a_general_upper_bound_keeps_a_conditional_bound_for_the_same_subject (test_answer_evidence_completeness.AnswerEvidenceCompleteness.test_a_general_upper_bound_keeps_a_conditional_bound_for_the_same_subject) (subject='проверки')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "<repo>/tests/test_answer_evidence_completeness.py", line 141, in test_a_general_upper_bound_keeps_a_conditional_bound_for_the_same_subject
+    self.assertIn(condition, text)
+AssertionError: '4.2. При аренде на срок до месяца проверка не может превышать 2 дней.' not found in 'Срок проверки не может превышать 19 дней.\n«4.1. Срок проверки не может превышать 19 дней.» [1]\n[1] Условия.'
+
+======================================================================
+FAIL: test_a_general_upper_bound_keeps_a_conditional_bound_for_the_same_subject (test_answer_evidence_completeness.AnswerEvidenceCompleteness.test_a_general_upper_bound_keeps_a_conditional_bound_for_the_same_subject) (subject='испытания')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "<repo>/tests/test_answer_evidence_completeness.py", line 141, in test_a_general_upper_bound_keeps_a_conditional_bound_for_the_same_subject
+    self.assertIn(condition, text)
+AssertionError: '4.2. При аренде на срок до месяца испытание не может превышать 2 дней.' not found in 'Срок испытания не может превышать 19 дней.\n«4.1. Срок испытания не может превышать 19 дней.» [1]\n[1] Условия.'
+
+----------------------------------------------------------------------
+Ran 13 tests in 0.058s
+
+FAILED (failures=2)

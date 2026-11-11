@@ -54,7 +54,7 @@ QUESTION_CALL_LIMIT = 4
 
 class ProxyClient:
     def __init__(self, deadline: float, position: int | None = None):
-        self.base = env("LLM_BASE_URL", "OPENAI_BASE_URL").rstrip("/")
+        self.base = env("LLM_BASE_URL", "OPENAI_BASE_URL", "BASE_URL").rstrip("/")
         self.key = env("LLM_API_KEY", "OPENAI_API_KEY")
         self.model = env("LLM_MODEL", "OPENAI_MODEL", "GEN_MODEL")
         self.deadline = deadline
