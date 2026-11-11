@@ -1,0 +1,44 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light">
+  <title>Юридический ассистент</title>
+  <link rel="stylesheet" href="/static/style.css">
+  <script defer src="/static/app.js"></script>
+</head>
+<body>
+  <header class="top">
+    <div><span class="brand">ПСБ · Hack&amp;Change</span><h1>Юридический ассистент</h1></div>
+    <button type="button" id="reset" disabled>Новый диалог</button>
+  </header>
+  <main class="workspace">
+    <section class="chat" aria-labelledby="chat-title">
+      <h2 id="chat-title">Диалог</h2>
+      <div class="conversation" id="conversation" role="log" aria-label="Сообщения диалога">
+        <div id="welcome">
+          <h3>Какое положение найти?</h3>
+          <p>Укажите договор, контрагента или дату события. Подтверждающие положения можно открыть рядом с ответом.</p>
+          <button type="button" class="example" disabled>Какова арендная плата по договору с ООО «Северный Склад»?</button>
+          <button type="button" class="example" disabled>Нужно ли было одобрение гендиректора для договора на 12 млн рублей в августе 2024 года?</button>
+        </div>
+      </div>
+      <form id="chat-form" novalidate>
+        <label for="question">Вопрос</label>
+        <textarea id="question" class="resize-none" rows="3" maxlength="10000" aria-describedby="input-error" placeholder="Например, какой срок оплаты предусмотрен договором?"></textarea>
+        <div class="form-footer"><span id="input-error" role="status"></span><button id="send" type="submit">Отправить</button></div>
+      </form>
+    </section>
+    <aside class="documents" aria-labelledby="doc-title">
+      <div class="doc-header">
+        <div><span class="brand">База знаний</span><h2 id="doc-title" tabindex="-1">Документы</h2></div>
+        <button type="button" id="all-docs" hidden disabled>К списку</button>
+      </div>
+      <p id="doc-status" role="status"></p>
+      <ul id="doc-list" aria-label="Документы базы"></ul>
+      <div id="doc-text" tabindex="0" aria-label="Текст документа" hidden></div>
+    </aside>
+  </main>
+</body>
+</html>

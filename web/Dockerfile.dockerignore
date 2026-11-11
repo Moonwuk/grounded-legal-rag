@@ -1,0 +1,9 @@
+**
+!prototype/
+!prototype/*.py
+!web/
+!web/app.py
+!web/__init__.py
+!web/requirements.txt
+!web/static/
+!web/static/**
