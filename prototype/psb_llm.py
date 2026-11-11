@@ -55,11 +55,14 @@ QUESTION_CALL_LIMIT = 4
 # Reasoning effort: measured on deepseek-flash, "low" kept accuracy on the demo
 # and the synthetic holdout and roughly halved the time. "default" omits the
 # parameter. A truncated reply whose reasoning used the token budget is retried
-# one level lower; a provider that rejects the parameter is retried without it,
+# at "low" when a higher level was used; a provider that rejects the parameter is retried without it,
 # and the parameter is not sent again in this run.
 EFFORTS = ("none", "low", "high", "max")
 DEFAULT_EFFORT = "low"
-LOWER_EFFORT = {None: "low", "max": "low", "high": "low", "low": "none"}
+# Never "none": on the demo it gave false refusals in generation, and as a
+# truncation retry it rejected a supported provision in verification (matrix
+# 5502269, question 5, both runs). A weak verifier is unsafe either way.
+LOWER_EFFORT = {None: "low", "max": "low", "high": "low"}
 REASONING_BUDGET_SHARE = 0.8
 
 

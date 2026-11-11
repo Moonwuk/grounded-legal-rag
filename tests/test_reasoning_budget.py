@@ -72,18 +72,19 @@ class ReasoningBudgetTests(unittest.TestCase):
         with open(os.devnull, 'w') as sink, patch.object(sys, 'stderr', sink):
             return ProxyClient(time.monotonic() + 20).complete('Fixed policy', {})
 
-    def test_reasoning_that_used_the_budget_is_retried_one_level_lower(self):
+    def test_default_low_is_not_lowered_to_none(self):
         def script(i, body):
             if i == 0:
                 return 200, reply('length', '', reasoning=1000, budget=1000)
             return 200, reply('stop', json.dumps(VALUE))
         with provider(script) as calls:
             self.assertEqual(self.complete()['status'], 'out_of_scope')
-        self.assertEqual([c.get('reasoning_effort') for c in calls], ['low', 'none'])
+        # low is the floor: the retry keeps it and only asks for a compact JSON.
+        self.assertEqual([c.get('reasoning_effort') for c in calls], ['low', 'low'])
         self.assertEqual(calls[0]['max_tokens'], calls[1]['max_tokens'])
 
     def test_each_configured_level_steps_down(self):
-        for configured, expected in (('max', 'low'), ('high', 'low'), ('low', 'none')):
+        for configured, expected in (('max', 'low'), ('high', 'low'), ('low', 'low'), ('none', 'none')):
             def script(i, body):
                 return (200, reply('length', '', reasoning=990, budget=1000) if i == 0
                         else reply('stop', json.dumps(VALUE)))
@@ -94,18 +95,18 @@ class ReasoningBudgetTests(unittest.TestCase):
     def test_without_usage_details_a_short_visible_text_means_hidden_reasoning(self):
         def script(i, body):
             return 200, (reply('length', '{"status":') if i == 0 else reply('stop', json.dumps(VALUE)))
-        with provider(script) as calls:
+        with provider(script) as calls, patch.dict(os.environ, {'LLM_REASONING_EFFORT': 'high'}):
             self.complete()
-        self.assertEqual([c['reasoning_effort'] for c in calls], ['low', 'none'])
+        self.assertEqual([c['reasoning_effort'] for c in calls], ['high', 'low'])
 
     def test_a_long_visible_answer_keeps_the_level(self):
         # The answer itself, not the reasoning, used the budget.
         def script(i, body):
             return 200, (reply('length', '{"text":"' + 'а' * 1200, reasoning=100, budget=1000) if i == 0
                          else reply('stop', json.dumps(VALUE)))
-        with provider(script) as calls:
+        with provider(script) as calls, patch.dict(os.environ, {'LLM_REASONING_EFFORT': 'high'}):
             self.complete()
-        self.assertEqual([c['reasoning_effort'] for c in calls], ['low', 'low'])
+        self.assertEqual([c['reasoning_effort'] for c in calls], ['high', 'high'])
         self.assertIn('Повтор после обрезки', calls[1]['messages'][0]['content'])
 
     def test_still_truncated_after_the_lower_level_is_a_technical_error(self):
