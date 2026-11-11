@@ -52,24 +52,6 @@ function bubble(role, text) {
   return {item, content, body};
 }
 
-function archiveScene(searching) {
-  const picture = document.createElement("picture");
-  picture.className = "archive-scene";
-  if (searching) {
-    const still = document.createElement("source");
-    still.media = "(prefers-reduced-motion: reduce)";
-    still.srcset = "/static/media/archive-idle.png";
-    picture.append(still);
-  }
-  const image = document.createElement("img");
-  image.src = searching ? "/static/media/archive-search.gif" : "/static/media/archive-found.png";
-  image.alt = "";
-  image.width = 192;
-  image.height = 188;
-  picture.append(image);
-  return picture;
-}
-
 function showList() {
   activeDocument?.abort();
   activeDocument = null;
@@ -207,9 +189,10 @@ async function ask(question, existing, signal) {
   const userNode = existing || bubble("user", question).item;
   const node = bubble("assistant", "Ищем в документах…");
   const documentAtStart = activeDocument;
-  const scene = archiveScene(true);
+  const scene = ArchiveScene.create();
   const progress = document.createElement("small");
   progress.textContent = "Подбираем подтверждающие положения";
+  progress.setAttribute("aria-hidden", "true");
   node.body.append(progress);
   node.body.before(scene);
   node.item.classList.add("with-scene");
@@ -248,12 +231,9 @@ async function ask(question, existing, signal) {
     busy = false;
     reset.disabled = false;
   }
-  scene.remove();
+  scene.dataset.state = ArchiveScene.stateFor(answer);
   progress.remove();
-  node.item.classList.remove("with-scene");
-  if (answer.sources?.length) {
-    node.body.before(archiveScene(false));
-    node.item.classList.add("with-scene");
+  if (answer.status !== "technical_error" && answer.sources?.length) {
     if (activeDocument === documentAtStart && docText.hidden) {
       const first = answer.sources[0];
       openDocument(first.document_id, first, false);

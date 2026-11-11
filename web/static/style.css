@@ -147,7 +147,6 @@ button:focus-visible, textarea:focus-visible, input:focus-visible, [tabindex]:fo
   border-radius: 12px;
   background: #eaf2ff;
 }
-.archive-scene img { display: block; width: 100%; height: auto; }
 .message[data-status="searching"] { background: #f1f6ff; border-color: #c2d5fb; }
 .message[data-status="searching"] p { font: 700 clamp(1.05rem, 2vw, 1.45rem)/1.18 Georgia, serif; }
 .message small { color: var(--muted); font-size: .83rem; }
@@ -235,7 +234,7 @@ mark { background: var(--mark); color: var(--ink); box-decoration-break: clone; 
   .message { padding: .65rem .75rem; }
   .message.with-scene { grid-template-columns: 64px minmax(0, 1fr); column-gap: .65rem; }
   .message.with-scene:not([data-status="searching"]) { grid-template-columns: 1fr; }
-  .message.with-scene:not([data-status="searching"]) .archive-scene { width: 52px; margin: .25rem 0; }
+  .message.with-scene:not([data-status="searching"]) .archive-scene { width: 88px; margin: .25rem 0; }
   #chat-form { padding-inline: .85rem; }
   .composer-fields { flex-direction: column; align-items: stretch; gap: .35rem; }
   #chat-form .sl-component { align-self: flex-end; }
