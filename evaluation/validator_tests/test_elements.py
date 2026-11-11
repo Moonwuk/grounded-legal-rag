@@ -63,6 +63,8 @@ class CorpusContractTests(unittest.TestCase):
     def test_missing_row_is_a_failure_and_summary_counts(self):
         g,ref=gold(),reference();answers=dict(ref);del answers['7']
         rows=score(g,answers);s=summarize(rows)
-        self.assertEqual((s['passed'],s['total']),(17,18));self.assertEqual(s['failures'],{'7':['no_answer_row']})
+        self.assertEqual((s['passed'],s['total']),(17,18));self.assertEqual(s['quotes_only'],[])
+        self.assertEqual(summarize(score(g,{**ref,'2':'«Срок испытания не может превышать шести месяцев.» [1]\n[1] ТК ст70.'}))['quotes_only'],['2'])
+        self.assertEqual(s['failures'],{'7':['no_answer_row']})
 
 if __name__=='__main__':unittest.main()

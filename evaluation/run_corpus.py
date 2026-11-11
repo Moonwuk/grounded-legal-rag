@@ -40,13 +40,16 @@ def score(cases,answers):
     for cid,case in cases.items():
         answer=answers.get(cid)
         result=check(case,answer) if isinstance(answer,str) and answer.strip() else dict(outcome='fail',status='missing',failures=['no_answer_row'],not_evaluated=[])
-        rows.append(dict(case_id=cid,family=case.get('family'),checked_by_hand=case.get('checked_by_hand') is True,answer=answer,**result))
+        # The solution publishes either model prose or only quoted provisions («...» [1]).
+        form='quotes_only' if isinstance(answer,str) and answer.lstrip().startswith('«') else 'text'
+        rows.append(dict(case_id=cid,family=case.get('family'),checked_by_hand=case.get('checked_by_hand') is True,form=form,answer=answer,**result))
     return rows
 
 def summarize(rows):
     answerable=[r for r in rows if r['status']!='technical_error']
     return dict(outcomes=dict(Counter(r['outcome'] for r in rows)),statuses=dict(Counter(r['status'] for r in rows)),
         passed=sum(r['outcome']=='pass' for r in rows),total=len(rows),
+        quotes_only=[r['case_id'] for r in rows if r['form']=='quotes_only'],
         false_refusals=sum('false_refusal' in r['failures'] for r in answerable),
         failures={r['case_id']:r['failures'] for r in rows if r['failures']},
         not_evaluated={r['case_id']:r['not_evaluated'] for r in rows if r['not_evaluated']},
