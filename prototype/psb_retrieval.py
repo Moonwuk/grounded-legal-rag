@@ -127,10 +127,19 @@ class Retriever:
         self.postings = defaultdict(list)
         df = Counter()
         features = 0
+        # Contextual index text: a fragment cut from a long article keeps the
+        # article title it belongs to ("Статья 164. Налоговые ставки").
+        titles = {d.name: [(m.start(), m.group().strip()[:200]) for m in
+                           re.finditer(r"(?m)^\s*Статья\s+\d+(?:\.\d+)*\.?[^\n]*", d.text)] for d in documents}
+        self.context_titles = {}
         for index, f in enumerate(fragments):
             check_deadline(deadline)
             self.by_doc[f.document].append(f)
-            c = Counter(tokens(f.document.replace("_", " ") + " " + f.text))
+            title = next((t for start, t in reversed(titles.get(f.document, [])) if start <= f.start), "")
+            if title and title in f.text:
+                title = ""
+            self.context_titles[f.id] = title
+            c = Counter(tokens(f.document.replace("_", " ") + " " + title + " " + f.text))
             features += len(c)
             if features > 2000000:
                 raise ValueError("index_feature_limit")
