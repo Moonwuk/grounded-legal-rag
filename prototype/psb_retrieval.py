@@ -326,6 +326,28 @@ class Retriever:
                               key=lambda i: sum(map(operator.mul, vector, self.vectors[i])))
         return [self.fragments[i] for i in best]
 
+    # --- Optional reranker (RERANKER_MODEL through the organizer proxy) ---
+    reranker = None
+
+    def enable_rerank(self, client) -> str:
+        self._rerank_lock, self._rerank_failed = threading.Lock(), False
+        self.reranker = client
+        return "rerank_enabled"
+
+    def _rerank_candidates(self, text: str, pool: list[Fragment], count: int) -> list[Fragment]:
+        """The reranker's best fragments of a candidate pool below the lexical hits."""
+        if self.reranker is None or self._rerank_failed or not pool or count <= 0:
+            return []
+        documents = [((self.context_titles.get(f.id) or "") + "\n" + f.text)[:1500].strip() for f in pool]
+        try:
+            order = self.reranker.rank(text, documents)
+        except ProviderError:
+            with self._rerank_lock:
+                self._rerank_failed = True
+            print("rerank_failed", file=sys.stderr)
+            return []
+        return [pool[i] for i in order[:count]]
+
     def _scores(self, query):
         scores = defaultdict(float)
         for word, weight in query.items():
@@ -393,6 +415,13 @@ class Retriever:
         # Dense candidates find a provision worded differently from the question.
         # They are reserved places, so the lexical order of the hits is unchanged.
         for f in self._dense_candidates("\n".join(turns[-2:]), 4 if expanded else 2):
+            if f.id not in existing:
+                hits.append(f)
+                existing.add(f.id)
+        # The reranker reads the next lexical candidates and rescues the most
+        # relevant ones; it never removes a hit.
+        pool = [f for score, f in scored[:30] if score > 0 and f.id not in existing]
+        for f in self._rerank_candidates("\n".join(turns[-2:]), pool, 4 if expanded else 2):
             if f.id not in existing:
                 hits.append(f)
                 existing.add(f.id)

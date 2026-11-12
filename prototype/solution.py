@@ -10,7 +10,7 @@ import threading
 import zipfile
 from psb_corpus import load_corpus
 from psb_retrieval import Retriever
-from psb_llm import EmbeddingClient, ProxyClient, ProviderError, env, integer
+from psb_llm import EmbeddingClient, ProxyClient, ProviderError, RerankClient, env, integer
 from psb_policy import answer_question, TECHNICAL
 
 
@@ -106,6 +106,11 @@ def main() -> int:
             print(retriever.enable_dense(EmbeddingClient(deadline), budget), file=sys.stderr)
         except ProviderError as error:
             print("dense_disabled:" + str(error), file=sys.stderr)
+    if env("RERANKER_MODEL"):
+        try:
+            print(retriever.enable_rerank(RerankClient(deadline)), file=sys.stderr)
+        except ProviderError as error:
+            print("rerank_disabled:" + str(error), file=sys.stderr)
     top_k = integer("TOP_K", 6, 1, 40)
     workers = integer("MAX_WORKERS", 2, 1, 8)
 

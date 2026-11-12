@@ -234,7 +234,7 @@ class EmbeddingClient:
 
     def __init__(self, deadline: float):
         self.base = env("LLM_BASE_URL", "OPENAI_BASE_URL", "BASE_URL").rstrip("/")
-        self.key = env("LLM_API_KEY", "OPENAI_API_KEY")
+        self.key = env("EMBEDDER_API_KEY", "LLM_API_KEY", "OPENAI_API_KEY")
         self.model = env("EMB_MODEL")
         self.deadline = deadline
         parsed = urlparse(self.base)
@@ -305,3 +305,68 @@ class EmbeddingClient:
             except (ValueError, KeyError, TypeError, AttributeError):
                 raise ProviderError("invalid_embedding_response") from None
         return result
+
+
+class RerankClient:
+    """Reranker of the same organizer proxy ({base}/rerank, RERANKER_MODEL).
+
+    Optional: without RERANKER_MODEL nothing is requested. Returns document
+    indices from most to least relevant; any failure is a ProviderError and
+    the retriever keeps its own ranking."""
+
+    def __init__(self, deadline: float):
+        self.base = env("LLM_BASE_URL", "OPENAI_BASE_URL", "BASE_URL").rstrip("/")
+        self.key = env("RERANKER_API_KEY", "LLM_API_KEY", "OPENAI_API_KEY")
+        self.model = env("RERANKER_MODEL")
+        self.deadline = deadline
+        parsed = urlparse(self.base)
+        if not self.model:
+            raise ProviderError("rerank_not_configured")
+        if not self.key or parsed.scheme not in {"http", "https"} or not parsed.hostname:
+            raise ProviderError("missing_proxy_configuration")
+        if parsed.username or parsed.password or parsed.query or parsed.fragment:
+            raise ProviderError("invalid_proxy_url")
+        if len(self.base) > 2048 or len(self.model) > 256 or any(ord(c) < 32 for c in self.base + self.key + self.model):
+            raise ProviderError("invalid_proxy_configuration")
+        self.opener = build_opener(NoRedirect())
+
+    def rank(self, query: str, documents: list[str]) -> list[int]:
+        body = json.dumps({"model": self.model, "query": query, "documents": documents,
+                           "top_n": len(documents)}, ensure_ascii=False).encode()
+        if len(body) > 512000:
+            raise ProviderError("request_size_limit")
+        for attempt in range(2):
+            remaining = self.deadline - time.monotonic()
+            if remaining <= 1:
+                raise ProviderError("rerank_deadline")
+            request = Request(self.base + "/rerank", data=body, method="POST",
+                              headers={"Authorization": "Bearer " + self.key, "Content-Type": "application/json"})
+            try:
+                with self.opener.open(request, timeout=min(30., remaining)) as response:
+                    raw = response.read(2_000_001)
+                if len(raw) > 2_000_000:
+                    raise ProviderError("response_size_limit")
+                value = strict_json(raw)
+                items = value.get("results", value.get("data")) if isinstance(value, dict) else None
+                if not isinstance(items, list) or not items:
+                    raise ValueError
+                order = []
+                for item in items:
+                    index = item.get("index") if isinstance(item, dict) else None
+                    if type(index) is not int or not 0 <= index < len(documents) or index in order:
+                        raise ValueError
+                    order.append(index)
+                return order
+            except HTTPError as exc:
+                code = exc.code
+                exc.close()
+                if code not in {429, 500, 502, 503, 504} or attempt:
+                    raise ProviderError("rerank_http_" + str(code) if type(code) is int and 100 <= code <= 599
+                                        else "rerank_http_other") from None
+            except (URLError, socket.timeout, TimeoutError, HTTPException, ConnectionError):
+                if attempt:
+                    raise ProviderError("rerank_unavailable") from None
+            except (ValueError, TypeError, AttributeError, RecursionError):
+                raise ProviderError("invalid_rerank_response") from None
+            time.sleep(1)
+        raise ProviderError("rerank_unavailable")
