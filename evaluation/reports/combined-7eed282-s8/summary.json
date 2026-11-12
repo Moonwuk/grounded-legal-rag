@@ -1,0 +1,114 @@
+{
+  "git_commit": "c6a9e7bbef9a23230a3c3399561dc7639b41fdf0",
+  "corpus_id": "combined-platform-format",
+  "knowledge_base_sha256": "805b5d4e663899c9e7427bf3e47b6e8c672a0a758edee442177d5302b9913e6a",
+  "questions_sha256": "46754f1272f5ca5ade4a6eb6fb6d9d7ad31c869b65cbd75a71462637b81b5a88",
+  "gold_sha256": "32e47cfd364909d652a827a177a51734f02999b0bc6740f1cf645dbd49b035b4",
+  "runtime_sha256": "878ee6567dfd0292c23137b40231b2bd205ab1b08cc20c939c786663eaf9bb84",
+  "model": "deepseek-flash",
+  "provider_base_url": "https://api.deepseek.com/v1",
+  "returncode": 0,
+  "elapsed_seconds": 677.0831132020012,
+  "generation_settings": {},
+  "shard": "8/8",
+  "questions_run": 75,
+  "tuning_note": "Synthetic development cases (split=development) were used for tuning; split=holdout and split=external were not. Element gold is narrower than the source gold: it checks key values, polarity and phrases.",
+  "scope": "Local element check, not the official Score.",
+  "outcomes": {
+    "not_evaluated": 12,
+    "pass": 52,
+    "fail": 11
+  },
+  "statuses": {
+    "answer": 65,
+    "unverified": 9,
+    "insufficient": 1
+  },
+  "passed": 52,
+  "total": 75,
+  "quotes_only": [
+    "lb066",
+    "lb071",
+    "lb072",
+    "lb104",
+    "lb106",
+    "lb123",
+    "lb131"
+  ],
+  "false_refusals": 10,
+  "failures": {
+    "lb073": [
+      "false_refusal"
+    ],
+    "lb077": [
+      "false_refusal"
+    ],
+    "lb080": [
+      "false_refusal"
+    ],
+    "lb089": [
+      "forbidden:polarity нет",
+      "missing:polarity да"
+    ],
+    "lb096": [
+      "false_refusal"
+    ],
+    "lb111": [
+      "false_refusal"
+    ],
+    "lb114": [
+      "false_refusal"
+    ],
+    "lb118": [
+      "false_refusal"
+    ],
+    "lb119": [
+      "false_refusal"
+    ],
+    "lb128": [
+      "false_refusal"
+    ],
+    "lb139": [
+      "false_refusal"
+    ]
+  },
+  "not_evaluated": {
+    "lb065": [
+      "polarity_not_stated"
+    ],
+    "lb066": [
+      "polarity_not_stated"
+    ],
+    "lb071": [
+      "polarity_not_stated"
+    ],
+    "lb072": [
+      "polarity_not_stated"
+    ],
+    "lb104": [
+      "polarity_not_stated"
+    ],
+    "lb106": [
+      "polarity_not_stated"
+    ],
+    "lb116": [
+      "polarity_not_stated"
+    ],
+    "lb117": [
+      "polarity_not_stated"
+    ],
+    "lb121": [
+      "polarity_not_stated"
+    ],
+    "lb123": [
+      "polarity_not_stated"
+    ],
+    "lb124": [
+      "polarity_not_stated"
+    ],
+    "lb131": [
+      "polarity_not_stated"
+    ]
+  },
+  "checked_by_hand": 0
+}
