@@ -391,16 +391,17 @@ class Retriever:
             for token in tokens(turn):
                 query[token] += .35
         ids = set()
-        party = None
+        parties = set()
         for turn in reversed(turns):
             if not ids:
                 ids = identifiers(turn)
-            if party is None:
+            if not parties:
+                # Every party the latest turn naming any names, matched as whole
+                # words: «Альфа-Трейд» is not found inside «Альфа-Трейдинг», and no
+                # choice depends on set order (the hash seed).
                 known = set().union(*self.parties.values())
                 normalized = turn.casefold().replace(" ", "-")
-                matches = [name for name in known if re.search(r"(?<![а-яa-z])" + re.escape(name) + r"(?![а-яa-z])", normalized)]
-                if matches:
-                    party = max(matches, key=lambda name: normalized.rfind(name))
+                parties = {name for name in known if re.search(r"(?<![а-яa-z])" + re.escape(name) + r"(?![а-яa-z])", normalized)}
         # «пункт 4 статьи 114» is point 4 of article 114, not every «4.» of the
         # base; articles and points are read in any case form.
         bound = [(m.group(1), m.group(2), m.span()) for m in POINT_OF_ARTICLE.finditer(current)]
@@ -431,7 +432,7 @@ class Retriever:
             if ids & self.doc_ids[f.document]:
                 score += 9
             name = f.document.lower()
-            if party and party in self.parties[f.document]:
+            if parties & self.parties[f.document]:
                 score += 7
             scored.append((score, f))
         scored.sort(key=lambda x: (-x[0], x[1].document, x[1].start))
@@ -458,6 +459,14 @@ class Retriever:
             if f.id not in existing:
                 hits.append(f)
                 existing.add(f.id)
+        # A document named by its identifier («П-17/2024 … и ПТ-05/2023») has a
+        # reserved place, so a comparison keeps every named contract.
+        covered = set().union(*(self.doc_ids[f.document] for f in hits)) if hits else set()
+        for named in sorted(ids - covered):
+            best = next((f for score, f in scored if score > 0 and named in self.doc_ids[f.document]), None)
+            if best is not None and best.id not in existing:
+                hits.append(best)
+                existing.add(best.id)
         # A named article has a reserved place: its heading and the named points,
         # however long and similarly worded another named article is.
         for f in self._article_fragments(current, articles, bound):
