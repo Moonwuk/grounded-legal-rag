@@ -32,10 +32,21 @@ ISSUES = {
 CONFLICT = "conflicting_documents"
 
 
-def followup(candidate: dict) -> str:
+def followup(candidate: dict, known_contract: bool = False) -> str:
     # Only application-owned text can leave the non-evidence channel.
-    labels = [FOLLOWUPS[k] for k in dict.fromkeys(candidate.get("requested_facts", []))]
+    codes = list(dict.fromkeys(candidate.get("requested_facts", [])))
+    if known_contract and "contract" in codes:
+        # The question names an object the found documents carry: its number is
+        # known, the missing piece is a document with the requested conditions.
+        codes = list(dict.fromkeys("document" if code == "contract" else code for code in codes))
+    labels = [FOLLOWUPS[k] for k in codes]
     return "Уточните или предоставьте: " + "; ".join(labels) + "." if labels else ""
+
+
+def contract_known(question: str, evidence) -> bool:
+    """The current request names an identifier that a found document carries."""
+    named = identifiers(user_turns(question)[-1]) if question else set()
+    return bool(named and any(named & identifiers(f.text[:700]) for f in evidence))
 
 
 STATUSES = {"answer", "partial", "clarify", "insufficient", "out_of_scope", "disallowed"}
@@ -975,14 +986,14 @@ def render(candidate: dict, evidence: list[Fragment], source_gaps=(), prose: str
             # generic fact codes must not invent an unrelated contract/date.
             clarification_line = (issue + " " if issue else "") + "Уточните, выполнены ли приведённые ниже условия в вашем случае."
         else:
-            clarification_line = (issue + " " if issue else "") + (followup(candidate) or "Уточните, пожалуйста, договор, контрагента и обстоятельства вопроса.")
+            clarification_line = (issue + " " if issue else "") + (followup(candidate, contract_known(question, evidence)) or "Уточните, пожалуйста, договор, контрагента и обстоятельства вопроса.")
         if not candidate["claims"]:
             return clarification_line
     if status == "insufficient":
         scope = request_scope(question)
         return ((issue + " " if issue else "") + ("В найденных документах недостаточно оснований для ответа на вопрос " + scope + ". "
                 if scope else "В найденных документах недостаточно оснований для ответа по существу. ") +
-                (followup(candidate) or "Нужен документ, содержащий сведения по этому вопросу."))
+                (followup(candidate, contract_known(question, evidence)) or "Нужен документ, содержащий сведения по этому вопросу."))
     by_id = {f.id: f for f in evidence}
     references, numbers, lines = {}, {}, [clarification_line] if clarification_line else []
     cited = {c['fragment_id']:by_id[c['fragment_id']] for claim in candidate['claims'] for c in claim['sources']}
@@ -1025,7 +1036,7 @@ def render(candidate: dict, evidence: list[Fragment], source_gaps=(), prose: str
             needed = ("В найденных документах нет сведений: " + "; ".join("«" + g + "»" for g in gaps) +
                       ". Для полного ответа нужен документ, который их содержит.")
         else:
-            needed = followup(candidate) or "Для полного ответа нужны дополнительные документы или сведения об обстоятельствах."
+            needed = followup(candidate, contract_known(question, evidence)) or "Для полного ответа нужны дополнительные документы или сведения об обстоятельствах."
         lines.append((issue + " " if issue else "") + "Приведённые документы подтверждают только указанную часть ответа. " + needed)
     lines.extend(gap_lines(source_gaps))
     if value_gaps:

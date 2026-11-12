@@ -61,5 +61,21 @@ class PartialGapTests(unittest.TestCase):
         self.assertEqual(uncovered_parts('Какова ставка неустойки для КТ-7/2031?', [lim]), [])
 
 
+    def test_insufficient_does_not_ask_for_a_named_contract_number(self):
+        # Smoke 9dd8e3c, missing_information-0001: "Какова ставка неустойки для
+        # КТ-2/2026?" got "Уточните или предоставьте: номер договора или его текст".
+        def refuse(payload):
+            return {'status': 'insufficient', 'answer': '', 'source_ids': [], 'requested_facts': ['contract'], 'issue': ''}
+        verdict = {'approved': True, 'complete': True, 'status': 'insufficient', 'answer_supported': True, 'claim_checks': []}
+        with corpus(FILES) as r:
+            text, status = answer_question('Какова ставка неустойки для КТ-7/2031?', r, ScriptedModel([refuse, refuse, verdict]))
+        self.assertEqual(status, 'insufficient')
+        self.assertNotIn('номер договора', text)
+        self.assertIn('документ с условиями', text)
+        # An unknown object still needs its contract.
+        with corpus(FILES) as r:
+            text, _ = answer_question('Какова ставка неустойки для КТ-55/2031?', r, ScriptedModel([refuse, refuse, verdict]))
+        self.assertIn('номер договора', text)
+
 if __name__ == '__main__':
     unittest.main()
