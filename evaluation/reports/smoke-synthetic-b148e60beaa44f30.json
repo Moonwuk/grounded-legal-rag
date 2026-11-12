@@ -1,7 +1,7 @@
 {
   "version": "1.0.0",
-  "git_commit": "8cfb129245909a748477095b1bac441d0e923e07",
-  "runtime_sha256": "82ab60668ee8409ac3b8673695a629603f49a85512f1ffdb15322e327d826151",
+  "git_commit": "35387d95ee667663d76dc6ab1c3208f3bc24d84a",
+  "runtime_sha256": "3b92067233a7e24315bf1d9c978143392dbe6043445e06c39816b84362796928",
   "evaluation_sha256": "8582ca352213dd518112a4fd2b8650a32212221c68025e4ec2644b95476e2b63",
   "validator_sha256": "089b2c3250c7d74794ad825df14f6e59300febe17a1bbe961166cb5f178c60ec",
   "retrieval_adapter_sha256": "17a03efaa958ee5f1ff64a6154f3feef07c685611e3fbef753291cd02afbfd43",
@@ -36,14 +36,14 @@
     "reasoning_effort": null,
     "engine": "deepseek"
   },
-  "fingerprint": "66eeadd0b67bdf33de24cfc8aabeae795977da3eec3db6c662d33b63e480f234",
-  "started_utc": "2026-11-12T16:37:08.609539+00:00",
+  "fingerprint": "be2ac0607f2763ee185a248f56e665610fe2ea4562287c7529f5750190f401c1",
+  "started_utc": "2026-11-12T19:34:37.675104+00:00",
   "cases_not_run": 0,
-  "elapsed_seconds": 157.14952652800002,
+  "elapsed_seconds": 174.89951294499997,
   "organizer_unchanged": true,
   "budget": {
-    "requests": 31,
-    "tokens_reserved": 317839,
+    "requests": 34,
+    "tokens_reserved": 360933,
     "cost_reserved": 0.0
   },
   "isolation": "fresh subprocess per case; only copied runtime, corpus and public question; no gold/specs copied",
