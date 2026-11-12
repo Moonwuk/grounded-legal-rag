@@ -1,9 +1,9 @@
 {
   "version": "1.0.0",
-  "git_commit": "436ae8f654071b9d91d14c3451390f67f66de4e1",
-  "runtime_sha256": "b41a441e00854ce99070221e2f1174f00e0ba0601d9978cf979965107f671edb",
-  "evaluation_sha256": "9d17e59485f31ba4d99888ac9a9755018c8d3f2582a4aca40b1bac4ee14ca0f9",
-  "validator_sha256": "3120d9c32fcd1dab1c4b78fac36cce15e9098e440987f403ae6ee39aef645ab6",
+  "git_commit": "8cfb129245909a748477095b1bac441d0e923e07",
+  "runtime_sha256": "82ab60668ee8409ac3b8673695a629603f49a85512f1ffdb15322e327d826151",
+  "evaluation_sha256": "8582ca352213dd518112a4fd2b8650a32212221c68025e4ec2644b95476e2b63",
+  "validator_sha256": "089b2c3250c7d74794ad825df14f6e59300febe17a1bbe961166cb5f178c60ec",
   "retrieval_adapter_sha256": "17a03efaa958ee5f1ff64a6154f3feef07c685611e3fbef753291cd02afbfd43",
   "corpus_id": "synthetic-b148e60beaa44f30",
   "corpus_sha256": "283b6ac186a36c6ca6a10078c9e31f7d41ab65672c3bbe32b8f9ef62c6190fe1",
@@ -36,14 +36,14 @@
     "reasoning_effort": null,
     "engine": "deepseek"
   },
-  "fingerprint": "39cef2bf9141876fc2b080d3acb73c7ca49997ae00b60262d90ca7a9e8ca3c94",
-  "started_utc": "2026-11-12T09:23:36.318980+00:00",
+  "fingerprint": "66eeadd0b67bdf33de24cfc8aabeae795977da3eec3db6c662d33b63e480f234",
+  "started_utc": "2026-11-12T16:37:08.609539+00:00",
   "cases_not_run": 0,
-  "elapsed_seconds": 129.4715239490015,
+  "elapsed_seconds": 157.14952652800002,
   "organizer_unchanged": true,
   "budget": {
-    "requests": 30,
-    "tokens_reserved": 294702,
+    "requests": 31,
+    "tokens_reserved": 317839,
     "cost_reserved": 0.0
   },
   "isolation": "fresh subprocess per case; only copied runtime, corpus and public question; no gold/specs copied",
