@@ -402,6 +402,30 @@ def prose_of(value) -> str:
     return " ".join(text.split()) if isinstance(text, str) else ""
 
 
+# Question words that name no subject matter of their own.
+_REQUEST_WORDS = {"каков", "какая", "какой", "какие", "каких", "каково", "каком", "каким", "какую", "котор", "сколь", "нужно", "можно", "нужен",
+                  "нужна", "должен", "должна", "назов", "укажи", "скажи", "подска", "объек", "услов", "событ"}
+
+
+def uncovered_parts(question: str, selected: list[Fragment]) -> list[str]:
+    """Parts of the current request whose subject words no selected provision contains.
+
+    "Каковы лимит резерва и ставка неустойки для КТ-3/2030?" with only the reserve
+    provision selected gives ["ставка неустойки"]. Words are compared by their
+    first five letters; identifiers, dates and question words are ignored."""
+    current = user_turns(question)[-1] if question else ""
+    current = re.sub(r"\b[A-Za-zА-Яа-яЁё]{1,8}\s*[-–]\s*\d{1,8}\s*/\s*\d{4}\b|\d[\d.\-/ ]*", " ", current)
+    source = {w[:5] for w in re.findall(r"[а-яё]{4,}", norm(" ".join(f.text for f in selected)).casefold().replace("ё", "е"))}
+    result = []
+    for part in re.split(r",?\s+и\s+|[?;:]", current):
+        words = [w for w in re.findall(r"[А-Яа-яЁё]{4,}", part)
+                 if w.casefold().replace("ё", "е") not in STOP and w.casefold().replace("ё", "е")[:5] not in _REQUEST_WORDS]
+        if words and not any(w.casefold().replace("ё", "е")[:5] in source for w in words):
+            result.append(" ".join(w.casefold() for w in words))
+    # Only a part beside a covered one is a gap of a partial answer.
+    return result if result and len(result) < len([p for p in re.split(r",?\s+и\s+|[?;:]", current) if re.search(r"[А-Яа-яЁё]{4,}", p)]) else []
+
+
 def request_scope(question: str) -> str:
     """Quote a short current user request as data, never a generated legal claim."""
     current = user_turns(question)[-1].strip()
@@ -845,8 +869,16 @@ def render(candidate: dict, evidence: list[Fragment], source_gaps=(), prose: str
     if conflict:
         lines.append(followup(candidate) or "Уточните или предоставьте: " + FOLLOWUPS["priority_rule"] + ".")
     elif candidate["missing"] and not (source_gaps or value_gaps):
-        lines.append((issue + " " if issue else "") + "Приведённые документы подтверждают только указанную часть ответа. " +
-                     (followup(candidate) or "Для полного ответа нужны дополнительные документы или сведения об обстоятельствах."))
+        # A generic code ("номер договора", "документ с условиями") does not say what
+        # is missing; the part of the request no selected provision covers does.
+        gaps = uncovered_parts(question, list(cited.values()))
+        requested = set(candidate.get("requested_facts", []))
+        if gaps and requested <= {"contract", "document"}:
+            needed = ("В найденных документах нет сведений: " + "; ".join("«" + g + "»" for g in gaps) +
+                      ". Для полного ответа нужен документ, который их содержит.")
+        else:
+            needed = followup(candidate) or "Для полного ответа нужны дополнительные документы или сведения об обстоятельствах."
+        lines.append((issue + " " if issue else "") + "Приведённые документы подтверждают только указанную часть ответа. " + needed)
     lines.extend(gap_lines(source_gaps))
     if value_gaps:
         lines.append("Найденное положение отсылает к отдельному документу: «" +
