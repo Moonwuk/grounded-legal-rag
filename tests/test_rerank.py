@@ -85,5 +85,32 @@ class RerankTests(unittest.TestCase):
         self.assertEqual(calls, [])
 
 
+class SolutionGateTests(unittest.TestCase):
+    """A RERANKER_MODEL set by the platform alone does not enable the reranker."""
+
+    def gate(self, flag):
+        import solution
+        with corpus(DOCS) as r, provider() as calls, patch.dict(os.environ, {'PSB_RERANK': flag}):
+            code = solution.enable_optional_rerank(r, time.monotonic() + 20)
+            r.search(QUESTION, top_k=2)
+        return code, calls
+
+    def test_model_without_flag_sends_nothing(self):
+        for flag in ('', '0', 'yes'):
+            code, calls = self.gate(flag)
+            self.assertEqual(code, 'rerank_off', flag)
+            self.assertEqual(calls, [], flag)
+
+    def test_flag_enables_the_reranker(self):
+        code, calls = self.gate('1')
+        self.assertEqual(code, 'rerank_enabled')
+        self.assertEqual(calls[0][0], '/v1/rerank')
+
+    def test_flag_without_model_does_nothing(self):
+        import solution
+        with corpus(DOCS) as r, patch.dict(os.environ, {'PSB_RERANK': '1', 'RERANKER_MODEL': ''}):
+            self.assertIsNone(solution.enable_optional_rerank(r, time.monotonic() + 5))
+
+
 if __name__ == '__main__':
     unittest.main()

@@ -65,6 +65,22 @@ def write_output(path: Path, questions: list[tuple[str, str]], answers: list[str
     os.replace(temp, path)
 
 
+def enable_optional_rerank(retriever, deadline):
+    """Reranker only on request (PSB_RERANK=1 and RERANKER_MODEL).
+
+    The platform sets RERANKER_MODEL, but its latency is unknown and the
+    measured gain was one LegalBench case of 139 (docs/hybrid_retrieval.md),
+    so a set model alone does not add a call to every search."""
+    if not env("RERANKER_MODEL"):
+        return None
+    if os.environ.get("PSB_RERANK", "").strip() != "1":
+        return "rerank_off"
+    try:
+        return retriever.enable_rerank(RerankClient(deadline))
+    except ProviderError as error:
+        return "rerank_disabled:" + str(error)
+
+
 def main() -> int:
     start = time.monotonic()
     deadline = start + integer("PSB_RUN_SECONDS", 1100, 1, 1150)
@@ -106,11 +122,9 @@ def main() -> int:
             print(retriever.enable_dense(EmbeddingClient(deadline), budget), file=sys.stderr)
         except ProviderError as error:
             print("dense_disabled:" + str(error), file=sys.stderr)
-    if env("RERANKER_MODEL"):
-        try:
-            print(retriever.enable_rerank(RerankClient(deadline)), file=sys.stderr)
-        except ProviderError as error:
-            print("rerank_disabled:" + str(error), file=sys.stderr)
+    code = enable_optional_rerank(retriever, deadline)
+    if code:
+        print(code, file=sys.stderr)
     top_k = integer("TOP_K", 6, 1, 40)
     workers = integer("MAX_WORKERS", 2, 1, 8)
 
