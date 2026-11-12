@@ -56,19 +56,9 @@ Invoke-Locked {
     if ($LASTEXITCODE -ne 0) { throw 'Could not verify Web CI.' }
     if ($web -ne "completed`tsuccess") { Write-Waiting $sha "Web CI has not succeeded for $sha."; return }
 
-    $runs = & gh run list --repo $GitHubRepository --workflow security.yml --branch main --commit $sha --event schedule --limit 5 --json databaseId --jq '.[].databaseId'
-    if ($LASTEXITCODE -ne 0) { throw 'Could not list scheduled scans.' }
-    $gate = $null
-    $query = '.jobs[] | select(.name == "Security gate" and .conclusion != "skipped") | [.status,.conclusion] | @tsv'
-    foreach ($run in $runs) {
-        $gate = & gh run view $run --repo $GitHubRepository --json jobs --jq $query
-        if ($LASTEXITCODE -ne 0) { throw "Could not verify scheduled scan $run." }
-        if ($gate) { break }
-    }
-    if ($gate -ne "completed`tsuccess") {
-        Write-Waiting $sha "Scheduled Security gate has not succeeded for $sha."
-        return
-    }
+    # Web CI on main runs the regression matrix and the secret scan. The scheduled
+    # security scan is a periodic control, not a deploy gate: a fix merged after a
+    # scan must reach the site without waiting up to two days for the next one.
     Publish-Release $sha $Port
     if (Test-Path -LiteralPath $WaitingPath) { Remove-Item -LiteralPath $WaitingPath }
 } -StartDesktop:$StartDocker

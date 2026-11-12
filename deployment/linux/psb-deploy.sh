@@ -190,7 +190,7 @@ update() {
     [[ -d $REPO ]] || git init --quiet --bare -- "$REPO" || die 'Could not initialize deployment repository.'
     git --git-dir="$REPO" fetch --quiet --no-tags "$REMOTE" refs/heads/main:refs/heads/reviewed-main ||
         die 'Could not fetch official main.'
-    local sha active pr author head reviews approved=0 result runs run gate=
+    local sha active pr author head reviews approved=0 result
     sha=$(git --git-dir="$REPO" rev-parse --verify refs/heads/reviewed-main) || die 'Could not resolve main.'
     valid_sha "$sha" || die 'Could not resolve main.'
     [[ $(git --git-dir="$REPO" cat-file -t "$sha") == commit ]] || die 'Official main did not resolve to a commit.'
@@ -226,17 +226,9 @@ update() {
         die 'Could not verify Web CI.'
     [[ $result == $'completed\tsuccess' ]] || { waiting "$sha" "Web CI has not succeeded for $sha."; return 0; }
 
-    runs=$(gh run list --repo "$GITHUB_REPOSITORY" --workflow security.yml --branch main --commit "$sha" \
-        --event schedule --limit 5 --json databaseId --jq '.[].databaseId') ||
-        die 'Could not list scheduled scans.'
-    while IFS= read -r run; do
-        [[ -n $run ]] || continue
-        gate=$(gh run view "$run" --repo "$GITHUB_REPOSITORY" --json jobs \
-            --jq '.jobs[] | select(.name == "Security gate" and .conclusion != "skipped") | [.status,.conclusion] | @tsv') ||
-            die "Could not verify scheduled scan $run."
-        [[ -n $gate ]] && break
-    done <<<"$runs"
-    [[ $gate == $'completed\tsuccess' ]] || { waiting "$sha" "Scheduled Security gate has not succeeded for $sha."; return 0; }
+    # Web CI on main runs the regression matrix and the secret scan. The scheduled
+    # security scan is a periodic control, not a deploy gate: a fix merged after a
+    # scan must reach the site without waiting up to two days for the next one.
     publish "$sha" "$PORT"
     rm -f -- "$WAITING"
 }

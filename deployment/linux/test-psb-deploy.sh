@@ -26,10 +26,8 @@ cat > "$STUBS/gh" <<'EOF'
 case "$*" in
     *"/reviews"*) printf '%b' "${GH_REVIEWS:-}" ;;
     *"/pulls"*) printf '7\tauthor\t%s\n' "${GH_HEAD:-head}" ;;
-    *"run list"*"--event schedule"*) printf '102\n101\n' ;;
-    *"run list"*"--event push"*) printf 'completed\tsuccess\n' ;;
-    *"run view 102"*) : ;; # Non-scanning day: no eligible gate.
-    *"run view 101"*) printf 'completed\t%s\n' "${GH_SCAN_RESULT:-success}" ;;
+    *"run list"*"--workflow web-ci.yml"*"--event push"*) printf 'completed\t%s\n' "${GH_WEB_RESULT:-success}" ;;
+    *"run list"*) echo "unexpected run list: $*" >&2; exit 1 ;;
 esac
 EOF
 cat > "$STUBS/curl" <<'EOF'
@@ -63,10 +61,11 @@ fail() { echo "FAIL: $*" >&2; exit 1; }
 [[ ! -f $PSB_ROOT/active ]] || fail 'deployed without approval'
 grep -q "no approval" "$PSB_ROOT/waiting" || fail 'waiting reason not recorded'
 
-# An approved PR with a failed scheduled scan cannot be deployed.
-GH_SCAN_RESULT=failure "$SCRIPT" update --approval-policy CiOnly >/dev/null
-[[ ! -f $PSB_ROOT/active ]] || fail 'deployed without successful scheduled scan'
-grep -q 'Scheduled Security gate' "$PSB_ROOT/waiting" || fail 'scan waiting reason not recorded'
+# A merged PR whose Web CI on main failed is not deployed. Web CI is the deploy
+# gate; the scheduled security scan is not queried at all (the stub rejects it).
+GH_WEB_RESULT=failure "$SCRIPT" update --approval-policy CiOnly >/dev/null
+[[ ! -f $PSB_ROOT/active ]] || fail 'deployed with failed Web CI'
+grep -q 'Web CI has not succeeded' "$PSB_ROOT/waiting" || fail 'Web CI waiting reason not recorded'
 
 # 2. An approval of the final head by another collaborator deploys it.
 GH_HEAD=h1 GH_REVIEWS='reviewer\tAPPROVED\th1\tCOLLABORATOR\n' "$SCRIPT" update --approval-policy Required >/dev/null
