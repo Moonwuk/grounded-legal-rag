@@ -11,8 +11,10 @@ B, and rates B against A on the regulation scale (1, 0.75, 0.5, 0.25, 0);
 each question is judged twice with A and B swapped, as on the platform. A
 fabricated fact marked by the judge sets the score of that form to 0.
 
-The judge here is the solution model: a development measurement, not the
-platform judge and not an independent evaluation.
+The judge is the model configured in LLM_MODEL and is recorded in the
+summary. With the solution model it is not an independent evaluation; with
+another model it is independent of the generator, but still not the
+platform judge or the Score.
 
 Usage: LLM_BASE_URL=... LLM_API_KEY=... LLM_MODEL=... \
   python3 -m evaluation.judge_forms --corpus evaluation/corpora/demo --report evaluation/reports/<run> --run-id <id>
@@ -29,7 +31,7 @@ from evaluation.common import EVAL, ROOT, read, write
 from evaluation.validators.elements import APPLICATION_LINES
 
 sys.path.insert(0, str(ROOT / 'prototype'))
-from psb_llm import ProviderError, ProxyClient  # noqa: E402
+from psb_llm import ProviderError, ProxyClient, env  # noqa: E402
 
 PROMPT = """Ты судья качества ответов юридического ассистента банка. Тебе даны вопрос,
 эталонный ответ (golden) и два ответа: A и B. Сравни B с A, ориентируясь на
@@ -104,8 +106,8 @@ def main():
     judged = [r for r in rows if r['judged']]
     wins = sum(r['compact_vs_full'] > 0.5 for r in judged)
     losses = sum(r['compact_vs_full'] < 0.5 for r in judged)
-    summary = dict(scope='Development comparison with the solution model as judge; not the platform judge or Score.',
-                   report=a.report.name, corpus=meta['corpus_id'], judged=len(judged), same_form=len(rows) - len(judged),
+    summary = dict(scope='Development comparison with an LLM judge; not the platform judge or Score.',
+                   judge_model=env('LLM_MODEL', 'OPENAI_MODEL', 'GEN_MODEL'), report=a.report.name, corpus=meta['corpus_id'], judged=len(judged), same_form=len(rows) - len(judged),
                    mean_compact_vs_full=round(sum(r['compact_vs_full'] for r in judged) / len(judged), 3) if judged else None,
                    compact_wins=wins, compact_losses=losses, ties=len(judged) - wins - losses)
     out = EVAL / 'reports' / a.run_id

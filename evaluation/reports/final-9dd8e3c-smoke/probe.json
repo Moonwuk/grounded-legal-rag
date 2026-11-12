@@ -1,0 +1,20 @@
+{
+  "status": "probe",
+  "probe": {
+    "model": "deepseek-flash",
+    "listed": true,
+    "json_completion": true
+  },
+  "seconds": 1.3073108170001433,
+  "requests": 2,
+  "usage": [
+    {
+      "prompt_tokens": 49,
+      "completion_tokens": 52,
+      "total_tokens": 101,
+      "prompt_cache_hit_tokens": 0,
+      "prompt_cache_miss_tokens": 49
+    }
+  ],
+  "api_errors": []
+}

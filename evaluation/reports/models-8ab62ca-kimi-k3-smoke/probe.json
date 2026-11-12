@@ -1,0 +1,18 @@
+{
+  "status": "probe",
+  "probe": {
+    "model": "kimi-k3",
+    "listed": true,
+    "json_completion": true
+  },
+  "seconds": 1.8030544749999535,
+  "requests": 2,
+  "usage": [
+    {
+      "prompt_tokens": 172,
+      "completion_tokens": 40,
+      "total_tokens": 212
+    }
+  ],
+  "api_errors": []
+}
