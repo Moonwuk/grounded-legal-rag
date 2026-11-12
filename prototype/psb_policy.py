@@ -51,6 +51,8 @@ def contract_known(question: str, evidence) -> bool:
 
 STATUSES = {"answer", "partial", "clarify", "insufficient", "out_of_scope", "disallowed"}
 TECHNICAL = "Не удалось проверить ответ из-за технической ошибки. Это не означает, что нужных сведений нет в базе знаний. Повторите запрос позже."
+INSUFFICIENT_TAIL = ("Поэтому ответить по документам нельзя, а по памяти я не отвечаю: без подтверждающего "
+                     "документа ответ может оказаться неверным.")
 UNVERIFIED = "Не удалось получить достаточно проверенных оснований для ответа по доступным документам. Уточните договор, дату события и условия задачи."
 
 SYSTEM = """Ты юридический ассистент по предоставленной базе. Ответь на последнюю
@@ -1203,10 +1205,19 @@ def render(candidate: dict, evidence: list[Fragment], source_gaps=(), prose: str
         if not candidate["claims"]:
             return clarification_line
     if status == "insufficient":
+        # Application-owned: what was not found, that memory is not a source, and
+        # what the user can do. A specific missing fact is still asked for.
         scope = request_scope(question)
-        return ((issue + " " if issue else "") + ("В найденных документах недостаточно оснований для ответа на вопрос " + scope + ". "
-                if scope else "В найденных документах недостаточно оснований для ответа по существу. ") +
-                (followup(candidate, contract_known(question, evidence)) or "Нужен документ, содержащий сведения по этому вопросу."))
+        lead = issue or ("В базе знаний не найдено документов, отвечающих на вопрос " + scope + "." if scope
+                         else "В базе знаний не найдено документов, отвечающих на этот вопрос.")
+        requested = set(candidate.get("requested_facts", []))
+        known = contract_known(question, evidence)
+        # A specific fact (a date, an unknown contract's number) is still asked for.
+        specific = (followup(candidate, known)
+                    if requested - {"document", "contract"} or ("contract" in requested and not known) else "")
+        return (lead + " " + INSUFFICIENT_TAIL + " " +
+                (specific or "Если у вас есть " + FOLLOWUPS["document"] + ", предоставьте его; иначе обратитесь к юристу "
+                 "или профильному специалисту."))
     by_id = {f.id: f for f in evidence}
     references, numbers, lines = {}, {}, [clarification_line] if clarification_line else []
     cited = {c['fragment_id']:by_id[c['fragment_id']] for claim in candidate['claims'] for c in claim['sources']}
@@ -1253,8 +1264,11 @@ def render(candidate: dict, evidence: list[Fragment], source_gaps=(), prose: str
         lines.append((issue + " " if issue else "") + "Приведённые документы подтверждают только указанную часть ответа. " + needed)
     lines.extend(gap_lines(source_gaps))
     if value_gaps:
-        lines.append("Найденное положение отсылает к отдельному документу: «" +
-                     "; ".join(value_gaps) + "». Предоставьте этот документ, чтобы определить запрошенное значение.")
+        if not prose:
+            # The answer opens with what the documents do and do not settle.
+            lines.insert(0, "Конкретное значение в найденных документах не установлено: положение отсылает к "
+                            "отдельному документу («" + "; ".join(value_gaps) + "»).")
+        lines.append("Чтобы назвать значение, нужен этот документ. Предоставьте его, если он у вас есть.")
     reference_lines = [', '.join(f'[{n}]' for n in values) + ' ' + cite_name(name, editions) + '.'
                        for name, values in references.items()]
     answer = "\n".join(lines + reference_lines)

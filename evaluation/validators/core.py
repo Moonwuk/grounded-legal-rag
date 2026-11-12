@@ -248,8 +248,7 @@ def validate(case,gold,result):
         gaps=set(candidate.get('requested_facts',[]))
         # The application may publish another code than the model asked for
         # (a known contract becomes "документ с условиями"): read its request line.
-        request=re.search(r'Уточните или предоставьте:([^.\n]*)',text)
-        if request:
+        for request in re.finditer(r'(?:Уточните или предоставьте:|Если у вас есть)([^.\n]*)',text):
             gaps|={code for label,code in PUBLISHED_GAPS.items() if label in request.group(1)}
         checks['gap']=all(bool(gaps & code_map[m]) for m in expected['missing'])
         if not checks['gap']: failures.append('incomplete_answer')
