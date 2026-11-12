@@ -431,10 +431,17 @@ jobs:
           if-no-files-found: error
           retention-days: 7
 
+  web-image:
+    needs: cadence
+    if: needs.cadence.outputs.scan == 'true'
+    uses: ./.github/workflows/web-image.yml
+    with:
+      image_scan: true
+
   security-gate:
     name: Security gate
     if: ${{ always() && needs.cadence.outputs.scan == 'true' }}
-    needs: [cadence, workflow-lint, secrets, bandit, dependencies, codeql, regression, iac, container]
+    needs: [cadence, workflow-lint, secrets, bandit, dependencies, codeql, regression, iac, container, web-image]
     runs-on: ubuntu-24.04
     timeout-minutes: 2
     permissions: {}
@@ -449,7 +456,7 @@ jobs:
           from pathlib import Path
           results = json.loads(os.environ["JOB_RESULTS"])
           results.pop("cadence")
-          required = {"workflow-lint", "secrets", "bandit", "dependencies", "codeql", "regression", "iac", "container"}
+          required = {"workflow-lint", "secrets", "bandit", "dependencies", "codeql", "regression", "iac", "container", "web-image"}
           if set(results) != required:
               raise SystemExit("Security gate is missing a required job")
           summary = ["## Security checks", "", "| Check | Result |", "| --- | --- |"]
