@@ -1378,6 +1378,7 @@ def answer_structured(question: str, retriever, client, top_k: int = 6) -> dict:
             elif (not allowed and incomplete is None and not edition_wrong and isinstance(verdict, dict)
                   and candidate["status"] in {"answer", "partial"} and candidate["claims"]
                   and verdict.get("status") in {candidate["status"], "partial"}
+                  and verdict.get("complete") is False
                   and verdict.get("answer_supported") is True and prose_state not in {"rejected", "ungrounded"}
                   and isinstance(verdict.get("claim_checks"), list)
                   and len(verdict["claim_checks"]) == len(candidate["claims"])

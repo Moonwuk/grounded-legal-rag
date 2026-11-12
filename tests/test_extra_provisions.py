@@ -215,6 +215,7 @@ class IncompleteButVerifiedTests(unittest.TestCase):
 
     def test_unconfirmed_claim_or_text_still_refuses(self):
         from psb_policy import UNVERIFIED
-        for v in (self.verdict(supported=False), self.verdict(applicable=False), self.verdict(text=False)):
+        other_reason = lambda payload: {**self.verdict()(payload), 'complete': True}
+        for v in (self.verdict(supported=False), self.verdict(applicable=False), self.verdict(text=False), other_reason):
             text, status, _, _ = self.answer([v, v])
             self.assertEqual((text, status), (UNVERIFIED, 'unverified'))
