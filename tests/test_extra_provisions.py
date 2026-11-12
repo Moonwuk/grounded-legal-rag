@@ -132,3 +132,39 @@ class RegenerationAfterFailedReductionTests(unittest.TestCase):
 
 if __name__ == '__main__':
     unittest.main()
+
+
+class UngroundedRejectedRetryTests(unittest.TestCase):
+    """Combined run, multi_document-0080 (2 of 3 repeats on 836a6d4): the text gave
+    the right payment term but cited a heading-only fragment of the same contract
+    («1. Предмет и определения…»), not the clause with the term. The figure check
+    marked the text ungrounded and the verifier rejected it as incomplete, but
+    the reason reached the generator only after an approved verdict: the retry
+    repeated the same selection and the answer became a generic refusal."""
+
+    FILES = {'Договор ПХ-6-2033.txt': 'ДОГОВОР № ПХ-6/2033\n1. Предмет и определения\nВсе сведения относятся только к учебной сделке.\n'
+             '4. Расчёты\n1. Срок оплаты составляет 41 календарный день с подписания акта.\n'}
+    QUESTION = 'Каков срок оплаты по договору ПХ-6/2033?'
+    TEXT = 'Срок оплаты — 41 календарный день с подписания акта (п. 1).'
+
+    def test_ungrounded_rejected_text_tells_the_retry(self):
+        def pick(needle):
+            def model(payload):
+                f = next(f for f in payload['evidence'] if needle in f['text'] and (needle != 'Предмет' or 'Срок' not in f['text']))
+                return {'status': 'answer', 'answer': self.TEXT, 'source_ids': [f['id']]}
+            return model
+
+        def reject(payload):
+            return {'approved': False, 'complete': False, 'status': 'answer', 'answer_supported': False,
+                    'claim_checks': [{'index': 0, 'supported': True, 'applicable': True}]}
+
+        def accept(payload):
+            return {'approved': True, 'complete': True, 'status': 'answer', 'answer_supported': True,
+                    'claim_checks': [{'index': i, 'supported': True, 'applicable': True} for i in range(len(payload['candidate']['claims']))]}
+
+        text, status, model, _ = run(self.QUESTION, [pick('Предмет'), reject, pick('41'), accept], self.FILES)
+        self.assertEqual(model.calls[2][1].get('retry_reason'), 'answer_numbers_not_in_sources')
+        self.assertEqual(status, 'answer')
+        # The clause fragment here carries the heading with «только»: by rule 9
+        # its source wording is published; the term itself must be there.
+        self.assertIn('41 календарный день', text)

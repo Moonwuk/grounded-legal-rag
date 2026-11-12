@@ -116,7 +116,8 @@ partial: дай подтверждённую часть и назови, как�
 документам не могу; по памяти отвечать не буду.»
 Если есть поле retry_reason, прошлый answer не прошёл проверку приложения:
 answer_numbers_not_in_sources — в тексте были числа или номера пунктов, которых нет
-в выбранных положениях и в вопросе; answer_not_supported — текст не подтверждён
+в выбранных положениях и в вопросе: выбери положения, в которых эти значения есть
+(не заголовок документа или раздела), либо убери значения из текста; answer_not_supported — текст не подтверждён
 выбранными положениями; inapplicable_edition — ни одно выбранное положение не
 действовало на дату события из вопроса (по датам действия, указанным в документах);
 inapplicable_provision — выбранное положение не применялось к условиям вопроса
@@ -1263,7 +1264,16 @@ def answer_structured(question: str, retriever, client, top_k: int = 6) -> dict:
                     and any(isinstance(c, dict) and c.get("supported") is True and c.get("applicable") is False for c in checks)):
                 # Told to the next generation unless this verdict is reduced below.
                 retry_reason, retry_scope_guard = "inapplicable_provision", False
-            if not allowed and not expanded and prose_state == "source_only" and draft and restricted and not value_gaps:
+            # Figures of the text absent from the selected provisions mean the
+            # wrong provision was selected (e.g. a heading of the right contract):
+            # the retry is told so, whatever the verdict, before any restriction
+            # of that wrong provision is asked to be kept.
+            ungrounded_draft = bool(not allowed and not expanded and draft and selected and not value_gaps
+                                    and not prose_grounded(draft, grounding_basis(
+                                        question, selected + contrast, getattr(retriever, "documents", {}))))
+            if ungrounded_draft:
+                retry_reason, retry_scope_guard = "answer_numbers_not_in_sources", scope_blocked
+            elif not allowed and not expanded and prose_state == "source_only" and draft and restricted and not value_gaps:
                 # The text was dropped for losing a restriction and the quotes alone
                 # did not answer: the retry is told which restrictions to keep.
                 retry_reason, retry_scope_guard = "answer_lost_restrictions", False
