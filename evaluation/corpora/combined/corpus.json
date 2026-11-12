@@ -1,9 +1,9 @@
 {
   "corpus_id": "combined-platform-format",
   "knowledge_base": "data/knowledge-base.zip",
-  "knowledge_base_sha256": "805b5d4e663899c9e7427bf3e47b6e8c672a0a758edee442177d5302b9913e6a",
+  "knowledge_base_sha256": "0f031740481391d231eb9202e4d192ec457e83b2e5b1e4006c1c164572a7ca7b",
   "questions": "data/questions.csv",
-  "questions_sha256": "46754f1272f5ca5ade4a6eb6fb6d9d7ad31c869b65cbd75a71462637b81b5a88",
+  "questions_sha256": "ca99d9b4f9cfc83d7573db3464aa61ee8f0dad8a4ebbf34ca2e908739f1ac6fe",
   "gold": "gold/cases.json",
   "sources": [
     "synthetic-b148e60beaa44f30",

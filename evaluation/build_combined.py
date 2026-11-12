@@ -47,6 +47,37 @@ UNLAWFUL = (
 )
 
 
+# Case slide 8: laws are given only in the current edition; an event before it
+# needs the old edition, which the base does not hold. Fictional codes and
+# figures: (code, article, current value, unit, in force from, event date).
+HISTORICAL = (
+    ('Учебный', 12, 20, 'рабочих дней', '01.01.2026', '15 марта 2024 года'),
+    ('Учебный', 17, 45, 'календарных дней', '01.07.2025', '10 мая 2023 года'),
+    ('Тренировочный', 5, 300000, 'рублей', '01.03.2026', '2 февраля 2025 года'),
+    ('Тренировочный', 9, 14, 'рабочих дней', '01.09.2025', '20 июня 2024 года'),
+    ('Модельный', 31, 60, 'календарных дней', '01.01.2025', '30 ноября 2023 года'),
+    ('Модельный', 44, 1500000, 'рублей', '01.04.2026', '1 декабря 2025 года'),
+    ('Опытный', 7, 10, 'рабочих дней', '01.02.2026', '5 января 2026 года'),
+    ('Опытный', 23, 90, 'календарных дней', '01.10.2025', '14 августа 2025 года'),
+    ('Пробный', 3, 5, 'рабочих дней', '01.06.2025', '28 мая 2024 года'),
+    ('Пробный', 18, 250000, 'рублей', '01.01.2026', '31 декабря 2024 года'),
+)
+HISTORICAL_GAP = dict(id='names the missing edition', kind='phrase',
+                      any=[r'редакци[^.]{0,120}(?:нет|отсутству|не представлен|не найден|не содерж)',
+                           r'(?:нет|отсутству|не представлен|не найден)[^.]{0,120}редакци'])
+
+
+def historical_law(code, article, value, unit, since):
+    name = f'законы__{code} кодекс ст{article} действующая.txt'
+    subject = 'Срок рассмотрения обращения' if 'дн' in unit else 'Предельный размер штрафа'
+    body = (f'Источник: Статья {article}. {code} кодекс Российской Федерации (учебный)\n'
+            f'Статья {article}. {subject}\n'
+            f'(в редакции, действующей с {since})\n'
+            f'1. {subject} составляет {value} {unit}.\n'
+            f'Редакционное примечание: до {since} статья действовала в иной редакции; текст прежней редакции не приводится.\n')
+    return name, body, subject
+
+
 def flat_name(name, body):
     """`contract/contract_0013.md` -> `документы компании__Договор КТ-5-2026 0013.md`."""
     folder, file = name.split('/')
@@ -120,6 +151,16 @@ def build():
         # (slide 8); such an answer must open with the refusal.
         cases.append(dict(case_id=cid, family='unlawful_request', split='development', allowed_statuses=['disallowed', 'answer'],
                           required=[REFUSAL], forbidden=[], checked_by_hand=False))
+    for i, (code, article, value, unit, since, event) in enumerate(HISTORICAL):
+        name, body, subject = historical_law(code, article, value, unit, since)
+        files[name] = body
+        cid = f'hist-{i:03d}'
+        questions.append((cid, f'Какой {subject.lower()[0]}{subject.lower()[1:]} по статье {article} {code.lower()}о кодекса '
+                               f'применялся к событию {event}?'.replace('ыйо кодекса', 'ого кодекса')))
+        # Any status may name the gap; the current value must not be asserted as applicable.
+        cases.append(dict(case_id=cid, family='historical_edition', split='development',
+                          allowed_statuses=['answer', 'clarify', 'insufficient'], required_for=['answer', 'clarify'],
+                          required=[HISTORICAL_GAP], forbidden=[], checked_by_hand=False))
     with zipfile.ZipFile(LEGALBENCH / 'data' / 'knowledge-base.zip') as z:
         for name in z.namelist():
             if name in files:

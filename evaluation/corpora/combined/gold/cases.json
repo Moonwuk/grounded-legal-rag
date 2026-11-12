@@ -17057,6 +17057,266 @@
       "checked_by_hand": false
     },
     {
+      "case_id": "hist-000",
+      "family": "historical_edition",
+      "split": "development",
+      "allowed_statuses": [
+        "answer",
+        "clarify",
+        "insufficient"
+      ],
+      "required_for": [
+        "answer",
+        "clarify"
+      ],
+      "required": [
+        {
+          "id": "names the missing edition",
+          "kind": "phrase",
+          "any": [
+            "редакци[^.]{0,120}(?:нет|отсутству|не представлен|не найден|не содерж)",
+            "(?:нет|отсутству|не представлен|не найден)[^.]{0,120}редакци"
+          ]
+        }
+      ],
+      "forbidden": [],
+      "checked_by_hand": false
+    },
+    {
+      "case_id": "hist-001",
+      "family": "historical_edition",
+      "split": "development",
+      "allowed_statuses": [
+        "answer",
+        "clarify",
+        "insufficient"
+      ],
+      "required_for": [
+        "answer",
+        "clarify"
+      ],
+      "required": [
+        {
+          "id": "names the missing edition",
+          "kind": "phrase",
+          "any": [
+            "редакци[^.]{0,120}(?:нет|отсутству|не представлен|не найден|не содерж)",
+            "(?:нет|отсутству|не представлен|не найден)[^.]{0,120}редакци"
+          ]
+        }
+      ],
+      "forbidden": [],
+      "checked_by_hand": false
+    },
+    {
+      "case_id": "hist-002",
+      "family": "historical_edition",
+      "split": "development",
+      "allowed_statuses": [
+        "answer",
+        "clarify",
+        "insufficient"
+      ],
+      "required_for": [
+        "answer",
+        "clarify"
+      ],
+      "required": [
+        {
+          "id": "names the missing edition",
+          "kind": "phrase",
+          "any": [
+            "редакци[^.]{0,120}(?:нет|отсутству|не представлен|не найден|не содерж)",
+            "(?:нет|отсутству|не представлен|не найден)[^.]{0,120}редакци"
+          ]
+        }
+      ],
+      "forbidden": [],
+      "checked_by_hand": false
+    },
+    {
+      "case_id": "hist-003",
+      "family": "historical_edition",
+      "split": "development",
+      "allowed_statuses": [
+        "answer",
+        "clarify",
+        "insufficient"
+      ],
+      "required_for": [
+        "answer",
+        "clarify"
+      ],
+      "required": [
+        {
+          "id": "names the missing edition",
+          "kind": "phrase",
+          "any": [
+            "редакци[^.]{0,120}(?:нет|отсутству|не представлен|не найден|не содерж)",
+            "(?:нет|отсутству|не представлен|не найден)[^.]{0,120}редакци"
+          ]
+        }
+      ],
+      "forbidden": [],
+      "checked_by_hand": false
+    },
+    {
+      "case_id": "hist-004",
+      "family": "historical_edition",
+      "split": "development",
+      "allowed_statuses": [
+        "answer",
+        "clarify",
+        "insufficient"
+      ],
+      "required_for": [
+        "answer",
+        "clarify"
+      ],
+      "required": [
+        {
+          "id": "names the missing edition",
+          "kind": "phrase",
+          "any": [
+            "редакци[^.]{0,120}(?:нет|отсутству|не представлен|не найден|не содерж)",
+            "(?:нет|отсутству|не представлен|не найден)[^.]{0,120}редакци"
+          ]
+        }
+      ],
+      "forbidden": [],
+      "checked_by_hand": false
+    },
+    {
+      "case_id": "hist-005",
+      "family": "historical_edition",
+      "split": "development",
+      "allowed_statuses": [
+        "answer",
+        "clarify",
+        "insufficient"
+      ],
+      "required_for": [
+        "answer",
+        "clarify"
+      ],
+      "required": [
+        {
+          "id": "names the missing edition",
+          "kind": "phrase",
+          "any": [
+            "редакци[^.]{0,120}(?:нет|отсутству|не представлен|не найден|не содерж)",
+            "(?:нет|отсутству|не представлен|не найден)[^.]{0,120}редакци"
+          ]
+        }
+      ],
+      "forbidden": [],
+      "checked_by_hand": false
+    },
+    {
+      "case_id": "hist-006",
+      "family": "historical_edition",
+      "split": "development",
+      "allowed_statuses": [
+        "answer",
+        "clarify",
+        "insufficient"
+      ],
+      "required_for": [
+        "answer",
+        "clarify"
+      ],
+      "required": [
+        {
+          "id": "names the missing edition",
+          "kind": "phrase",
+          "any": [
+            "редакци[^.]{0,120}(?:нет|отсутству|не представлен|не найден|не содерж)",
+            "(?:нет|отсутству|не представлен|не найден)[^.]{0,120}редакци"
+          ]
+        }
+      ],
+      "forbidden": [],
+      "checked_by_hand": false
+    },
+    {
+      "case_id": "hist-007",
+      "family": "historical_edition",
+      "split": "development",
+      "allowed_statuses": [
+        "answer",
+        "clarify",
+        "insufficient"
+      ],
+      "required_for": [
+        "answer",
+        "clarify"
+      ],
+      "required": [
+        {
+          "id": "names the missing edition",
+          "kind": "phrase",
+          "any": [
+            "редакци[^.]{0,120}(?:нет|отсутству|не представлен|не найден|не содерж)",
+            "(?:нет|отсутству|не представлен|не найден)[^.]{0,120}редакци"
+          ]
+        }
+      ],
+      "forbidden": [],
+      "checked_by_hand": false
+    },
+    {
+      "case_id": "hist-008",
+      "family": "historical_edition",
+      "split": "development",
+      "allowed_statuses": [
+        "answer",
+        "clarify",
+        "insufficient"
+      ],
+      "required_for": [
+        "answer",
+        "clarify"
+      ],
+      "required": [
+        {
+          "id": "names the missing edition",
+          "kind": "phrase",
+          "any": [
+            "редакци[^.]{0,120}(?:нет|отсутству|не представлен|не найден|не содерж)",
+            "(?:нет|отсутству|не представлен|не найден)[^.]{0,120}редакци"
+          ]
+        }
+      ],
+      "forbidden": [],
+      "checked_by_hand": false
+    },
+    {
+      "case_id": "hist-009",
+      "family": "historical_edition",
+      "split": "development",
+      "allowed_statuses": [
+        "answer",
+        "clarify",
+        "insufficient"
+      ],
+      "required_for": [
+        "answer",
+        "clarify"
+      ],
+      "required": [
+        {
+          "id": "names the missing edition",
+          "kind": "phrase",
+          "any": [
+            "редакци[^.]{0,120}(?:нет|отсутству|не представлен|не найден|не содерж)",
+            "(?:нет|отсутству|не представлен|не найден)[^.]{0,120}редакци"
+          ]
+        }
+      ],
+      "forbidden": [],
+      "checked_by_hand": false
+    },
+    {
       "case_id": "lb001",
       "family": "legalbench/reasoning/extraction/contract",
       "source_task": "rule-application-contract",
