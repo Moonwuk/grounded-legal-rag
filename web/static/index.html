@@ -1,0 +1,92 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light">
+  <title>Юридический ассистент</title>
+  <link rel="stylesheet" href="/static/vendor/sl-ui/send/buttons.css">
+  <link rel="stylesheet" href="/static/vendor/sl-ui/copy/buttons.css">
+  <link rel="stylesheet" href="/static/style.css">
+  <script defer src="/static/vendor/sl-ui/send/buttons.js"></script>
+  <script defer src="/static/vendor/sl-ui/copy/buttons.js"></script>
+  <link rel="stylesheet" href="/static/archive-scene.css">
+  <link rel="preload" as="image" href="/static/media/archive-blue.webp">
+  <link rel="preload" as="image" href="/static/media/archive-outcomes.webp">
+  <link rel="preload" as="image" href="/static/media/archive-found.webp">
+  <script defer src="/static/archive-scene.js"></script>
+  <script defer src="/static/app.js"></script>
+</head>
+<body>
+  <header class="masthead">
+    <div class="masthead-inner">
+      <div class="brand-mark" aria-hidden="true">§</div>
+      <div class="identity">
+        <span class="brand">ПСБ / Hack&amp;Change</span>
+        <h1>Юридический ассистент</h1>
+      </div>
+      <button type="button" id="reset" disabled>Новый диалог</button>
+    </div>
+  </header>
+  <main class="workspace">
+    <section class="chat" aria-labelledby="chat-title">
+      <header class="panel-heading">
+        <h2 id="chat-title">Диалог</h2>
+        <span class="corpus-label">По базе ПСБ</span>
+      </header>
+      <div class="conversation" id="conversation" role="log" aria-label="Сообщения диалога">
+        <div id="welcome">
+          <div class="welcome-copy">
+            <h3>Найдите нужное положение</h3>
+            <p>Укажите договор, контрагента или дату события. Откройте источник рядом с ответом, чтобы сверить формулировку.</p>
+          </div>
+          <p class="example-heading">Примеры вопросов</p>
+          <button type="button" class="example" disabled>Какова арендная плата по договору с ООО «Северный Склад»?</button>
+          <button type="button" class="example" disabled>Нужно ли было одобрение гендиректора для договора на 12 млн рублей в августе 2024 года?</button>
+        </div>
+      </div>
+      <form id="chat-form" novalidate>
+        <label for="question">Вопрос</label>
+        <div class="composer-fields">
+        <textarea id="question" class="resize-none" rows="3" maxlength="10000" aria-describedby="input-hint input-error" placeholder="Например, какой срок оплаты предусмотрен договором?"></textarea>
+
+<section class="sl-component" data-kind="buttons-send-message" data-phase="idle" aria-busy="false" aria-label="Отправить">
+    <button class="motion-button" type="button" id="send" data-action disabled aria-label="Отправить" >
+      <span class="button-surface" aria-hidden="true"><span class="button-icon"><svg viewBox="0 0 24 24" focusable="false"><path class="icon-primary icon-plane" d="m3.5 4.5 17 7.5-17 7.5 3.2-7.5Zm3.2 7.5H14"/><path class="icon-result" pathLength="1" d="m5 12 4.5 4.5L19 7"/></svg></span><span class="button-label" data-label>Отправить</span></span>
+    </button>
+    <p class="component-status" data-status role="status" aria-live="polite" aria-atomic="true">Можно отправить вопрос.</p>
+  </section>
+        </div>
+        <span id="input-hint">Enter — отправить, Shift+Enter — новая строка.</span>
+        <span id="input-error" role="status"></span>
+      </form>
+    </section>
+    <aside class="documents" aria-labelledby="doc-title">
+      <div class="doc-header">
+        <div><span class="brand">База знаний</span><h2 id="doc-title" tabindex="-1">Документы</h2></div>
+        <button type="button" id="all-docs" hidden disabled>К списку</button>
+      </div>
+      <div id="doc-filter" class="catalog-filter" hidden>
+        <label for="doc-query">Поиск по названиям</label>
+        <div class="filter-fields">
+          <input id="doc-query" type="search" autocomplete="off" placeholder="Договор, статья, регламент">
+          <button id="clear-doc-query" type="button" hidden disabled>Очистить</button>
+        </div>
+      </div>
+      <p id="doc-status" role="status"></p>
+      <div id="quote-tools" hidden><button class="sl-copy" id="copy-button" type="button" aria-label="Копировать цитату" data-state="idle" disabled>
+          <span class="sl-copy__surface" aria-hidden="true">
+            <span class="sl-copy__wash"></span>
+            <span class="sl-copy__icon">
+              <svg class="sl-copy__sheets" viewBox="0 0 24 24" fill="none" focusable="false"><rect class="sl-copy__back" x="3.5" y="3.5" width="12" height="14" rx="3"/><rect class="sl-copy__front" x="8.5" y="7.5" width="12" height="14" rx="3"/></svg>
+              <svg class="sl-copy__check" viewBox="0 0 24 24" fill="none" focusable="false"><path d="M4 12.5 9.2 17.5 20 6.5" pathLength="1"/></svg>
+            </span>
+            <span class="sl-copy__label">Цитата</span>
+          </span>
+        </button><p class="copy-feedback" role="status" aria-live="polite" aria-atomic="true"></p></div>
+      <ul id="doc-list" aria-label="Документы базы"></ul>
+      <div id="doc-text" tabindex="0" aria-label="Текст документа" hidden></div>
+    </aside>
+  </main>
+</body>
+</html>

@@ -761,7 +761,7 @@ def gap_lines(source_gaps) -> list[str]:
             "по доступным материалам установить нельзя. Предоставьте эти статьи." for gap in source_gaps]
 
 
-def render(candidate: dict, evidence: list[Fragment], source_gaps=(), prose: str = "", *, question: str = "", value_gaps=(), keep_sources: bool = False, context_sources=()) -> str:
+def render(candidate: dict, evidence: list[Fragment], source_gaps=(), prose: str = "", *, question: str = "", value_gaps=(), keep_sources: bool = False, context_sources=(), published_sources: list[Fragment] | None = None) -> str:
     """Build the published text.
 
     prose is the model-written answer that already passed prose_grounded();
@@ -780,6 +780,12 @@ def render(candidate: dict, evidence: list[Fragment], source_gaps=(), prose: str
                      if norm(f.text) not in prose)
         if candidate["claims"]:
             lines.append(source_line(candidate, evidence))
+            if published_sources is not None:
+                by_id = {fragment.id: fragment for fragment in evidence}
+                cited_ids = dict.fromkeys(
+                    cite["fragment_id"] for claim in candidate["claims"] for cite in claim["sources"]
+                )
+                published_sources.extend(by_id[fragment_id] for fragment_id in cited_ids)
         # Mentioning an article number does not explain that its text is absent.
         answer = "\n".join(lines + gap_lines(source_gaps))
         if len(answer) > 10000:
@@ -824,6 +830,8 @@ def render(candidate: dict, evidence: list[Fragment], source_gaps=(), prose: str
             key = (cite["fragment_id"], norm(by_id[cite["fragment_id"]].text))
             if key not in numbers:
                 numbers[key] = len(numbers) + 1
+                if published_sources is not None:
+                    published_sources.append(by_id[key[0]])
                 # The provision is published once, in the body; the reference
                 # names its document.
                 references.setdefault(by_id[key[0]].document, []).append(numbers[key])
@@ -851,10 +859,10 @@ def render(candidate: dict, evidence: list[Fragment], source_gaps=(), prose: str
     return answer
 
 
-def answer_question(question: str, retriever, client, top_k: int = 6) -> tuple[str, str]:
+def answer_structured(question: str, retriever, client, top_k: int = 6) -> dict:
     # Do not silently truncate a question: this could remove a legal condition.
     if not isinstance(question, str) or len(question) > 32000:
-        return TECHNICAL, "technical_error"
+        return {"text": TECHNICAL, "status": "technical_error", "sources": []}
     fallback = None
     retry_reason = ""
     retry_scope_guard = False
@@ -932,8 +940,10 @@ def answer_question(question: str, retriever, client, top_k: int = 6) -> tuple[s
                            'no_sources' if draft and not selected else 'ungrounded' if draft else 'absent')
             if prose:
                 candidate["answer"] = prose
+            published_sources: list[Fragment] = []
             rendered = render(candidate, evidence, source_gaps, prose, question=question, value_gaps=value_gaps,
-                              keep_sources=restricted, context_sources=context_sources)
+                              keep_sources=restricted, context_sources=context_sources,
+                              published_sources=published_sources)
             calls += 1
             verdict = client.complete(VERIFY, {**payload, "candidate": candidate,
                                                "rendered_answer": rendered,
@@ -947,8 +957,9 @@ def answer_question(question: str, retriever, client, top_k: int = 6) -> tuple[s
             if prose and allowed and verdict.get("answer_supported") is not True:
                 # The provisions are confirmed, the model text is not.
                 prose_state = "rejected"
+                published_sources = []
                 rendered = render(candidate, evidence, source_gaps, question=question, value_gaps=value_gaps,
-                                  context_sources=context_sources)
+                                  context_sources=context_sources, published_sources=published_sources)
             elif prose and allowed:
                 prose_state = "published"
             checks = verdict.get("claim_checks") if isinstance(verdict, dict) else None
@@ -981,9 +992,10 @@ def answer_question(question: str, retriever, client, top_k: int = 6) -> tuple[s
                 attempts[position_in_plan:] = [(expanded, (evidence, payload, generated, kept, contrast))]
                 continue
             if allowed:
+                result = {"text": rendered, "status": candidate["status"], "sources": published_sources}
                 if prose_state in {"ungrounded", "rejected"} and not expanded:
                     # Keep the verified provisions and give the text one more attempt.
-                    fallback = (rendered, candidate["status"])
+                    fallback = result
                     retry_reason = ("answer_numbers_not_in_sources" if prose_state == "ungrounded"
                                     else "answer_not_supported")
                     retry_scope_guard = scope_blocked
@@ -992,13 +1004,19 @@ def answer_question(question: str, retriever, client, top_k: int = 6) -> tuple[s
                 document_gap = bool(set(candidate.get("requested_facts", [])) &
                                     {"document", "referenced_documents", "warranty_document"})
                 if candidate["status"] == "partial" and document_gap and not source_gaps and not expanded:
-                    fallback = (rendered, "partial")
+                    fallback = result
                     continue
-                return rendered, candidate["status"]
-        return fallback or (UNVERIFIED, "unverified")
+                return result
+        return fallback or {"text": UNVERIFIED, "status": "unverified", "sources": []}
     except ProviderError as error:
         # Only an application-owned code is logged; never provider text/keys.
         code = str(error)
         safe = code if re.fullmatch(r"[a-z_]{1,64}|http_[0-9]{3}", code) else "provider_error"
         print("provider_error: " + safe, file=sys.stderr)
-        return fallback or (TECHNICAL, "technical_error")
+        return fallback or {"text": TECHNICAL, "status": "technical_error", "sources": []}
+
+
+def answer_question(question: str, retriever, client, top_k: int = 6) -> tuple[str, str]:
+    """Preserve the batch submission interface."""
+    result = answer_structured(question, retriever, client, top_k)
+    return result["text"], result["status"]
