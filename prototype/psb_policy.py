@@ -540,7 +540,8 @@ def _sentences(text):
 
 def _assertion_words(text):
     ignored = {'быть', 'был', 'была', 'были', 'должен', 'должна', 'должно', 'должны',
-               'сведения', 'согласно', 'следует', 'необходимо', 'иные', 'иных', 'другие', 'других'}
+               'сведения', 'согласно', 'следует', 'необходимо', 'иные', 'иных', 'другие', 'других',
+               'поэтому', 'потому', 'значит', 'следовательно', 'таким', 'образом'}
     words = [w for w in re.findall(r'[а-яё]+', text.lower().replace('ё', 'е'))
              if len(w) >= 3 and w not in STOP | ignored
              and not re.fullmatch(_RECORD_VERB, w)]
@@ -564,7 +565,10 @@ def _record_facts(text):
 # prose_grounded; only the reference words are left out of the comparison.
 _REFERENCE = re.compile(
     r'\b(?:(?:под)?пункт\w*|п{1,2}\.|стать\w*|ст\.|част\w*|ч\.|абзац\w*|абз\.)\s*\d+(?:\.\d+)*'
-    r'|\b(?:ТК|ГК|НК|УК|ЖК|КоАП|АПК|ГПК|БК)(?:\s+РФ)?\b|\bРФ\b', re.I)
+    r'|\b(?:ТК|ГК|НК|УК|ЖК|КоАП|АПК|ГПК|БК)(?:\s+РФ)?\b|\bРФ\b'
+    # a numbered document: «по договору поставки № П-17/2024», «приказ № 14-П»
+    r'|\b(?:по\s+|в\s+|из\s+|согласно\s+)?(?:договор|соглашени|допсоглашени|регламент|положени|приказ|записк|справк|протокол)\w*'
+    r'(?:\s+[а-яё]+){0,3}?\s*№\s*[\w./-]+(?:\s*/\s*\d+)?', re.I)
 
 
 def added_assertions_safe(text, selected):
@@ -572,6 +576,14 @@ def added_assertions_safe(text, selected):
     # document name included: «(пункт 4.2 положения)».
     text = re.sub(r'\(([^()]{0,200})\)', lambda m: ' ' if _REFERENCE.match(m.group(1).strip()) else m.group(), text)
     text = _REFERENCE.sub(' ', text)
+    # The document's own name ("по договору поставки № …") may accompany the items.
+    inclusions = [_assertion_words(s) | _assertion_words(display_name(f.document))
+                  for f in selected for s in _sentences(f.text) if _INCLUDED.search(s)]
+    # A separate-payment absence covered by an inclusion clause is not a claim
+    # about a document's contents either.
+    for sentence in re.split(r'(?<=[.!?])\s+|\n', text):
+        if _included_not_separate(sentence.lower().replace('ё', 'е'), inclusions):
+            text = text.replace(sentence, _SEPARATE_PAYMENT.sub(' ', sentence))
     source_facts = [fact for f in selected for fact in _record_facts(f.text)]
     for doc, negative, optional, words in _record_facts(text):
         if not any(doc == sd and negative == sn and (not so or optional) and words <= sw
@@ -580,7 +592,33 @@ def added_assertions_safe(text, selected):
     source_absences = [_assertion_words(s) for f in selected for s in _sentences(f.text)
                        if _OTHER_ABSENCE.search(s)]
     return all(any(_assertion_words(s) <= source for source in source_absences)
+               or _included_not_separate(_whole_sentence(text, s), inclusions)
                for s in _sentences(text) if _OTHER_ABSENCE.search(s))
+
+
+def _whole_sentence(text, part):
+    """The sentence up to its full stop that contains a part split off at «;»."""
+    for sentence in re.split(r'(?<=[.!?])\s+|\n', text.lower().replace('ё', 'е')):
+        if part in sentence:
+            return sentence
+    return part
+
+
+# «Цена включает стоимость упаковки и доставки» → «отдельно их не оплачивают»:
+# allowed only for a sentence that names items of one source sentence with an
+# inclusion verb and adds nothing but the separate-payment absence.
+_INCLUDED = re.compile(r'\bвключ\w*|\bвход\w*\s+в\s+(?:цен|стоимост)', re.I)
+_SEPARATE_PAYMENT = re.compile(r'\bотдельн\w*[^.!?;\n]{0,40}?\b(?:опла\w*|плат\w*)|\b(?:опла\w*|плат\w*)[^.!?;\n]{0,40}?\bотдельн', re.I)
+_PAYMENT_WORDS = {'отде', 'опла', 'плат', 'нужн', 'треб', 'поэт', 'пото', 'знач', 'нет', 'вход', 'вклю'}
+
+
+def _included_not_separate(sentence, inclusions):
+    if not inclusions or not _SEPARATE_PAYMENT.search(sentence) or not _INCLUDED.search(sentence):
+        return False
+    if re.search(r'\b(?:ин\w*|друг\w*|дополнительн\w*|ничего|никаких)\b', sentence, re.I):
+        return False  # a claim about other payments is not covered by the inclusion
+    words = _assertion_words(sentence) - _PAYMENT_WORDS
+    return any(words <= source for source in inclusions)
 
 
 _IDENTITY_QUESTION = re.compile(

@@ -36,3 +36,39 @@ class CitationWordsTests(unittest.TestCase):
 
 if __name__ == '__main__':
     unittest.main()
+
+
+class InclusionImpliesNoSeparatePaymentTests(unittest.TestCase):
+    """Demo question 16 (7 of 9 stored runs published only the quotation): «стоимость
+    упаковки и доставки включена в цену, поэтому отдельно их оплачивать не нужно»
+    was rejected by the barrier against invented absences, although «отдельно не
+    оплачивается» follows from «цена включает стоимость … » for the same items."""
+
+    SOURCE = [Fragment('f', 'contract.txt', 0, 200, '5.3. Стоимость работ включает монтаж оборудования и пусконаладку на объекте Заказчика.', '')]
+
+    def test_items_included_in_the_price_are_not_paid_separately(self):
+        for text in ('Да, монтаж оборудования и пусконаладка включены в стоимость работ, поэтому отдельно их оплачивать не нужно.',
+                     'Монтаж оборудования входит в стоимость работ и отдельно не оплачивается (п. 5.3).',
+                     'Нет, пусконаладка на объекте Заказчика включена в стоимость работ; отдельной оплаты не требуется.'):
+            with self.subTest(text):
+                self.assertTrue(added_assertions_safe(text, self.SOURCE))
+
+    def test_items_not_named_in_the_price_clause_still_fail(self):
+        for text in ('Доставка оборудования включена в стоимость работ, отдельно её оплачивать не нужно.',
+                     'Монтаж включён в стоимость, а иных платежей по договору нет.',
+                     'Отдельно оплачивать ничего не нужно, других расходов договор не предусматривает.'):
+            with self.subTest(text):
+                self.assertFalse(added_assertions_safe(text, self.SOURCE))
+
+    def test_document_reference_and_connectives_are_not_assertions(self):
+        source = [Fragment('f', 'Договор подряда ПД-8-2033.txt', 0, 200,
+                           '5.3. Стоимость работ указывается в Смете и включает монтаж оборудования и пусконаладку.', '')]
+        text = ('Да, монтаж включён в стоимость: по договору подряда № ПД-8/2033 стоимость работ указывается в Смете '
+                'и включает монтаж оборудования и пусконаладку, поэтому отдельно их оплачивать не нужно (п. 5.3).')
+        self.assertTrue(added_assertions_safe(text, source))
+        # The same sentence with an item the clause does not name still fails.
+        self.assertFalse(added_assertions_safe(text.replace('пусконаладку, поэтому', 'пусконаладку и доставку, поэтому'), source))
+
+    def test_without_an_inclusion_clause_the_absence_still_fails(self):
+        source = [Fragment('f', 'contract.txt', 0, 200, '5.3. Монтаж оборудования выполняется Подрядчиком на объекте Заказчика.', '')]
+        self.assertFalse(added_assertions_safe('Монтаж оборудования отдельно оплачивать не нужно.', source))
