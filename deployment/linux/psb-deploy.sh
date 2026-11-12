@@ -190,7 +190,7 @@ update() {
     [[ -d $REPO ]] || git init --quiet --bare -- "$REPO" || die 'Could not initialize deployment repository.'
     git --git-dir="$REPO" fetch --quiet --no-tags "$REMOTE" refs/heads/main:refs/heads/reviewed-main ||
         die 'Could not fetch official main.'
-    local sha active pr author head reviews approved=0 wf result
+    local sha active pr author head reviews approved=0 result
     sha=$(git --git-dir="$REPO" rev-parse --verify refs/heads/reviewed-main) || die 'Could not resolve main.'
     valid_sha "$sha" || die 'Could not resolve main.'
     [[ $(git --git-dir="$REPO" cat-file -t "$sha") == commit ]] || die 'Official main did not resolve to a commit.'
@@ -221,12 +221,14 @@ update() {
         }
     fi
 
-    for wf in web-ci.yml security.yml; do
-        result=$(gh run list --repo "$GITHUB_REPOSITORY" --workflow "$wf" --branch main --commit "$sha" \
-            --event push --limit 1 --json status,conclusion --jq '.[0] | "\(.status) \(.conclusion)"') ||
-            die "Could not verify $wf."
-        [[ $result == 'completed success' ]] || { waiting "$sha" "$wf has not succeeded for $sha."; return 0; }
-    done
+    result=$(gh run list --repo "$GITHUB_REPOSITORY" --workflow web-ci.yml --branch main --commit "$sha" \
+        --event push --limit 1 --json status,conclusion --jq '.[0] | select(.) | [.status,.conclusion] | @tsv') ||
+        die 'Could not verify Web CI.'
+    [[ $result == $'completed\tsuccess' ]] || { waiting "$sha" "Web CI has not succeeded for $sha."; return 0; }
+
+    # Web CI on main runs the regression matrix and the secret scan. The scheduled
+    # security scan is a periodic control, not a deploy gate: a fix merged after a
+    # scan must reach the site without waiting up to two days for the next one.
     publish "$sha" "$PORT"
     rm -f -- "$WAITING"
 }

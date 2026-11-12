@@ -1,0 +1,56 @@
+name: RAG regression
+
+on:
+  workflow_call:
+
+permissions:
+  contents: read
+
+defaults:
+  run:
+    shell: bash
+
+env:
+  PYTHONDONTWRITEBYTECODE: "1"
+
+jobs:
+  regression:
+    name: Python ${{ matrix.python }}
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    strategy:
+      fail-fast: false
+      matrix:
+        python: ["3.11", "3.12", "3.13", "3.15"]
+    steps:
+      - name: Check out source
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - name: Set up Python
+        uses: actions/setup-python@6d4fd22b20465ccc0f7354476588e8df7c9ca0e0 # v7.1.0
+        with:
+          python-version: ${{ matrix.python }}
+      - name: Test with the local stub model
+        run: |
+          mkdir -p reports
+          python -m unittest discover -s tests -v 2>&1 | tee reports/tests.log
+      - name: Test evaluation adapters and validators with stub models
+        run: python -m unittest discover -s evaluation/validator_tests -v 2>&1 | tee reports/evaluation-tests.log
+      - name: Check retrieval and build a fresh submission
+        run: |
+          python audit_retrieval.py > reports/retrieval.json
+          python build_submission.py > reports/package.json
+          python .github/scripts/check_submission.py
+      - name: Save regression reports
+        if: ${{ always() }}
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: regression-py${{ matrix.python }}
+          path: |
+            reports/tests.log
+            reports/evaluation-tests.log
+            reports/retrieval.json
+            reports/package.json
+          if-no-files-found: error
+          retention-days: 7
