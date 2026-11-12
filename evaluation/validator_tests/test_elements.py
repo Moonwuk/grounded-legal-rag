@@ -147,4 +147,31 @@ class CombinedCorpusTests(unittest.TestCase):
         self.assertFalse(any(w in n.lower() for n in names for w in ('amendment','conflict','base','distract')))
         self.assertEqual(len(rows),len(cases))
 
+class ConclusionTests(unittest.TestCase):
+    """Paraphrase run 2-p2 and 16-p1: what the answer states, not what it quotes."""
+    def test_value_only_in_the_quoted_rule_is_not_the_conclusion(self):
+        case=gold()['2']
+        wrong=('Три месяца, если иное не установлено федеральным законом: руководитель финансового учёта не относится к перечисленным категориям.\n'
+               '«Срок испытания не может превышать трех месяцев, а для … главных бухгалтеров и их заместителей … - шести месяцев.» [1]\n[1] ТК ст70.')
+        self.assertIn('missing:six months',check(case,wrong)['failures'])
+        right=wrong.replace('Три месяца, если иное не установлено федеральным законом: руководитель финансового учёта не относится к перечисленным категориям.',
+                            'Шесть месяцев: руководитель учётной службы — главный бухгалтер (ст. 70 ТК РФ).')
+        self.assertEqual(check(case,right)['outcome'],'pass')
+
+    def test_quotes_only_answer_is_read_whole(self):
+        quotes='«Срок испытания … главных бухгалтеров … - шести месяцев.» [1]\n[1] ТК ст70.'
+        self.assertNotIn('missing:six months',check(gold()['2'],quotes)['failures'])
+
+    def test_included_in_price_wording(self):
+        text='Да, стоимость упаковки и доставки до склада Покупателя уже входит в цену Товара (п. 2.1).'
+        self.assertEqual(check(gold()['16'],text)['outcome'],'pass')
+
+    def test_date_questions_in_other_words(self):
+        from evaluation.build_combined import translate
+        case=translate(dict(case_id='missing_information-0004',category='missing_information',split='holdout',
+            expected=dict(allowed_statuses=['clarification','partial'],required_claims=[],forbidden_claims=[],missing=['event_date'],issue='')))
+        for text in ('Нужно уточнить дату подписания акта: до 2030-07-02 срок 45 рабочих дней, а с этой даты — 63 рабочих дня.',
+                     'Нужна дата подписания акта: до 2030-07-08 — 45 рабочих дней, с 2030-07-08 — 60. Какова дата акта?'):
+            self.assertEqual(check(case,text)['outcome'],'pass',text)
+
 if __name__=='__main__':unittest.main()
