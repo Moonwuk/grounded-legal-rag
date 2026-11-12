@@ -842,14 +842,33 @@ def display_name(document: str) -> str:
             .removesuffix(".docx").replace("_", " "))
 
 
-def source_line(candidate: dict, evidence: list[Fragment]) -> str:
-    """Application-owned reference: document names and dotted clause numbers."""
+_EDITION = re.compile(r"\bредакци[яи]\s+от\s+(\d{2}\.\d{2}\.\d{4})", re.I)
+_LOST = re.compile(r"\bутратил[аио]?\s+силу\s+с\s+(\d{2}\.\d{2}\.\d{4})", re.I)
+
+
+def edition_label(text: str) -> str:
+    """«ред. от 05.02.2031[, утратила силу с …]» from a document's own header."""
+    head = document_header(text, 400)
+    edition = _EDITION.search(head)
+    if not edition:
+        return ""
+    lost = _LOST.search(head)
+    return "ред. от " + edition.group(1) + (", утратила силу с " + lost.group(1) if lost else "")
+
+
+def cite_name(document: str, editions=None) -> str:
+    label = (editions or {}).get(document, "")
+    return display_name(document) + (", " + label if label else "")
+
+
+def source_line(candidate: dict, evidence: list[Fragment], editions=None) -> str:
+    """Application-owned reference: document names, editions and dotted clause numbers."""
     by_id = {f.id: f for f in evidence}
     documents = {}
     for claim in candidate["claims"]:
         for cite in claim["sources"]:
             f = by_id[cite["fragment_id"]]
-            labels = documents.setdefault(display_name(f.document), [])
+            labels = documents.setdefault(cite_name(f.document, editions), [])
             clause = re.match(r"(\d+(?:\.\d+)+)[.)]?(?:\s|$)", norm(f.text))
             if clause and clause.group(1) not in labels:
                 labels.append(clause.group(1))
@@ -1083,7 +1102,7 @@ def gap_lines(source_gaps) -> list[str]:
             "по доступным материалам установить нельзя. Предоставьте эти статьи." for gap in source_gaps]
 
 
-def render(candidate: dict, evidence: list[Fragment], source_gaps=(), prose: str = "", *, question: str = "", value_gaps=(), keep_sources: bool = False, context_sources=(), published_sources: list[Fragment] | None = None) -> str:
+def render(candidate: dict, evidence: list[Fragment], source_gaps=(), prose: str = "", *, question: str = "", value_gaps=(), keep_sources: bool = False, context_sources=(), published_sources: list[Fragment] | None = None, editions=None) -> str:
     """Build the published text.
 
     prose is the model-written answer that already passed prose_grounded();
@@ -1101,7 +1120,7 @@ def render(candidate: dict, evidence: list[Fragment], source_gaps=(), prose: str
         lines.extend('«' + norm(f.text) + '»' for f in context_sources
                      if norm(f.text) not in prose)
         if candidate["claims"]:
-            lines.append(source_line(candidate, evidence))
+            lines.append(source_line(candidate, evidence, editions))
             if published_sources is not None:
                 by_id = {fragment.id: fragment for fragment in evidence}
                 cited_ids = dict.fromkeys(
@@ -1181,12 +1200,25 @@ def render(candidate: dict, evidence: list[Fragment], source_gaps=(), prose: str
     if value_gaps:
         lines.append("Найденное положение отсылает к отдельному документу: «" +
                      "; ".join(value_gaps) + "». Предоставьте этот документ, чтобы определить запрошенное значение.")
-    reference_lines = [', '.join(f'[{n}]' for n in values) + ' ' + display_name(name) + '.'
+    reference_lines = [', '.join(f'[{n}]' for n in values) + ' ' + cite_name(name, editions) + '.'
                        for name, values in references.items()]
     answer = "\n".join(lines + reference_lines)
     if len(answer) > 10000:
         raise ProviderError("answer_length_limit")
     return answer
+
+
+def editions_of(retriever) -> dict:
+    """Edition labels of the base, computed once per retriever."""
+    cached = getattr(retriever, "_edition_labels", None)
+    if cached is None:
+        documents = getattr(retriever, "documents", {}) or {}
+        cached = {name: label for name, doc in documents.items() if (label := edition_label(doc.text))}
+        try:
+            retriever._edition_labels = cached
+        except AttributeError:
+            pass
+    return cached
 
 
 def answer_structured(question: str, retriever, client, top_k: int = 6) -> dict:
@@ -1198,6 +1230,7 @@ def answer_structured(question: str, retriever, client, top_k: int = 6) -> dict:
     retry_scope_guard = False
     retry_restrictions = []
     retry_extra: list[str] = []
+    editions = editions_of(retriever)
     try:
         # (expanded search, reduced candidate). A reduced candidate re-verifies the
         # same selection without provisions the verifier found inapplicable.
@@ -1282,7 +1315,7 @@ def answer_structured(question: str, retriever, client, top_k: int = 6) -> dict:
                 candidate["answer"] = prose
             published_sources: list[Fragment] = []
             rendered = render(candidate, evidence, source_gaps, prose, question=question, value_gaps=value_gaps,
-                              keep_sources=restricted, context_sources=context_sources,
+                              keep_sources=restricted, context_sources=context_sources, editions=editions,
                               published_sources=published_sources)
             calls += 1
             verdict = client.complete(VERIFY, {**payload, "candidate": candidate,
@@ -1299,7 +1332,7 @@ def answer_structured(question: str, retriever, client, top_k: int = 6) -> dict:
                 prose_state = "rejected"
                 published_sources = []
                 rendered = render(candidate, evidence, source_gaps, question=question, value_gaps=value_gaps,
-                                  context_sources=context_sources, published_sources=published_sources)
+                                  context_sources=context_sources, editions=editions, published_sources=published_sources)
             elif prose and allowed:
                 prose_state = "published"
             checks = verdict.get("claim_checks") if isinstance(verdict, dict) else None
