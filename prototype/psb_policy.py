@@ -6,7 +6,7 @@ import sys
 from decimal import Decimal, localcontext
 from psb_corpus import Fragment, norm
 from psb_llm import ProviderError, QUESTION_CALL_LIMIT
-from psb_retrieval import user_turns, tokens, STOP, event_interval
+from psb_retrieval import user_turns, tokens, STOP, event_interval, identifiers
 
 FOLLOWUPS = {
     "contract": "номер договора или его текст",
@@ -713,6 +713,49 @@ def validate_candidate(candidate: dict, evidence: list[Fragment]) -> bool:
     return True
 
 
+_ABSENCE_WORD = re.compile(r'\bнет\b|\bотсутств\w*|\bне\s+(?:найден\w*|представлен\w*|имеется)', re.I)
+_DOCUMENT_WORD = r'(?:договор|документ|соглашени|справк|регламент)\w*'
+# The document named by its own identifier, or "с таким номером/обозначением".
+_SAME_DOCUMENT = re.compile(_DOCUMENT_WORD + r'\s+с\s+так\w+\s+(?:обозначени|номер|идентификатор)\w*', re.I)
+
+
+def false_absence(text: str, retriever) -> bool:
+    """The text says a document with an identifier is not in the base, yet the
+    base holds a document with that identifier ("договора КТ-65/2026 в базе нет").
+
+    "Документа о неустойке по КТ-65/2026 нет" is not covered: it concerns a
+    document about a subject, not the document with that identifier."""
+    known = getattr(retriever, "doc_ids", None)
+    if not text or not known:
+        return False
+    present = set().union(*known.values())
+    for sentence in re.split(r'(?<=[.!?])\s+', text):
+        # A citation in brackets names an existing document; an opening "Нет," is
+        # the answer to a yes/no question, not a statement of absence.
+        sentence = re.sub(r'\([^()]*\)', ' ', sentence)
+        sentence = re.sub(r'^\s*нет\s*[,:;—–-]', ' ', sentence, flags=re.I)
+        if not _ABSENCE_WORD.search(sentence):
+            continue
+        named = identifiers(sentence) & present
+        if not named:
+            continue
+        # "по договору КТ-65", "в договоре …" refer to the content of an existing document.
+        reference = re.compile(r'(?:\b(?:по|в|во|из|согласно|к|от|у)\s+)$', re.I)
+
+        def denied(m):
+            # The absence is said of this mention: right after it in the same
+            # clause, or just before it ("нет договора …").
+            after = re.split(r'[;]', sentence[m.end():m.end() + 80])[0]
+            return bool(_ABSENCE_WORD.search(after) or _ABSENCE_WORD.search(sentence[max(0, m.start() - 20):m.start()]))
+        for m in _SAME_DOCUMENT.finditer(sentence):
+            if not reference.search(sentence[:m.start()]) and denied(m):
+                return True
+        for m in re.finditer(_DOCUMENT_WORD + r'\s+(?:№\s*)?([A-Za-zА-Яа-яЁё]{1,8}\s*[-–]\s*\d{1,8}\s*/\s*\d{4})', sentence, re.I):
+            if re.sub(r'\s+', '', m[1]).lower() in named and not reference.search(sentence[:m.start()]) and denied(m):
+                return True
+    return False
+
+
 def edition_mismatch(question: str, selected: list[Fragment], retriever) -> bool:
     """Every selected provision was out of force on the event date of the question.
 
@@ -972,7 +1015,8 @@ def answer_structured(question: str, retriever, client, top_k: int = 6) -> dict:
             # restriction class of the sources; a positive verdict cannot waive this.
             restricted = any(_SOURCE_ONLY.search(norm(f.text)) for f in selected)
             source_only = bool(value_gaps) or (restricted and not (draft and restrictions_kept(draft, selected)))
-            scope_blocked = bool(draft and selected and not source_only and not prose_scope_safe(draft, selected))
+            scope_blocked = bool(draft and selected and not source_only and
+                                 (not prose_scope_safe(draft, selected) or false_absence(draft, retriever)))
             # Figures may also come from provisions the verifier confirmed as
             # authentic but inapplicable: they explain the contrast and are not
             # published as a basis of the answer.
