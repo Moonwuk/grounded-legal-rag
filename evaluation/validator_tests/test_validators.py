@@ -72,6 +72,33 @@ class ValidatorTests(unittest.TestCase):
     def test_missing_required_part(self):
         c,g,r=fixture();c['expected']['required_claims'].append(dict(fact={**FACT,'predicate':'other'},acceptable_evidence_sets=[['a:p1']]))
         self.assertIn('incomplete_answer',validate(c,g,r)['failures'])
+    def test_gap_is_read_from_the_published_text(self):
+        # Holdout b083c46, missing_information-0004/0064: the model asked for
+        # "contract", the application published "документ с условиями…" because
+        # the question names the object; the text is the same as in passing runs.
+        def refusal(codes,text):
+            c,g,r=fixture();c['category']='missing_information'
+            c['expected'].update(required_claims=[],forbidden_claims=[],allowed_statuses=['insufficient','partial'],missing=['penalty_document'])
+            r['status']='insufficient';r['candidate']=dict(status='insufficient',claims=[],missing=['source_gap'],requested_facts=codes)
+            r['answer']=r['rendered_answer']=text
+            return validate(c,g,r)
+        published=('В найденных документах недостаточно оснований для ответа на вопрос «Какова ставка неустойки для КТ-5/2026?». '
+                   'Уточните или предоставьте: документ с условиями, необходимыми для ответа.')
+        self.assertTrue(refusal(['contract'],published)['checks']['gap'])
+        # Asking only for the contract number does not name the missing document.
+        asks_number=published.replace('документ с условиями, необходимыми для ответа','номер договора или его текст')
+        v=refusal(['contract'],asks_number)
+        self.assertFalse(v['checks']['gap']);self.assertIn('incomplete_answer',v['failures'])
+        # The label must stand in the application's request line, not anywhere in the text.
+        v=refusal(['contract'],asks_number+' В базе есть документ с условиями, необходимыми для ответа.')
+        self.assertFalse(v['checks']['gap'])
+    def test_published_gap_labels_match_the_runtime(self):
+        import sys
+        from evaluation.common import ROOT
+        from evaluation.validators.core import PUBLISHED_GAPS
+        sys.path.insert(0,str(ROOT/'prototype'))
+        from psb_policy import FOLLOWUPS
+        for label,code in PUBLISHED_GAPS.items():self.assertEqual(FOLLOWUPS[code],label)
     def test_false_refusal(self):
         c,g,r=fixture();r['status']='insufficient';r['candidate']['claims']=[]
         self.assertIn('false_refusal',validate(c,g,r)['failures'])

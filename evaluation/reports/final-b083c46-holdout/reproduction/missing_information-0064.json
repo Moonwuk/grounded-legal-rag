@@ -1,0 +1,22 @@
+{
+  "case_id": "missing_information-0064",
+  "question": "Какова ставка неустойки для КТ-65/2026?",
+  "history": [],
+  "corpus": "evaluation/generated_corpora/synthetic/knowledge-base.zip",
+  "candidate_documents": [
+    "contract/contract_0192.txt",
+    "contract/contract_0193.md",
+    "contract/contract_0194.txt",
+    "financial/financial_0064.txt",
+    "financial/financial_0164.txt",
+    "irrelevant/irrelevant_0064.txt",
+    "memo/memo_0064.txt",
+    "regulation/regulation_0064.txt",
+    "regulation/regulation_0164.txt"
+  ],
+  "command": "python -m evaluation.run_benchmark --corpus synthetic --mode holdout --engine deepseek --case-id missing_information-0064 --run-id repro-missing_information-0064",
+  "caution": "candidate reduced context; full corpus is authoritative for rank reproduction",
+  "failures": [
+    "incomplete_answer"
+  ]
+}

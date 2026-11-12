@@ -6,6 +6,17 @@ from evaluation.validators.prose import evaluate_prose
 FIELDS=('subject_id','predicate','value','unit','condition','start_event')
 STATUS={'clarify':'clarification','insufficient':'insufficient_evidence','technical_error':'system_error'}
 
+
+# Fixed request labels the application publishes (prototype/psb_policy.py FOLLOWUPS).
+PUBLISHED_GAPS={
+    'документ с условиями, необходимыми для ответа':'document',
+    'тексты документов, на которые ссылаются найденные положения, и сведения для проверки их применимости':'referenced_documents',
+    'документ или сведения, определяющие, какое из противоречащих условий применяется':'priority_rule',
+    'дата события':'event_date',
+    'дата подписания спецификации':'specification_date',
+    'обстоятельства конкретного случая':'facts',
+}
+
 def norm(s): return ' '.join(s.split()).casefold().replace('ё','е')
 
 def fact_equal(a,b):
@@ -235,6 +246,11 @@ def validate(case,gold,result):
         # Fixed runtime code can identify a broad gap but not penalty_document/conflict resolution.
         code_map={'event_date':{'event_date','specification_date'},'penalty_document':{'document','referenced_documents'},'conflict_resolution':{'facts','document','referenced_documents','priority_rule'}}
         gaps=set(candidate.get('requested_facts',[]))
+        # The application may publish another code than the model asked for
+        # (a known contract becomes "документ с условиями"): read its request line.
+        request=re.search(r'Уточните или предоставьте:([^.\n]*)',text)
+        if request:
+            gaps|={code for label,code in PUBLISHED_GAPS.items() if label in request.group(1)}
         checks['gap']=all(bool(gaps & code_map[m]) for m in expected['missing'])
         if not checks['gap']: failures.append('incomplete_answer')
         if expected['issue']=='conflict': unknown.append('conflict_explanation_requires_manual_review')
