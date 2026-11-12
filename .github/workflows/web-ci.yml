@@ -9,6 +9,10 @@ permissions:
   contents: read
 
 jobs:
+  regression:
+    uses: ./.github/workflows/regression.yml
+  secrets:
+    uses: ./.github/workflows/secrets.yml
   web:
     name: Web tests and container
     runs-on: ubuntu-latest

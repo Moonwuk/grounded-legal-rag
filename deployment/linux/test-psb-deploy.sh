@@ -26,7 +26,8 @@ cat > "$STUBS/gh" <<'EOF'
 case "$*" in
     *"/reviews"*) printf '%b' "${GH_REVIEWS:-}" ;;
     *"/pulls"*) printf '7\tauthor\t%s\n' "${GH_HEAD:-head}" ;;
-    *"run list"*) echo 'completed success' ;;
+    *"run list"*"--workflow web-ci.yml"*"--event push"*) printf 'completed\t%s\n' "${GH_WEB_RESULT:-success}" ;;
+    *"run list"*) echo "unexpected run list: $*" >&2; exit 1 ;;
 esac
 EOF
 cat > "$STUBS/curl" <<'EOF'
@@ -59,6 +60,12 @@ fail() { echo "FAIL: $*" >&2; exit 1; }
 "$SCRIPT" update --approval-policy Required >/dev/null
 [[ ! -f $PSB_ROOT/active ]] || fail 'deployed without approval'
 grep -q "no approval" "$PSB_ROOT/waiting" || fail 'waiting reason not recorded'
+
+# A merged PR whose Web CI on main failed is not deployed. Web CI is the deploy
+# gate; the scheduled security scan is not queried at all (the stub rejects it).
+GH_WEB_RESULT=failure "$SCRIPT" update --approval-policy CiOnly >/dev/null
+[[ ! -f $PSB_ROOT/active ]] || fail 'deployed with failed Web CI'
+grep -q 'Web CI has not succeeded' "$PSB_ROOT/waiting" || fail 'Web CI waiting reason not recorded'
 
 # 2. An approval of the final head by another collaborator deploys it.
 GH_HEAD=h1 GH_REVIEWS='reviewer\tAPPROVED\th1\tCOLLABORATOR\n' "$SCRIPT" update --approval-policy Required >/dev/null
