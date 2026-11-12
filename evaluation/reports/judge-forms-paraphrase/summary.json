@@ -1,0 +1,11 @@
+{
+  "scope": "Development comparison with the solution model as judge; not the platform judge or Score.",
+  "report": "hyb-demo-paraphrase-hybrid",
+  "corpus": "demo-paraphrase",
+  "judged": 8,
+  "same_form": 26,
+  "mean_compact_vs_full": 0.406,
+  "compact_wins": 0,
+  "compact_losses": 5,
+  "ties": 3
+}
