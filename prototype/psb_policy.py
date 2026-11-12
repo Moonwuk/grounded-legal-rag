@@ -559,7 +559,19 @@ def _record_facts(text):
     return result
 
 
+# A reference to the basis ("статья 70 ТК РФ", "п. 4.2", "подпункт 3 пункта 2
+# статьи 44 ГК РФ") is not an assertion. Its figures are still checked by
+# prose_grounded; only the reference words are left out of the comparison.
+_REFERENCE = re.compile(
+    r'\b(?:(?:под)?пункт\w*|п{1,2}\.|стать\w*|ст\.|част\w*|ч\.|абзац\w*|абз\.)\s*\d+(?:\.\d+)*'
+    r'|\b(?:ТК|ГК|НК|УК|ЖК|КоАП|АПК|ГПК|БК)(?:\s+РФ)?\b|\bРФ\b', re.I)
+
+
 def added_assertions_safe(text, selected):
+    # A parenthesis that opens with a reference is a citation of the basis,
+    # document name included: «(пункт 4.2 положения)».
+    text = re.sub(r'\(([^()]{0,200})\)', lambda m: ' ' if _REFERENCE.match(m.group(1).strip()) else m.group(), text)
+    text = _REFERENCE.sub(' ', text)
     source_facts = [fact for f in selected for fact in _record_facts(f.text)]
     for doc, negative, optional, words in _record_facts(text):
         if not any(doc == sd and negative == sn and (not so or optional) and words <= sw
