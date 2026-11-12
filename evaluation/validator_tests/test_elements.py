@@ -192,6 +192,10 @@ class HistoricalEditionTests(unittest.TestCase):
         good=('Редакции статьи 12, действовавшей 15 марта 2024 года, в базе нет: приведена только редакция, '
               'действующая с 01.01.2026 (20 рабочих дней), поэтому применимый срок установить нельзя.')
         self.assertEqual(check(case,good)['outcome'],'pass')
+        # Run hist-f6baab6, hist-002/003/006: correct answers in other words.
+        for text in ('Размер по базе определить нельзя: текст прежней редакции, применявшейся до этой даты, не приводится.',
+                     'Прежняя редакция, действовавшая на эту дату, в документах не приведена.'):
+            self.assertEqual(check(case,text)['outcome'],'pass',text)
         bad='Срок рассмотрения обращения по статье 12 составляет 20 рабочих дней.'
         self.assertEqual(check(case,bad)['failures'],['missing:names the missing edition'])
 
