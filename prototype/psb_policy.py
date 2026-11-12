@@ -118,6 +118,9 @@ answer_numbers_not_in_sources — в тексте были числа или н�
 выбранными положениями; inapplicable_edition — ни одно выбранное положение не
 действовало на дату события из вопроса (по датам действия, указанным в документах).
 Исправь именно это.
+Если retry_reason=answer_lost_restrictions, прошлый answer опустил ограничения
+выбранных положений; поле retry_restrictions перечисляет их формулировки из
+источника. Новый answer должен прямо сохранить каждое из них.
 Если retry_scope_guard=true, приложение заблокировало неподтверждённое добавление:
 ограничение функций, отсутствие иных требований или утверждение о содержании
 документа. Удали такое добавление. Не выводи состав акта из обязанности вернуть
@@ -284,6 +287,23 @@ _UPPER_BOUND_SOURCE = (r"\bне\s+(?:может|могут|должен|долж
                        r"(?:превыша\w*|быть\s+(?:более|больше|дольше|свыше))")
 _UPPER_BOUND_ANSWER = (r"\bне\s+(?:может|могут)\s+превыша\w*|\bне\s+превыша\w*|\bне\s+(?:более|больше|дольше|свыше)\b"
                        r"|\bмаксимальн\w*|\bпредельн\w*|\bпредел\w*")
+
+
+def lost_restrictions(text: str, selected: list[Fragment]) -> list[str]:
+    """Source wording of each restriction class the text does not repeat
+    ("только", "не вправе", "не может превышать"): application-owned quotes."""
+    source = norm("\n".join(f.text for f in selected)).lower().replace("ё", "е")
+    answer = norm(text).lower().replace("ё", "е")
+    lost = []
+    bound = re.search(_UPPER_BOUND_SOURCE, source)
+    if bound and not re.search(_UPPER_BOUND_ANSWER, answer):
+        lost.append(bound.group())
+    rest = re.sub(_UPPER_BOUND_SOURCE, " ", source)
+    for pattern in _RESTRICTIONS.values():
+        found = re.search(pattern, rest)
+        if found and not re.search(pattern, answer):
+            lost.append(found.group())
+    return list(dict.fromkeys(lost))[:6]
 
 
 def restrictions_kept(text: str, selected: list[Fragment]) -> bool:
@@ -1057,6 +1077,7 @@ def answer_structured(question: str, retriever, client, top_k: int = 6) -> dict:
     fallback = None
     retry_reason = ""
     retry_scope_guard = False
+    retry_restrictions = []
     try:
         # (expanded search, reduced candidate). A reduced candidate re-verifies the
         # same selection without provisions the verifier found inapplicable.
@@ -1077,6 +1098,8 @@ def answer_structured(question: str, retriever, client, top_k: int = 6) -> dict:
                     payload["retry_reason"] = retry_reason
                     if retry_scope_guard:
                         payload["retry_scope_guard"] = True
+                    if retry_restrictions:
+                        payload["retry_restrictions"] = retry_restrictions
                 calls += 1
                 generated = client.complete(SYSTEM, payload)
                 candidate = expand_selection(generated, evidence)
@@ -1173,6 +1196,11 @@ def answer_structured(question: str, retriever, client, top_k: int = 6) -> dict:
             if edition_wrong:
                 retry_reason, retry_scope_guard = "inapplicable_edition", False
                 continue
+            if not allowed and not expanded and prose_state == "source_only" and draft and restricted and not value_gaps:
+                # The text was dropped for losing a restriction and the quotes alone
+                # did not answer: the retry is told which restrictions to keep.
+                retry_reason, retry_scope_guard = "answer_lost_restrictions", False
+                retry_restrictions = lost_restrictions(draft, selected)
             # Only within the per-question call limit: exceeding it would turn a
             # refusal into a technical error.
             dropped = [] if allowed or reduced or calls >= QUESTION_CALL_LIMIT else inapplicable_only(candidate, verdict)
