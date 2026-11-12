@@ -581,8 +581,9 @@ def added_assertions_safe(text, selected):
                   for f in selected for s in _sentences(f.text) if _INCLUDED.search(s)]
     # A separate-payment absence covered by an inclusion clause is not a claim
     # about a document's contents either.
-    for sentence in re.split(r'(?<=[.!?])\s+|\n', text):
-        if _included_not_separate(sentence.lower().replace('ё', 'е'), inclusions):
+    whole = re.split(r'(?<=[.!?])\s+|\n', text)
+    for i, sentence in enumerate(whole):
+        if _included_not_separate(_with_antecedent(whole, i), inclusions):
             text = text.replace(sentence, _SEPARATE_PAYMENT.sub(' ', sentence))
     source_facts = [fact for f in selected for fact in _record_facts(f.text)]
     for doc, negative, optional, words in _record_facts(text):
@@ -593,7 +594,17 @@ def added_assertions_safe(text, selected):
                        if _OTHER_ABSENCE.search(s)]
     return all(any(_assertion_words(s) <= source for source in source_absences)
                or _included_not_separate(_whole_sentence(text, s), inclusions)
+               or any(_included_not_separate(_with_antecedent(whole, i), inclusions)
+                      for i, w in enumerate(whole) if s in w.lower().replace('ё', 'е'))
                for s in _sentences(text) if _OTHER_ABSENCE.search(s))
+
+
+def _with_antecedent(sentences, i):
+    """«Отдельно их оплачивать не нужно.» names its items in the sentence before."""
+    sentence = sentences[i].lower().replace('ё', 'е')
+    if i and _SEPARATE_PAYMENT.search(sentence) and not (_assertion_words(sentence) - _PAYMENT_WORDS):
+        return sentences[i - 1].lower().replace('ё', 'е') + ' ' + sentence
+    return sentence
 
 
 def _whole_sentence(text, part):

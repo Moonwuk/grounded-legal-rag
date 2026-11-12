@@ -69,6 +69,13 @@ class InclusionImpliesNoSeparatePaymentTests(unittest.TestCase):
         # The same sentence with an item the clause does not name still fails.
         self.assertFalse(added_assertions_safe(text.replace('пусконаладку, поэтому', 'пусконаладку и доставку, поэтому'), source))
 
+    def test_items_named_in_the_sentence_before(self):
+        self.assertTrue(added_assertions_safe(
+            'Да, монтаж оборудования и пусконаладка включены в стоимость работ (п. 5.3). Отдельно их оплачивать не требуется.', self.SOURCE))
+        # The previous sentence does not carry an item the absence is about.
+        self.assertFalse(added_assertions_safe(
+            'Да, монтаж оборудования включён в стоимость работ (п. 5.3). Отдельно доставку оплачивать не требуется.', self.SOURCE))
+
     def test_without_an_inclusion_clause_the_absence_still_fails(self):
         source = [Fragment('f', 'contract.txt', 0, 200, '5.3. Монтаж оборудования выполняется Подрядчиком на объекте Заказчика.', '')]
         self.assertFalse(added_assertions_safe('Монтаж оборудования отдельно оплачивать не нужно.', source))
