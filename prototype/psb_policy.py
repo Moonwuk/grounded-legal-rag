@@ -80,7 +80,10 @@ out_of_scope список пуст. Всё, что answer берёт из док
 Строку «Источник» добавит приложение. Пиши только то, что прямо следует из
 выбранных source_ids и фактов пользователя. Числа, суммы, сроки, даты и номера
 пунктов приводи как в источнике, но число пиши один раз: «5 рабочих дней», а не
-«5 (пяти) рабочих дней». Не вычисляй новых чисел. Отвечай на заданный вопрос: не
+«5 (пяти) рабочих дней». Если вопрос требует расчёта, запиши расчёт в answer
+явно, не более двух действий на шаг: числа из выбранных положений и вопроса и
+результат («400 × 1,5 × 2 = 1200; 400 × 2 × 3 = 2400; итого 3600 рублей»).
+Приложение проверяет каждое новое число по этим шагам. Отвечай на заданный вопрос: не
 добавляй соседние сроки, адреса, другие договоры и иные сведения, о которых не
 спрашивали. При этом сохрани все существенные условия и исключения, без которых
 ответ был бы неполным или вводил бы в заблуждение. Не опускай отрицания.
@@ -162,6 +165,7 @@ VERIFY = """Ты проверяющий юридического ответа. Q
 норма не должна превращаться в условие ответа. Проверяй также rendered_answer:
 он содержит дословные положения вместо непроверяемого пересказа; достаточно ли
 этих положений для вопроса и явно ли названы пробелы.
+Проверь расчёт: применимы ли выбранные ставки и коэффициенты к условиям вопроса.
 Проверь числа, отрицания, исключения, контрагента, дату события, действие редакции,
 допсоглашения и будущие изменения. Подлинная цитата может не поддерживать вывод.
 Проверь также обоснованность отказа или уточнения: не должен ли ассистент ответить?
@@ -608,6 +612,94 @@ def grounding_basis(question, selected, documents) -> str:
     return "\n".join(parts)
 
 
+# Multipliers that norms write in words ("в полуторном размере").
+_MULTIPLIERS = (("полутор", Decimal("1.5")), ("двойн", Decimal(2)), ("тройн", Decimal(3)), ("половин", Decimal("0.5")))
+_CALC_NUMBER = re.compile(r"(?<![\w.,])\d{1,3}(?:[ \u00a0\u202f]\d{3})+(?:[.,]\d+)?(?![\w])|(?<![\w.,])\d+(?:[.,]\d+)?(?![\w])")
+
+
+def _value(token):
+    return Decimal(re.sub(r"[ \u00a0\u202f]", "", token).replace(",", "."))
+
+
+def _same(result, value):
+    """Equal, or equal after rounding to the precision written in the text."""
+    if result == value:
+        return True
+    places = -value.as_tuple().exponent if value.as_tuple().exponent < 0 else 0
+    return abs(result - value) < Decimal(1).scaleb(-places) / 2
+
+
+def _derivable(value, operands):
+    """value = a op b or (a op b) op c for operands written before it."""
+    ops = (lambda a, b: a + b, lambda a, b: a - b, lambda a, b: a * b,
+           lambda a, b: a / b if b else None)
+    pool = list(dict.fromkeys(operands))[:16]
+    with localcontext() as context:
+        context.prec = 40
+        firsts = []
+        for a in pool:
+            for b in pool:
+                for op in ops:
+                    r = op(a, b)
+                    if r is None:
+                        continue
+                    if _same(r, value):
+                        return True
+                    firsts.append(r)
+        for r in firsts:
+            for c in pool:
+                for op in ops:
+                    s = op(r, c)
+                    if s is not None and _same(s, value):
+                        return True
+                    s = op(c, r)
+                    if s is not None and _same(s, value):
+                        return True
+    return False
+
+
+def calculation_shown(text: str, basis: str) -> bool:
+    """Every number of the text is in the basis or follows, by one or two
+    arithmetic operations, from numbers of the text that are in the basis or
+    already follow. The answer may lead with the result and show the steps
+    after it; a figure without a shown calculation fails."""
+    low_basis = basis.lower().replace("ё", "е")
+    try:
+        atoms, composites, _ = _figures(basis, False)
+        known = {Decimal(x) for x in atoms | composites}
+        known |= {v for stem, v in _MULTIPLIERS if stem in low_basis}
+        if re.search(r"%|процент", low_basis):
+            known.add(Decimal(100))
+        text = _NUMERIC_DATE.sub(" ", _TEXT_DATE.sub(" ", text.lower().replace("ё", "е")))
+        written = []
+        for m in _CALC_NUMBER.finditer(text):
+            written.append(_value(m.group()))
+            # "6%" is also the factor 0.06.
+            if re.match(r"\s*(?:%|процент)", text[m.end():]) and written[-1] in known:
+                known.add(written[-1] / 100)
+                written.append(written[-1] / 100)
+        written += [v for stem, v in _MULTIPLIERS if stem in text]
+        written += [Decimal(x) for x in _word_numbers(text)]
+        operands = [v for v in written if v in known]
+        pending = [v for v in dict.fromkeys(written) if v not in known]
+        # A new figure stands in a written calculation, not in plain prose.
+        shown = set()
+        for sentence in re.split(r"(?<=[.!?;])\s+", text):
+            if re.search(r"[×*+=÷/]|\s[−–-]\s", sentence):
+                shown |= {_value(m.group()) for m in _CALC_NUMBER.finditer(sentence)}
+        if any(v not in shown for v in pending):
+            return False
+        while pending:
+            found = [v for v in pending if _derivable(v, operands)]
+            if not found:
+                return False
+            operands += found
+            pending = [v for v in pending if v not in found]
+    except (ArithmeticError, ValueError):
+        return False
+    return True
+
+
 def prose_grounded(text: str, basis: str) -> bool:
     if not isinstance(text, str) or not text.strip() or len(text) > PROSE_LIMIT:
         return False
@@ -620,7 +712,10 @@ def prose_grounded(text: str, basis: str) -> bool:
     except (ValueError, ArithmeticError):
         # Malformed or oversized untrusted figures reject prose, not the row.
         return False
-    return all(n <= h for n, h in zip(need, have))
+    if all(n <= h for n, h in zip(need, have)):
+        return True
+    # New numbers are allowed only as a shown calculation; dates never.
+    return not (need[2] - have[2]) and calculation_shown(text, basis)
 
 
 def display_name(document: str) -> str:
