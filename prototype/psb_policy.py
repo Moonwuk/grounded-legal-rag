@@ -389,6 +389,10 @@ def _word_value(word):
     return None
 
 
+# A unit right after a word «один»: then it is a quantity.
+_UNIT_AFTER = re.compile(r'\s+(?:[а-я]+\s+)?(?:дн|день|сут|недел|месяц|год|лет|час|минут|секунд|рубл|копе|процент|раз|экземпляр|штук|квартал|смен)', re.I)
+
+
 def _word_numbers(text):
     """Canonical quantities, not the individual pieces of a compound numeral."""
     found, group, total, previous, end, active = set(), 0, 0, None, 0, False
@@ -403,6 +407,10 @@ def _word_numbers(text):
         scale = next((value for stem, value in (('тысяч', 10**3), ('миллион', 10**6), ('миллиард', 10**9))
                       if word.startswith(stem)), None)
         value = _word_value(word)
+        if value == 1 and previous is None and not _UNIT_AFTER.match(text, match.end()):
+            # «одного согласия недостаточно», «ни одно соглашение» is a determiner,
+            # not a quantity; «один месяц», «одного дня» stays a number.
+            value = None
         if scale is not None:
             total += (group if previous is not None else 1) * scale
             group, previous = 0, None
@@ -1456,6 +1464,14 @@ def answer_structured(question: str, retriever, client, top_k: int = 6) -> dict:
                     retry_reason = ("answer_numbers_not_in_sources" if prose_state == "ungrounded"
                                     else "answer_not_supported")
                     retry_scope_guard = scope_blocked
+                    continue
+                if (prose_state == "source_only" and draft and restricted and not value_gaps and not expanded
+                        and not reduced and calls + 2 <= QUESTION_CALL_LIMIT):
+                    # Approved, but the text dropped a restriction class and only the
+                    # quotation is published: one attempt is told which wordings to keep.
+                    fallback = result
+                    retry_reason, retry_scope_guard = "answer_lost_restrictions", False
+                    retry_restrictions = lost_restrictions(draft, selected)
                     continue
                 extra = (unneeded(candidate, verdict) if candidate["status"] == "answer" and prose_state == "published"
                          and not expanded and not reduced and calls + 2 <= QUESTION_CALL_LIMIT else [])

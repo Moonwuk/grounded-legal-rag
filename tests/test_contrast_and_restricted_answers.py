@@ -164,11 +164,13 @@ class RestrictedProvisionTests(unittest.TestCase):
         for s in RESTRICTED:
             for bad in s['bad']:
                 with self.subTest(bad=bad):
-                    text, status, _, events = run(s['question'], [select(s['needle'], bad), confirm()], s['file'])
+                    # The retry is told the lost restrictions; the model drops them again.
+                    text, status, model, events = run(s['question'], [select(s['needle'], bad), confirm()] * 2, s['file'])
                     self.assertEqual(status, 'answer')
                     self.assertNotIn(bad, text)
                     self.assertIn('«' + next(iter(s['file'].values())) + '»', text)
                     self.assertEqual(events[-1]['prose'], 'source_only')
+                    self.assertEqual(model.calls[2][1].get('retry_reason'), 'answer_lost_restrictions')
 
     def test_verifier_rejection_of_the_text_keeps_only_the_source(self):
         s = RESTRICTED[1]

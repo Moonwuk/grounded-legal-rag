@@ -76,3 +76,24 @@ class CalculationBasisWithDottedNumbersTests(unittest.TestCase):
                  '3. При наличии отягчающего обстоятельства размер штрафа увеличивается на 100 процентов.')
         self.assertTrue(calculation_shown('Штраф составит 90 000 рублей: 45 000 + 45 000 = 90 000.', basis))
         self.assertFalse(calculation_shown('Штраф составит 95 000 рублей: 45 000 + 45 000 = 95 000.', basis))
+
+
+class WordOneTests(unittest.TestCase):
+    """Diagnostic set on the organizer base (PSB_AB_20_vs_24, N17): «одного
+    письменного согласия недостаточно» was read as the number 1, which no source
+    had, so a correct conclusion was rejected. «Один» counts as a number only
+    with a unit next to it."""
+
+    def test_determiner_one_is_not_a_figure(self):
+        basis = 'Не допускается привлечение к ночной работе работников младше восемнадцати лет.'
+        for text in ('Нет: одного письменного согласия недостаточно, запрет безусловный.',
+                     'Ни одно соглашение сторон этот запрет не отменяет.',
+                     'Достаточно одной ссылки на норму: привлечение не допускается.'):
+            with self.subTest(text):
+                self.assertTrue(prose_grounded(text, basis))
+
+    def test_one_with_a_unit_is_still_checked(self):
+        basis = 'Испытание не может превышать двух месяцев.'
+        for text in ('Испытание может длиться один месяц.', 'Срок — одна неделя.', 'Пени начисляются за один день.'):
+            with self.subTest(text):
+                self.assertFalse(prose_grounded(text, basis))

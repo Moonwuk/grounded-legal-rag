@@ -46,6 +46,27 @@ class RestrictionRetryTests(unittest.TestCase):
         self.assertEqual(status, 'answer')
         self.assertTrue(text.startswith(kept))
 
+    def test_approved_quote_only_answer_also_gets_the_retry(self):
+        # Diagnostic set on the organizer base (PSB_AB_20_vs_24, N17): the verifier
+        # approved, the text dropped a restriction class of the norm, the quotation
+        # alone was published without any retry.
+        lost = 'Нет, заказчик должен оплатить исполнителю фактически понесённые расходы.'
+        kept = 'Нет: заказчик вправе отказаться только при условии оплаты исполнителю фактически понесённых расходов.'
+        model = ScriptedModel([generate(lost), verdict(True, True), generate(kept), verdict(True, True)])
+        with corpus({'law.txt': NORM}) as r:
+            text, status = answer_question(QUESTION, r, model)
+        self.assertEqual(model.calls[2][1].get('retry_reason'), 'answer_lost_restrictions')
+        self.assertEqual(status, 'answer')
+        self.assertTrue(text.startswith(kept), text)
+
+    def test_approved_quote_only_answer_is_kept_if_the_retry_fails(self):
+        lost = 'Нет, заказчик должен оплатить исполнителю фактически понесённые расходы.'
+        model = ScriptedModel([generate(lost), verdict(True, True), generate(lost), verdict(False, False)])
+        with corpus({'law.txt': NORM}) as r:
+            text, status = answer_question(QUESTION, r, model)
+        self.assertEqual(status, 'answer')
+        self.assertIn('только при условии оплаты', text)
+
     def test_lost_restrictions_lists_source_wording(self):
         source = [Fragment('f', 'd', 0, 10, 'Арендатор не вправе сдавать помещение в субаренду, за исключением случаев согласия арендодателя.', '')]
         self.assertEqual(lost_restrictions('Сдавать в субаренду нельзя.', source), ['за исключением'])

@@ -64,7 +64,7 @@ class ProseSafetyTests(unittest.TestCase):
             ('4.2. Передача оборудования запрещена.', 'Передача оборудования разрешена.'),
         ):
             with self.subTest(provision=provision):
-                text, status, _, _ = run('Можно сдавать помещение или передавать оборудование без согласия?', [select('4.2.', false_text), confirm()],
+                text, status, _, _ = run('Можно сдавать помещение или передавать оборудование без согласия?', [select('4.2.', false_text), confirm()] * 2,
                                          {'Договор.txt': provision})
                 self.assertEqual(status, 'answer')
                 self.assertNotIn(false_text, text)
@@ -73,7 +73,7 @@ class ProseSafetyTests(unittest.TestCase):
     def test_conditional_permission_cannot_lose_its_condition(self):
         source = '2.1. Только при наличии письменного согласия допускается вывоз оборудования.'
         false_text = 'Вывоз оборудования допускается без ограничений.'
-        text, status, _, _ = run('Можно вывезти оборудование?', [select('2.1.', false_text), confirm()],
+        text, status, _, _ = run('Можно вывезти оборудование?', [select('2.1.', false_text), confirm()] * 2,
                                  {'Положение.txt': source})
         self.assertEqual(status, 'answer')
         self.assertNotIn(false_text, text)
