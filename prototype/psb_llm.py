@@ -49,7 +49,7 @@ def strict_json(raw):
 
 
 # Logical model calls per question. The policy plans its attempts within it.
-QUESTION_CALL_LIMIT = 4
+QUESTION_CALL_LIMIT = 5
 
 
 # Reasoning effort: measured on deepseek-flash, "low" kept accuracy on the demo

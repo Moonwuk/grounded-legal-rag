@@ -65,9 +65,11 @@ class ContrastProvisionTests(unittest.TestCase):
     def test_reduced_candidate_still_needs_its_own_approval(self):
         s = REVISIONS[0]
         for second in (judge(inapplicable=[0]), judge(unsupported=[0])):
-            text, status, model, _ = run(s['question'], [both(s), judge(inapplicable=[1]), second], s['files'])
+            # The rest is rejected too: one more generation is told the reason.
+            text, status, model, _ = run(s['question'], [both(s), judge(inapplicable=[1]), second, both(s), second], s['files'])
             self.assertEqual((text, status), (UNVERIFIED, 'unverified'))
-            self.assertEqual(len(model.calls), 3)
+            self.assertEqual(len(model.calls), 5)
+            self.assertEqual(model.calls[3][1].get('retry_reason'), 'inapplicable_provision')
 
     def test_unconfirmed_text_falls_back_to_the_applicable_provision_only(self):
         s = REVISIONS[1]
@@ -84,15 +86,17 @@ class ContrastProvisionTests(unittest.TestCase):
 
     def test_reduction_never_exceeds_the_per_question_call_limit(self):
         # Holdout 9989f40 temporal-0009: rejected for another reason, then the
-        # expanded attempt found an inapplicable provision; the 5th call raised
-        # question_call_budget and the answer became a technical error.
+        # expanded attempt found an inapplicable provision; a call beyond the
+        # limit raised question_call_budget and the answer became a technical
+        # error. Within the limit the reduction is verified; nothing follows it.
         from psb_llm import QUESTION_CALL_LIMIT
         for s in REVISIONS:
             with self.subTest(s['question']):
-                text, status, model, events = run(s['question'], [both(s), judge(unsupported=[0]), both(s), judge(inapplicable=[1])], s['files'])
+                script = [both(s), judge(unsupported=[0]), both(s), judge(inapplicable=[1]), judge(unsupported=[0])]
+                text, status, model, events = run(s['question'], script + [both(s), judge()] * 3, s['files'])
                 self.assertEqual(status, 'unverified')
-                self.assertLessEqual(len(model.calls), QUESTION_CALL_LIMIT)
-                self.assertEqual([e['reduced'] for e in events], [False, False])
+                self.assertEqual(len(model.calls), QUESTION_CALL_LIMIT)
+                self.assertEqual([e['reduced'] for e in events], [False, False, True])
 
     def test_partial_verdict_for_an_inapplicable_contrast_is_reduced_on_the_first_attempt(self):
         # Holdout 76f2b42 contradiction-0019, low temporal-0069, PR #18 temporal-0039:

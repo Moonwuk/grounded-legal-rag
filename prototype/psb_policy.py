@@ -118,8 +118,15 @@ partial: дай подтверждённую часть и назови, как�
 answer_numbers_not_in_sources — в тексте были числа или номера пунктов, которых нет
 в выбранных положениях и в вопросе; answer_not_supported — текст не подтверждён
 выбранными положениями; inapplicable_edition — ни одно выбранное положение не
-действовало на дату события из вопроса (по датам действия, указанным в документах).
+действовало на дату события из вопроса (по датам действия, указанным в документах);
+inapplicable_provision — выбранное положение не применялось к условиям вопроса
+(дате события, сумме, редакции), а применимое выбрано не было: найди в evidence
+положение, которое действует именно при этих условиях.
 Исправь именно это.
+Если retry_reason=answer_extra_provisions, прошлый answer верен, но содержал
+положения, о которых не спрашивали; их id перечислены в retry_extra_source_ids.
+Дай тот же ответ без них: не выбирай и не упоминай их, если без них ответ не
+становится неполным или вводящим в заблуждение.
 Если retry_reason=answer_lost_restrictions, прошлый answer опустил ограничения
 выбранных положений; поле retry_restrictions перечисляет их формулировки из
 источника. Новый answer должен прямо сохранить каждое из них.
@@ -198,9 +205,14 @@ issue conflicting_documents верен, только если выбранные
 редакцию; отвечает ли он на последнюю реплику и исправляет ли ложную предпосылку.
 answer_supported=true только если всё подтверждено и ничего не усилено; для отказа
 и уточнения — если в тексте нет неподтверждённых правовых утверждений.
+needed=false ставь claim, который подтверждён и применим, но для ответа на последнюю
+реплику не нужен: о нём не спрашивали, и без него ответ не станет неполным или
+вводящим в заблуждение (соседний срок, другой платёж, право стороны, о котором
+не спрашивали). Условие, исключение, ограничение, определение срока и положение,
+исправляющее ложную предпосылку вопроса, — needed=true. needed не влияет на approved.
 Верни только JSON: {"approved":true|false,"complete":true|false,
 "status":"один из статусов candidate", "claim_checks":[
-{"index":0,"supported":true|false,"applicable":true|false}],
+{"index":0,"supported":true|false,"applicable":true|false,"needed":true|false}],
 "answer_supported":true|false,"reason":"короткая причина"}. Для answer complete обязано быть true. Для partial
 подтверди все выданные тезисы и корректность названных пробелов. Индексы с нуля;
 проверка должна присутствовать для каждого claim. При неподтвержденном тезисе,
@@ -346,6 +358,18 @@ def inapplicable_only(candidate: dict, verdict) -> list[int]:
     if sorted(c["index"] for c in checks) != list(range(count)):
         return []
     bad = sorted(c["index"] for c in checks if c.get("applicable") is not True)
+    return bad if 0 < len(bad) < count else []
+
+
+def unneeded(candidate: dict, verdict) -> list[int]:
+    """Positions of claims an approving verifier marked as not needed for the
+    question (needed is exactly false). Empty unless at least one claim stays."""
+    checks = verdict.get("claim_checks") if isinstance(verdict, dict) else None
+    count = len(candidate["claims"])
+    if not isinstance(checks, list) or len(checks) != count:
+        return []
+    bad = sorted(c["index"] for c in checks if isinstance(c, dict) and type(c.get("index")) is int
+                 and 0 <= c["index"] < count and c.get("needed") is False)
     return bad if 0 < len(bad) < count else []
 
 
@@ -1111,6 +1135,7 @@ def answer_structured(question: str, retriever, client, top_k: int = 6) -> dict:
     retry_reason = ""
     retry_scope_guard = False
     retry_restrictions = []
+    retry_extra: list[str] = []
     try:
         # (expanded search, reduced candidate). A reduced candidate re-verifies the
         # same selection without provisions the verifier found inapplicable.
@@ -1120,6 +1145,8 @@ def answer_structured(question: str, retriever, client, top_k: int = 6) -> dict:
             expanded, reduced = attempts[position_in_plan]
             position_in_plan += 1
             contrast = []
+            if not reduced and calls + 2 > QUESTION_CALL_LIMIT:
+                break  # no room for a generation and its verification
             if reduced:
                 evidence, payload, generated, candidate, contrast = reduced
             else:
@@ -1133,6 +1160,8 @@ def answer_structured(question: str, retriever, client, top_k: int = 6) -> dict:
                         payload["retry_scope_guard"] = True
                     if retry_restrictions:
                         payload["retry_restrictions"] = retry_restrictions
+                    if retry_extra:
+                        payload["retry_extra_source_ids"] = retry_extra
                 calls += 1
                 generated = client.complete(SYSTEM, payload)
                 candidate = expand_selection(generated, evidence)
@@ -1230,6 +1259,10 @@ def answer_structured(question: str, retriever, client, top_k: int = 6) -> dict:
             if edition_wrong:
                 retry_reason, retry_scope_guard = "inapplicable_edition", False
                 continue
+            if (not allowed and not expanded and not reduced and isinstance(checks, list)
+                    and any(isinstance(c, dict) and c.get("supported") is True and c.get("applicable") is False for c in checks)):
+                # Told to the next generation unless this verdict is reduced below.
+                retry_reason, retry_scope_guard = "inapplicable_provision", False
             if not allowed and not expanded and prose_state == "source_only" and draft and restricted and not value_gaps:
                 # The text was dropped for losing a restriction and the quotes alone
                 # did not answer: the retry is told which restrictions to keep.
@@ -1243,16 +1276,33 @@ def answer_structured(question: str, retriever, client, top_k: int = 6) -> dict:
                 # selection without the inapplicable provisions; nothing follows it.
                 kept = {**selection, "claims": [c for i, c in enumerate(selection["claims"]) if i not in dropped]}
                 contrast = [by_id[cite["fragment_id"]] for i in dropped for cite in candidate["claims"][i]["sources"]]
-                attempts[position_in_plan:] = [(expanded, (evidence, payload, generated, kept, contrast))]
+                # If the rest is not approved either (the applicable provision was
+                # never selected), one more generation is told the reason.
+                attempts[position_in_plan:] = ([(expanded, (evidence, payload, generated, kept, contrast))]
+                                               + ([] if expanded else [(True, None)]))
                 continue
             if allowed:
                 result = {"text": rendered, "status": candidate["status"], "sources": published_sources}
-                if prose_state in {"ungrounded", "rejected"} and not expanded:
+                if retry_extra:
+                    # The attempt without the unasked provisions replaces the
+                    # verified answer only if it is again a verified answer with text.
+                    return result if candidate["status"] == "answer" and prose_state == "published" else fallback
+                if prose_state in {"ungrounded", "rejected"} and not expanded and not reduced:
                     # Keep the verified provisions and give the text one more attempt.
                     fallback = result
                     retry_reason = ("answer_numbers_not_in_sources" if prose_state == "ungrounded"
                                     else "answer_not_supported")
                     retry_scope_guard = scope_blocked
+                    continue
+                extra = (unneeded(candidate, verdict) if candidate["status"] == "answer" and prose_state == "published"
+                         and not expanded and not reduced and calls + 2 <= QUESTION_CALL_LIMIT else [])
+                if extra:
+                    # A true provision nobody asked about can be read by a judge as a
+                    # fabricated fact. The verified answer is kept; one attempt asks
+                    # for the same answer without those provisions.
+                    fallback = result
+                    retry_reason, retry_scope_guard = "answer_extra_provisions", False
+                    retry_extra = [cite["fragment_id"] for i in extra for cite in selection["claims"][i]["sources"]]
                     continue
                 # Missing user facts cannot be found by another retrieval pass.
                 document_gap = bool(set(candidate.get("requested_facts", [])) &

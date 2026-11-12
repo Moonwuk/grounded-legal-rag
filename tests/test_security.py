@@ -23,7 +23,7 @@ import zipfile
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / 'prototype'))
 from psb_corpus import load_corpus, read_docx, Fragment
-from psb_llm import ProxyClient, ProviderError, strict_json
+from psb_llm import QUESTION_CALL_LIMIT, ProxyClient, ProviderError, strict_json
 from psb_policy import validate_candidate, approved, render, answer_question, TECHNICAL
 from solution import input_directory, read_questions, write_output
 
@@ -404,14 +404,14 @@ class ProxyTests(unittest.TestCase):
     def test_call_and_request_size_budgets(self):
         with proxy() as (_, calls):
             client = ProxyClient(time.monotonic() + 10)
-            for _ in range(4):
+            for _ in range(QUESTION_CALL_LIMIT):
                 client.complete('policy', {})
             with self.assertRaisesRegex(ProviderError, 'question_call_budget'):
                 client.complete('policy', {})
-            self.assertEqual(len(calls), 4)
+            self.assertEqual(len(calls), QUESTION_CALL_LIMIT)
             with self.assertRaisesRegex(ProviderError, 'request_size_limit'):
                 ProxyClient(time.monotonic() + 10).complete('policy', {'q': 'X' * 512000})
-            self.assertEqual(len(calls), 4)
+            self.assertEqual(len(calls), QUESTION_CALL_LIMIT)
 
     def test_environment_aliases_and_untrusted_text_cannot_select_endpoint(self):
         with proxy() as (server, calls):
