@@ -505,6 +505,33 @@ def request_scope(question: str) -> str:
 _PAYLOAD = re.compile(r"\b[A-Z][A-Z0-9]*(?:_[A-Z0-9]+)+\b")
 
 
+# «применяется к партиям, спецификации на которые подписаны после 1 октября»:
+# an application rule with a condition already limits its scope, so «только»
+# restating it adds nothing.
+_SCOPE_RULE = re.compile(r'\b(?:примен|распростран|действ|относ)\w*\s+(?:к|на|для)\b[^.!?;\n]{0,160}?'
+                         r'\b(?:после|до|начиная\s+с|с\s+\d|если|при\s+условии)', re.I)
+
+
+def _restates_scope(text, match, scopes):
+    """The sentence with this «только» words nothing beyond one source scope rule."""
+    if not scopes:
+        return False
+    sentence = next((s for s in re.split(r'(?<=[.!?;])\s+|\n', text) if match.group() in s and
+                     text.find(s) <= match.start() < text.find(s) + len(s)), "")
+    clause = re.split(r'[,;:]\s+(?=(?:а|но|поэтому|так как|поскольку|ваш|ваша|ваше|ваши)\b)', sentence, maxsplit=1)[0]
+    words = _scope_words(_REFERENCE.sub(' ', clause)) - {'толь', 'лиш', 'искл', 'нет', 'да'}
+    return bool(words) and any(words <= scope for scope in scopes)
+
+
+_SCOPE_VERBS = {'прим', 'расп', 'дейс', 'отно'}
+
+
+def _scope_words(text):
+    """Assertion words with the scope verbs («применяется», «распространяется»,
+    «действует», «относится») read as one."""
+    return {('прим' if w in _SCOPE_VERBS else w) for w in _assertion_words(text)}
+
+
 def prose_scope_safe(text: str, selected: list[Fragment]) -> bool:
     # A positive model verdict cannot introduce these restrictive operators.
     # This small lexical barrier is not a general entailment/negation checker.
@@ -513,7 +540,9 @@ def prose_scope_safe(text: str, selected: list[Fragment]) -> bool:
         return False
     source = raw.lower().replace("ё", "е")
     operators = {m.group() for m in _EXCLUSIVE.finditer(source)}
-    return (all(m.group().lower().replace("ё", "е") in operators for m in _EXCLUSIVE.finditer(text))
+    scopes = [_scope_words(s) for f in selected for s in _sentences(f.text) if _SCOPE_RULE.search(s)]
+    return (all(m.group().lower().replace("ё", "е") in operators or _restates_scope(text, m, scopes)
+                for m in _EXCLUSIVE.finditer(text))
             and not (_ROLE_NEGATION.search(text) and not _ROLE_NEGATION.search(source))
             and added_assertions_safe(text, selected))
 

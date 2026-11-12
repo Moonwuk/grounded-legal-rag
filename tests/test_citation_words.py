@@ -79,3 +79,31 @@ class InclusionImpliesNoSeparatePaymentTests(unittest.TestCase):
     def test_without_an_inclusion_clause_the_absence_still_fails(self):
         source = [Fragment('f', 'contract.txt', 0, 200, '5.3. Монтаж оборудования выполняется Подрядчиком на объекте Заказчика.', '')]
         self.assertFalse(added_assertions_safe('Монтаж оборудования отдельно оплачивать не нужно.', source))
+
+
+class ScopeRuleExclusiveTests(unittest.TestCase):
+    """Diagnostic set on the organizer base (PSB_AB_20_vs_24, N05): «новый адрес
+    применяется только к партиям, спецификации на которые подписаны после 1
+    октября» was rejected because the source has no literal «только», although its
+    application rule with a condition («применяется к партиям …, подписаны после»)
+    already limits the scope. The text then fell back to bare quotations and the
+    verifier refused them as giving no conclusion."""
+
+    SOURCE = [Fragment('f', 'Доп соглашение 2 к договору Р-4-2033.txt', 0, 300,
+                       'Новая ставка хранения применяется к поставкам, акты на которые подписаны после 15 марта 2033 г.', '')]
+
+    def test_only_restating_a_conditional_scope_rule_passes(self):
+        from psb_policy import prose_scope_safe
+        for text in ('Нет. Новая ставка хранения применяется только к поставкам, акты на которые подписаны после 15 марта 2033 г.',
+                     'Новая ставка хранения применяется лишь к поставкам, акты на которые подписаны после 15 марта 2033 г.; '
+                     'ваш акт подписан раньше.'):
+            with self.subTest(text):
+                self.assertTrue(prose_scope_safe(text, self.SOURCE))
+
+    def test_only_on_another_subject_still_fails(self):
+        from psb_policy import prose_scope_safe
+        for text in ('Новая ставка хранения применяется только к поставкам оборудования.',
+                     'Хранение возможно только на складе поставщика.',
+                     'Только руководитель вправе подписать акт поставки после 15 марта 2033 г.'):
+            with self.subTest(text):
+                self.assertFalse(prose_scope_safe(text, self.SOURCE))
