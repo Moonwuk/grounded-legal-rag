@@ -109,6 +109,7 @@ class ProxyClient:
         if len(body) > 512000:
             raise ProviderError("request_size_limit")
         truncation_retry = False
+        format_retry = False
         effort_dropped = False
         for attempt in range(3):
             remaining = self.deadline - time.monotonic()
@@ -180,9 +181,26 @@ class ProxyClient:
                 content = choice["message"]["content"].strip()
                 if content.startswith("```") and content.endswith("```"):
                     content = content.split("\n", 1)[1].rsplit("```", 1)[0].strip()
-                value = strict_json(content)
-                if not isinstance(value, dict):
-                    raise ValueError("expected_object")
+                try:
+                    value = strict_json(content)
+                    if not isinstance(value, dict):
+                        raise ValueError("expected_object")
+                except ValueError:
+                    # The model answered outside the JSON contract (plain prose,
+                    # a broken object). One fresh attempt with a format reminder
+                    # shares the transport budget; a second failure is reported.
+                    if format_retry or attempt >= 2:
+                        raise
+                    format_retry = True
+                    print(json.dumps({"event": "format_retry", "position": self.position,
+                                      "logical_call": self.calls, "attempt": attempt + 1}), file=sys.stderr)
+                    request_body["messages"][0]["content"] += (
+                        "\nПовтор: предыдущий ответ не был JSON. Верни только один JSON-объект "
+                        "по заданной схеме, без текста до и после него.")
+                    body = json.dumps(request_body, ensure_ascii=False).encode()
+                    if len(body) > 512000:
+                        raise ProviderError("request_size_limit")
+                    continue
                 if effort_dropped:
                     # Only a success without the parameter shows that it was the cause.
                     ProxyClient.effort_rejected = True
