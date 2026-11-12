@@ -6,7 +6,7 @@ import sys
 from decimal import Decimal, localcontext
 from psb_corpus import Fragment, norm
 from psb_llm import ProviderError, QUESTION_CALL_LIMIT
-from psb_retrieval import user_turns, tokens, STOP
+from psb_retrieval import user_turns, tokens, STOP, event_interval
 
 FOLLOWUPS = {
     "contract": "номер договора или его текст",
@@ -99,7 +99,9 @@ partial: дай подтверждённую часть и назови, как�
 Если есть поле retry_reason, прошлый answer не прошёл проверку приложения:
 answer_numbers_not_in_sources — в тексте были числа или номера пунктов, которых нет
 в выбранных положениях и в вопросе; answer_not_supported — текст не подтверждён
-выбранными положениями. Исправь именно это.
+выбранными положениями; inapplicable_edition — ни одно выбранное положение не
+действовало на дату события из вопроса (по датам действия, указанным в документах).
+Исправь именно это.
 Если retry_scope_guard=true, приложение заблокировало неподтверждённое добавление:
 ограничение функций, отсутствие иных требований или утверждение о содержании
 документа. Удали такое добавление. Не выводи состав акта из обязанности вернуть
@@ -677,6 +679,27 @@ def validate_candidate(candidate: dict, evidence: list[Fragment]) -> bool:
     return True
 
 
+def edition_mismatch(question: str, selected: list[Fragment], retriever) -> bool:
+    """Every selected provision was out of force on the event date of the question.
+
+    Decided only when the event date is unambiguous and each provision states
+    its validity dates; an answer that cites an old edition next to the
+    applicable one (a contrast) is not affected."""
+    if not selected or not hasattr(retriever, "validity"):
+        return False
+    interval = event_interval(question)
+    if interval is None:
+        return False
+    first, last = interval
+    for fragment in selected:
+        start, end = retriever.validity(fragment)
+        if start is None and end is None:
+            return False
+        if not ((start is not None and last < start) or (end is not None and first >= end)):
+            return False
+    return True
+
+
 def approved(candidate: dict, verdict: dict) -> bool:
     if not isinstance(candidate, dict) or not isinstance(verdict, dict):
         return False
@@ -916,6 +939,11 @@ def answer_question(question: str, retriever, client, top_k: int = 6) -> tuple[s
                                                "rendered_answer": rendered,
                                                "source_gaps":source_gaps, "value_gaps":value_gaps})
             allowed = approved(candidate, verdict)
+            # A deterministic date check the verifier's approval cannot override.
+            edition_wrong = bool(allowed and candidate["status"] in {"answer", "partial"}
+                                 and edition_mismatch(question, selected, retriever))
+            if edition_wrong:
+                allowed = False
             if prose and allowed and verdict.get("answer_supported") is not True:
                 # The provisions are confirmed, the model text is not.
                 prose_state = "rejected"
@@ -928,6 +956,7 @@ def answer_question(question: str, retriever, client, top_k: int = 6) -> tuple[s
             position = getattr(client, "position", None)
             event = {"event":"policy_verdict", "position":position if type(position) is int else None,
                      "expanded":expanded, "reduced":bool(reduced), "candidate_status":candidate["status"], "approved":allowed,
+                     "edition_mismatch":edition_wrong,
                      "prose":prose_state,
                      "verdict_status":vstatus if isinstance(vstatus,str) and vstatus in STATUSES else "invalid",
                      "check_count":len(checks) if isinstance(checks,list) else -1,
@@ -938,6 +967,9 @@ def answer_question(question: str, retriever, client, top_k: int = 6) -> tuple[s
             print(json.dumps(event), file=sys.stderr)
             if scope_blocked and not expanded:
                 retry_reason, retry_scope_guard = "answer_not_supported", True
+            if edition_wrong:
+                retry_reason, retry_scope_guard = "inapplicable_edition", False
+                continue
             # Only within the per-question call limit: exceeding it would turn a
             # refusal into a technical error.
             dropped = [] if allowed or reduced or calls >= QUESTION_CALL_LIMIT else inapplicable_only(candidate, verdict)

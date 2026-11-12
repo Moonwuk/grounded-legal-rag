@@ -45,6 +45,64 @@ def tokens(text: str) -> list[str]:
     return result
 
 
+# --- Dates of validity and of the event (deterministic, unambiguous forms only) ---
+MONTHS = {"январ": 1, "феврал": 2, "март": 3, "апрел": 4, "ма": 5, "июн": 6, "июл": 7, "август": 8,
+          "сентябр": 9, "октябр": 10, "ноябр": 11, "декабр": 12}
+_DAY = (r"(?<![\d.\-])(\d{4}-\d{2}-\d{2}|\d{1,2}\.\d{1,2}\.\d{4}|\d{1,2}\s+(?:январ|феврал|март|апрел|ма|июн|июл|август|"
+        r"сентябр|октябр|ноябр|декабр)[а-я]*\s+\d{4})")
+VALID_FROM = re.compile(r"(?:начиная\s+с|^\s*действует\s+с|\.\s*действует\s+с)\s+" + _DAY + r"(?:\s*г\.?)?(?!\s*\(не)", re.I | re.M)
+VALID_UNTIL = re.compile(r"\bдо\s+" + _DAY + r"(?:\s*г\.?)?\s*\(не\s+включая", re.I)
+LOST_FORCE = re.compile(r"утратил[аио]?\s+силу\s+с\s+" + _DAY, re.I)
+
+
+def parse_day(text):
+    """A calendar date from ISO, dd.mm.yyyy or "1 августа 2024"; None if invalid."""
+    import datetime
+    text = text.casefold()
+    try:
+        if re.fullmatch(r"\d{4}-\d{2}-\d{2}", text):
+            return datetime.date.fromisoformat(text)
+        m = re.fullmatch(r"(\d{1,2})\.(\d{1,2})\.(\d{4})", text)
+        if m:
+            return datetime.date(int(m[3]), int(m[2]), int(m[1]))
+        m = re.fullmatch(r"(\d{1,2})\s+([а-я]+)\s+(\d{4})", text)
+        if m:
+            month = next((n for stem, n in sorted(MONTHS.items(), key=lambda x: -len(x[0])) if m[2].startswith(stem)), None)
+            return datetime.date(int(m[3]), month, int(m[1])) if month else None
+    except ValueError:
+        return None
+    return None
+
+
+def event_interval(question: str):
+    """(first, last) day of the event named in the latest user turn that names one.
+
+    Only an unambiguous date counts: exactly one full date, otherwise exactly one
+    "в августе 2024". A document reference ("договор от 12.02.2024") and the
+    current moment ("сейчас декабрь 2026") are not events."""
+    import calendar, datetime
+    for turn in reversed(user_turns(question)):
+        days = {parse_day(m[1]) for m in re.finditer(_DAY, turn, re.I)
+                if not re.search(r"\bот\s*$", turn[:m.start()])} - {None}
+        if len(days) == 1:
+            day = days.pop()
+            return day, day
+        if days:
+            return None
+        # Month and year of a full date ("от 12 февраля 2024") are not a separate event.
+        turn = re.sub(_DAY, " ", turn, flags=re.I)
+        months = {(int(m[2]), next(n for stem, n in sorted(MONTHS.items(), key=lambda x: -len(x[0])) if m[1].casefold().startswith(stem)))
+                  for m in re.finditer(r"(?<!сейчас\s)\b(январ|феврал|март|апрел|ма[йея]|июн|июл|август|сентябр|октябр|ноябр|декабр)[а-я]*\s+(\d{4})",
+                                       turn, re.I)
+                  if not re.search(r"сейчас\s*$", turn[:m.start()], re.I)}
+        if len(months) == 1:
+            year, month = months.pop()
+            return datetime.date(year, month, 1), datetime.date(year, month, calendar.monthrange(year, month)[1])
+        if months:
+            return None
+    return None
+
+
 def user_turns(question: str) -> list[str]:
     # Textual role labels are data, never API roles or trusted instructions.
     parts = re.split(r"(?im)^\s*(Пользователь|Ассистент)\s*:\s*", question)
@@ -211,6 +269,30 @@ class Retriever:
         self.dense, self.vectors = client, vectors
         self._query_vectors, self._dense_lock, self._dense_failed = {}, threading.Lock(), False
         return "dense_enabled"
+
+    def validity(self, fragment):
+        """(valid_from inclusive, valid_until exclusive) stated for this provision or
+        in the header of its document; None where nothing unambiguous is stated.
+
+        Laws are given in their current edition only; dates inside them are
+        transitional provisions, not the validity of the provision."""
+        start = end = None
+        if fragment.document in self.law_by_doc:
+            return start, end
+        m = VALID_FROM.search(fragment.text)
+        if m:
+            start = parse_day(m[1])
+        m = VALID_UNTIL.search(fragment.text)
+        if m:
+            end = parse_day(m[1])
+        header = "\n".join([line for line in self.documents[fragment.document].text.splitlines() if line.strip()][:5])
+        if start is None:
+            m = VALID_FROM.search(header)
+            start = parse_day(m[1]) if m else None
+        if end is None:
+            m = LOST_FORCE.search(header)
+            end = parse_day(m[1]) if m else None
+        return start, end
 
     def _dense_candidates(self, text: str, count: int) -> list[Fragment]:
         if self.vectors is None or self._dense_failed or count <= 0:
