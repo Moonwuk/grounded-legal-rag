@@ -518,7 +518,15 @@ def _restates_scope(text, match, scopes):
         return False
     sentence = next((s for s in re.split(r'(?<=[.!?;])\s+|\n', text) if match.group() in s and
                      text.find(s) <= match.start() < text.find(s) + len(s)), "")
-    clause = re.split(r'[,;:]\s+(?=(?:а|но|поэтому|так как|поскольку|ваш|ваша|ваше|ваши)\b)', sentence, maxsplit=1)[0]
+    # The clause that holds this «только», between conjunction boundaries.
+    start = text.find(sentence)
+    clause = sentence
+    position = 0
+    for part in re.split(r'[,;:]\s+(?=(?:а|но|однако|поэтому|так как|поскольку|ваш|ваша|ваше|ваши)\b)', sentence):
+        position = sentence.find(part, position)
+        if start + position <= match.start() < start + position + len(part):
+            clause = part
+            break
     words = _scope_words(_REFERENCE.sub(' ', clause)) - {'толь', 'лиш', 'искл', 'нет', 'да'}
     return bool(words) and any(words <= scope for scope in scopes)
 
@@ -1257,6 +1265,9 @@ def answer_structured(question: str, retriever, client, top_k: int = 6) -> dict:
     if not isinstance(question, str) or len(question) > 32000:
         return {"text": TECHNICAL, "status": "technical_error", "sources": []}
     fallback = None
+    # Last resort before a generic refusal: an answer whose every claim and text
+    # the verifier confirmed but found incomplete.
+    incomplete = None
     retry_reason = ""
     retry_scope_guard = False
     retry_restrictions = []
@@ -1364,6 +1375,22 @@ def answer_structured(question: str, retriever, client, top_k: int = 6) -> dict:
                 published_sources = []
                 rendered = render(candidate, evidence, source_gaps, question=question, value_gaps=value_gaps,
                                   context_sources=context_sources, editions=editions, published_sources=published_sources)
+            elif (not allowed and incomplete is None and not edition_wrong and isinstance(verdict, dict)
+                  and candidate["status"] in {"answer", "partial"} and candidate["claims"]
+                  and verdict.get("status") in {candidate["status"], "partial"}
+                  and verdict.get("answer_supported") is True and prose_state not in {"rejected", "ungrounded"}
+                  and isinstance(verdict.get("claim_checks"), list)
+                  and len(verdict["claim_checks"]) == len(candidate["claims"])
+                  and all(isinstance(c, dict) and c.get("supported") is True and c.get("applicable") is True
+                          for c in verdict["claim_checks"])):
+                # Only completeness is in question. Every quoted provision is published
+                # with the text, so the conditions it omits are still in front of the reader.
+                kept_sources: list[Fragment] = []
+                kept_text = render({**candidate, "status": "partial"} if candidate["status"] == "answer" else candidate,
+                                   evidence, source_gaps, prose, question=question, value_gaps=value_gaps,
+                                   keep_sources=True, context_sources=context_sources, editions=editions,
+                                   published_sources=kept_sources)
+                incomplete = {"text": kept_text, "status": "partial", "sources": kept_sources}
             elif prose and allowed:
                 prose_state = "published"
             checks = verdict.get("claim_checks") if isinstance(verdict, dict) else None
@@ -1446,13 +1473,13 @@ def answer_structured(question: str, retriever, client, top_k: int = 6) -> dict:
                     fallback = result
                     continue
                 return result
-        return fallback or {"text": UNVERIFIED, "status": "unverified", "sources": []}
+        return fallback or incomplete or {"text": UNVERIFIED, "status": "unverified", "sources": []}
     except ProviderError as error:
         # Only an application-owned code is logged; never provider text/keys.
         code = str(error)
         safe = code if re.fullmatch(r"[a-z_]{1,64}|http_[0-9]{3}", code) else "provider_error"
         print("provider_error: " + safe, file=sys.stderr)
-        return fallback or {"text": TECHNICAL, "status": "technical_error", "sources": []}
+        return fallback or incomplete or {"text": TECHNICAL, "status": "technical_error", "sources": []}
 
 
 def answer_question(question: str, retriever, client, top_k: int = 6) -> tuple[str, str]:

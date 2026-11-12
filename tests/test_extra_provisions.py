@@ -168,3 +168,53 @@ class UngroundedRejectedRetryTests(unittest.TestCase):
         # The clause fragment here carries the heading with «только»: by rule 9
         # its source wording is published; the term itself must be there.
         self.assertIn('41 календарный день', text)
+
+
+class IncompleteButVerifiedTests(unittest.TestCase):
+    """Diagnostic set on the organizer base (PSB_AB_20_vs_24, N18): every claim and
+    the text were confirmed, but the verifier found the answer incomplete (not every
+    condition of the norm was listed) on both attempts, and a generic refusal was
+    published. A verified but incomplete answer is now kept as the last resort,
+    with the quoted provisions, instead of the refusal."""
+
+    FILES = {'Положение о сменах.txt': 'Положение о сменах\n4.1. Продолжительность смены не может превышать 11 часов, '
+             'а для работников младше 18 лет — 7 часов, при условии письменного согласия работника.\n'}
+    QUESTION = 'Какова максимальная продолжительность смены по Положению о сменах?'
+    TEXT = 'Продолжительность смены не может превышать 11 часов (п. 4.1).'
+
+    def answer(self, verdicts):
+        def generate(payload):
+            f = next(f for f in payload['evidence'] if '4.1.' in f['text'])
+            return {'status': 'answer', 'answer': self.TEXT, 'source_ids': [f['id']]}
+        script = []
+        for v in verdicts:
+            script += [generate, v]
+        return run(self.QUESTION, script, self.FILES)
+
+    @staticmethod
+    def verdict(supported=True, applicable=True, text=True):
+        return lambda payload: {'approved': False, 'complete': False, 'status': 'answer', 'answer_supported': text,
+                                'claim_checks': [{'index': i, 'supported': supported, 'applicable': applicable}
+                                                 for i in range(len(payload['candidate']['claims']))]}
+
+    def test_verified_incomplete_answer_is_kept(self):
+        text, status, _, _ = self.answer([self.verdict(), self.verdict()])
+        self.assertEqual(status, 'partial')
+        self.assertIn('11 часов', text)
+        self.assertIn('4.1. Продолжительность смены', text)
+
+    def test_verified_text_leads_when_the_source_has_no_restriction(self):
+        files = {'Положение о сменах.txt': 'Положение о сменах\n4.1. Смена длится 11 часов, для работников младше 18 лет — 7 часов.\n'}
+        def generate(payload):
+            f = next(f for f in payload['evidence'] if '4.1.' in f['text'])
+            return {'status': 'answer', 'answer': 'Смена длится 11 часов (п. 4.1).', 'source_ids': [f['id']]}
+        text, status, _, _ = run(self.QUESTION, [generate, self.verdict(), generate, self.verdict()], files)
+        self.assertEqual(status, 'partial')
+        self.assertTrue(text.startswith('Смена длится 11 часов (п. 4.1).'), text)
+        self.assertIn('7 часов', text)
+
+    def test_unconfirmed_claim_or_text_still_refuses(self):
+        from psb_policy import UNVERIFIED
+        for v in (self.verdict(supported=False), self.verdict(applicable=False), self.verdict(text=False)):
+            text, status, _, _ = self.answer([v, v])
+            self.assertEqual((text, status), (UNVERIFIED, 'unverified'))
