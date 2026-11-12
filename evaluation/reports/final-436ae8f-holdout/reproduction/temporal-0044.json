@@ -1,0 +1,29 @@
+{
+  "case_id": "temporal-0044",
+  "question": "Какой срок оплаты применяется к КТ-45/2026, если акт подписан 2026-07-07? Сейчас декабрь 2026 года.",
+  "history": [],
+  "corpus": "evaluation/generated_corpora/synthetic/knowledge-base.zip",
+  "candidate_documents": [
+    "contract/contract_0018.txt",
+    "contract/contract_0057.md",
+    "contract/contract_0132.txt",
+    "contract/contract_0133.md",
+    "contract/contract_0134.txt",
+    "contract/contract_0135.md",
+    "contract/contract_0213.md",
+    "contract/contract_0291.md",
+    "financial/financial_0044.txt",
+    "financial/financial_0144.txt",
+    "irrelevant/irrelevant_0044.txt",
+    "memo/memo_0044.txt",
+    "memo/memo_0144.txt",
+    "regulation/regulation_0044.txt",
+    "regulation/regulation_0144.txt",
+    "regulation/regulation_0244.txt"
+  ],
+  "command": "python -m evaluation.run_benchmark --corpus synthetic --mode holdout --engine deepseek --case-id temporal-0044 --run-id repro-temporal-0044",
+  "caution": "candidate reduced context; full corpus is authoritative for rank reproduction",
+  "failures": [
+    "system_error"
+  ]
+}

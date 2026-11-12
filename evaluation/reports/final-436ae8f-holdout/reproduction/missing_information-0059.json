@@ -1,0 +1,24 @@
+{
+  "case_id": "missing_information-0059",
+  "question": "Каковы лимит резерва и ставка неустойки для КТ-60/2026?",
+  "history": [],
+  "corpus": "evaluation/generated_corpora/synthetic/knowledge-base.zip",
+  "candidate_documents": [
+    "contract/contract_0177.md",
+    "contract/contract_0178.txt",
+    "contract/contract_0179.md",
+    "financial/financial_0000.txt",
+    "financial/financial_0001.md",
+    "financial/financial_0059.md",
+    "financial/financial_0159.md",
+    "irrelevant/irrelevant_0059.md",
+    "memo/memo_0059.md",
+    "regulation/regulation_0059.md",
+    "regulation/regulation_0159.md"
+  ],
+  "command": "python -m evaluation.run_benchmark --corpus synthetic --mode holdout --engine deepseek --case-id missing_information-0059 --run-id repro-missing_information-0059",
+  "caution": "candidate reduced context; full corpus is authoritative for rank reproduction",
+  "failures": [
+    "system_error"
+  ]
+}
