@@ -266,8 +266,10 @@ class Retriever:
             return "dense_disabled:" + str(error)
         if len(vectors) != len(self.fragments):
             return "dense_disabled:invalid_embedding_response"
-        self.dense, self.vectors = client, vectors
+        # Searches in other threads read self.vectors: the lock and cache exist first.
         self._query_vectors, self._dense_lock, self._dense_failed = {}, threading.Lock(), False
+        self.dense = client
+        self.vectors = vectors
         return "dense_enabled"
 
     def validity(self, fragment):
