@@ -29,7 +29,8 @@ class WebTests(unittest.TestCase):
         cls.addClassCleanup(cls.client.__exit__, None, None, None)
 
     def test_real_corpus_with_local_model_and_exact_source_offsets(self):
-        self.assertEqual(self.client.get("/healthz").json()["documents"], 21)
+        health = self.client.get("/healthz").json()
+        self.assertEqual((health["documents"], health["skipped"]), (21, 0))
         catalog = self.client.get("/api/documents").json()
         self.assertTrue(any("2023" in doc["title"] and doc["status"] == "утратил силу"
                             for doc in catalog))

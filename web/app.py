@@ -32,7 +32,11 @@ TOO_LONG = "Диалог слишком длинный. Начните новы�
 @asynccontextmanager
 async def lifespan(app):
     path = Path(os.getenv("KB_PATH") or ROOT / "organizer" / "knowledge-base.zip")
-    documents, fragments = load_corpus(path)
+    skipped = []
+    documents, fragments = load_corpus(path, skipped=skipped)
+    if skipped:
+        print("documents_skipped=%d reasons=%s" % (len(skipped), ",".join(sorted({c for _, c in skipped}))), file=sys.stderr)
+    app.state.skipped = len(skipped)
     app.state.retriever = Retriever(documents, fragments)
     app.state.documents = {doc.sha256: doc for doc in documents}
     app.state.slots = BoundedSemaphore(integer("WEB_WORKERS", 2, 1, 8))
@@ -165,7 +169,7 @@ async def chat(request: Request):
 def healthz(request: Request):
     retriever = request.app.state.retriever
     return dict(status="ok", documents=len(retriever.documents), fragments=len(retriever.fragments),
-                dense=request.app.state.dense)
+                dense=request.app.state.dense, skipped=request.app.state.skipped)
 
 
 @app.get("/api/documents")

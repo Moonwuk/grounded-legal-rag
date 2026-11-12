@@ -105,7 +105,13 @@ def main() -> int:
         print("configuration_error: corpus_missing", file=sys.stderr)
         return 2
     try:
-        documents, fragments = load_corpus(corpus_path, deadline)
+        # A single unreadable document is left out, not the whole base: every
+        # answer would otherwise be a technical error. Only reason codes are logged.
+        skipped = []
+        documents, fragments = load_corpus(corpus_path, deadline, skipped=skipped)
+        if skipped:
+            codes = sorted({code for _, code in skipped})
+            print(f"documents_skipped={len(skipped)} reasons=" + ",".join(codes), file=sys.stderr)
         retriever = Retriever(documents, fragments, deadline)
         ProxyClient(deadline)  # Validate once, without disclosing configuration.
     except (ProviderError, ValueError, OSError, zipfile.BadZipFile, RuntimeError) as error:
