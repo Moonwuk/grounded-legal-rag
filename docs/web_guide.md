@@ -27,7 +27,7 @@
 |---|---|
 | `psb_corpus.py` | `load_corpus(path)` возвращает `(documents, fragments)`. `Document`: `name`, `text`, `sha256`, `quarantined`. `Fragment`: `id`, `document`, `start`, `end`, `text`, `heading`. |
 | `psb_retrieval.py` | `Retriever(documents, fragments)`: индекс BM25, строится один раз при старте. |
-| `psb_llm.py` | `ProxyClient(deadline)`: клиент модели, читает `LLM_BASE_URL`, `LLM_API_KEY`, `LLM_MODEL` из окружения. Не больше 4 вызовов на вопрос. |
+| `psb_llm.py` | `ProxyClient(deadline)`: клиент модели, читает `LLM_BASE_URL`, `LLM_API_KEY`, `LLM_MODEL` из окружения. Не больше 5 вызовов на вопрос. |
 | `psb_policy.py` | `answer_question(question, retriever, client, top_k)` возвращает `(text, status)`. Внутри поиск, генерация, проверка цитат и отдельный вызов-верификатор. |
 
 Полезные свойства ядра:
