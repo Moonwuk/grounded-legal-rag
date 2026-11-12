@@ -520,6 +520,13 @@ _SCOPE_RULE = re.compile(r'\b(?:примен|распростран|действ
                          r'\b(?:после|до|начиная\s+с|с\s+\d|если|при\s+условии)', re.I)
 
 
+# «пункт 3.5 устанавливает лишь размер», «договор предусматривает только …»:
+# what a clause or document says, not a stronger norm.
+_CONTENT_ONLY = re.compile(
+    r'\b(?:пункт\w*|п\.\s*\d[\d.]*|стать\w*|ст\.\s*\d[\d.]*|договор\w*|соглашени\w*|положени\w*|регламент\w*|документ\w*|норм\w*)'
+    r'(?:\s+[\w.№/-]+){0,3}?\s+(?:устанавлива|предусматрива|определя|содерж|регулиру|говор|касает)\w*\s+(?:лишь|только)$', re.I)
+
+
 def _restates_scope(text, match, scopes):
     """The sentence with this «только» words nothing beyond one source scope rule."""
     if not scopes:
@@ -558,6 +565,7 @@ def prose_scope_safe(text: str, selected: list[Fragment]) -> bool:
     operators = {m.group() for m in _EXCLUSIVE.finditer(source)}
     scopes = [_scope_words(s) for f in selected for s in _sentences(f.text) if _SCOPE_RULE.search(s)]
     return (all(m.group().lower().replace("ё", "е") in operators or _restates_scope(text, m, scopes)
+                or _CONTENT_ONLY.search(text[max(0, m.start() - 80):m.end()])
                 for m in _EXCLUSIVE.finditer(text))
             and not (_ROLE_NEGATION.search(text) and not _ROLE_NEGATION.search(source))
             and added_assertions_safe(text, selected))

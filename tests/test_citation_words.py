@@ -109,3 +109,29 @@ class ScopeRuleExclusiveTests(unittest.TestCase):
                      'Только руководитель вправе подписать акт поставки после 15 марта 2033 г.'):
             with self.subTest(text):
                 self.assertFalse(prose_scope_safe(text, self.SOURCE))
+
+
+class ContentDescriptionOnlyTests(unittest.TestCase):
+    """Diagnostic set on the organizer base (PSB_AB_20_vs_24, N14): «срок возврата в
+    договоре не установлен; пункт 3.5 устанавливает лишь размер платежа» was cut
+    because the source has no «лишь», though the word describes what the clause
+    says, not a stronger norm. Only right after a content verb with a clause or
+    document as the subject."""
+
+    SOURCE = [Fragment('f', 'Договор хранения Х-2-2034.txt', 0, 200,
+                       '4.4. При подписании договора Поклажедатель вносит гарантийный взнос в размере 30 000 рублей.', '')]
+
+    def test_description_of_a_clause_passes(self):
+        from psb_policy import prose_scope_safe
+        for text in ('Срок возврата гарантийного взноса договором не установлен: пункт 4.4 устанавливает лишь размер взноса.',
+                     'Договор предусматривает только внесение взноса при подписании (п. 4.4), срок его возврата не указан.'):
+            with self.subTest(text):
+                self.assertTrue(prose_scope_safe(text, self.SOURCE))
+
+    def test_stronger_norm_still_fails(self):
+        from psb_policy import prose_scope_safe
+        for text in ('Гарантийный взнос вносится только при подписании договора.',
+                     'Только Поклажедатель вправе вносить гарантийный взнос.',
+                     'Возврат возможен лишь после окончания хранения.'):
+            with self.subTest(text):
+                self.assertFalse(prose_scope_safe(text, self.SOURCE))
