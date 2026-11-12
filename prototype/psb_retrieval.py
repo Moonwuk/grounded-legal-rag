@@ -50,6 +50,13 @@ MONTHS = {"январ": 1, "феврал": 2, "март": 3, "апрел": 4, "�
           "сентябр": 9, "октябр": 10, "ноябр": 11, "декабр": 12}
 _DAY = (r"(?<![\d.\-])(\d{4}-\d{2}-\d{2}|\d{1,2}\.\d{1,2}\.\d{4}|\d{1,2}\s+(?:январ|феврал|март|апрел|ма|июн|июл|август|"
         r"сентябр|октябр|ноябр|декабр)[а-я]*\s+\d{4})")
+# Article and point references in any case form: «статье 114», «ст. 41»,
+# «пункту 4 статьи 114», «п. 3.1».
+ARTICLE_REF = re.compile(r"(?<![а-яё])(?:стать[а-яё]*|ст\.)\s*(\d+(?:\.\d+)*)", re.I)
+POINT_REF = re.compile(r"(?<![а-яё])(?:пункт[а-яё]*|п\.)\s*(\d+(?:\.\d+)*)", re.I)
+POINT_OF_ARTICLE = re.compile(r"(?<![а-яё])(?:пункт[а-яё]*|п\.)\s*(\d+(?:\.\d+)*)\s+(?:стать[а-яё]*|ст\.)\s*(\d+(?:\.\d+)*)", re.I)
+CODE_REF = re.compile(r"\b(?:НК|ТК|ГК|ЖК|БК|УК|КоАП)\b|\b(?:налогов|трудов|гражданск|жилищн|бюджетн|уголовн)[а-яё]*\s+кодекс", re.I)
+CODE_NAMES = {"нк": "налоговый", "тк": "трудовой", "гк": "гражданский", "жк": "жилищный", "бк": "бюджетный", "ук": "уголовный"}
 VALID_FROM = re.compile(r"(?:начиная\s+с|^\s*действует\s+с|\.\s*действует\s+с)\s+" + _DAY + r"(?:\s*г\.?)?(?!\s*\(не)", re.I | re.M)
 VALID_UNTIL = re.compile(r"\bдо\s+" + _DAY + r"(?:\s*г\.?)?\s*\(не\s+включая", re.I)
 LOST_FORCE = re.compile(r"утратил[аио]?\s+силу\s+с\s+" + _DAY, re.I)
@@ -357,6 +364,25 @@ class Retriever:
                     frequency + 1.5 * (.25 + .75 * self.lengths[index] / self.avg))
         return scores
 
+    def _article_fragments(self, current: str, articles: list[str], bound) -> list[Fragment]:
+        """Heading and named points of each article the question names."""
+        if not articles:
+            return []
+        codes = {CODE_NAMES[m.group(0).casefold()] for m in CODE_REF.finditer(current) if m.group(0).casefold() in CODE_NAMES}
+        result = []
+        for number in articles:
+            heading = re.compile(r"\s*Статья\s+" + re.escape(number) + r"(?![\d.]\d)", re.I)
+            docs = [d for d in self.law_by_doc if any(heading.match(f.text) for f in self.by_doc[d])]
+            if codes:
+                docs = [d for d in docs if self.law_by_doc[d].split()[0] in codes] or docs
+            for d in sorted(docs)[:2]:
+                result.extend(f for f in self.by_doc[d] if heading.match(f.text))
+                for point, article, _ in bound:
+                    if article == number:
+                        mark = re.compile(re.escape(point) + r"[.)]\s")
+                        result.extend(f for f in self.by_doc[d] if mark.match(f.text))
+        return result
+
     def search(self, question: str, top_k: int = 6, expanded: bool = False) -> list[Fragment]:
         turns = user_turns(question)
         current = turns[-1]
@@ -375,7 +401,14 @@ class Retriever:
                 matches = [name for name in known if re.search(r"(?<![а-яa-z])" + re.escape(name) + r"(?![а-яa-z])", normalized)]
                 if matches:
                     party = max(matches, key=lambda name: normalized.rfind(name))
-        clause_numbers = re.findall(r"(?:пункт(?:а|е)?|п\.|статья|статьи)\s*(\d+(?:\.\d+)*)", current, re.I)
+        # «пункт 4 статьи 114» is point 4 of article 114, not every «4.» of the
+        # base; articles and points are read in any case form.
+        bound = [(m.group(1), m.group(2), m.span()) for m in POINT_OF_ARTICLE.finditer(current)]
+        bound_spans = [span for _, _, span in bound]
+        articles = list(dict.fromkeys([n for _, n, _ in bound] + ARTICLE_REF.findall(current)))[:4]
+        points = [m.group(1) for m in POINT_REF.finditer(current)
+                  if not any(a <= m.start() < b for a, b in bound_spans)]
+        clause_numbers = list(dict.fromkeys(points + articles))
         scored = []
         clauses = re.split(r"\s+и\s+(?=(?:како|кто|где|сколь|до\s|нужно|можно))", current, flags=re.I)
         if len(clauses) > 16:
@@ -422,6 +455,12 @@ class Retriever:
         # relevant ones; it never removes a hit.
         pool = [f for score, f in scored[:30] if score > 0 and f.id not in existing]
         for f in self._rerank_candidates("\n".join(turns[-2:]), pool, 4 if expanded else 2):
+            if f.id not in existing:
+                hits.append(f)
+                existing.add(f.id)
+        # A named article has a reserved place: its heading and the named points,
+        # however long and similarly worded another named article is.
+        for f in self._article_fragments(current, articles, bound):
             if f.id not in existing:
                 hits.append(f)
                 existing.add(f.id)
