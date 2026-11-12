@@ -87,7 +87,9 @@ out_of_scope список пуст. Всё, что answer берёт из док
 списков, разметки и ссылок на сайты. Первая фраза — прямой ответ на последнюю
 реплику: «Да», «Нет» или конкретное значение. Неверную предпосылку исправь первой
 фразой и назови верное значение рядом с ошибочным. Затем условия, исключения и
-основание: назови документ и в скобках пункт или статью выбранного положения.
+основание: назови документ и в скобках пункт или статью выбранного положения;
+у положения без номера назови только документ. Не называй разделов и глав,
+которых нет в тексте документа.
 Строку «Источник» добавит приложение. Пиши только то, что прямо следует из
 выбранных source_ids и фактов пользователя. Числа, суммы, сроки, даты и номера
 пунктов приводи как в источнике, но число пиши один раз: «5 рабочих дней», а не
@@ -845,6 +847,37 @@ _DOCUMENT_WORD = r'(?:договор|документ|соглашени|спр�
 _SAME_DOCUMENT = re.compile(_DOCUMENT_WORD + r'\s+с\s+так\w+\s+(?:обозначени|номер|идентификатор)\w*', re.I)
 
 
+# A named part of a document: "раздел о хранении", "главе «Ответственность сторон»".
+_NAMED_PART = re.compile(r'\b((?:под)?раздел|глав)(?:а|е|у|ы|ой|ом|ах|ам|и)?\s+(?:«([^»\n]{1,120})»|(?:о|об|обо|про)\s)', re.I)
+
+
+def invented_section(text: str, selected: list[Fragment], retriever) -> bool:
+    """The text cites a named section, subsection or chapter that the documents
+    of the selected provisions do not have ("раздел о выдаче оригиналов" in a
+    memo without sections). Numbered parts are checked as figures.
+
+    A quoted name must occur in those documents verbatim (a heading such as
+    «РЕШИЛИ» may be called a section); a described one ("раздел о …") needs
+    the documents to have such parts."""
+    if not text:
+        return False
+    documents = getattr(retriever, "documents", {})
+    source = norm(" ".join(documents[d].text if d in documents else "" for d in dict.fromkeys(f.document for f in selected))
+                  + " " + " ".join(f.text for f in selected)).casefold().replace("ё", "е")
+    for m in _NAMED_PART.finditer(text):
+        name = m.group(2)
+        if name:
+            if norm(name).casefold().replace("ё", "е") not in source:
+                return True
+            continue
+        word = m.group(1).casefold()
+        # "глав" alone would match "главный"; a chapter is "глава/главе/главой…".
+        part = r"\bглав(?:а|е|у|ы|ой|ам|ах|и)\b" if word == "глав" else r"\b" + word
+        if not re.search(part, source):
+            return True
+    return False
+
+
 def false_absence(text: str, retriever) -> bool:
     """The text says a document with an identifier is not in the base, yet the
     base holds a document with that identifier ("договора КТ-65/2026 в базе нет").
@@ -1145,7 +1178,8 @@ def answer_structured(question: str, retriever, client, top_k: int = 6) -> dict:
             restricted = any(_SOURCE_ONLY.search(norm(f.text)) for f in selected)
             source_only = bool(value_gaps) or (restricted and not (draft and restrictions_kept(draft, selected)))
             scope_blocked = bool(draft and selected and not source_only and
-                                 (not prose_scope_safe(draft, selected) or false_absence(draft, retriever)))
+                                 (not prose_scope_safe(draft, selected) or false_absence(draft, retriever)
+                                  or invented_section(draft, selected, retriever)))
             # Figures may also come from provisions the verifier confirmed as
             # authentic but inapplicable: they explain the contrast and are not
             # published as a basis of the answer.
