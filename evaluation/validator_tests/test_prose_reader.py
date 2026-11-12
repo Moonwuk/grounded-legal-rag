@@ -81,6 +81,22 @@ CORRUPTIONS=[
  ('temporal-0001','применяется срок 75 календарных','применяется срок 45 календарных'),
 ]
 
+# Holdout on other models (8ab62ca): correct answers whose second value is
+# limited in words the reader did not know («действует только для актов … до
+# этой даты», «охватывает только», «а не допсоглашение с 60 …»).
+OTHER_MODELS={
+ 'temporal-0019':'75 календарных дней. Акт подписан 2026-07-07, а по допсоглашению к договору № КТ-20/2026 срок оплаты 75 календарных дней применяется при подписании акта начиная с 2026-07-07 включительно (contract_0058). Базовое условие о 17 календарных днях действует только для актов, подписанных до этой даты (contract_0057).',
+ 'temporal-0034':'Применяется срок оплаты 75 календарных дней. По допсоглашению к договору № КТ-35/2026 срок 75 календарных дней действует при подписании акта начиная с 2026-07-09 включительно, а акт подписан именно 2026-07-09; правило 45 календарных дней из базового договора охватывает только акты, подписанные до этой даты (contract_0103.md, contract_0102.txt).',
+ 'multi_document-0094':'Срок оплаты — 17 календарных дней с подписания акта, так как акт подписан 2026-07-03, то есть до 2026-07-04 (не включая эту дату), и применяется базовый договор, а не допсоглашение с 60 календарными днями (CONTRACT № КТ-95/2026 / 0282). Срок согласования обычной сделки — 3 рабочих дней с события отсчёта «получение проекта» (REGULATION № КТ-95/2026 / 0094).',
+}
+# The limitation removed: the second value becomes a second assertion.
+OTHER_MODELS_CORRUPTIONS=[
+ ('temporal-0019','Базовое условие о 17 календарных днях действует только для актов, подписанных до этой даты','Также действует базовое условие о 17 календарных днях'),
+ ('temporal-0034','правило 45 календарных дней из базового договора охватывает только акты, подписанные до этой даты','по базовому договору срок оплаты составляет 45 календарных дней'),
+ ('multi_document-0094','а не допсоглашение с 60 календарными днями','а по допсоглашению срок оплаты составляет 60 календарных дней'),
+ ('temporal-0019','75 календарных дней. Акт','17 календарных дней. Акт'),
+]
+
 def cases():
     return {c['case_id']:c for c in read(EVAL/'gold/synthetic.json')['cases']}
 
@@ -115,6 +131,19 @@ class ProseReaderTests(unittest.TestCase):
                 self.assertIn(old,HOLDOUT[cid])
                 verdict,reasons=evaluate_prose(HOLDOUT[cid].replace(old,new),gold[cid])
                 self.assertIs(verdict,False,reasons)
+
+    def test_other_model_answers_with_limited_second_value_pass(self):
+        gold=cases()
+        for cid,text in OTHER_MODELS.items():
+            with self.subTest(cid):self.assertEqual(evaluate_prose(text,gold[cid]),(True,[]))
+
+    def test_other_model_corruptions_do_not_pass(self):
+        gold=cases()
+        for cid,old,new in OTHER_MODELS_CORRUPTIONS:
+            with self.subTest(new=new):
+                self.assertIn(old,OTHER_MODELS[cid])
+                verdict,reasons=evaluate_prose(OTHER_MODELS[cid].replace(old,new),gold[cid])
+                self.assertIsNot(verdict,True,reasons)
 
     def test_two_values_in_conditions_stay_ambiguous(self):
         gold=cases()

@@ -38,7 +38,13 @@ _CONDITIONAL = re.compile(
     r'\bесли\b|\bпри\s+подписани|\bприменя\w*\s+(?:при|к|для|до|с)\b|\bдейству\w*\s+(?:при|до|с|для)\b'
     r'|\bне\s+(?:применя|распространя|действу)|\bначиная\s+с\b|\bдо\s+\d{4}-\d{2}-\d{2}'
     r'|\bранее\b|\bпрежн\w*|\bотносится\s+к\b|\bустановлен\w*\s+(?:при|для)\b'
-    r'|\bне\s+наступ|(?<!\bот\s)\bс\s+\d{4}-\d{2}-\d{2}', re.I)
+    r'|\bне\s+наступ|(?<!\bот\s)\bс\s+\d{4}-\d{2}-\d{2}'
+    # A value limited to another case in words: «действует только для актов …»,
+    # «охватывает только акты, подписанные до этой даты».
+    r'|\b(?:действу|примен|охватыва|распространя|относ)\w*\s+(?:только|лишь)\b'
+    r'|\b(?:до|с|начиная\s+с)\s+(?:этой|указанной|данной|той\s+же)\s+даты', re.I)
+# «а не допсоглашение с 60 …»: the denied value a few words after «а не».
+_REFUTED_NEAR = re.compile(r'\bа\s+не\b[^.;:!?«»()]{0,40}$', re.I)
 _CLAUSE = re.compile(r'[;:]|,\s+(?=(?:а|но|если|поскольку|так как|потому что|когда|который|которая|которое)\b)', re.I)
 # A digit after a period continues the sentence: "п. 1", "ст. 5".
 _SENTENCE = re.compile(r'(?<=[.!?])\s+(?=[«"(]?[А-ЯЁA-Z])')
@@ -110,7 +116,7 @@ def mentions(prose, required):
         clauses = _clauses(sentence)
         def status(position):
             before = sentence[max(0, position - 16):position]
-            if _REFUTED.search(before):
+            if _REFUTED.search(before) or _REFUTED_NEAR.search(sentence[max(0, position - 48):position]):
                 return 'refuted'
             for a, b, conditional in clauses:
                 if a <= position < b + 1:
