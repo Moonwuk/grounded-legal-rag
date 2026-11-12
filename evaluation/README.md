@@ -61,7 +61,21 @@ python -m evaluation.run_benchmark --mode full --engine retrieval --limit 60 --t
 python -m evaluation.analyze_results evaluation/reports/c1 evaluation/reports/c6 --out evaluation/reports/my-comparison.json
 ```
 
-Raw BM25 — отдельная диагностика, использующая токены и scoring текущего runtime без entity boosts/expansion. `bm25_k1`/`bm25_b` меняют только экспериментальный raw rank, не production Retriever. Hybrid и reranker в прототипе отсутствуют; не имитируются. Генерация и VERIFY не отключаются: такого поддержанного режима runtime нет. Параметры генерации можно сравнивать через разные config на одной выборке при доступном API.
+Raw BM25 — отдельная диагностика, использующая токены и scoring текущего runtime без entity boosts/expansion. `bm25_k1`/`bm25_b` меняют только экспериментальный raw rank, не production Retriever. Эмбеддинги (`EMB_MODEL`) и реранкер (`RERANKER_MODEL` + `PSB_RERANK=1`) в runtime необязательны; прогон их использует, если переменные заданы в окружении, а `retrieval_bench.py` меряет их отдельно ([docs/hybrid_retrieval.md](../docs/hybrid_retrieval.md)). Генерация и VERIFY не отключаются: такого поддержанного режима runtime нет. Параметры генерации можно сравнивать через разные config на одной выборке при доступном API.
+
+## Оценка LLM-судьёй
+
+- `judge_score.py` — аналог раздела 8 регламента: ответ команды против
+  baseline, два раунда с перестановкой A/B, выдуманный факт обнуляет вопрос,
+  `MatchRate`, `WinRate`, `Score`. Baseline — аналог (стартер организаторов,
+  отчёты `reports/starter-*`), эталоны есть только у демо и его
+  перефразировок. Судья — модель из `LLM_MODEL`; для независимости от
+  генератора задавайте другую модель.
+- `judge_forms.py` — сравнение полной и сжатой формы одного ответа тем же
+  судьёй.
+
+Это оценка разработки с нашим промптом судьи, не Score платформы. Результаты —
+[reports/STABILITY_AND_FULL_HOLDOUT.md](reports/STABILITY_AND_FULL_HOLDOUT.md), раздел 11.
 
 ## Файлы и границы
 
