@@ -60,3 +60,19 @@ class CalculationTests(unittest.TestCase):
 
 if __name__ == '__main__':
     unittest.main()
+
+
+class CalculationBasisWithDottedNumbersTests(unittest.TestCase):
+    """Diagnostic set on the organizer base (PSB_AB_20_vs_24, N21): every law of
+    the base has «Дата выгрузки: 10.10.2026» in its header; that figure did not
+    convert to a number, the error was caught and the check failed, so every
+    calculation relying on a law was rejected and the answer became a refusal."""
+
+    def test_dotted_figures_in_the_basis_do_not_break_the_check(self):
+        from psb_policy import calculation_shown
+        basis = ('Исходный штраф 45 000 рублей по пункту 3 статьи 87 учебного кодекса\n'
+                 'Источник: Статья 87. Учебный кодекс\nURL: https://example.invalid/30400100/5e1d9a/\n'
+                 'Дата выгрузки: 03.04.2031\nСм. также п. 1.2.3 приложения.\n'
+                 '3. При наличии отягчающего обстоятельства размер штрафа увеличивается на 100 процентов.')
+        self.assertTrue(calculation_shown('Штраф составит 90 000 рублей: 45 000 + 45 000 = 90 000.', basis))
+        self.assertFalse(calculation_shown('Штраф составит 95 000 рублей: 45 000 + 45 000 = 95 000.', basis))

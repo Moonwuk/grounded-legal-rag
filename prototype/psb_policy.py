@@ -785,7 +785,9 @@ def calculation_shown(text: str, basis: str) -> bool:
     low_basis = basis.lower().replace("ё", "е")
     try:
         atoms, composites, _ = _figures(basis, False)
-        known = {Decimal(x) for x in atoms | composites}
+        # Dotted figures of the basis («10.10.2026» in a law header, «1.2.3») are
+        # not operands; they must not make the whole check fail.
+        known = {Decimal(x) for x in atoms | composites if re.fullmatch(r"\d+(?:\.\d+)?", x)}
         known |= {v for stem, v in _MULTIPLIERS if stem in low_basis}
         if re.search(r"%|процент", low_basis):
             known.add(Decimal(100))
