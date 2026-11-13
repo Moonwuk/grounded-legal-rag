@@ -33,6 +33,8 @@ class BatchFairnessTests(unittest.TestCase):
                 windows.append(self.deadline - time.monotonic())
                 if mode == 'failed_retry' and self.position == 0 and self.calls > 2:
                     raise ProviderError('http_503')
+                if mode in {'deadline_at_verify', 'error_at_verify'} and 'candidate' in payload:
+                    raise ProviderError('run_deadline' if mode == 'deadline_at_verify' else 'http_503')
                 if mode == 'slow' and self.deadline - time.monotonic() < 400:
                     # A call that needs 400 s of the 1100 s run, as ProxyClient
                     # would time out on a slow API.
@@ -49,7 +51,7 @@ class BatchFairnessTests(unittest.TestCase):
                 return {'status': 'partial' if partial else 'answer',
                         'answer': ('Помещение можно передавать только при письменном согласии владельца (п. 9.1).'
                                    if mode == 'restored' and self.calls > 2 else
-                                   'Помещение можно передавать.' if mode in {'cosmetic', 'restored', 'mixed'} else ''),
+                                   'Помещение можно передавать.' if mode in {'cosmetic', 'restored', 'mixed', 'deadline_at_verify'} else ''),
                         'source_ids': [f['id']], 'requested_facts': ['document'] if partial else []}
 
         with tempfile.TemporaryDirectory() as temp:
@@ -102,6 +104,22 @@ class BatchFairnessTests(unittest.TestCase):
         events, windows, rows = self.run_batch('slow')
         self.assertEqual(len(events), 6)
         self.assertTrue(all('письменном согласии' in row['answer'] for row in rows), rows)
+
+    def test_enough_time_verifies_each_row_at_once(self):
+        events, _, _ = self.run_batch('cosmetic')
+        self.assertEqual(events[:4], [(0, 'generate'), (0, 'verify'), (1, 'generate'), (1, 'verify')])
+
+    def test_run_deadline_at_verification_keeps_the_provisions(self):
+        # Platform runs took 1000-1130 s of the 1100 s budget: a row whose
+        # verification the deadline interrupted was a technical stub.
+        _, _, rows = self.run_batch('deadline_at_verify')
+        self.assertTrue(all(row['answer'].startswith('«9.1. Помещение можно передавать только') for row in rows), rows)
+        # The provisional text is never model prose.
+        self.assertTrue(all('Помещение можно передавать.' not in row['answer'] for row in rows))
+
+    def test_other_failure_at_verification_stays_technical(self):
+        _, _, rows = self.run_batch('error_at_verify')
+        self.assertTrue(all(row['answer'] == TECHNICAL for row in rows), rows)
 
     def test_partial_checkpoint_survives_failure_in_deferred_retry(self):
         events, _, rows = self.run_batch('failed_retry')

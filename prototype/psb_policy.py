@@ -350,7 +350,7 @@ def lost_restrictions(text: str, selected: list[Fragment]) -> list[str]:
     return list(dict.fromkeys(lost))[:6]
 
 
-def restrictions_kept(text: str, selected: list[Fragment]) -> bool:
+def restrictions_kept(text: str, selected: list[Fragment], strict: bool = False) -> bool:
     """Lexical barrier: the text must not drop a restriction class of its sources.
 
     This does not prove that the restriction is stated correctly; the verifier
@@ -363,7 +363,8 @@ def restrictions_kept(text: str, selected: list[Fragment]) -> bool:
     # The upper-bound phrases are accounted for above; any other prohibition
     # in the sources still requires a prohibition in the answer.
     rest = re.sub(_UPPER_BOUND_SOURCE, " ", source)
-    required = _required_classes(answer)
+    # strict: every class, also for a text that only prohibits.
+    required = set(_RESTRICTIONS) if strict else _required_classes(answer)
     return all(re.search(pattern, answer) for name, pattern in _RESTRICTIONS.items()
                if name in required and re.search(pattern, rest))
 
@@ -1476,6 +1477,8 @@ def answer_steps(question: str, retriever, client, top_k: int = 6):
     retry_scope_guard = False
     retry_restrictions = []
     retry_extra: list[str] = []
+    verified_once = False
+    provisional = None
     editions = editions_of(retriever)
     try:
         # (expanded search, reduced candidate). A reduced candidate re-verifies the
@@ -1558,6 +1561,10 @@ def answer_steps(question: str, retriever, client, top_k: int = 6):
                            'no_sources' if draft and not selected else 'ungrounded' if draft else 'absent')
             if prose:
                 candidate["answer"] = prose
+            # The recommended answer is short (regulation, section 3). A restricted
+            # provision is quoted after a verified text only when the text does not
+            # itself repeat every restriction class of the sources.
+            quote_restricted = restricted and not (prose and restrictions_kept(prose, selected, strict=True))
             # A catalog gap is not necessarily a dependency of this question.
             # Default to partial. A direct answer may propose independence only
             # with grounded prose; its exact scope needs an explicit second verdict.
@@ -1571,8 +1578,18 @@ def answer_steps(question: str, retriever, client, top_k: int = 6):
                              "requested_facts": ["referenced_documents"]}
             published_sources: list[Fragment] = []
             rendered = render(candidate, evidence, source_gaps, prose, question=question, value_gaps=value_gaps,
-                              keep_sources=restricted, context_sources=context_sources, editions=editions,
+                              keep_sources=quote_restricted, context_sources=context_sources, editions=editions,
                               published_sources=published_sources)
+            if not verified_once:
+                # Before the first verification only: the selected provisions
+                # verbatim and application text, never unverified model prose. A
+                # batch row stopped by the run deadline keeps this instead of a
+                # technical stub; any verdict replaces it.
+                verified_once = True
+                provisional = {"text": render(candidate, evidence, source_gaps, question=question, value_gaps=value_gaps,
+                                      context_sources=context_sources, editions=editions),
+                       "status": "provisional", "sources": [], "quote_only": True}
+                yield provisional
             calls += 1
             verdict = client.complete(VERIFY, {**payload, "candidate": candidate,
                                                "rendered_answer": rendered,
@@ -1715,7 +1732,10 @@ def answer_steps(question: str, retriever, client, top_k: int = 6):
         code = str(error)
         safe = code if re.fullmatch(r"[a-z_]{1,64}|http_[0-9]{3}", code) else "provider_error"
         print("provider_error: " + safe, file=sys.stderr)
-        return fallback or incomplete or {"text": TECHNICAL, "status": "technical_error", "sources": []}
+        # The run deadline stopped the first verification: the provisional
+        # provisions stay. Any other failure is reported as technical.
+        return (fallback or incomplete or (provisional if code == "run_deadline" else None)
+                or {"text": TECHNICAL, "status": "technical_error", "sources": []})
 
 
 def _rank(result: dict) -> tuple:

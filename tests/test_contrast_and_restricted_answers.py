@@ -150,15 +150,30 @@ RESTRICTED = [
 ]
 
 class RestrictedProvisionTests(unittest.TestCase):
-    def test_conclusion_that_keeps_every_restriction_is_published_with_the_source(self):
+    def test_conclusion_that_keeps_every_restriction_is_published_without_the_quote(self):
+        # The recommended answer is short (regulation, section 3): a verified text
+        # that repeats every restriction class needs no quotation after it.
         for s in RESTRICTED:
             with self.subTest(s['question']):
                 text, status, _, events = run(s['question'], [select(s['needle'], s['good']), confirm()], s['file'])
                 source = next(iter(s['file'].values()))
                 self.assertEqual(status, 'answer')
                 self.assertTrue(text.startswith(s['good']), text)
-                self.assertIn('«' + source + '»', text)
+                self.assertNotIn('«' + source + '»', text)
+                self.assertIn('\nИсточник: ', text)
                 self.assertEqual(events[-1]['prose'], 'published')
+
+    def test_prohibition_only_text_keeps_the_quote(self):
+        # A text that only prohibits may omit the conditions of a permission for
+        # others (test_prohibitive_conclusion.py); the source is then quoted.
+        source = ('Не допускается направление в командировку работников моложе восемнадцати лет. '
+                  'Направление инвалидов допускается только с их письменного согласия.')
+        good = 'Нет. Направление в командировку работника моложе восемнадцати лет не допускается.'
+        text, status, _, events = run('Можно ли направить в командировку работника 17 лет с его согласия?',
+                                      [select('Не допускается', good), confirm()], {'Кодекс.txt': source})
+        self.assertEqual(status, 'answer')
+        self.assertTrue(text.startswith(good), text)
+        self.assertIn('«' + source + '»', text)
 
     def test_conclusion_that_drops_a_restriction_is_not_published(self):
         for s in RESTRICTED:
@@ -192,13 +207,13 @@ class RestrictedProvisionTests(unittest.TestCase):
         self.assertFalse(restrictions_kept('Максимальный срок проверки — 10 дней.', both))
         self.assertTrue(restrictions_kept('Максимальный срок проверки — 10 дней; арендатор не вправе её продлевать.', both))
 
-    def test_upper_bound_answer_is_published_with_the_source(self):
+    def test_upper_bound_answer_is_published_without_the_quote(self):
         source = '6.4. Срок испытания не может превышать семи месяцев для руководителей филиалов.'
         good = 'Максимальный срок испытания для руководителей филиалов — семь месяцев (п. 6.4).'
         text, status, _, events = run('Какой максимальный срок испытания руководителя филиала?', [select('6.4.', good), confirm()], {'Положение.txt': source})
         self.assertEqual(status, 'answer')
         self.assertTrue(text.startswith(good), text)
-        self.assertIn('«' + source + '»', text)
+        self.assertNotIn('«' + source + '»', text)
 
     def test_restrictions_kept_is_per_class(self):
         f = [Fragment('i', 'd', 0, 1, 'Не вправе передавать, за исключением случаев по соглашению сторон.', '')]

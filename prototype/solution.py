@@ -89,6 +89,10 @@ def run_questions(questions, retriever, deadline, workers, top_k):
     with checked text ends the batch task. Unverified/partial tasks resume only
     after all rows had their first step; a verified answer published as bare
     quotations gets its one text retry last, so it never takes other rows' time.
+
+    The first verification follows the generation at once. If the run deadline
+    interrupts it, the row keeps the selected provisions verbatim (answer_steps
+    returns its provisional text) instead of a technical stub.
     """
     queue = deque((index, None, None, None) for index in range(len(questions)))
 
@@ -105,6 +109,8 @@ def run_questions(questions, retriever, deadline, workers, top_k):
                 steps = answer_steps(questions[index][1], retriever, client, top_k)
             try:
                 result = next(steps)
+                if result["status"] == "provisional":
+                    result = next(steps)
             except StopIteration as finished:
                 return index, finished.value, None
             if result["status"] == "answer" and not result.get("quote_only"):
