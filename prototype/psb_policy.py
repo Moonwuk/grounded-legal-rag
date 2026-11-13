@@ -81,16 +81,21 @@ SYSTEM = """Ты юридический ассистент по предоста
 {"status":"answer|partial|clarify|insufficient|out_of_scope|disallowed",
  "answer":"текст ответа пользователю",
  "source_ids":["id полного положения evidence"],"requested_facts":[],"issue":"",
- "reference_scope":"local|required","search_terms":[]}
+ "reference_scope":"local|required","search_terms":[],"topic":""}
 search_terms заполняй только при insufficient: 2–6 юридических терминов, которыми
 нужные нормы могли бы называться в законах и документах, если вопрос сформулирован
 бытовыми словами («проверка пригодности» → «испытание при приеме на работу»;
 «забрал разрешение на работу с информацией» → «отзыв согласия субъекта
 персональных данных»). Приложение повторит по ним поиск. Иначе список пуст.
+topic заполняй только при insufficient: о чём вопрос, 2–8 слов вопроса с предлогом
+«о», «об» или «по», без чисел («о пособиях по беременности и родам»). Иначе пусто.
 Обычно достаточно 1–4 положений. Если ответ требует больше отдельных условий,
 исключений или элементов перечня, выбери все необходимые, не более 12, без
 копирования цитат. Не жертвуй полнотой ради четырёх положений и не выбирай
-лишние соседние нормы. При вопросе об условиях увеличения предела проверь также
+лишние соседние нормы. Если прямой ответ даёт одно положение, выбери только его:
+положение о другом участнике, другом этапе или другом пороге добавляй, только если
+без него ответ неверен. На вопрос «X или Y?» назови, кто или что верно, и основание
+этого; что делает другой вариант, не пересказывай. При вопросе об условиях увеличения предела проверь также
 отдельные положения о допуске к превышению этого предела: они могут содержать
 дополнительные обязательные условия, а не только новое числовое значение.
 При answer/partial нужны source_ids. При clarify и disallowed выбери положения,
@@ -104,8 +109,9 @@ out_of_scope список пуст. Всё, что answer берёт из док
 верная деталь, о которой не спрашивали, считается лишней и может обнулить ответ. Первая фраза — прямой ответ на последнюю
 реплику: «Да», «Нет» или конкретное значение. Неверную предпосылку исправь первой
 фразой и назови верное значение рядом с ошибочным. Затем условия, исключения и
-основание: назови документ и в скобках пункт или статью выбранного положения;
-у положения без номера назови только документ. Не называй разделов и глав,
+основание: документ назови в самой фразе («По договору поставки № …»), если он
+нужен для ответа, а в скобках — только номер пункта или статьи: «(п. 3.1)», «(ст. 70)»;
+у положения без номера скобок не ставь. Не называй разделов и глав,
 которых нет в тексте документа.
 Строку «Источник» добавит приложение. Пиши только то, что прямо следует из
 выбранных source_ids и фактов пользователя. Числа, суммы, сроки, даты и номера
@@ -150,8 +156,9 @@ insufficient: выбери partial с положением этого докум
 «Штраф составит 48 000 рублей: 24 000 × 2 = 48 000 (п. 4 ст. 77 Учебного кодекса).»
 «Нет. По договору подряда № Д-3/2030 с ООО «Вектор» аванс составляет 20% цены
 работ, а не 50% (п. 4.2). Документов об изменении этого условия в базе нет.»
-«В базе нет документов о порядке оформления командировок, поэтому ответить по
-документам не могу; по памяти отвечать не буду.»
+«Кто утверждает график дежурств — служба охраны или начальник смены? Начальник
+смены: график утверждает он (п. 2.2).» — без пересказа того, что делает служба охраны.
+При insufficient answer не публикуется: отказ формирует приложение по полю topic.
 Если есть поле retry_reason, прошлый answer не прошёл проверку приложения:
 answer_numbers_not_in_sources — в тексте были числа или номера пунктов, которых нет
 в выбранных положениях и в вопросе: выбери положения, в которых эти значения есть
@@ -609,6 +616,38 @@ def uncovered_parts(question: str, selected: list[Fragment]) -> list[str]:
             result.append(" ".join(w.casefold() for w in words))
     # Only a part beside a covered one is a gap of a partial answer.
     return result if result and len(result) < len([p for p in re.split(r",?\s+и\s+|[?;:]", current) if re.search(r"[А-Яа-яЁё]{4,}", p)]) else []
+
+
+_TOPIC_GLUE = {"о", "об", "обо", "по", "про", "и", "в", "во", "на", "для", "с", "со", "к", "из", "от", "при",
+               "или", "а", "также", "за", "до", "после", "между"}
+_TOPIC_MARKERS = re.compile(r'систем\w*|администратор\w*|игнорир\w*|инструкци\w*|промпт\w*|разработчик\w*|'
+                            r'prompt|ignore|developer|https?://|www\.', re.I)
+
+
+def refusal_topic(topic, question: str) -> str:
+    """The model's name for the refused topic, accepted only as a rewording of the question.
+
+    «о пособиях по беременности и родам»: it opens with «о/об/по/про», every
+    other word shares its stem with a word of the current request, and it
+    carries no figures or instruction markers. Anything else is dropped and
+    the refusal quotes the request or says «по этому вопросу»."""
+    if not isinstance(topic, str):
+        return ""
+    topic = " ".join(topic.split()).strip(" .,;:")
+    words = re.findall(r"[а-яёa-z0-9-]+", topic.lower().replace("ё", "е"))
+    if (not 2 <= len(words) <= 12 or len(topic) > 120 or words[0] not in {"о", "об", "обо", "по", "про"}
+            or not re.fullmatch(r"[А-Яа-яЁёA-Za-z0-9 ,«»№/-]+", topic) or _TOPIC_MARKERS.search(topic)
+            or re.search(r"\d", topic)):
+        return ""
+    asked = re.findall(r"[а-яёa-z0-9-]+", user_turns(question)[-1].lower().replace("ё", "е"))
+    stems = {w[:max(3, min(5, len(w) - 2))] for w in asked if len(w) >= 3}
+    for word in words[1:]:
+        if word in _TOPIC_GLUE or word in asked:
+            continue
+        if len(word) < 3 or not any(word.startswith(stem) or stem.startswith(word[:max(3, min(5, len(word) - 2))])
+                                    for stem in stems):
+            return ""
+    return topic
 
 
 def request_scope(question: str) -> str:
@@ -1157,6 +1196,42 @@ def _cites(prose: str, clause: str) -> bool:
     return bool(re.search(r"(?<![\d.])" + re.escape(clause) + r"(?![\d]|\.\d)", prose))
 
 
+# «(п. 1.3 Регламента согласования договоров ред. 2025)», «(служебная записка об
+# архиве договоров)»: the document is named again by the source line under the
+# text, often in another form. Only the clause stays in the parenthesis.
+# «подп. 2.1 п. 1 ст. 112»: a chain of units from the smallest to the article.
+_REF_UNIT = r'(?:подп\.|пп?\.|ст\.|ч\.|абз\.|подпункт\w*|пункт\w*|стать\w*|част\w*)'
+_INLINE_REF = re.compile(_REF_UNIT + r'\s*\d+(?:\.\d+)*(?:\s*[–-]\s*\d+(?:\.\d+)*)?'
+                         r'(?:\s*(?:,|и)?\s*(?:' + _REF_UNIT + r'\s*)?\d+(?:\.\d+)*)*', re.I)
+_NAME_WORDS = ('ред', 'редак', 'докум', 'догов', 'согла', 'допсо', 'регла', 'полож', 'служе', 'запис', 'письм',
+               'прика', 'закон', 'кодек', 'федер', 'фз', 'тк', 'нк', 'гк', 'рф', 'коап', 'трудо', 'налог', 'гражд',
+               'от', 'в', 'на', 'и', 'к', 'по', 'с', 'о', 'об', 'г', 'года', 'ооо', 'зао', 'пао', 'действ', 'текущ')
+
+
+def trim_inline_references(prose: str, names: list[str]) -> str:
+    """Drop the document name from a parenthesised reference when one document is cited.
+
+    Every other word must belong to the cited document's names or to generic
+    document words; otherwise the parenthesis says something else and stays."""
+    named = [w for name in names for w in re.findall(r'[а-яёa-z0-9]+', name.lower().replace('ё', 'е'))]
+
+    def allowed(word):
+        if word in named or word in _NAME_WORDS:
+            return True
+        # Inflected forms: «договоров», «регламента» share the stem of a name word.
+        return len(word) >= 4 and any(len(n) >= 4 and n[:5] == word[:5] for n in named + list(_NAME_WORDS))
+
+    def replace(match):
+        content = match.group(1)
+        ref = _INLINE_REF.search(content)
+        rest = content[:ref.start()] + ' ' + content[ref.end():] if ref else content
+        words = re.findall(r'[а-яёa-z0-9]+', rest.lower().replace('ё', 'е'))
+        if not words or not all(allowed(w) for w in words):
+            return match.group()
+        return ' (' + ref.group().strip() + ')' if ref else ''
+    return re.sub(r'\s?\(([^()]{1,200})\)', replace, prose)
+
+
 def cite_name(document: str, editions=None) -> str:
     """The name a reader expects: «ТК РФ, ст. 70», «Договор аренды … № А-08/2024»,
     «Регламент согласования договоров (ред. от 01.03.2025)». The file name only
@@ -1518,7 +1593,7 @@ def expand_selection(value, evidence):
             "missing":["source_gap"] if status in {"partial","insufficient"} else [],
             "clarification":"clarify" if status=="clarify" else "",
             "requested_facts":requested,"issue":value.get("issue",""),
-            "answer":value.get("answer","")}
+            "answer":value.get("answer",""), "topic":value.get("topic","")}
 
 
 def gap_lines(source_gaps, *, required: bool = True) -> list[str]:
@@ -1544,7 +1619,12 @@ def render(candidate: dict, evidence: list[Fragment], source_gaps=(), prose: str
     issue = ISSUES.get(candidate.get("issue", ""), "")
     conflict = candidate.get("issue") == CONFLICT and bool(candidate["claims"])
     if prose and not ((keep_sources or conflict) and candidate["claims"]):
-        lines = [prose]
+        cited_docs = list(dict.fromkeys(next(f.document for f in evidence if f.id == c["fragment_id"])
+                                        for claim in candidate["claims"] for c in claim["sources"]))
+        # The source line below is built from the text as checked; only then the
+        # repeated document name leaves the parenthesis.
+        lines = [trim_inline_references(prose, [display_name(cited_docs[0]), cite_name(cited_docs[0], editions)])
+                 if len(cited_docs) == 1 else prose]
         # A model can omit a start event or conditional bound while citing the
         # general duration correctly. Keep the source-owned context in prose mode.
         # A context provision the text already cites by its clause number is not repeated.
@@ -1587,14 +1667,16 @@ def render(candidate: dict, evidence: list[Fragment], source_gaps=(), prose: str
         scope = request_scope(question)
         if len(scope) > REFUSAL_QUOTE_LIMIT + 2:
             scope = ""
+        topic = refusal_topic(candidate.get("topic"), question) if scope or not _TOPIC_MARKERS.search(question) else ""
         lead = (issue + " Поэтому ответить по документам я не могу." if issue
-                else "В базе знаний нет документов по " + ("вопросу " + scope if scope else "этому вопросу")
+                else "В базе знаний нет документов " + (topic if topic else "по вопросу " + scope if scope else "по этому вопросу")
                 + ", поэтому ответить по документам я не могу.")
         requested = set(candidate.get("requested_facts", []))
         known = contract_known(question, evidence)
         # A specific fact (a date, an unknown contract's number) is still asked for.
-        specific = (followup(candidate, known)
-                    if requested - {"document", "contract"} or ("contract" in requested and not known) else "")
+        # «обстоятельства конкретного случая» cannot fill a gap in the base.
+        specific = (followup({**candidate, "requested_facts": sorted(requested - {"facts"})}, known)
+                    if requested - {"document", "contract", "facts"} or ("contract" in requested and not known) else "")
         return lead + " " + INSUFFICIENT_TAIL + " " + (specific or INSUFFICIENT_REFER)
     by_id = {f.id: f for f in evidence}
     references, numbers, lines = {}, {}, [clarification_line] if clarification_line else []
