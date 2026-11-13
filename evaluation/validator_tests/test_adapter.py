@@ -82,9 +82,15 @@ class AdapterTests(unittest.TestCase):
                 with closing(sqlite3.connect(p)) as db:
                     self.assertEqual(db.execute('SELECT requests,tokens_reserved FROM budget').fetchone(),(1,37))
                 self.assertEqual(bodies[-1]['reasoning_effort'],'low')  # runtime default
-                c=Client(time.monotonic()+10,dict(budget_db=p,max_requests=9,max_token_bound=10**7,max_tokens=512,temperature=0.5,reasoning_effort='low'))
-                c.complete('Return JSON.',{'x':2})
-                self.assertEqual((bodies[-1]['max_tokens'],bodies[-1]['temperature'],bodies[-1]['reasoning_effort']),(512,0.5,'low'))
+                # The workbench preserves the production minimum of 2048,
+                # while explicit limits above that floor remain unchanged.
+                for requests,(configured,effective) in enumerate(((512,2048),(4096,4096)),start=2):
+                    with self.subTest(max_tokens=configured):
+                        c=Client(time.monotonic()+10,dict(budget_db=p,max_requests=9,max_token_bound=10**7,max_tokens=configured,temperature=0.5,reasoning_effort='low'))
+                        c.complete('Return JSON.',{'x':requests})
+                        self.assertEqual((bodies[-1]['max_tokens'],bodies[-1]['temperature'],bodies[-1]['reasoning_effort']),(effective,0.5,'low'))
+                        with closing(sqlite3.connect(p)) as db:
+                            self.assertEqual(db.execute('SELECT requests,tokens_reserved FROM budget').fetchone(),(requests,requests*37))
         finally:server.shutdown();server.server_close();thread.join(2)
     def test_budget_keeps_reservation_without_valid_usage(self):
         with tempfile.TemporaryDirectory() as tmp:

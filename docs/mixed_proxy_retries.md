@@ -59,8 +59,15 @@ reasoning_effort после HTTP 400/422.
 Полный обязательный набор и проверка собранного ZIP:
 
     python3 -m unittest discover -s tests -v
+    python3 -m unittest discover -s evaluation/validator_tests -v
     python3 build_submission.py
     python3 .github/scripts/check_submission.py
+
+Первый CI выявил устаревшее ожидание в отдельном наборе оценщика:
+test_runtime_generation_defaults_and_settled_budget ожидал max_tokens=512,
+хотя уже исходный №25 поднимал его до 2048. Тест теперь проверяет и нижнюю
+границу 2048, и сохранение явно заданного 4096, и списание фактического usage
+после каждого запроса. Код адаптера и правило нижней границы не изменены.
 
 ## Что не установлено
 
