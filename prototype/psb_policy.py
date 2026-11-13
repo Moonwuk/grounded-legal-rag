@@ -338,6 +338,35 @@ _RESTRICTIONS = {
     "agreement": r"\bпо\s+соглашению\b",
     "exception": r"\bза\s+исключением\b",
 }
+# How an answer may keep a class besides the source operator itself: an
+# exception told as «кроме» / «не распространяется на», a condition as «если».
+_KEPT_IN_ANSWER = {
+    "condition": r"\bпри\s+(?:наличии|условии)\b|\bесли\b",
+    "exception": r"\bза\s+исключением\b|\bкроме\b|\bне\s+распростран\w*|\bне\s+применя\w*|\bисключени\w*",
+}
+# «за исключением случаев, предусмотренных настоящим Кодексом / частями 2, 11–18
+# настоящей статьи»: a reference to other provisions, not a restriction of the
+# answer's case.
+_BOILERPLATE_EXCEPTION = re.compile(
+    r"за\s+исключением\s+случаев,?\s+(?:предусмотренн|установленн)\w*\s+[^.;]{0,120}?"
+    r"(?:кодекс|закон|част|стать|пункт)\w*[^.;,]{0,40}", re.I)
+_CONDITION_PHRASE = re.compile(r"при\s+(?:наличии|условии)\s+([^.;,]{3,80})", re.I)
+
+
+def _restriction_source(selected: list[Fragment], question: str = "") -> str:
+    """Source text whose restriction classes the answer must keep. A condition
+    the question states as met («установлено одно смягчающее обстоятельство» for
+    «при наличии хотя бы одного смягчающего обстоятельства») and a boilerplate
+    reference exception are not required again."""
+    source = norm("\n".join(f.text for f in selected)).lower().replace("ё", "е")
+    rest = _BOILERPLATE_EXCEPTION.sub(" ", re.sub(_UPPER_BOUND_SOURCE, " ", source))
+    asked = {w[:4] for w in re.findall(r"[а-яё]{4,}", user_turns(question)[-1].lower().replace("ё", "е"))} if question else set()
+
+    def satisfied(m):
+        # The condition's own first words, not the main clause that follows it.
+        words = {w[:4] for w in [w for w in re.findall(r"[а-яё]{4,}", m.group(1)) if w not in STOP][:4]}
+        return bool(asked) and len(words & asked) >= min(2, len(words))
+    return _CONDITION_PHRASE.sub(lambda m: " " if satisfied(m) else m.group(), rest)
 
 
 # An upper bound ("не может превышать шести месяцев") is a restriction of its
@@ -349,7 +378,7 @@ _UPPER_BOUND_ANSWER = (r"\bне\s+(?:может|могут)\s+превыша\w*|
                        r"|\bмаксимальн\w*|\bпредельн\w*|\bпредел\w*")
 
 
-def lost_restrictions(text: str, selected: list[Fragment]) -> list[str]:
+def lost_restrictions(text: str, selected: list[Fragment], question: str = "") -> list[str]:
     """Source wording of each restriction class the text does not repeat
     ("только", "не вправе", "не может превышать"): application-owned quotes."""
     source = norm("\n".join(f.text for f in selected)).lower().replace("ё", "е")
@@ -358,16 +387,16 @@ def lost_restrictions(text: str, selected: list[Fragment]) -> list[str]:
     bound = re.search(_UPPER_BOUND_SOURCE, source)
     if bound and not re.search(_UPPER_BOUND_ANSWER, answer):
         lost.append(bound.group())
-    rest = re.sub(_UPPER_BOUND_SOURCE, " ", source)
+    rest = _restriction_source(selected, question)
     required = _required_classes(answer)
     for name, pattern in _RESTRICTIONS.items():
         found = re.search(pattern, rest) if name in required else None
-        if found and not re.search(pattern, answer):
+        if found and not re.search(_KEPT_IN_ANSWER.get(name, pattern), answer):
             lost.append(found.group())
     return list(dict.fromkeys(lost))[:6]
 
 
-def restrictions_kept(text: str, selected: list[Fragment], strict: bool = False) -> bool:
+def restrictions_kept(text: str, selected: list[Fragment], strict: bool = False, question: str = "") -> bool:
     """Lexical barrier: the text must not drop a restriction class of its sources.
 
     This does not prove that the restriction is stated correctly; the verifier
@@ -379,10 +408,10 @@ def restrictions_kept(text: str, selected: list[Fragment], strict: bool = False)
         return False
     # The upper-bound phrases are accounted for above; any other prohibition
     # in the sources still requires a prohibition in the answer.
-    rest = re.sub(_UPPER_BOUND_SOURCE, " ", source)
+    rest = _restriction_source(selected, question)
     # strict: every class, also for a text that only prohibits.
     required = set(_RESTRICTIONS) if strict else _required_classes(answer)
-    return all(re.search(pattern, answer) for name, pattern in _RESTRICTIONS.items()
+    return all(re.search(_KEPT_IN_ANSWER.get(name, pattern), answer) for name, pattern in _RESTRICTIONS.items()
                if name in required and re.search(pattern, rest))
 
 
@@ -678,9 +707,21 @@ def prose_scope_safe(text: str, selected: list[Fragment], question: str = "") ->
               for f in selected for s in _sentences(f.text) if _SCOPE_RULE.search(s)]
     return (all(m.group().lower().replace("ё", "е") in operators or _restates_scope(text, m, scopes)
                 or _CONTENT_ONLY.search(text[max(0, m.start() - 80):m.end()]) or _quoted_from(question, text, m)
+                or _restates_bound(text, m, source)
                 for m in _EXCLUSIVE.finditer(text))
             and not (_role_negation(text) and not _role_negation(source))
             and added_assertions_safe(text, selected))
+
+
+_BOUND = re.compile(r"\b(?:до|не\s+более|не\s+свыше|не\s+позднее)\s+[а-яё0-9]+(?:\s+[а-яё]+)?", re.I)
+
+
+def _restates_bound(text: str, m, source: str) -> bool:
+    """«только, если работы длятся до двух месяцев» for «временных (до двух
+    месяцев) работ»: «только» restates a limit the source itself sets."""
+    window = text[m.end():m.end() + 80].lower().replace("ё", "е")
+    window = re.split(r"[.;]|\s(?:а|но)\s", window, maxsplit=1)[0]
+    return any(re.sub(r"\s+", " ", b.group()) in source for b in _BOUND.finditer(window))
 
 
 def _quoted_from(question: str, text: str, m) -> bool:
@@ -1709,7 +1750,7 @@ def answer_steps(question: str, retriever, client, top_k: int = 6, verify: bool 
             # A value set in another document («указывается в гарантийном талоне»): a
             # checked text may say so; its figures still have to be in the provisions,
             # so it cannot name the missing value. The application adds what is needed.
-            source_only = ((restricted and not (draft and restrictions_kept(draft, selected)))
+            source_only = ((restricted and not (draft and restrictions_kept(draft, selected, question=question)))
                            or bool(value_gaps and not (draft and names_referenced_documents(draft, value_gaps))))
             scope_guard = (scope_block_reason(draft, selected, retriever, question)
                            if draft and selected and not source_only else "")
@@ -1726,7 +1767,7 @@ def answer_steps(question: str, retriever, client, top_k: int = 6, verify: bool 
             # The recommended answer is short (regulation, section 3). A restricted
             # provision is quoted after a verified text only when the text does not
             # itself repeat every restriction class of the sources.
-            quote_restricted = restricted and not (prose and restrictions_kept(prose, selected, strict=True))
+            quote_restricted = restricted and not (prose and restrictions_kept(prose, selected, strict=True, question=question))
             # A catalog gap is not necessarily a dependency of this question.
             # Default to partial. A direct answer may propose independence only
             # with grounded prose; its exact scope needs an explicit second verdict.
@@ -1773,7 +1814,7 @@ def answer_steps(question: str, retriever, client, top_k: int = 6, verify: bool 
                     if prose_state == "source_only" and draft and restricted and not value_gaps:
                         fallback = result
                         retry_reason, retry_scope_guard = "answer_lost_restrictions", False
-                        retry_restrictions = lost_restrictions(draft, selected)
+                        retry_restrictions = lost_restrictions(draft, selected, question)
                         continue
                     if (candidate["status"] == "partial" and not source_gaps and set(candidate.get("requested_facts", []))
                             & {"document", "referenced_documents", "warranty_document"}):
@@ -1872,7 +1913,7 @@ def answer_steps(question: str, retriever, client, top_k: int = 6, verify: bool 
                 # The text was dropped for losing a restriction and the quotes alone
                 # did not answer: the retry is told which restrictions to keep.
                 retry_reason, retry_scope_guard = "answer_lost_restrictions", False
-                retry_restrictions = lost_restrictions(draft, selected)
+                retry_restrictions = lost_restrictions(draft, selected, question)
             # Only within the per-question call limit: exceeding it would turn a
             # refusal into a technical error.
             dropped = [] if allowed or reduced or calls >= QUESTION_CALL_LIMIT else inapplicable_only(candidate, verdict)
@@ -1906,7 +1947,7 @@ def answer_steps(question: str, retriever, client, top_k: int = 6, verify: bool 
                     # quotation is published: one attempt is told which wordings to keep.
                     fallback = result
                     retry_reason, retry_scope_guard = "answer_lost_restrictions", False
-                    retry_restrictions = lost_restrictions(draft, selected)
+                    retry_restrictions = lost_restrictions(draft, selected, question)
                     continue
                 extra = (unneeded(candidate, verdict) if candidate["status"] == "answer" and prose_state == "published"
                          and not expanded and not reduced and calls + 2 <= QUESTION_CALL_LIMIT else [])
