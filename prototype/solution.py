@@ -1,6 +1,7 @@
 """Organizer contract: DATA_DIR/questions.csv + knowledge-base.zip -> submission.csv."""
 from __future__ import annotations
 from concurrent.futures import ThreadPoolExecutor, wait, FIRST_COMPLETED
+from collections import deque
 from pathlib import Path
 import csv
 import os
@@ -11,7 +12,7 @@ import zipfile
 from psb_corpus import load_corpus
 from psb_retrieval import Retriever
 from psb_llm import EmbeddingClient, ProxyClient, ProviderError, RerankClient, env, integer
-from psb_policy import answer_question, TECHNICAL
+from psb_policy import answer_steps, TECHNICAL
 
 
 def input_directory() -> Path:
@@ -81,6 +82,67 @@ def enable_optional_rerank(retriever, deadline):
         return "rerank_disabled:" + str(error)
 
 
+def run_questions(questions, retriever, deadline, workers, top_k):
+    """Yield complete row checkpoints, with a barrier before each retry round.
+
+    Each worker advances one generation/verification step. A verified full answer
+    ends the batch task; a retry for wording alone must not consume other rows'
+    time. Unverified/partial tasks resume only after all rows had their first step.
+    """
+    queue = deque((index, None, None, None) for index in range(len(questions)))
+
+    def advance(task, task_deadline):
+        index, client, steps, checkpoint = task
+        try:
+            if client is None:
+                client = ProxyClient(task_deadline, position=index)
+                steps = answer_steps(questions[index][1], retriever, client, top_k)
+            client.deadline = task_deadline
+            try:
+                result = next(steps)
+            except StopIteration as finished:
+                return index, finished.value, None
+            if result["status"] == "answer":
+                steps.close()
+                return index, result, None
+            return index, result, (index, client, steps, result)
+        except Exception as error:
+            # Safe diagnostics only; preserve any already verified partial answer.
+            print("question_error: " + type(error).__name__, file=sys.stderr)
+            if steps is not None:
+                steps.close()
+            return index, checkpoint or {"text": TECHNICAL, "status": "technical_error"}, None
+
+    with ThreadPoolExecutor(max_workers=workers) as pool:
+        while queue and time.monotonic() < deadline:
+            pending, deferred = {}, []
+            while queue or pending:
+                while queue and len(pending) < workers and time.monotonic() < deadline:
+                    # Fair wall-time share of the remaining round, including active
+                    # tasks. Recompute as workers finish, so quick rows release time.
+                    now = time.monotonic()
+                    waves = max(1, (len(queue) + len(pending) + workers - 1) // workers)
+                    # Keep a usable minimum slice: ProxyClient reserves one second
+                    # before a call. Sub-second shares must not skip even a fast API.
+                    task_deadline = min(deadline, now + max(2., (deadline - now) / waves))
+                    task = queue.popleft()
+                    pending[pool.submit(advance, task, task_deadline)] = task
+                if not pending:
+                    break
+                done, _ = wait(pending, timeout=.5, return_when=FIRST_COMPLETED)
+                for future in done:
+                    pending.pop(future)
+                    index, result, resume = future.result()
+                    if resume is not None:
+                        deferred.append(resume)
+                    yield index, result["text"], result["status"]
+            # Give unresolved answers priority over an already verified partial.
+            queue = deque(sorted(deferred, key=lambda task: (task[3]["status"] == "partial", task[0])))
+        for _, _, steps, _ in queue:
+            if steps is not None:
+                steps.close()
+
+
 def main() -> int:
     start = time.monotonic()
     deadline = start + integer("PSB_RUN_SECONDS", 1100, 1, 1150)
@@ -134,38 +196,14 @@ def main() -> int:
     top_k = integer("TOP_K", 6, 1, 40)
     workers = integer("MAX_WORKERS", 2, 1, 8)
 
-    def work(index):
-        try:
-            text, status = answer_question(questions[index][1], retriever, ProxyClient(deadline, position=index), top_k)
-            return index, text, status
-        except Exception as error:
-            # Never log prompts, source bodies, API response bodies or secrets.
-            print("question_error: " + type(error).__name__, file=sys.stderr)
-            return index, TECHNICAL, "technical_error"
-
-    next_index = 0
     next_checkpoint = 0.
-    with ThreadPoolExecutor(max_workers=workers) as pool:
-        pending = {}
-        while next_index < len(questions) and len(pending) < workers and time.monotonic() < deadline:
-            future = pool.submit(work, next_index)
-            pending[future] = next_index
-            next_index += 1
-        while pending:
-            done, _ = wait(pending, timeout=.5, return_when=FIRST_COMPLETED)
-            for future in done:
-                pending.pop(future)
-                index, text, status = future.result()
-                answers[index] = text
-                print(f"completed_position={index} status={status}", file=sys.stderr)
-            # Coalesce completed rows instead of rewriting an N-row file N times.
-            if done and time.monotonic() >= next_checkpoint:
-                write_output(output, questions, answers)
-                next_checkpoint = time.monotonic() + .25
-            while next_index < len(questions) and len(pending) < workers and time.monotonic() < deadline:
-                future = pool.submit(work, next_index)
-                pending[future] = next_index
-                next_index += 1
+    for index, text, status in run_questions(questions, retriever, deadline, workers, top_k):
+        answers[index] = text
+        print(f"completed_position={index} status={status}", file=sys.stderr)
+        # Coalesce completed rows instead of rewriting an N-row file N times.
+        if time.monotonic() >= next_checkpoint:
+            write_output(output, questions, answers)
+            next_checkpoint = time.monotonic() + .25
     write_output(output, questions, answers)
     print(f"rows={len(answers)} elapsed_seconds={time.monotonic() - start:.3f}", file=sys.stderr)
     watchdog.cancel()
