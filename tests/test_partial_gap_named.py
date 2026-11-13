@@ -82,7 +82,7 @@ class PartialGapTests(unittest.TestCase):
             text, status = answer_question('Какова ставка неустойки для КТ-7/2031?', r, ScriptedModel([refuse, refuse, verdict]))
         self.assertEqual(status, 'insufficient')
         self.assertNotIn('номер договора', text)
-        self.assertIn('документ с условиями', text)
+        self.assertIn('обратитесь к юристу', text)
         # An unknown object still needs its contract.
         with corpus(FILES) as r:
             text, _ = answer_question('Какова ставка неустойки для КТ-55/2031?', r, ScriptedModel([refuse, refuse, verdict]))

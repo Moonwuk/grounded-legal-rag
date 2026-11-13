@@ -26,15 +26,26 @@ class RefusalWordingTests(unittest.TestCase):
     def test_topic_outside_the_base(self):
         text, status, _, _ = run('Какой размер компенсации за неиспользованный отпуск?', [refuse(['document'])] * 2 + [VERDICT])
         self.assertEqual(status, 'insufficient')
-        self.assertTrue(text.startswith('В базе знаний не найдено документов, отвечающих на вопрос «Какой размер компенсации'), text)
-        self.assertIn('по памяти я не отвечаю', text)
+        self.assertTrue(text.startswith('В базе знаний нет документов по вопросу «Какой размер компенсации'), text)
+        self.assertIn('По памяти отвечать не буду', text)
         self.assertIn('обратитесь к юристу', text)
         self.assertNotIn('Уточните', text)
+        # Golden refusal is about 35 words; the old one was over 60.
+        self.assertLessEqual(len(text.split()), 45, text)
+
+    def test_long_question_is_not_repeated(self):
+        question = ('Какой размер компенсации за неиспользованный отпуск положен работнику, который увольняется '
+                    'по собственному желанию после двух лет работы в компании?')
+        text, _, _, _ = run(question, [refuse(['document'])] * 2 + [VERDICT])
+        self.assertTrue(text.startswith('В базе знаний нет документов по этому вопросу, поэтому'), text)
+        self.assertNotIn('собственному желанию', text)
+        self.assertLessEqual(len(text.split()), 40, text)
 
     def test_a_specific_missing_fact_is_still_asked_for(self):
         text, _, _, _ = run('Какой срок оплаты по договору?', [refuse(['event_date'])] * 2 + [VERDICT])
         self.assertIn('Уточните или предоставьте: дата события.', text)
-        self.assertIn('по памяти я не отвечаю', text)
+        self.assertIn('По памяти отвечать не буду', text)
+        self.assertNotIn('обратитесь к юристу', text)
 
     def test_value_kept_in_another_document_opens_with_the_conclusion(self):
         files = {'Договор Л-3-2034.txt': 'Договор № Л-3/2034\n8.1. Срок поверки устанавливается изготовителем и указывается в паспорте прибора.\n'}

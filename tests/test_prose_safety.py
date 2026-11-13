@@ -86,7 +86,7 @@ class ProseSafetyTests(unittest.TestCase):
         text, status, _, _ = run('Нужен договор?', [absent, absent, confirm()])
         self.assertEqual(status, 'insufficient')
         self.assertNotIn('можно продолжать без согласия', text)
-        self.assertIn('не найдено документов', text)
+        self.assertIn('В базе знаний нет документов', text)
 
 
 if __name__ == '__main__':

@@ -51,8 +51,12 @@ def contract_known(question: str, evidence) -> bool:
 
 STATUSES = {"answer", "partial", "clarify", "insufficient", "out_of_scope", "disallowed"}
 TECHNICAL = "Не удалось проверить ответ из-за технической ошибки. Это не означает, что нужных сведений нет в базе знаний. Повторите запрос позже."
-INSUFFICIENT_TAIL = ("Поэтому ответить по документам нельзя, а по памяти я не отвечаю: без подтверждающего "
-                     "документа ответ может оказаться неверным.")
+# Golden refusal (organizer demo, a topic outside the base), about 35 words:
+# what is missing, that memory is not a source, whom to ask.
+INSUFFICIENT_TAIL = "По памяти отвечать не буду: без подтверждающего документа ответ может оказаться неверным."
+INSUFFICIENT_REFER = "Для ответа обратитесь к юристу или профильному специалисту."
+# A longer question is not repeated in the refusal; the user sees it above.
+REFUSAL_QUOTE_LIMIT = 100
 UNVERIFIED = "Не удалось получить достаточно проверенных оснований для ответа по доступным документам. Уточните договор, дату события и условия задачи."
 
 SYSTEM = """Ты юридический ассистент по предоставленной базе. Ответь на последнюю
@@ -759,8 +763,11 @@ def scope_block_reason(text: str, selected: list[Fragment], retriever, question:
 # entailment engine. Each comparison uses one source sentence, never a bag of
 # words assembled from unrelated clauses or documents.
 _RECORD_VERB = r'(?:фиксир\w*|указ\w*|отраж\w*|запис\w*|перечисл\w*|содерж\w*)'
+# «счёт» alone is left out: «за счёт», «в счёт оплаты» are not documents.
 _DOCUMENT_NOUN = (r'акт\w*|протокол\w*|ведомост\w*|реестр\w*|журнал\w*|отчет\w*|'
-                  r'спецификаци\w*|талон\w*|паспорт\w*')
+                  r'спецификаци\w*|талон\w*|паспорт\w*|формуляр\w*|сертификат\w*|накладн\w*|'
+                  r'смет\w*|заявк\w*|квитанци\w*|справк\w*|деклараци\w*|удостоверени\w*|'
+                  r'карточк\w*|счет\w*-фактур\w*|чек\w*|бланк\w*')
 _RECORD_DOCUMENT = re.compile(
     r'\bв(?:о)?\s+(?:[а-яё]+\s+){0,2}?(' + _DOCUMENT_NOUN + r')\b', re.I)
 _RECORD_SUBJECT = re.compile(r'\b(' + _DOCUMENT_NOUN + r')\b[^.!?;\n]{0,40}?\b' + _RECORD_VERB, re.I)
@@ -789,9 +796,22 @@ def _assertion_words(text):
     return {w[:3 if len(w) <= 4 else 4] for w in words}
 
 
+def _record_clauses(text):
+    """Sentences, each cut to its clause that names the record document.
+
+    «Договор срок не называет: его определяет изготовитель, и он указывается в
+    формуляре» claims about the formulary only after the colon; the clause before
+    it is about the contract. A sentence whose document and verb sit in different
+    clauses is kept whole."""
+    for sentence in _sentences(text):
+        clauses = [c for c in re.split(r'\s*[:—–]\s+', sentence)
+                   if (_RECORD_DOCUMENT.search(c) or _RECORD_SUBJECT.search(c)) and re.search(r'\b' + _RECORD_VERB, c)]
+        yield from clauses or [sentence]
+
+
 def _record_facts(text):
     result = []
-    for sentence in _sentences(text):
+    for sentence in _record_clauses(text):
         document = _RECORD_DOCUMENT.search(sentence) or _RECORD_SUBJECT.search(sentence)
         if document and re.search(r'\b' + _RECORD_VERB, sentence):
             negative = bool(re.search(r'\bне\s+(?:долж\w*\s+)?(?:быть\s+)?' + _RECORD_VERB, sentence))
@@ -1565,16 +1585,17 @@ def render(candidate: dict, evidence: list[Fragment], source_gaps=(), prose: str
         # Application-owned: what was not found, that memory is not a source, and
         # what the user can do. A specific missing fact is still asked for.
         scope = request_scope(question)
-        lead = issue or ("В базе знаний не найдено документов, отвечающих на вопрос " + scope + "." if scope
-                         else "В базе знаний не найдено документов, отвечающих на этот вопрос.")
+        if len(scope) > REFUSAL_QUOTE_LIMIT + 2:
+            scope = ""
+        lead = (issue + " Поэтому ответить по документам я не могу." if issue
+                else "В базе знаний нет документов по " + ("вопросу " + scope if scope else "этому вопросу")
+                + ", поэтому ответить по документам я не могу.")
         requested = set(candidate.get("requested_facts", []))
         known = contract_known(question, evidence)
         # A specific fact (a date, an unknown contract's number) is still asked for.
         specific = (followup(candidate, known)
                     if requested - {"document", "contract"} or ("contract" in requested and not known) else "")
-        return (lead + " " + INSUFFICIENT_TAIL + " " +
-                (specific or "Если у вас есть " + FOLLOWUPS["document"] + ", предоставьте его; иначе обратитесь к юристу "
-                 "или профильному специалисту."))
+        return lead + " " + INSUFFICIENT_TAIL + " " + (specific or INSUFFICIENT_REFER)
     by_id = {f.id: f for f in evidence}
     references, numbers, lines = {}, {}, [clarification_line] if clarification_line else []
     cited = {c['fragment_id']:by_id[c['fragment_id']] for claim in candidate['claims'] for c in claim['sources']}

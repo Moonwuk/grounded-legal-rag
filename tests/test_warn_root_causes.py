@@ -60,7 +60,7 @@ class WarnRootCauses(unittest.TestCase):
                 text, status, _, _ = run(question, [absent, absent, confirm()])
                 self.assertEqual(status, 'insufficient')
                 self.assertNotIn(question, text)
-                self.assertIn('не найдено документов', text)
+                self.assertIn('В базе знаний нет документов', text)
 
     def test_an_approving_judge_cannot_authorize_an_added_exclusive_role(self):
         source = '2.1. Финансовый отдел согласует проект заявки.'
