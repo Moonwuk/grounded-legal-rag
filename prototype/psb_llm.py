@@ -60,6 +60,8 @@ QUESTION_CALL_LIMIT = 5
 # and the parameter is not sent again in this run.
 EFFORTS = ("none", "low", "high", "max")
 DEFAULT_EFFORT = "low"
+MIN_OUTPUT_TOKENS = 2048
+MAX_RETRY_TOKENS = 4096
 # Never "none": on the demo it gave false refusals in generation, and as a
 # truncation retry it rejected a supported provision in verification (matrix
 # 5502269, question 5, both runs). A weak verifier is unsafe either way.
@@ -103,7 +105,10 @@ class ProxyClient:
             "messages": [{"role": "system", "content": system},
                          {"role": "user", "content": json.dumps(payload, ensure_ascii=False)}],
             "temperature": temperature,
-            "max_tokens": integer("MAX_TOKENS", 8192, 256, 65536),
+            # The platform passes MAX_TOKENS=1024 (readable configuration, regulation
+            # section 6). With reasoning counted in it, 15–25% of the JSON answers
+            # were cut and became technical stubs; 2048 is the floor.
+            "max_tokens": max(MIN_OUTPUT_TOKENS, integer("MAX_TOKENS", 8192, 256, 65536)),
         }
         effort = env("LLM_REASONING_EFFORT", default=DEFAULT_EFFORT)
         if effort != "default" and effort not in EFFORTS:
@@ -182,6 +187,8 @@ class ProxyClient:
                         lower = LOWER_EFFORT.get(request_body.get("reasoning_effort"))
                         if lower and not ProxyClient.effort_rejected and hidden:
                             request_body["reasoning_effort"] = lower
+                        # A cut JSON cannot be parsed: the retry also gets a larger budget.
+                        request_body["max_tokens"] = max(budget, min(MAX_RETRY_TOKENS, budget * 2))
                         request_body["messages"][0]["content"] += (
                             "\nПовтор после обрезки: верни только минимальный JSON по заданной схеме, "
                             "без пояснений, без повторения контекста. Сохрани необходимые условия.")
