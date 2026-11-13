@@ -180,6 +180,9 @@ source_references_required — независимость ответа от от
 положения, о которых не спрашивали; их id перечислены в retry_extra_source_ids.
 Дай тот же ответ без них: не выбирай и не упоминай их, если без них ответ не
 становится неполным или вводящим в заблуждение.
+Если retry_reason=answer_extra_items, прошлый answer верен, но назвал элементы
+выбранного положения, о которых не спрашивали; они перечислены в retry_extra_items.
+Дай тот же ответ без них.
 Если retry_reason=answer_lost_restrictions, прошлый answer опустил ограничения
 выбранных положений; поле retry_restrictions перечисляет их формулировки из
 источника. Новый answer должен прямо сохранить каждое из них.
@@ -788,7 +791,8 @@ def prose_scope_safe(text: str, selected: list[Fragment], question: str = "") ->
               for f in selected for s in _sentences(f.text) if _SCOPE_RULE.search(s)]
     return (all(m.group().lower().replace("ё", "е") in operators or _restates_scope(text, m, scopes)
                 or _CONTENT_ONLY.search(text[max(0, m.start() - 80):m.end()]) or _quoted_from(question, text, m)
-                or _restates_bound(text, m, source)
+                or _restates_bound(text, m, source) or _restates_exception_list(text, m, source)
+                or _restates_permission_condition(text, m, source)
                 for m in _EXCLUSIVE.finditer(text))
             and not (_role_negation(text) and not _role_negation(source))
             and added_assertions_safe(text, selected))
@@ -805,6 +809,57 @@ def _restates_bound(text: str, m, source: str) -> bool:
     return any(re.sub(r"\s+", " ", b.group()) in source for b in _BOUND.finditer(window))
 
 
+# «Срок испытания не может превышать трех месяцев, а для руководителей
+# организаций …, главных бухгалтеров … — шести месяцев»: a general rule and an
+# exception for listed persons. The listed value is allowed only for them.
+_EXCEPTION_LIST = re.compile(r",\s*а\s+(?:для|у|в\s+отношении)\s+([^.;]{5,400}?)\s*[-—–]\s*", re.I)
+
+
+def _restates_exception_list(text: str, m, source: str) -> bool:
+    """«6 месяцев допускается только для главных бухгалтеров …» restates the
+    source's «…, а для … главных бухгалтеров … — шести месяцев»: the words
+    after «только для» are taken from that list."""
+    window = text[m.end():m.end() + 160].lower().replace("ё", "е")
+    after = re.match(r"\s*(?:для|у|в\s+отношении)\s+([^.;:()]+)", window)
+    if not after:
+        return False
+    words = [w for w in re.findall(r"[а-яё]{4,}", after.group(1)) if w not in STOP][:4]
+    if not words:
+        return False
+    for listed in _EXCEPTION_LIST.finditer(source):
+        stems = {w[:5] for w in re.findall(r"[а-яё]{4,}", listed.group(1))}
+        if all(w[:5] in stems for w in words):
+            return True
+    return False
+
+
+_PERMIT_VERB = re.compile(r"\b(?:допуска\w*|разреша\w*|вправе|может|могут|возможн\w*)\b", re.I)
+
+
+def _restates_permission_condition(text: str, m, source: str) -> bool:
+    """«предоплата возможна только по соглашению Сторон» for «По соглашению
+    Сторон допускается предоплата»: «только» before the condition of a
+    conditional permission. The preposition and the next two content words
+    must stand together in one source sentence with a permission verb."""
+    window = text[m.end():m.end() + 80].lower().replace("ё", "е")
+    after = re.match(r"\s*(по|при|с|со|если|в\s+случае)\s+([^.;,:()]+)", window)
+    if not after:
+        return False
+    words = [w for w in re.findall(r"[а-яё]{4,}", after.group(2)) if w not in STOP][:2]
+    if not words:
+        return False
+    phrase = re.escape(after.group(1)) + r"\s+" + r"\w*\s+".join(re.escape(w[:5]) for w in words) + r"\w*"
+    # The clause before «только» names what is permitted; the same source
+    # sentence must permit it, not a neighbouring permission («по соглашению
+    # сторон допускается аванс» says nothing of a work schedule).
+    clause = re.split(r"[.;:!?]", text[:m.start()].lower().replace("ё", "е"))[-1]
+    subject = {w[:4] for w in re.findall(r"[а-яё]{4,}", clause)
+               if w not in STOP and not _PERMIT_VERB.fullmatch(w)} - {w[:4] for w in words}
+    return any(_PERMIT_VERB.search(sentence) and re.search(r"(?<![а-яё])" + phrase, sentence)
+               and subject & {w[:4] for w in re.findall(r"[а-яё]{4,}", sentence)}
+               for sentence in _sentences(source))
+
+
 def _quoted_from(question: str, text: str, m) -> bool:
     """The exclusive word comes with its next two words from the latest user
     turn: «только из-за суммы» answering «… только из-за суммы?»."""
@@ -814,6 +869,64 @@ def _quoted_from(question: str, text: str, m) -> bool:
     phrase = r'\s+'.join(re.escape(w) for w in [m.group().lower().replace('ё', 'е')] + following)
     return len(following) == 2 and bool(re.search(r'\b' + phrase + r'\b',
                                                   user_turns(question)[-1].lower().replace('ё', 'е')))
+
+
+_LISTING = re.compile(r"\b(?:включа\w*|входит|входят|состоит\s+из|относятся)\s+(.+)", re.I)
+
+
+def _item_tokens(item: str) -> set[str]:
+    return ({w[:4] for w in re.findall(r"[а-яёa-z]{3,}", item.lower().replace("ё", "е"))
+             if w not in STOP and w not in {"стоимость", "сумма", "размер", "ставке", "ставка", "также"}}
+            | set(re.findall(r"\d+(?:[.,]\d+)?", item)))
+
+
+def unasked_items(text: str, selected: list[Fragment], question: str) -> list[str]:
+    """Elements of a source enumeration that the text names and the question does not.
+
+    «Цена Товара … включает НДС по ставке 20%, стоимость упаковки и доставки»:
+    asked about delivery and packaging, the text also named «НДС по ставке 20%».
+    An element counts as unasked only when another element of the same list
+    is recognised in the question — otherwise the question may use synonyms
+    («перевозка и тара») and nothing is claimed. The text names an element
+    when it carries at least min(2, n) of its words and figures."""
+    if not question:
+        return []
+    asked = _item_tokens(user_turns(question)[-1])
+    said = _item_tokens(text)
+    found = []
+    for fragment in selected:
+        for sentence in re.split(r"(?<=[.;])\s+", norm(fragment.text)):
+            listing = _LISTING.search(sentence)
+            if not listing:
+                continue
+            items = [x for x in re.split(r",\s*|\s+и\s+|;\s*", listing.group(1).rstrip(". ")) if x.strip()]
+            tokens = [(item, _item_tokens(item)) for item in items]
+            if len(tokens) < 2 or not any(t & asked for _, t in tokens):
+                continue
+            for item, t in tokens:
+                if t and not t & asked and len(t & said) >= min(2, len(t)) and item.strip() not in found:
+                    found.append(item.strip())
+    return found[:4]
+
+
+def without_blocked_sentence(text: str, selected: list[Fragment], retriever, question: str = "") -> str:
+    """The text without the one later sentence that the scope barriers reject.
+
+    «Запускает начальник вашего отдела (п. 1.3). Юридический отдел проект
+    согласует, но не запускает согласование (п. 2.1).»: the second sentence
+    adds a role negation, the first is the direct answer. The first sentence is
+    never dropped, only one sentence may go, at least ten words must stay (a
+    bare «Нет.» is not an answer), and the shorter text must pass the barriers;
+    every other check then runs on it as usual. Otherwise the text is returned
+    unchanged and rejected as before."""
+    if not scope_block_reason(text, selected, retriever, question):
+        return text
+    sentences = [x for x in re.split(r"(?<=[.!?])\s+(?=[А-ЯЁA-Z«(])", text.strip()) if x]
+    for i in range(1, len(sentences)):
+        shorter = " ".join(sentences[:i] + sentences[i + 1:])
+        if len(shorter.split()) >= 10 and not scope_block_reason(shorter, selected, retriever, question):
+            return shorter
+    return text
 
 
 def scope_block_reason(text: str, selected: list[Fragment], retriever, question: str = "") -> str:
@@ -1812,6 +1925,7 @@ def answer_steps(question: str, retriever, client, top_k: int = 6, verify: bool 
     retry_scope_guard = False
     retry_restrictions = []
     retry_extra: list[str] = []
+    retry_items: list[str] = []
     verified_once = False
     provisional = None
     search_terms: list[str] = []
@@ -1845,6 +1959,8 @@ def answer_steps(question: str, retriever, client, top_k: int = 6, verify: bool 
                         payload["retry_restrictions"] = retry_restrictions
                     if retry_extra:
                         payload["retry_extra_source_ids"] = retry_extra
+                    if retry_items:
+                        payload["retry_extra_items"] = retry_items
                 calls += 1
                 generated = client.complete(SYSTEM, payload)
                 candidate = expand_selection(generated, evidence)
@@ -1885,6 +2001,13 @@ def answer_steps(question: str, retriever, client, top_k: int = 6, verify: bool 
             # selected provisions and the verifier confirms that very text.
             candidate = {k: v for k, v in candidate.items() if k != "answer"}
             draft = prose_of(generated)
+            # An added negation or exclusive claim in a later sentence does not
+            # discard a correct direct answer: that sentence is dropped and the
+            # remaining text goes through every check below and is the one published.
+            scope_trimmed = False
+            if draft and selected:
+                trimmed = without_blocked_sentence(draft, selected, retriever, question)
+                scope_trimmed, draft = trimmed != draft, trimmed
             # Known restrictive units always keep their source wording in the
             # answer. A model conclusion may precede it only if it repeats every
             # restriction class of the sources; a positive verdict cannot waive this.
@@ -1934,7 +2057,7 @@ def answer_steps(question: str, retriever, client, top_k: int = 6, verify: bool 
                 print(json.dumps({"event": "policy_one_call",
                                   "position": position if type(position) is int else None,
                                   "expanded": expanded, "candidate_status": candidate["status"],
-                                  "prose": prose_state, "scope_guard": scope_guard,
+                                  "prose": prose_state, "scope_guard": scope_guard, "scope_trimmed": scope_trimmed,
                                   "edition_mismatch": edition_wrong}), file=sys.stderr)
                 if edition_wrong:
                     # Every selected provision was out of force on the event date.
@@ -1952,6 +2075,14 @@ def answer_steps(question: str, retriever, client, top_k: int = 6, verify: bool 
                         retry_reason = ("answer_numbers_not_in_sources" if prose_state == "ungrounded"
                                         else "answer_not_supported")
                         retry_scope_guard = scope_blocked
+                        continue
+                    extra_items = unasked_items(prose, selected, question) if prose_state == "published" else []
+                    if extra_items:
+                        # A listed element nobody asked about («включает НДС 20%, …»
+                        # for a question on delivery and packaging): the judge reads it
+                        # as invented. The checked text stays as the fallback.
+                        fallback = result
+                        retry_reason, retry_scope_guard, retry_items = "answer_extra_items", False, extra_items
                         continue
                     if prose_state == "source_only" and draft and restricted and not value_gaps:
                         fallback = result
