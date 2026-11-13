@@ -176,7 +176,7 @@ class ProseAnswers(unittest.TestCase):
                 'Почему по договору с ООО «Северный Склад» арендная плата 500 000 рублей в месяц?', r,
                 ScriptedModel([select('3.1. Арендная плата', prose), confirm()]))
         self.assertEqual(status, 'answer')
-        self.assertEqual(text, prose + '\nИсточник: Договор аренды А-08-2024 Северный Склад, п. 3.1.')
+        self.assertEqual(text, prose + '\nИсточник: Договор аренды нежилого помещения № А-08/2024, п. 3.1.')
 
 
 class GroundingRules(unittest.TestCase):

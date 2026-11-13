@@ -39,7 +39,7 @@ class EditionLabelTests(unittest.TestCase):
                     'claim_checks': [{'index': 0, 'supported': True, 'applicable': True}]}
         text, status, _, _ = run('Кто инициирует закупку по положению о закупках?', [model, verdict], FILES)
         self.assertEqual(status, 'answer')
-        self.assertIn('Источник: Положение о закупках 2031, ред. от 05.02.2031, п. 2.2.', text)
+        self.assertIn('Источник: Положение о закупках (ред. от 05.02.2031), п. 2.2.', text)
 
 
 if __name__ == '__main__':

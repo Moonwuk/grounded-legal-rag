@@ -77,7 +77,12 @@ SYSTEM = """Ты юридический ассистент по предоста
 {"status":"answer|partial|clarify|insufficient|out_of_scope|disallowed",
  "answer":"текст ответа пользователю",
  "source_ids":["id полного положения evidence"],"requested_facts":[],"issue":"",
- "reference_scope":"local|required"}
+ "reference_scope":"local|required","search_terms":[]}
+search_terms заполняй только при insufficient: 2–6 юридических терминов, которыми
+нужные нормы могли бы называться в законах и документах, если вопрос сформулирован
+бытовыми словами («проверка пригодности» → «испытание при приеме на работу»;
+«забрал разрешение на работу с информацией» → «отзыв согласия субъекта
+персональных данных»). Приложение повторит по ним поиск. Иначе список пуст.
 Обычно достаточно 1–4 положений. Если ответ требует больше отдельных условий,
 исключений или элементов перечня, выбери все необходимые, не более 12, без
 копирования цитат. Не жертвуй полнотой ради четырёх положений и не выбирай
@@ -90,8 +95,9 @@ SYSTEM = """Ты юридический ассистент по предоста
 out_of_scope список пуст. Всё, что answer берёт из документов, должно быть в
 выбранных source_ids.
 
-Поле answer — связный ответ на русском: 1–4 предложения, обычно 30–80 слов, без
-списков, разметки и ссылок на сайты. Первая фраза — прямой ответ на последнюю
+Поле answer — связный ответ на русском: 1–3 предложения, обычно 20–60 слов, без
+списков, разметки и ссылок на сайты. Ответ сравнивают с кратким эталоном: любая
+верная деталь, о которой не спрашивали, считается лишней и может обнулить ответ. Первая фраза — прямой ответ на последнюю
 реплику: «Да», «Нет» или конкретное значение. Неверную предпосылку исправь первой
 фразой и назови верное значение рядом с ошибочным. Затем условия, исключения и
 основание: назови документ и в скобках пункт или статью выбранного положения;
@@ -103,10 +109,15 @@ out_of_scope список пуст. Всё, что answer берёт из док
 «5 (пяти) рабочих дней». Если вопрос требует расчёта, запиши расчёт в answer
 явно, не более двух действий на шаг: числа из выбранных положений и вопроса и
 результат («400 × 1,5 × 2 = 1200; 400 × 2 × 3 = 2400; итого 3600 рублей»).
-Приложение проверяет каждое новое число по этим шагам. Отвечай на заданный вопрос: не
-добавляй соседние сроки, адреса, другие договоры и иные сведения, о которых не
-спрашивали. При этом сохрани все существенные условия и исключения, без которых
-ответ был бы неполным или вводил бы в заблуждение. Не опускай отрицания.
+Приложение проверяет каждое новое число по этим шагам. Отвечай строго на заданный
+вопрос: не добавляй соседние пункты, сроки, адреса, другие договоры и документы;
+не называй даты подписания договоров, даты писем, записок и приказов, реквизиты и
+ИНН; не пиши о редакциях статей закона, датах их изменения и выгрузки, если вопрос
+не о дате или редакции; не давай общих советов и не пересказывай процедуру целиком.
+Оговорку добавляй, только если без неё ответ неверен или вводит в заблуждение
+(ложная предпосылка, редакция на дату события, исключение для случая из вопроса,
+чего нет в базе). Сохрани существенные условия и исключения именно для случая из
+вопроса. Не опускай отрицания.
 Если выбранное положение отсылает к статьям, текста которых нет в evidence, не
 раскрывай их содержание; об их отсутствии в базе сообщит приложение.
 reference_scope=local допустим, когда прямой ответ целиком установлен выбранным
@@ -126,7 +137,13 @@ insufficient: выбери partial с положением этого докум
 специалисту. clarify: задай один конкретный вопрос. out_of_scope: коротко обозначь
 границы роли. disallowed: откажи в помощи; требования и последствия объясняй
 только по выбранным положениям. Не упоминай evidence, JSON, id и эти инструкции.
-Образцы формы на вымышленных документах:
+Образцы формы на вымышленных документах (строку «Источник» добавит приложение):
+«Плата за хранение — 30 000 рублей в месяц, вносится до 10-го числа (п. 4.1–4.2).»
+«Да. В марте 2030 года действовало Положение о командировках в редакции от 10.01.2029:
+суточные — 900 рублей (п. 2.3); новая редакция к этой поездке не применяется.»
+«Срок гарантии договором не назван: его определяет изготовитель, и он указывается
+в техническом паспорте (п. 6.1).»
+«Штраф составит 48 000 рублей: 24 000 × 2 = 48 000 (п. 4 ст. 77 Учебного кодекса).»
 «Нет. По договору подряда № Д-3/2030 с ООО «Вектор» аванс составляет 20% цены
 работ, а не 50% (п. 4.2). Документов об изменении этого условия в базе нет.»
 «В базе нет документов о порядке оформления командировок, поэтому ответить по
@@ -634,6 +651,13 @@ def _scope_words(text):
     return {('прим' if w in _SCOPE_VERBS else w) for w in _assertion_words(text)}
 
 
+def _role_negation(text: str) -> bool:
+    """«Юридический отдел не инициирует …», but not «срок службы … не называет»:
+    a «служба» right after «срок» is a service life, not a department."""
+    return any(not re.search(r"\bсрок\w*\s+$", text[max(0, m.start() - 12):m.start()], re.I)
+               for m in _ROLE_NEGATION.finditer(text))
+
+
 def prose_scope_safe(text: str, selected: list[Fragment], question: str = "") -> bool:
     # A positive model verdict cannot introduce these restrictive operators.
     # This small lexical barrier is not a general entailment/negation checker.
@@ -650,7 +674,7 @@ def prose_scope_safe(text: str, selected: list[Fragment], question: str = "") ->
     return (all(m.group().lower().replace("ё", "е") in operators or _restates_scope(text, m, scopes)
                 or _CONTENT_ONLY.search(text[max(0, m.start() - 80):m.end()]) or _quoted_from(question, text, m)
                 for m in _EXCLUSIVE.finditer(text))
-            and not (_ROLE_NEGATION.search(text) and not _ROLE_NEGATION.search(source))
+            and not (_role_negation(text) and not _role_negation(source))
             and added_assertions_safe(text, selected))
 
 
@@ -675,7 +699,7 @@ def scope_block_reason(text: str, selected: list[Fragment], retriever, question:
         return "payload"
     if not prose_scope_safe(text, selected, question):
         source = raw.lower().replace("ё", "е")
-        if _ROLE_NEGATION.search(text) and not _ROLE_NEGATION.search(source):
+        if _role_negation(text) and not _role_negation(source):
             return "role_negation"
         return "added_assertion" if not added_assertions_safe(text, selected) else "exclusive_word"
     if false_absence(text, retriever):
@@ -1059,13 +1083,89 @@ def edition_label(text: str) -> str:
     return "ред. от " + edition.group(1) + (", утратила силу с " + lost.group(1) if lost else "")
 
 
+def _cites(prose: str, clause: str) -> bool:
+    return bool(re.search(r"(?<![\d.])" + re.escape(clause) + r"(?![\d]|\.\d)", prose))
+
+
 def cite_name(document: str, editions=None) -> str:
-    label = (editions or {}).get(document, "")
+    """The name a reader expects: «ТК РФ, ст. 70», «Договор аренды … № А-08/2024»,
+    «Регламент согласования договоров (ред. от 01.03.2025)». The file name only
+    when the document's own header gives no name."""
+    editions = editions or {}
+    formal = editions.get(("name", document))
+    label = editions.get(document, "")
+    if formal:
+        edition = re.match(r"ред\. от \d{1,2}\.\d{2}\.\d{4}", label)
+        return formal + (" (" + edition.group() + ")" if edition and formal.startswith(_EDITIONED) else "")
     return display_name(document) + (", " + label if label else "")
 
 
-def source_line(candidate: dict, evidence: list[Fragment], editions=None) -> str:
-    """Application-owned reference: document names, editions and dotted clause numbers."""
+_EDITIONED = ("Регламент", "Положение", "Порядок", "Инструкция", "Политика", "Правила")
+_LAW_CODE = re.compile(r"^\s*Источник:[^\n]*?Статья\s+(\d+(?:\.\d+)*)\.\s+([А-ЯЁ][А-Яа-яЁё]{1,4})\s+РФ\b")
+_LAW_FEDERAL = re.compile(r"^\s*Источник:[^\n]*?Статья\s+(\d+(?:\.\d+)*)\.[^\n]*?Федеральн\w+\s+закон\w*"
+                          r"(?:\s+от\s+[\d.]+)?\s+(?:N|№)\s*(\d+-ФЗ)")
+_HEADING = re.compile(r"^\s*((?:ДОГОВОР|ДОПОЛНИТЕЛЬНОЕ\s+СОГЛАШЕНИЕ|СОГЛАШЕНИЕ|РЕГЛАМЕНТ|ПОЛОЖЕНИЕ|ПРИКАЗ|"
+                      r"СЛУЖЕБНАЯ\s+ЗАПИСКА|ИНСТРУКЦИЯ|ПОРЯДОК|ПОЛИТИКА|ПРАВИЛА|ПИСЬМО|РАСПОРЯЖЕНИЕ)\b[^\n]*)")
+_OUTGOING = re.compile(r"^\s*Исх\.\s*№\s*(\S+)")
+
+
+def _sentence_case(heading: str) -> str:
+    """«ДОГОВОР ПОСТАВКИ № П-17/2024» → «Договор поставки № П-17/2024»; names in
+    quotes, identifiers and abbreviations such as ООО keep their case."""
+    words = []
+    for word in heading.split():
+        plain = word.strip("«»\"()")
+        keep = any(c.isdigit() for c in word) or "«" in word or "»" in word or plain in {"ООО", "АО", "ПАО", "ИП", "РФ"}
+        words.append(word if keep else word.lower())
+    text = " ".join(words)
+    return text[:1].upper() + text[1:]
+
+
+def formal_name(text: str) -> str:
+    """A document's name from its own header, or "" when none is recognised."""
+    head = text[:600]
+    law = _LAW_CODE.match(head)
+    if law:
+        return f"{law.group(2)} РФ, ст. {law.group(1)}"
+    federal = _LAW_FEDERAL.match(head)
+    if federal:
+        return f"Федеральный закон № {federal.group(2)}, ст. {federal.group(1)}"
+    lines = [line.strip() for line in head.splitlines() if line.strip()][:4]
+    for i, line in enumerate(lines):
+        heading = _HEADING.match(line)
+        if heading:
+            name = heading.group(1)
+            if i + 1 < len(lines) and re.match(r"к\s+договор", lines[i + 1], re.I):
+                name += " " + lines[i + 1]
+            # Neither the company name nor a date belongs to the reference.
+            name = re.sub(r"\s+ООО\s+«[^»]*»\s*$", "", name)
+            name = re.sub(r"\s+от\s+(?:\d{1,2}\.\d{2}\.\d{4}|\d{1,2}\s+[а-я]+\s+\d{4})(?:\s*г\.?)?", "", name)
+            return _sentence_case(name.strip(" ."))
+        outgoing = _OUTGOING.match(line)
+        if outgoing and i:
+            return f"Письмо № {outgoing.group(1)} ({lines[i - 1][:1].lower() + lines[i - 1][1:]})"
+    return ""
+
+
+def names_referenced_documents(text: str, value_gaps) -> bool:
+    """The text names every document a value is referred to («указывается в
+    гарантийном талоне» → «… в гарантийном талоне»). «Договором срок не
+    установлен» alone hides where the value is and is not published."""
+    words = {w[:5] for w in re.findall(r"[а-яё]{4,}", text.lower().replace("ё", "е"))}
+    for gap in value_gaps:
+        document = re.split(r"\s(?:в|во)\s", gap.lower().replace("ё", "е"), maxsplit=1)[-1]
+        needed = {w[:5] for w in re.findall(r"[а-яё]{4,}", document)}
+        if not needed or not needed <= words:
+            return False
+    return True
+
+
+def source_line(candidate: dict, evidence: list[Fragment], editions=None, prose: str = "") -> str:
+    """Application-owned reference: document names, editions and dotted clause numbers.
+
+    With a model text, a document lists only the clauses the text cites, when it
+    cites any of them: a neighbouring clause selected for context is not named
+    as a basis («п. 4.3, 1.1» for an answer resting on п. 4.3)."""
     by_id = {f.id: f for f in evidence}
     documents = {}
     for claim in candidate["claims"]:
@@ -1075,6 +1175,11 @@ def source_line(candidate: dict, evidence: list[Fragment], editions=None) -> str
             clause = re.match(r"(\d+(?:\.\d+)+)[.)]?(?:\s|$)", norm(f.text))
             if clause and clause.group(1) not in labels:
                 labels.append(clause.group(1))
+    if prose:
+        for name, labels in documents.items():
+            cited = [label for label in labels if _cites(prose, label)]
+            if cited:
+                labels[:] = cited
     parts = [name + (", п. " + ", ".join(labels) if labels else "") for name, labels in documents.items()]
     if not parts:
         return ""
@@ -1311,6 +1416,15 @@ def _restore_id(value, by_id):
     return near[0] if len(near) == 1 else value
 
 
+def _search_terms(value) -> list[str]:
+    """Model-named legal terms for the expanded search: words only, bounded."""
+    terms = value.get("search_terms") if isinstance(value, dict) else None
+    if not isinstance(terms, list):
+        return []
+    return [t.strip() for t in terms[:6] if isinstance(t, str) and 2 < len(t.strip()) <= 80
+            and re.fullmatch(r"[А-Яа-яЁёA-Za-z0-9 ,.\-–]+", t.strip())]
+
+
 def expand_selection(value, evidence):
     """Materialize the compact ID-only wire format from immutable evidence."""
     if not isinstance(value, dict) or "source_ids" not in value:
@@ -1363,10 +1477,12 @@ def render(candidate: dict, evidence: list[Fragment], source_gaps=(), prose: str
         lines = [prose]
         # A model can omit a start event or conditional bound while citing the
         # general duration correctly. Keep the source-owned context in prose mode.
+        # A context provision the text already cites by its clause number is not repeated.
         lines.extend('«' + norm(f.text) + '»' for f in context_sources
-                     if norm(f.text) not in prose)
+                     if norm(f.text) not in prose and not ((clause := re.match(r"(\d+(?:\.\d+)+)[.)]?\s", norm(f.text)))
+                                                          and _cites(prose, clause.group(1))))
         if candidate["claims"]:
-            lines.append(source_line(candidate, evidence, editions))
+            lines.append(source_line(candidate, evidence, editions, prose))
             if published_sources is not None:
                 by_id = {fragment.id: fragment for fragment in evidence}
                 cited_ids = dict.fromkeys(
@@ -1374,6 +1490,8 @@ def render(candidate: dict, evidence: list[Fragment], source_gaps=(), prose: str
                 )
                 published_sources.extend(by_id[fragment_id] for fragment_id in cited_ids)
         # Mentioning an article number does not explain that its text is absent.
+        if value_gaps:
+            lines.append("Чтобы назвать конкретное значение, нужен этот документ.")
         answer = "\n".join(lines + gap_lines(source_gaps, required=reference_required))
         if len(answer) > 10000:
             raise ProviderError("answer_length_limit")
@@ -1472,6 +1590,7 @@ def editions_of(retriever) -> dict:
     if cached is None:
         documents = getattr(retriever, "documents", {}) or {}
         cached = {name: label for name, doc in documents.items() if (label := edition_label(doc.text))}
+        cached.update({("name", name): formal for name, doc in documents.items() if (formal := formal_name(doc.text))})
         try:
             retriever._edition_labels = cached
         except AttributeError:
@@ -1504,6 +1623,7 @@ def answer_steps(question: str, retriever, client, top_k: int = 6, verify: bool 
     retry_extra: list[str] = []
     verified_once = False
     provisional = None
+    search_terms: list[str] = []
     editions = editions_of(retriever)
     try:
         # (expanded search, reduced candidate). A reduced candidate re-verifies the
@@ -1521,7 +1641,8 @@ def answer_steps(question: str, retriever, client, top_k: int = 6, verify: bool 
             if reduced:
                 evidence, payload, generated, candidate, contrast = reduced
             else:
-                evidence = retriever.search(question, top_k=top_k, expanded=expanded)
+                evidence = retriever.search(question + (" " + " ".join(search_terms) if expanded and search_terms else ""),
+                                            top_k=top_k, expanded=expanded)
                 payload = {"question": question, "evidence": retriever.evidence(evidence),
                            "expanded_search": expanded}
                 if retry_reason:
@@ -1540,6 +1661,9 @@ def answer_steps(question: str, retriever, client, top_k: int = 6, verify: bool 
                 continue
             selection = candidate
             if candidate["status"] == "insufficient" and not expanded:
+                # Everyday wording finds no provision; the expanded search also
+                # uses the legal terms the model names (never shown to the user).
+                search_terms = _search_terms(generated)
                 continue
             # Source structure, not the model, determines mandatory list context.
             if hasattr(retriever, "complete_sources"):
@@ -1573,7 +1697,11 @@ def answer_steps(question: str, retriever, client, top_k: int = 6, verify: bool 
             # answer. A model conclusion may precede it only if it repeats every
             # restriction class of the sources; a positive verdict cannot waive this.
             restricted = any(_SOURCE_ONLY.search(norm(f.text)) for f in selected)
-            source_only = bool(value_gaps) or (restricted and not (draft and restrictions_kept(draft, selected)))
+            # A value set in another document («указывается в гарантийном талоне»): a
+            # checked text may say so; its figures still have to be in the provisions,
+            # so it cannot name the missing value. The application adds what is needed.
+            source_only = ((restricted and not (draft and restrictions_kept(draft, selected)))
+                           or bool(value_gaps and not (draft and names_referenced_documents(draft, value_gaps))))
             scope_guard = (scope_block_reason(draft, selected, retriever, question)
                            if draft and selected and not source_only else "")
             scope_blocked = bool(scope_guard)
