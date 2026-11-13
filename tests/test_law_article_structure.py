@@ -66,6 +66,24 @@ class LawArticleStructureTests(unittest.TestCase):
 
 
 
+class AbbreviationTests(unittest.TestCase):
+    """«утечка ПДн»: the law says «персональных данных», never «ПДн»."""
+
+    LAW = ('Источник: Статья 8.2. УКоАП РФ Ответственность операторов. Учебный кодекс\n'
+           'Статья 8.2. Ответственность операторов\n'
+           + ''.join(f'{k}. Нарушение правил хранения архивных документов вида {k} влечет предупреждение.\n' for k in range(1, 30)) +
+           '30. Неуведомление уполномоченного органа о неправомерной передаче персональных данных -\n'
+           'влечет наложение штрафа на юридических лиц в размере от семисот тысяч до девятисот тысяч рублей.\n')
+
+    def test_common_abbreviations_find_the_spelled_out_terms(self):
+        with corpus({'законы__УКоАП_ст8.2.txt': self.LAW, 'документы компании__Памятка.txt': 'Памятка о хранении.\n'}) as r:
+            for question in ('Какой штраф для компании, если не сообщили об утечке ПДн?',
+                             'Какой штраф за неуведомление Роскомнадзора об утечке?'):
+                with self.subTest(question):
+                    texts = [f.text for f in r.search(question, top_k=6)]
+                    self.assertTrue(any('от семисот тысяч до девятисот тысяч' in t for t in texts))
+
+
 class OrganizerBaseReproductionTests(unittest.TestCase):
     """The reproduced misses on the organizer base itself (retrieval only)."""
 

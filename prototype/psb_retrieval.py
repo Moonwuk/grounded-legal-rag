@@ -45,6 +45,23 @@ def tokens(text: str) -> list[str]:
     return result
 
 
+# Users abbreviate; laws spell the terms out («персональных данных», not «ПДн»).
+# Common legal abbreviations only — no document- or answer-specific knowledge.
+ABBREVIATIONS = {
+    "пдн": "персональные данные", "ндс": "налог на добавленную стоимость",
+    "ндфл": "налог на доходы физических лиц", "мрот": "минимальный размер оплаты труда",
+    "дс": "дополнительное соглашение", "допсоглашение": "дополнительное соглашение",
+    "ркн": "уполномоченный орган по защите прав субъектов персональных данных",
+    "роскомнадзор": "уполномоченный орган по защите прав субъектов персональных данных",
+}
+
+
+def expand_abbreviations(text: str) -> str:
+    words = set(re.findall(r"[а-яёa-z]+", text.lower().replace("ё", "е")))
+    extra = [full for short, full in ABBREVIATIONS.items() if short in words]
+    return " ".join([text, *extra])
+
+
 # --- Dates of validity and of the event (deterministic, unambiguous forms only) ---
 MONTHS = {"январ": 1, "феврал": 2, "март": 3, "апрел": 4, "ма": 5, "июн": 6, "июл": 7, "август": 8,
           "сентябр": 9, "октябр": 10, "ноябр": 11, "декабр": 12}
@@ -392,7 +409,7 @@ class Retriever:
     def search(self, question: str, top_k: int = 6, expanded: bool = False) -> list[Fragment]:
         turns = user_turns(question)
         current = turns[-1]
-        query = Counter(tokens(current))
+        query = Counter(tokens(expand_abbreviations(current)))
         for turn in turns[:-1]:
             for token in tokens(turn):
                 query[token] += .35
