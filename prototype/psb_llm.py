@@ -4,6 +4,7 @@ import json
 import os
 import socket
 import sys
+import threading
 import time
 from http.client import HTTPException
 from urllib.error import HTTPError, URLError
@@ -68,6 +69,10 @@ REASONING_BUDGET_SHARE = 0.8
 
 class ProxyClient:
     effort_rejected = False
+    # A 429 pauses every worker, not only the one that received it: the others
+    # would otherwise keep hitting the overloaded proxy and fail too.
+    cooldown_until = 0.0
+    cooldown_lock = threading.Lock()
 
     def __init__(self, deadline: float, position: int | None = None):
         self.base = env("LLM_BASE_URL", "OPENAI_BASE_URL", "BASE_URL").rstrip("/")
@@ -111,14 +116,23 @@ class ProxyClient:
         truncation_retry = False
         format_retry = False
         effort_dropped = False
-        for attempt in range(3):
+        # An overloaded proxy (429, 5xx, timeouts) needs patience: four attempts
+        # with growing pauses, all within the run deadline (regulation, section 9).
+        for attempt in range(4):
+            # A new request waits out another worker's 429 pause; a retry has
+            # already slept its own pause below.
+            wait_for = ProxyClient.cooldown_until - time.monotonic() if attempt == 0 else 0
+            if wait_for > 0:
+                if self.deadline - time.monotonic() <= wait_for + 1:
+                    raise ProviderError("run_deadline")
+                time.sleep(wait_for)
             remaining = self.deadline - time.monotonic()
             if remaining <= 1:
                 raise ProviderError("run_deadline")
             request = Request(self.base + "/chat/completions", data=body, method="POST",
                               headers={"Authorization": "Bearer " + self.key,
                                        "Content-Type": "application/json"})
-            delay = 1 + attempt
+            delay = (2, 5, 10, 10)[attempt]
             request_started = time.monotonic()
             try:
                 with self.opener.open(request, timeout=min(45., remaining)) as response:
@@ -223,7 +237,11 @@ class ProxyClient:
                 if code not in {429, 500, 502, 503, 504}:
                     raise ProviderError("http_" + str(code)) from None
                 if len(retry) <= 6 and retry.isascii() and retry.isdigit():
-                    delay = min(30, int(retry))
+                    # A server pause longer than ours is kept; «Retry-After: 0» does not cancel ours.
+                    delay = max(delay, min(30, int(retry)))
+                if code == 429:
+                    with ProxyClient.cooldown_lock:
+                        ProxyClient.cooldown_until = max(ProxyClient.cooldown_until, time.monotonic() + delay)
             except (URLError, socket.timeout, TimeoutError, HTTPException, ConnectionError) as error:
                 reason = getattr(error, "reason", None)
                 kind = "timeout" if isinstance(error, (socket.timeout, TimeoutError)) or isinstance(reason, (socket.timeout, TimeoutError)) else (
@@ -233,7 +251,7 @@ class ProxyClient:
                     "elapsed_ms":round((time.monotonic() - request_started) * 1000)}), file=sys.stderr)
             except (ValueError, KeyError, IndexError, TypeError, AttributeError, RecursionError):
                 raise ProviderError("invalid_model_response") from None
-            if attempt == 2:
+            if attempt == 3:
                 break
             remaining = self.deadline - time.monotonic()
             if remaining <= delay + 1:

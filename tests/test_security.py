@@ -355,11 +355,15 @@ class InputDirectoryTests(unittest.TestCase):
 
 
 class ProxyTests(unittest.TestCase):
+    def setUp(self):
+        ProxyClient.cooldown_until = 0.0
+
     def test_connection_drop_has_bounded_retries(self):
         with proxy('disconnect') as (_, calls), patch('psb_llm.time.sleep'):
             with self.assertRaisesRegex(ProviderError, 'proxy_unavailable'):
-                ProxyClient(time.monotonic() + 10).complete('policy', {})
-            self.assertEqual(len(calls), 3)
+                ProxyClient(time.monotonic() + 60).complete('policy', {})
+            # Bounded: four attempts (an overloaded platform proxy needs patience).
+            self.assertEqual(len(calls), 4)
 
     def test_invalid_trusted_configuration_fails_before_network(self):
         for base in ('file:///etc/passwd', 'https://user:password@example.invalid',
@@ -371,14 +375,18 @@ class ProxyTests(unittest.TestCase):
 
     def test_recovery_and_transient_retry_bound(self):
         for mode in ('recover', '429', '503'):
-            with self.subTest(mode=mode), proxy(mode) as (_, calls):
-                client = ProxyClient(time.monotonic() + 15)
+            ProxyClient.cooldown_until = 0.0  # a 429 of the previous mode pauses new requests on purpose
+            with self.subTest(mode=mode), proxy(mode) as (_, calls), patch('psb_llm.time.sleep') as sleep:
+                client = ProxyClient(time.monotonic() + 60)
                 if mode == 'recover':
                     self.assertIsInstance(client.complete('policy', {}), dict)
+                    self.assertEqual(len(calls), 3)
                 else:
                     with self.assertRaisesRegex(ProviderError, 'proxy_unavailable'):
                         client.complete('policy', {})
-                self.assertEqual(len(calls), 3)
+                    # Four bounded attempts with growing pauses, not an endless loop.
+                    self.assertEqual(len(calls), 4)
+                    self.assertEqual([c.args[0] for c in sleep.call_args_list], [2, 5, 10])
 
     def test_auth_failure_not_retried_and_not_leaked(self):
         with proxy('401') as (_, calls):

@@ -33,7 +33,7 @@
 
 Очередь batch и область отсылок: [описание](docs/batch_budget_and_reference_scope.md),
 `solution.run_questions`, `psb_policy.answer_steps`,
-[регрессии очереди](tests/test_batch_fairness.py),
+[регрессии очереди](tests/test_batch_fairness.py), [перегрузка прокси](tests/test_overload_recovery.py),
 [регрессии отсылок](tests/test_reference_scope.py).
 Один вызов модели на ответ в batch: [описание](docs/one_call_answers.md),
 `PSB_VERIFY`, [регрессии](tests/test_one_call_answers.py).
