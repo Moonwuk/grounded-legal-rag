@@ -1,0 +1,68 @@
+{
+  "git_commit": "9dd8e3c6d5ecead325edad7a99ebec6ba7731ffa",
+  "corpus_id": "combined-platform-format",
+  "knowledge_base_sha256": "805b5d4e663899c9e7427bf3e47b6e8c672a0a758edee442177d5302b9913e6a",
+  "questions_sha256": "46754f1272f5ca5ade4a6eb6fb6d9d7ad31c869b65cbd75a71462637b81b5a88",
+  "gold_sha256": "f14a14c3e0be2ffb7c2592f0eaedbdc89467d2efb613be50dbedbee7ffd67e18",
+  "runtime_sha256": "369bf987092cb95399a369dce9d28dbd12a07fe213f0286d75b3417cc6247643",
+  "model": "deepseek-flash",
+  "provider_base_url": "https://api.deepseek.com/v1",
+  "returncode": 0,
+  "elapsed_seconds": 850.3746811879998,
+  "generation_settings": {},
+  "shard": "2/8",
+  "questions_run": 82,
+  "tuning_note": "Synthetic development cases (split=development) were used for tuning; split=holdout and split=external were not. Element gold is narrower than the source gold: it checks key values, polarity and phrases.",
+  "scope": "Local element check, not the official Score.",
+  "outcomes": {
+    "pass": 81,
+    "fail": 1
+  },
+  "statuses": {
+    "answer": 81,
+    "unverified": 1
+  },
+  "passed": 81,
+  "total": 82,
+  "quotes_only": [
+    "syn-fact-0089",
+    "syn-fact-0099",
+    "syn-multi_document-0002",
+    "syn-multi_document-0006",
+    "syn-multi_document-0008",
+    "syn-multi_document-0009",
+    "syn-multi_document-0010",
+    "syn-multi_document-0012",
+    "syn-multi_document-0016",
+    "syn-multi_document-0018",
+    "syn-multi_document-0019",
+    "syn-multi_document-0020",
+    "syn-multi_document-0021",
+    "syn-multi_document-0026",
+    "syn-multi_document-0028",
+    "syn-multi_document-0029",
+    "syn-multi_document-0030",
+    "syn-multi_document-0032",
+    "syn-multi_document-0036",
+    "syn-multi_document-0038",
+    "syn-multi_document-0039",
+    "syn-multi_document-0040",
+    "syn-multi_document-0046",
+    "syn-multi_document-0048",
+    "syn-multi_document-0049",
+    "syn-multi_document-0052",
+    "syn-multi_document-0056",
+    "syn-multi_document-0059",
+    "syn-multi_document-0060",
+    "syn-multi_document-0061",
+    "syn-multi_document-0062"
+  ],
+  "false_refusals": 1,
+  "failures": {
+    "syn-multi_document-0022": [
+      "false_refusal"
+    ]
+  },
+  "not_evaluated": {},
+  "checked_by_hand": 0
+}

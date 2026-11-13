@@ -1,0 +1,26 @@
+{
+  "case_id": "fact-0049",
+  "question": "Каков лимит резерва для КТ-50/2026, при каком условии и событии он применяется?",
+  "history": [],
+  "corpus": "evaluation/generated_corpora/synthetic/knowledge-base.zip",
+  "candidate_documents": [
+    "contract/contract_0147.md",
+    "contract/contract_0148.txt",
+    "contract/contract_0149.md",
+    "financial/financial_0000.txt",
+    "financial/financial_0001.md",
+    "financial/financial_0049.md",
+    "financial/financial_0149.md",
+    "irrelevant/irrelevant_0049.md",
+    "memo/memo_0049.md",
+    "memo/memo_0149.md",
+    "regulation/regulation_0049.md",
+    "regulation/regulation_0149.md",
+    "regulation/regulation_0249.md"
+  ],
+  "command": "python -m evaluation.run_benchmark --corpus synthetic --mode holdout --engine deepseek --case-id fact-0049 --run-id repro-fact-0049",
+  "caution": "candidate reduced context; full corpus is authoritative for rank reproduction",
+  "failures": [
+    "system_error"
+  ]
+}

@@ -1,0 +1,30 @@
+{
+  "git_commit": "e9c0d473c2b64fec178e62deb8a5747e13b96087",
+  "corpus_id": "demo-organizer",
+  "knowledge_base_sha256": "cea8ef2c8f6c8b9f498efacf705b97bf3da53cc78f366f9b1fef7a6de66327e0",
+  "questions_sha256": "e922cee1e155ed23f9f1c8f9758e396ed0e72e4309343dffe33824139bbf1423",
+  "gold_sha256": "bc6749d64a7df13374942971493b4ac253706ba753354bcf422552be13e17bec",
+  "runtime_sha256": "8814a521522a1fd6d21df359db2c5a7a536c316f424936a4c06ab1f3422f2cc0",
+  "model": "deepseek-flash",
+  "provider_base_url": "https://api.deepseek.com/v1",
+  "returncode": 0,
+  "elapsed_seconds": 133.9112514399999,
+  "tuning_note": "The solution prompt was tuned on these 18 questions; results here are not an independent measurement.",
+  "scope": "Local element check, not the official Score.",
+  "outcomes": {
+    "pass": 18
+  },
+  "statuses": {
+    "answer": 17,
+    "insufficient": 1
+  },
+  "passed": 18,
+  "total": 18,
+  "quotes_only": [
+    "17"
+  ],
+  "false_refusals": 0,
+  "failures": {},
+  "not_evaluated": {},
+  "checked_by_hand": 0
+}

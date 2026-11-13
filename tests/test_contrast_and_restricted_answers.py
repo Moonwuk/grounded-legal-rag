@@ -65,9 +65,11 @@ class ContrastProvisionTests(unittest.TestCase):
     def test_reduced_candidate_still_needs_its_own_approval(self):
         s = REVISIONS[0]
         for second in (judge(inapplicable=[0]), judge(unsupported=[0])):
-            text, status, model, _ = run(s['question'], [both(s), judge(inapplicable=[1]), second], s['files'])
+            # The rest is rejected too: one more generation is told the reason.
+            text, status, model, _ = run(s['question'], [both(s), judge(inapplicable=[1]), second, both(s), second], s['files'])
             self.assertEqual((text, status), (UNVERIFIED, 'unverified'))
-            self.assertEqual(len(model.calls), 3)
+            self.assertEqual(len(model.calls), 5)
+            self.assertEqual(model.calls[3][1].get('retry_reason'), 'inapplicable_provision')
 
     def test_unconfirmed_text_falls_back_to_the_applicable_provision_only(self):
         s = REVISIONS[1]
@@ -84,22 +86,49 @@ class ContrastProvisionTests(unittest.TestCase):
 
     def test_reduction_never_exceeds_the_per_question_call_limit(self):
         # Holdout 9989f40 temporal-0009: rejected for another reason, then the
-        # expanded attempt found an inapplicable provision; the 5th call raised
-        # question_call_budget and the answer became a technical error.
+        # expanded attempt found an inapplicable provision; a call beyond the
+        # limit raised question_call_budget and the answer became a technical
+        # error. Within the limit the reduction is verified; nothing follows it.
         from psb_llm import QUESTION_CALL_LIMIT
         for s in REVISIONS:
             with self.subTest(s['question']):
-                text, status, model, events = run(s['question'], [both(s), judge(unsupported=[0]), both(s), judge(inapplicable=[1])], s['files'])
+                script = [both(s), judge(unsupported=[0]), both(s), judge(inapplicable=[1]), judge(unsupported=[0])]
+                text, status, model, events = run(s['question'], script + [both(s), judge()] * 3, s['files'])
                 self.assertEqual(status, 'unverified')
-                self.assertLessEqual(len(model.calls), QUESTION_CALL_LIMIT)
-                self.assertEqual([e['reduced'] for e in events], [False, False])
+                self.assertEqual(len(model.calls), QUESTION_CALL_LIMIT)
+                self.assertEqual([e['reduced'] for e in events], [False, False, True])
+
+    def test_partial_verdict_for_an_inapplicable_contrast_is_reduced_on_the_first_attempt(self):
+        # Holdout 76f2b42 contradiction-0019, low temporal-0069, PR #18 temporal-0039:
+        # the first verdict said "partial" with the contrast provision inapplicable,
+        # no reduction followed, the retry repeated it and the call limit ended in
+        # a generic refusal.
+        def partial_inapplicable(payload):
+            claims = payload['candidate']['claims']
+            return {'approved': False, 'complete': False, 'status': 'partial', 'answer_supported': False,
+                    'claim_checks': [{'index': i, 'supported': True, 'applicable': i != 1} for i in range(len(claims))]}
+        for s in REVISIONS:
+            with self.subTest(s['question']):
+                text, status, model, events = run(s['question'], [both(s), partial_inapplicable, judge()], s['files'])
+                self.assertEqual(status, 'answer', text)
+                self.assertEqual(len(model.calls), 3)
+                self.assertEqual(model.calls[-1][1]['candidate']['status'], 'answer')
+                self.assertEqual(len(model.calls[-1][1]['candidate']['claims']), 1)
+
+    def test_partial_verdict_does_not_upgrade_or_reduce_other_statuses(self):
+        c = {'status': 'partial', 'claims': [{}, {}]}
+        v = {'status': 'answer', 'claim_checks': [{'index': 0, 'supported': True, 'applicable': True}, {'index': 1, 'supported': True, 'applicable': False}]}
+        self.assertEqual(inapplicable_only(c, v), [])
+        self.assertEqual(inapplicable_only({'status': 'clarify', 'claims': [{}, {}]}, {**v, 'status': 'partial'}), [])
 
     def test_inapplicable_only_requires_a_complete_wellformed_verdict(self):
         c = {'status': 'answer', 'claims': [{}, {}]}
         ok = lambda a, b: {'status': 'answer', 'claim_checks': [{'index': 0, 'supported': True, 'applicable': a}, {'index': 1, 'supported': True, 'applicable': b}]}
         self.assertEqual(inapplicable_only(c, ok(True, False)), [1])
         self.assertEqual(inapplicable_only(c, ok(True, True)), [])
-        self.assertEqual(inapplicable_only(c, {**ok(True, False), 'status': 'partial'}), [])
+        # A downgraded "partial" verdict for an "answer" is the same objection.
+        self.assertEqual(inapplicable_only(c, {**ok(True, False), 'status': 'partial'}), [1])
+        self.assertEqual(inapplicable_only(c, {**ok(True, False), 'status': 'insufficient'}), [])
         self.assertEqual(inapplicable_only(c, {'status': 'answer', 'claim_checks': [{'index': 0, 'supported': True, 'applicable': False}]}), [])
         self.assertEqual(inapplicable_only(c, {'status': 'answer', 'claim_checks': [{'index': 0, 'supported': True, 'applicable': True}] * 2}), [])
         self.assertEqual(inapplicable_only(c, None), [])
@@ -121,30 +150,70 @@ RESTRICTED = [
 ]
 
 class RestrictedProvisionTests(unittest.TestCase):
-    def test_conclusion_that_keeps_every_restriction_is_published_with_the_source(self):
+    def test_conclusion_that_keeps_every_restriction_is_published_without_the_quote(self):
+        # The recommended answer is short (regulation, section 3): a verified text
+        # that repeats every restriction class needs no quotation after it.
         for s in RESTRICTED:
             with self.subTest(s['question']):
                 text, status, _, events = run(s['question'], [select(s['needle'], s['good']), confirm()], s['file'])
                 source = next(iter(s['file'].values()))
                 self.assertEqual(status, 'answer')
                 self.assertTrue(text.startswith(s['good']), text)
-                self.assertIn('«' + source + '»', text)
+                self.assertNotIn('«' + source + '»', text)
+                self.assertIn('\nИсточник: ', text)
                 self.assertEqual(events[-1]['prose'], 'published')
+
+    def test_prohibition_only_text_keeps_the_quote(self):
+        # A text that only prohibits may omit the conditions of a permission for
+        # others (test_prohibitive_conclusion.py); the source is then quoted.
+        source = ('Не допускается направление в командировку работников моложе восемнадцати лет. '
+                  'Направление инвалидов допускается только с их письменного согласия.')
+        good = 'Нет. Направление в командировку работника моложе восемнадцати лет не допускается.'
+        text, status, _, events = run('Можно ли направить в командировку работника 17 лет с его согласия?',
+                                      [select('Не допускается', good), confirm()], {'Кодекс.txt': source})
+        self.assertEqual(status, 'answer')
+        self.assertTrue(text.startswith(good), text)
+        self.assertIn('«' + source + '»', text)
 
     def test_conclusion_that_drops_a_restriction_is_not_published(self):
         for s in RESTRICTED:
             for bad in s['bad']:
                 with self.subTest(bad=bad):
-                    text, status, _, events = run(s['question'], [select(s['needle'], bad), confirm()], s['file'])
+                    # The retry is told the lost restrictions; the model drops them again.
+                    text, status, model, events = run(s['question'], [select(s['needle'], bad), confirm()] * 2, s['file'])
                     self.assertEqual(status, 'answer')
                     self.assertNotIn(bad, text)
                     self.assertIn('«' + next(iter(s['file'].values())) + '»', text)
                     self.assertEqual(events[-1]['prose'], 'source_only')
+                    self.assertEqual(model.calls[2][1].get('retry_reason'), 'answer_lost_restrictions')
 
     def test_verifier_rejection_of_the_text_keeps_only_the_source(self):
         s = RESTRICTED[1]
         text, status, _, _ = run(s['question'], [select(s['needle'], s['good']), confirm(False), select(s['needle'], s['good']), confirm(False)], s['file'])
         self.assertEqual(status, 'answer'); self.assertNotIn(s['good'], text); self.assertIn('«7.4.', text)
+
+    def test_upper_bound_is_kept_by_any_upper_bound_wording(self):
+        # Demo run (diag on 76f2b42), question 2: "Максимальный срок ... шесть месяцев"
+        # for "не может превышать шести месяцев" was published as quotes only.
+        cases = [('4.1. Срок испытания не может превышать пяти месяцев для руководителей отделов.', ('Максимальный срок испытания руководителя отдела — пять месяцев.', 'Испытание руководителя отдела не более пяти месяцев.', 'Срок испытания не превышает пяти месяцев.')),
+                 ('2.2. Хранение образцов не может быть дольше 40 дней.', ('Предельный срок хранения образцов — 40 дней.', 'Хранить образцы можно не дольше 40 дней.'))]
+        for source, answers in cases:
+            f = [Fragment('i', 'd', 0, 1, source, '')]
+            for answer in answers:
+                with self.subTest(answer=answer):
+                    self.assertTrue(restrictions_kept(answer, f))
+            self.assertFalse(restrictions_kept('Срок составляет пять месяцев.' if 'пяти' in source else 'Срок хранения — 40 дней.', f))
+        both = [Fragment('i', 'd', 0, 1, 'Срок проверки не может превышать 10 дней. Арендатор не вправе продлевать проверку.', '')]
+        self.assertFalse(restrictions_kept('Максимальный срок проверки — 10 дней.', both))
+        self.assertTrue(restrictions_kept('Максимальный срок проверки — 10 дней; арендатор не вправе её продлевать.', both))
+
+    def test_upper_bound_answer_is_published_without_the_quote(self):
+        source = '6.4. Срок испытания не может превышать семи месяцев для руководителей филиалов.'
+        good = 'Максимальный срок испытания для руководителей филиалов — семь месяцев (п. 6.4).'
+        text, status, _, events = run('Какой максимальный срок испытания руководителя филиала?', [select('6.4.', good), confirm()], {'Положение.txt': source})
+        self.assertEqual(status, 'answer')
+        self.assertTrue(text.startswith(good), text)
+        self.assertNotIn('«' + source + '»', text)
 
     def test_restrictions_kept_is_per_class(self):
         f = [Fragment('i', 'd', 0, 1, 'Не вправе передавать, за исключением случаев по соглашению сторон.', '')]

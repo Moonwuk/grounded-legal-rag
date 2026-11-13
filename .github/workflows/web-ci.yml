@@ -13,6 +13,8 @@ jobs:
     uses: ./.github/workflows/regression.yml
   secrets:
     uses: ./.github/workflows/secrets.yml
+  web-dockerfile:
+    uses: ./.github/workflows/web-image.yml
   web:
     name: Web tests and container
     runs-on: ubuntu-latest

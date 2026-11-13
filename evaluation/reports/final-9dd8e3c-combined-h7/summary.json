@@ -1,0 +1,43 @@
+{
+  "git_commit": "9dd8e3c6d5ecead325edad7a99ebec6ba7731ffa",
+  "corpus_id": "combined-platform-format",
+  "knowledge_base_sha256": "805b5d4e663899c9e7427bf3e47b6e8c672a0a758edee442177d5302b9913e6a",
+  "questions_sha256": "46754f1272f5ca5ade4a6eb6fb6d9d7ad31c869b65cbd75a71462637b81b5a88",
+  "gold_sha256": "c523418906b99d0c1310f1cd3b6b15c1ce592cf224d4276afdf9ff4e8a9ec963",
+  "runtime_sha256": "369bf987092cb95399a369dce9d28dbd12a07fe213f0286d75b3417cc6247643",
+  "model": "deepseek-flash",
+  "provider_base_url": "https://api.deepseek.com/v1",
+  "returncode": 0,
+  "elapsed_seconds": 595.3614567910008,
+  "generation_settings": {},
+  "shard": "7/16",
+  "questions_run": 41,
+  "tuning_note": "Synthetic development cases (split=development) were used for tuning; split=holdout and split=external were not. Element gold is narrower than the source gold: it checks key values, polarity and phrases.",
+  "scope": "Local element check, not the official Score.",
+  "outcomes": {
+    "pass": 41
+  },
+  "statuses": {
+    "answer": 34,
+    "insufficient": 4,
+    "clarify": 3
+  },
+  "passed": 41,
+  "total": 41,
+  "quotes_only": [
+    "syn-temporal-0048",
+    "syn-temporal-0053",
+    "syn-temporal-0054",
+    "syn-temporal-0057",
+    "syn-temporal-0059",
+    "syn-temporal-0060",
+    "syn-temporal-0066",
+    "syn-temporal-0069",
+    "syn-temporal-0070",
+    "syn-temporal-0072"
+  ],
+  "false_refusals": 0,
+  "failures": {},
+  "not_evaluated": {},
+  "checked_by_hand": 0
+}

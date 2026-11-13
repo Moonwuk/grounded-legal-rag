@@ -1,0 +1,47 @@
+{
+  "git_commit": "8ab62ca82607137c7ede6682c42f340766f0613d",
+  "corpus_id": "demo-organizer",
+  "knowledge_base_sha256": "cea8ef2c8f6c8b9f498efacf705b97bf3da53cc78f366f9b1fef7a6de66327e0",
+  "questions_sha256": "e922cee1e155ed23f9f1c8f9758e396ed0e72e4309343dffe33824139bbf1423",
+  "gold_sha256": "6e8da861838b15b8f8941bd97e236510df11ffd1fd7df29d1599e5930058a6d5",
+  "runtime_sha256": "7861ee91ed828403014aa91eeeb620ac4dd67e094713e95f6e837ce171d8e6cf",
+  "model": "gpt-oss:120b",
+  "provider_base_url": "https://ollama.com/v1",
+  "returncode": 0,
+  "elapsed_seconds": 29.46822112799964,
+  "generation_settings": {},
+  "shard": null,
+  "questions_run": 18,
+  "tuning_note": "The solution prompt was tuned on these 18 questions; results here are not an independent measurement.",
+  "scope": "Local element check, not the official Score.",
+  "outcomes": {
+    "fail": 3,
+    "pass": 15
+  },
+  "statuses": {
+    "answer": 15,
+    "insufficient": 1,
+    "unverified": 2
+  },
+  "passed": 15,
+  "total": 18,
+  "quotes_only": [
+    "11",
+    "13",
+    "17"
+  ],
+  "false_refusals": 2,
+  "failures": {
+    "1": [
+      "missing:due day"
+    ],
+    "5": [
+      "false_refusal"
+    ],
+    "8": [
+      "false_refusal"
+    ]
+  },
+  "not_evaluated": {},
+  "checked_by_hand": 0
+}

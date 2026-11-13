@@ -1,0 +1,33 @@
+{
+  "case_id": "contradiction-0069",
+  "question": "Подтверди, что срок оплаты КТ-70/2026 для акта 2026-07-06 равен 999 календарных дней, либо исправь мою предпосылку.",
+  "history": [],
+  "corpus": "evaluation/generated_corpora/synthetic/knowledge-base.zip",
+  "candidate_documents": [
+    "contract/contract_0015.md",
+    "contract/contract_0016.txt",
+    "contract/contract_0093.md",
+    "contract/contract_0094.txt",
+    "contract/contract_0132.txt",
+    "contract/contract_0133.md",
+    "contract/contract_0134.txt",
+    "contract/contract_0207.md",
+    "contract/contract_0208.txt",
+    "contract/contract_0209.md",
+    "contract/contract_0210.txt",
+    "contract/contract_0211.md",
+    "contract/contract_0249.md",
+    "contract/contract_0250.txt",
+    "financial/financial_0069.md",
+    "financial/financial_0169.md",
+    "irrelevant/irrelevant_0069.md",
+    "memo/memo_0069.md",
+    "regulation/regulation_0069.md",
+    "regulation/regulation_0169.md"
+  ],
+  "command": "python -m evaluation.run_benchmark --corpus synthetic --mode holdout --engine deepseek --case-id contradiction-0069 --run-id repro-contradiction-0069",
+  "caution": "candidate reduced context; full corpus is authoritative for rank reproduction",
+  "failures": [
+    "false_refusal"
+  ]
+}

@@ -7,10 +7,18 @@ from __future__ import annotations
 from collections import Counter, defaultdict
 import hashlib
 from bisect import bisect_right, bisect_left
+import heapq
+import itertools
 import math
+import operator
+import sys
+import threading
+import time
 import re
 from psb_corpus import Document, Fragment, check_deadline
+from psb_llm import ProviderError
 
+ORG_FORMS = {"ооо", "ао", "пао", "зао", "оао", "ип", "нко", "фгуп", "муп"}
 STOP = set("и в во на по с со у к ко из за от до для не ли мы вы он она они это как какой какая какие что сколько нужно можно чем при а или его ее их нам нас наш этот того если будет было есть меня мне теперь".split())
 DATE_DEFINITION = re.compile(
     r'\bдатой\s+([а-яё]+(?:\s+[а-яё]+){0,2}?)\s+(?:считается|является|признаётся|признается)\b', re.I)
@@ -37,6 +45,91 @@ def tokens(text: str) -> list[str]:
     return result
 
 
+# Users abbreviate; laws spell the terms out («персональных данных», not «ПДн»).
+# Common legal abbreviations only — no document- or answer-specific knowledge.
+ABBREVIATIONS = {
+    "пдн": "персональные данные", "ндс": "налог на добавленную стоимость",
+    "ндфл": "налог на доходы физических лиц", "мрот": "минимальный размер оплаты труда",
+    "дс": "дополнительное соглашение", "допсоглашение": "дополнительное соглашение",
+    "ркн": "уполномоченный орган по защите прав субъектов персональных данных",
+    "роскомнадзор": "уполномоченный орган по защите прав субъектов персональных данных",
+}
+
+
+def expand_abbreviations(text: str) -> str:
+    words = set(re.findall(r"[а-яёa-z]+", text.lower().replace("ё", "е")))
+    extra = [full for short, full in ABBREVIATIONS.items() if short in words]
+    return " ".join([text, *extra])
+
+
+# --- Dates of validity and of the event (deterministic, unambiguous forms only) ---
+MONTHS = {"январ": 1, "феврал": 2, "март": 3, "апрел": 4, "ма": 5, "июн": 6, "июл": 7, "август": 8,
+          "сентябр": 9, "октябр": 10, "ноябр": 11, "декабр": 12}
+_DAY = (r"(?<![\d.\-])(\d{4}-\d{2}-\d{2}|\d{1,2}\.\d{1,2}\.\d{4}|\d{1,2}\s+(?:январ|феврал|март|апрел|ма|июн|июл|август|"
+        r"сентябр|октябр|ноябр|декабр)[а-я]*\s+\d{4})")
+# Article and point references in any case form: «статье 114», «ст. 41»,
+# «пункту 4 статьи 114», «п. 3.1».
+ARTICLE_REF = re.compile(r"(?<![а-яё])(?:стать[а-яё]*|ст\.)\s*(\d+(?:\.\d+)*)", re.I)
+# «пункт 4», «п. 4», «часть 1», «ч. 1»: a part of a code article is numbered like a point.
+POINT_REF = re.compile(r"(?<![а-яё])(?:пункт[а-яё]*|п\.|част[ьию][а-яё]*|ч\.)\s*(\d+(?:\.\d+)*)", re.I)
+POINT_OF_ARTICLE = re.compile(r"(?<![а-яё])(?:пункт[а-яё]*|п\.|част[ьию][а-яё]*|ч\.)\s*(\d+(?:\.\d+)*)\s+(?:стать[а-яё]*|ст\.)\s*(\d+(?:\.\d+)*)", re.I)
+# The opening line of a numbered point of a long article: its table of contents.
+OUTLINE_POINT = re.compile(r"\s*\d{1,3}(?:\.\d{1,3})?\.\s")
+CODE_REF = re.compile(r"\b(?:НК|ТК|ГК|ЖК|БК|УК|КоАП)\b|\b(?:налогов|трудов|гражданск|жилищн|бюджетн|уголовн)[а-яё]*\s+кодекс", re.I)
+CODE_NAMES = {"нк": "налоговый", "тк": "трудовой", "гк": "гражданский", "жк": "жилищный", "бк": "бюджетный", "ук": "уголовный"}
+VALID_FROM = re.compile(r"(?:начиная\s+с|^\s*действует\s+с|\.\s*действует\s+с)\s+" + _DAY + r"(?:\s*г\.?)?(?!\s*\(не)", re.I | re.M)
+VALID_UNTIL = re.compile(r"\bдо\s+" + _DAY + r"(?:\s*г\.?)?\s*\(не\s+включая", re.I)
+LOST_FORCE = re.compile(r"утратил[аио]?\s+силу\s+с\s+" + _DAY, re.I)
+
+
+def parse_day(text):
+    """A calendar date from ISO, dd.mm.yyyy or "1 августа 2024"; None if invalid."""
+    import datetime
+    text = text.casefold()
+    try:
+        if re.fullmatch(r"\d{4}-\d{2}-\d{2}", text):
+            return datetime.date.fromisoformat(text)
+        m = re.fullmatch(r"(\d{1,2})\.(\d{1,2})\.(\d{4})", text)
+        if m:
+            return datetime.date(int(m[3]), int(m[2]), int(m[1]))
+        m = re.fullmatch(r"(\d{1,2})\s+([а-я]+)\s+(\d{4})", text)
+        if m:
+            month = next((n for stem, n in sorted(MONTHS.items(), key=lambda x: -len(x[0])) if m[2].startswith(stem)), None)
+            return datetime.date(int(m[3]), month, int(m[1])) if month else None
+    except ValueError:
+        return None
+    return None
+
+
+def event_interval(question: str):
+    """(first, last) day of the event named in the latest user turn that names one.
+
+    Only an unambiguous date counts: exactly one full date, otherwise exactly one
+    "в августе 2024". A document reference ("договор от 12.02.2024") and the
+    current moment ("сейчас декабрь 2026") are not events."""
+    import calendar, datetime
+    for turn in reversed(user_turns(question)):
+        days = {parse_day(m[1]) for m in re.finditer(_DAY, turn, re.I)
+                if not re.search(r"\bот\s*$", turn[:m.start()])} - {None}
+        if len(days) == 1:
+            day = days.pop()
+            return day, day
+        if days:
+            return None
+        # Month and year of a full date ("от 12 февраля 2024") are not a separate event.
+        turn = re.sub(_DAY, " ", turn, flags=re.I)
+        months = {(int(m[2]), next(n for stem, n in sorted(MONTHS.items(), key=lambda x: -len(x[0])) if m[1].casefold().startswith(stem)))
+                  for m in re.finditer(r"(?<!сейчас\s)\b(январ|феврал|март|апрел|ма[йея]|июн|июл|август|сентябр|октябр|ноябр|декабр)[а-я]*\s+(\d{4})",
+                                       turn, re.I)
+                  if not re.search(r"сейчас\s*$", turn[:m.start()], re.I)}
+        if len(months) == 1:
+            year, month = months.pop()
+            return datetime.date(year, month, 1), datetime.date(year, month, calendar.monthrange(year, month)[1])
+        if months:
+            return None
+    return None
+
+
 def user_turns(question: str) -> list[str]:
     # Textual role labels are data, never API roles or trusted instructions.
     parts = re.split(r"(?im)^\s*(Пользователь|Ассистент)\s*:\s*", question)
@@ -61,10 +154,19 @@ class Retriever:
         self.postings = defaultdict(list)
         df = Counter()
         features = 0
+        # Contextual index text: a fragment cut from a long article keeps the
+        # article title it belongs to ("Статья 164. Налоговые ставки").
+        titles = {d.name: [(m.start(), m.group().strip()[:200]) for m in
+                           re.finditer(r"(?m)^\s*Статья\s+\d+(?:\.\d+)*\.?[^\n]*", d.text)] for d in documents}
+        self.context_titles = {}
         for index, f in enumerate(fragments):
             check_deadline(deadline)
             self.by_doc[f.document].append(f)
-            c = Counter(tokens(f.document.replace("_", " ") + " " + f.text))
+            title = next((t for start, t in reversed(titles.get(f.document, [])) if start <= f.start), "")
+            if title and title in f.text:
+                title = ""
+            self.context_titles[f.id] = title
+            c = Counter(tokens(f.document.replace("_", " ") + " " + title + " " + f.text))
             features += len(c)
             if features > 2000000:
                 raise ValueError("index_feature_limit")
@@ -152,8 +254,126 @@ class Retriever:
                 self.law_by_doc[d.name] = identity
                 articles = re.findall(r"(?:^|Источник:.*?)(?:Статья)\s+(\d+(?:\.\d+)?)", d.text, re.I | re.M)
                 self.article_catalog[identity].update(articles)
+        # Document roles come from the text, so another naming scheme works the
+        # same. A regulation names itself in a heading line ("РЕГЛАМЕНТ
+        # СОГЛАСОВАНИЯ ДОГОВОРОВ ..."); its family is every edition with the same
+        # title and every non-law document that cites that title.
+        keys = {}
+        for d in documents:
+            if d.name in self.law_by_doc:
+                continue
+            for line in [line for line in d.text.splitlines() if line.strip()][:3]:
+                words = re.findall(r"[а-яё]+", line.casefold().replace("ё", "е"))
+                if words and words[0] == "регламент" and len(words) >= 2:
+                    # The title ends before the organization form: "РЕГЛАМЕНТ ЗАКУПОК ООО ...".
+                    title = list(itertools.takewhile(lambda w: w not in ORG_FORMS, words))[:3]
+                    if len(title) >= 2:
+                        keys[d.name] = tuple(w[:5] for w in title)
+                        break
+        self.regulations = set(keys)
+        self.regulation_family = {}
+        for name, key in keys.items():
+            cited = re.compile(r"\b" + r"\w*\s+".join(map(re.escape, key)) + r"\w*", re.I)
+            self.regulation_family[name] = {n for n, d in self.documents.items() if n not in self.law_by_doc
+                                            and (keys.get(n) == key or cited.search(d.text.replace("ё", "е")))}
         self.parties = {d.name: {x.casefold().replace(" ", "-") for x in
                         re.findall(r"«([^»\n]{2,80})»", d.text[:1200])} for d in documents}
+
+    # --- Optional dense candidates (EMB_MODEL through the organizer proxy) ---
+    dense = None
+    vectors = None
+
+    def enable_dense(self, client, deadline: float) -> str:
+        """Embed every fragment; on any failure keep lexical search only.
+
+        Returns an application-owned status code for the run log."""
+        texts = [(f.heading + "\n" + f.text if f.heading and f.heading not in f.text else f.text)[:2000]
+                 for f in self.fragments]
+        # The first chunk shows the provider's speed: if the whole corpus would
+        # not fit the budget, stop now instead of spending the budget for nothing.
+        vectors, chunk, started = [], 128, time.monotonic()
+        try:
+            for start in range(0, len(texts), chunk):
+                vectors += client.embed(texts[start:start + chunk], deadline=deadline)
+                elapsed = time.monotonic() - started
+                if len(vectors) < len(texts) and started + elapsed / len(vectors) * len(texts) > deadline:
+                    return "dense_disabled:embedding_too_slow"
+        except ProviderError as error:
+            return "dense_disabled:" + str(error)
+        if len(vectors) != len(self.fragments):
+            return "dense_disabled:invalid_embedding_response"
+        # Searches in other threads read self.vectors: the lock and cache exist first.
+        self._query_vectors, self._dense_lock, self._dense_failed = {}, threading.Lock(), False
+        self.dense = client
+        self.vectors = vectors
+        return "dense_enabled"
+
+    def validity(self, fragment):
+        """(valid_from inclusive, valid_until exclusive) stated for this provision or
+        in the header of its document; None where nothing unambiguous is stated.
+
+        Laws are given in their current edition only; dates inside them are
+        transitional provisions, not the validity of the provision."""
+        start = end = None
+        if fragment.document in self.law_by_doc:
+            return start, end
+        m = VALID_FROM.search(fragment.text)
+        if m:
+            start = parse_day(m[1])
+        m = VALID_UNTIL.search(fragment.text)
+        if m:
+            end = parse_day(m[1])
+        header = "\n".join([line for line in self.documents[fragment.document].text.splitlines() if line.strip()][:5])
+        if start is None:
+            m = VALID_FROM.search(header)
+            start = parse_day(m[1]) if m else None
+        if end is None:
+            m = LOST_FORCE.search(header)
+            end = parse_day(m[1]) if m else None
+        return start, end
+
+    def _dense_candidates(self, text: str, count: int) -> list[Fragment]:
+        if self.vectors is None or self._dense_failed or count <= 0:
+            return []
+        with self._dense_lock:
+            vector = self._query_vectors.get(text)
+        if vector is None:
+            try:
+                vector = self.dense.embed([text])[0]
+            except ProviderError:
+                # A query-time failure is not a missing provision: lexical search continues.
+                with self._dense_lock:
+                    self._dense_failed = True
+                print("dense_query_failed", file=sys.stderr)
+                return []
+            with self._dense_lock:
+                if len(self._query_vectors) < 4096:
+                    self._query_vectors[text] = vector
+        best = heapq.nlargest(count, range(len(self.vectors)),
+                              key=lambda i: sum(map(operator.mul, vector, self.vectors[i])))
+        return [self.fragments[i] for i in best]
+
+    # --- Optional reranker (RERANKER_MODEL through the organizer proxy) ---
+    reranker = None
+
+    def enable_rerank(self, client) -> str:
+        self._rerank_lock, self._rerank_failed = threading.Lock(), False
+        self.reranker = client
+        return "rerank_enabled"
+
+    def _rerank_candidates(self, text: str, pool: list[Fragment], count: int) -> list[Fragment]:
+        """The reranker's best fragments of a candidate pool below the lexical hits."""
+        if self.reranker is None or self._rerank_failed or not pool or count <= 0:
+            return []
+        documents = [((self.context_titles.get(f.id) or "") + "\n" + f.text)[:1500].strip() for f in pool]
+        try:
+            order = self.reranker.rank(text, documents)
+        except ProviderError:
+            with self._rerank_lock:
+                self._rerank_failed = True
+            print("rerank_failed", file=sys.stderr)
+            return []
+        return [pool[i] for i in order[:count]]
 
     def _scores(self, query):
         scores = defaultdict(float)
@@ -164,25 +384,55 @@ class Retriever:
                     frequency + 1.5 * (.25 + .75 * self.lengths[index] / self.avg))
         return scores
 
+    def _article_fragments(self, current: str, articles: list[str], bound) -> list[Fragment]:
+        """Heading and named points of each article the question names."""
+        if not articles:
+            return []
+        codes = {CODE_NAMES[m.group(0).casefold()] for m in CODE_REF.finditer(current) if m.group(0).casefold() in CODE_NAMES}
+        result = []
+        for number in articles:
+            heading = re.compile(r"\s*Статья\s+" + re.escape(number) + r"(?![\d.]\d)", re.I)
+            docs = [d for d in self.law_by_doc if any(heading.match(f.text) for f in self.by_doc[d])]
+            if codes:
+                docs = [d for d in docs if self.law_by_doc[d].split()[0] in codes] or docs
+            for d in sorted(docs)[:2]:
+                result.extend(f for f in self.by_doc[d] if heading.match(f.text))
+                for point, article, _ in bound:
+                    if article == number:
+                        mark = re.compile(re.escape(point) + r"[.)]\s")
+                        # The point and its continuation paragraphs (a sanction
+                        # «влечет наложение штрафа …» follows its part separately).
+                        result.extend(f for f in self.by_doc[d]
+                                      if mark.match(f.text) or mark.match(getattr(f, "heading", "") or ""))
+        return result
+
     def search(self, question: str, top_k: int = 6, expanded: bool = False) -> list[Fragment]:
         turns = user_turns(question)
         current = turns[-1]
-        query = Counter(tokens(current))
+        query = Counter(tokens(expand_abbreviations(current)))
         for turn in turns[:-1]:
             for token in tokens(turn):
                 query[token] += .35
         ids = set()
-        party = None
+        parties = set()
         for turn in reversed(turns):
             if not ids:
                 ids = identifiers(turn)
-            if party is None:
+            if not parties:
+                # Every party the latest turn naming any names, matched as whole
+                # words: «Альфа-Трейд» is not found inside «Альфа-Трейдинг», and no
+                # choice depends on set order (the hash seed).
                 known = set().union(*self.parties.values())
                 normalized = turn.casefold().replace(" ", "-")
-                matches = [name for name in known if re.search(r"(?<![а-яa-z])" + re.escape(name) + r"(?![а-яa-z])", normalized)]
-                if matches:
-                    party = max(matches, key=lambda name: normalized.rfind(name))
-        clause_numbers = re.findall(r"(?:пункт(?:а|е)?|п\.|статья|статьи)\s*(\d+(?:\.\d+)*)", current, re.I)
+                parties = {name for name in known if re.search(r"(?<![а-яa-z])" + re.escape(name) + r"(?![а-яa-z])", normalized)}
+        # «пункт 4 статьи 114» is point 4 of article 114, not every «4.» of the
+        # base; articles and points are read in any case form.
+        bound = [(m.group(1), m.group(2), m.span()) for m in POINT_OF_ARTICLE.finditer(current)]
+        bound_spans = [span for _, _, span in bound]
+        articles = list(dict.fromkeys([n for _, n, _ in bound] + ARTICLE_REF.findall(current)))[:4]
+        points = [m.group(1) for m in POINT_REF.finditer(current)
+                  if not any(a <= m.start() < b for a, b in bound_spans)]
+        clause_numbers = list(dict.fromkeys(points + articles))
         scored = []
         clauses = re.split(r"\s+и\s+(?=(?:како|кто|где|сколь|до\s|нужно|можно))", current, flags=re.I)
         if len(clauses) > 16:
@@ -205,7 +455,7 @@ class Retriever:
             if ids & self.doc_ids[f.document]:
                 score += 9
             name = f.document.lower()
-            if party and party in self.parties[f.document]:
+            if parties & self.parties[f.document]:
                 score += 7
             scored.append((score, f))
         scored.sort(key=lambda x: (-x[0], x[1].document, x[1].start))
@@ -219,6 +469,33 @@ class Retriever:
                 if score > 0 and f.id not in existing:
                     hits.append(f)
                     existing.add(f.id)
+        # Dense candidates find a provision worded differently from the question.
+        # They are reserved places, so the lexical order of the hits is unchanged.
+        for f in self._dense_candidates("\n".join(turns[-2:]), 4 if expanded else 2):
+            if f.id not in existing:
+                hits.append(f)
+                existing.add(f.id)
+        # The reranker reads the next lexical candidates and rescues the most
+        # relevant ones; it never removes a hit.
+        pool = [f for score, f in scored[:30] if score > 0 and f.id not in existing]
+        for f in self._rerank_candidates("\n".join(turns[-2:]), pool, 4 if expanded else 2):
+            if f.id not in existing:
+                hits.append(f)
+                existing.add(f.id)
+        # A document named by its identifier («П-17/2024 … и ПТ-05/2023») has a
+        # reserved place, so a comparison keeps every named contract.
+        covered = set().union(*(self.doc_ids[f.document] for f in hits)) if hits else set()
+        for named in sorted(ids - covered):
+            best = next((f for score, f in scored if score > 0 and named in self.doc_ids[f.document]), None)
+            if best is not None and best.id not in existing:
+                hits.append(best)
+                existing.add(best.id)
+        # A named article has a reserved place: its heading and the named points,
+        # however long and similarly worded another named article is.
+        for f in self._article_fragments(current, articles, bound):
+            if f.id not in existing:
+                hits.append(f)
+                existing.add(f.id)
         selected = {f.id: f for f in hits}
         selected_docs = {f.document for f in hits}
         # Relations are derived from the corpus text. Keep dates and original
@@ -230,9 +507,8 @@ class Retriever:
             # contract stays a candidate itself but must not pull in its whole family.
             if self.doc_ids[name] and (not ids or ids & self.doc_ids[name]):
                 connected.update(n for n, docids in self.doc_ids.items() if docids & self.doc_ids[name])
-            if "регламент согласования" in name.lower():
-                connected.update(n for n, d in self.documents.items()
-                                 if not n.startswith("законы__") and "регламент" in d.text.lower())
+            if name in self.regulations:
+                connected.update(self.regulation_family[name])
         for name in connected:
             if len(self.documents[name].text) <= 7500 or name not in selected_docs:
                 selected.update((f.id, f) for f in self.by_doc[name])
@@ -245,6 +521,13 @@ class Retriever:
                 # Preserve editorial and article-level context as well as hit text.
                 for f in siblings[:7]:
                     selected[f.id] = f
+                # A long law article also brings its table of contents: the short
+                # opening line of each numbered point. A general rule («по ставке
+                # 22 процента в случаях, не указанных в пунктах 1, 2 и 4») is not
+                # outranked by dozens of fragments on the special cases.
+                if hit.document in self.law_by_doc:
+                    for f in [f for f in siblings if OUTLINE_POINT.match(f.text) and len(f.text) <= 400][:24]:
+                        selected[f.id] = f
         # If the context does not fit, drop whole documents, never sever an
         # amendment from its parent. Budget is a soft cap at document boundaries.
         budget = 65000 if expanded else 42000
@@ -254,8 +537,8 @@ class Retriever:
         def unit(name):
             """A document with every document it must not be separated from."""
             members = {name} | {n for n in connected if self.doc_ids[name] & self.doc_ids[n]}
-            if "регламент согласования" in name.lower():
-                members |= {n for n in connected if "регламент" in self.documents[n].text.lower()}
+            if name in self.regulations:
+                members |= self.regulation_family[name] & connected
             return members
         # The budget counts a document together with its linked documents, so a
         # family is kept whole or skipped whole; linked documents can no longer
@@ -280,8 +563,8 @@ class Retriever:
         required = set()
         for name in kept:
             required.update(n for n in connected if self.doc_ids[name] & self.doc_ids[n])
-            if "регламент согласования" in name.lower():
-                required.update(n for n in connected if "регламент" in self.documents[n].text.lower())
+            if name in self.regulations:
+                required.update(self.regulation_family[name] & connected)
         for name in sorted(required):
             existing_ids = {f.id for f in result}
             result.extend(f for f in self.by_doc[name] if f.id not in existing_ids)

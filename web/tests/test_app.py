@@ -29,7 +29,8 @@ class WebTests(unittest.TestCase):
         cls.addClassCleanup(cls.client.__exit__, None, None, None)
 
     def test_real_corpus_with_local_model_and_exact_source_offsets(self):
-        self.assertEqual(self.client.get("/healthz").json()["documents"], 21)
+        health = self.client.get("/healthz").json()
+        self.assertEqual((health["documents"], health["skipped"]), (21, 0))
         catalog = self.client.get("/api/documents").json()
         self.assertTrue(any("2023" in doc["title"] and doc["status"] == "утратил силу"
                             for doc in catalog))
@@ -103,3 +104,51 @@ class WebTests(unittest.TestCase):
         for path in ("/docs", "/redoc", "/openapi.json", "/.env", "/evaluation/gold"):
             with self.subTest(path=path):
                 self.assertEqual(self.client.get(path).status_code, 404)
+
+
+class DenseIndexTests(unittest.TestCase):
+    """Dense candidates are indexed after start-up; failures keep BM25 only."""
+    def run_app(self, status_code):
+        import json, os, threading, time
+        from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
+
+        class Handler(BaseHTTPRequestHandler):
+            def log_message(self, *args):
+                pass
+
+            def do_POST(self):
+                body = json.loads(self.rfile.read(int(self.headers["Content-Length"])))
+                if status_code != 200:
+                    self.send_response(status_code); self.end_headers(); return
+                data = [dict(index=i, embedding=[1.0] + [0.0] * 15) for i, _ in enumerate(body["input"])]
+                raw = json.dumps(dict(data=data)).encode()
+                self.send_response(200); self.send_header("Content-Length", str(len(raw))); self.end_headers()
+                self.wfile.write(raw)
+
+        server = ThreadingHTTPServer(("127.0.0.1", 0), Handler)
+        threading.Thread(target=server.serve_forever, daemon=True).start()
+        env = {"EMB_MODEL": "configured-embedding-model", "LLM_BASE_URL": f"http://127.0.0.1:{server.server_port}/v1",
+               "LLM_API_KEY": "test-placeholder", "NO_PROXY": "127.0.0.1"}
+        try:
+            with patch.dict(os.environ, env), TestClient(app) as client:
+                for _ in range(200):
+                    state = client.get("/healthz").json()["dense"]
+                    if state != "indexing":
+                        break
+                    time.sleep(0.05)
+                with patch("web.app.ProxyClient", return_value=LocalModel()):
+                    answer = client.post("/api/chat", json={"messages": [
+                        {"role": "user", "text": "Арендная плата Северный Склад"}]}).json()
+            return state, answer
+        finally:
+            server.shutdown(); server.server_close()
+
+    def test_index_built_after_start(self):
+        state, answer = self.run_app(200)
+        self.assertEqual(state, "dense_enabled")
+        self.assertEqual(answer["status"], "answer")
+
+    def test_provider_failure_keeps_lexical_search(self):
+        state, answer = self.run_app(500)
+        self.assertEqual(state, "dense_disabled:embedding_http_500")
+        self.assertIn("450 000", answer["text"])

@@ -49,10 +49,26 @@ def strict_json(raw):
 
 
 # Logical model calls per question. The policy plans its attempts within it.
-QUESTION_CALL_LIMIT = 4
+QUESTION_CALL_LIMIT = 5
+
+
+# Reasoning effort: measured on deepseek-flash, "low" kept accuracy on the demo
+# and the synthetic holdout and roughly halved the time. "default" omits the
+# parameter. A truncated reply whose reasoning used the token budget is retried
+# at "low" when a higher level was used; a provider that rejects the parameter is retried without it,
+# and the parameter is not sent again in this run.
+EFFORTS = ("none", "low", "high", "max")
+DEFAULT_EFFORT = "low"
+# Never "none": on the demo it gave false refusals in generation, and as a
+# truncation retry it rejected a supported provision in verification (matrix
+# 5502269, question 5, both runs). A weak verifier is unsafe either way.
+LOWER_EFFORT = {None: "low", "max": "low", "high": "low"}
+REASONING_BUDGET_SHARE = 0.8
 
 
 class ProxyClient:
+    effort_rejected = False
+
     def __init__(self, deadline: float, position: int | None = None):
         self.base = env("LLM_BASE_URL", "OPENAI_BASE_URL", "BASE_URL").rstrip("/")
         self.key = env("LLM_API_KEY", "OPENAI_API_KEY")
@@ -84,15 +100,17 @@ class ProxyClient:
             "temperature": temperature,
             "max_tokens": integer("MAX_TOKENS", 8192, 256, 65536),
         }
-        effort = env("LLM_REASONING_EFFORT")
-        if effort:
-            if effort not in {"none", "low", "high", "max"}:
-                raise ProviderError("invalid_reasoning_configuration")
+        effort = env("LLM_REASONING_EFFORT", default=DEFAULT_EFFORT)
+        if effort != "default" and effort not in EFFORTS:
+            raise ProviderError("invalid_reasoning_configuration")
+        if effort in EFFORTS and not ProxyClient.effort_rejected:
             request_body["reasoning_effort"] = effort
         body = json.dumps(request_body, ensure_ascii=False).encode()
         if len(body) > 512000:
             raise ProviderError("request_size_limit")
         truncation_retry = False
+        format_retry = False
+        effort_dropped = False
         for attempt in range(3):
             remaining = self.deadline - time.monotonic()
             if remaining <= 1:
@@ -137,6 +155,19 @@ class ProxyClient:
                     # fresh attempt shares the three-attempt transport budget.
                     if not truncation_retry and attempt < 2:
                         truncation_retry = True
+                        # Reasoning that used the budget is not shortened by an
+                        # instruction about the answer; the effort level is.
+                        # Without usage details: every visible token is at least one
+                        # character, so a short visible text means hidden reasoning.
+                        message = choice.get("message")
+                        visible = message.get("content") if isinstance(message, dict) else None
+                        budget = request_body["max_tokens"]
+                        spent = event.get("reasoning_tokens")
+                        hidden = (spent >= REASONING_BUDGET_SHARE * budget if spent is not None
+                                  else len(visible if isinstance(visible, str) else "") < budget / 2)
+                        lower = LOWER_EFFORT.get(request_body.get("reasoning_effort"))
+                        if lower and not ProxyClient.effort_rejected and hidden:
+                            request_body["reasoning_effort"] = lower
                         request_body["messages"][0]["content"] += (
                             "\nПовтор после обрезки: верни только минимальный JSON по заданной схеме, "
                             "без пояснений, без повторения контекста. Сохрани необходимые условия.")
@@ -150,9 +181,29 @@ class ProxyClient:
                 content = choice["message"]["content"].strip()
                 if content.startswith("```") and content.endswith("```"):
                     content = content.split("\n", 1)[1].rsplit("```", 1)[0].strip()
-                value = strict_json(content)
-                if not isinstance(value, dict):
-                    raise ValueError("expected_object")
+                try:
+                    value = strict_json(content)
+                    if not isinstance(value, dict):
+                        raise ValueError("expected_object")
+                except ValueError:
+                    # The model answered outside the JSON contract (plain prose,
+                    # a broken object). One fresh attempt with a format reminder
+                    # shares the transport budget; a second failure is reported.
+                    if format_retry or attempt >= 2:
+                        raise
+                    format_retry = True
+                    print(json.dumps({"event": "format_retry", "position": self.position,
+                                      "logical_call": self.calls, "attempt": attempt + 1}), file=sys.stderr)
+                    request_body["messages"][0]["content"] += (
+                        "\nПовтор: предыдущий ответ не был JSON. Верни только один JSON-объект "
+                        "по заданной схеме, без текста до и после него.")
+                    body = json.dumps(request_body, ensure_ascii=False).encode()
+                    if len(body) > 512000:
+                        raise ProviderError("request_size_limit")
+                    continue
+                if effort_dropped:
+                    # Only a success without the parameter shows that it was the cause.
+                    ProxyClient.effort_rejected = True
                 return value
             except HTTPError as exc:
                 code = exc.code
@@ -162,6 +213,13 @@ class ProxyClient:
                     "elapsed_ms":round((time.monotonic() - request_started) * 1000)}), file=sys.stderr)
                 retry = exc.headers.get("Retry-After", "")
                 exc.close()
+                if code in {400, 422} and "reasoning_effort" in request_body and attempt < 2:
+                    # The provider may not know the parameter: retry once without
+                    # it. Another cause of the error repeats and is reported.
+                    effort_dropped = True
+                    del request_body["reasoning_effort"]
+                    body = json.dumps(request_body, ensure_ascii=False).encode()
+                    continue
                 if code not in {429, 500, 502, 503, 504}:
                     raise ProviderError("http_" + str(code)) from None
                 if len(retry) <= 6 and retry.isascii() and retry.isdigit():
@@ -182,3 +240,151 @@ class ProxyClient:
                 raise ProviderError("run_deadline")
             time.sleep(delay)
         raise ProviderError("proxy_unavailable")
+
+
+class EmbeddingClient:
+    """Embeddings from the same organizer proxy ({base}/embeddings, EMB_MODEL).
+
+    Optional: without EMB_MODEL nothing is requested. Every failure is a
+    ProviderError code; the retriever then keeps lexical search only.
+    """
+    BATCH = 32
+
+    def __init__(self, deadline: float):
+        self.base = env("LLM_BASE_URL", "OPENAI_BASE_URL", "BASE_URL").rstrip("/")
+        self.key = env("EMBEDDER_API_KEY", "LLM_API_KEY", "OPENAI_API_KEY")
+        self.model = env("EMB_MODEL")
+        self.deadline = deadline
+        parsed = urlparse(self.base)
+        if not self.model:
+            raise ProviderError("embedding_not_configured")
+        if not self.key or parsed.scheme not in {"http", "https"} or not parsed.hostname:
+            raise ProviderError("missing_proxy_configuration")
+        if parsed.username or parsed.password or parsed.query or parsed.fragment:
+            raise ProviderError("invalid_proxy_url")
+        if len(self.base) > 2048 or len(self.model) > 256 or any(ord(c) < 32 for c in self.base + self.key + self.model):
+            raise ProviderError("invalid_proxy_configuration")
+        self.opener = build_opener(NoRedirect())
+        self.dimension = None
+
+    def embed(self, texts: list[str], deadline: float | None = None) -> list:
+        """Unit-length vectors (array of float32), one per text, in input order."""
+        from array import array
+        import math
+        limit = min(self.deadline, deadline) if deadline else self.deadline
+        result = []
+        for start in range(0, len(texts), self.BATCH):
+            batch = texts[start:start + self.BATCH]
+            body = json.dumps({"model": self.model, "input": batch}, ensure_ascii=False).encode()
+            if len(body) > 512000:
+                raise ProviderError("request_size_limit")
+            value = None
+            for attempt in range(2):
+                remaining = limit - time.monotonic()
+                if remaining <= 1:
+                    raise ProviderError("embedding_deadline")
+                request = Request(self.base + "/embeddings", data=body, method="POST",
+                                  headers={"Authorization": "Bearer " + self.key, "Content-Type": "application/json"})
+                try:
+                    with self.opener.open(request, timeout=min(45., remaining)) as response:
+                        raw = response.read(40_000_001)
+                    if len(raw) > 40_000_000:
+                        raise ProviderError("response_size_limit")
+                    value = strict_json(raw)
+                    break
+                except HTTPError as exc:
+                    code = exc.code
+                    exc.close()
+                    if code not in {429, 500, 502, 503, 504} or attempt:
+                        raise ProviderError("embedding_http_" + str(code) if type(code) is int and 100 <= code <= 599
+                                            else "embedding_http_other") from None
+                except (URLError, socket.timeout, TimeoutError, HTTPException, ConnectionError):
+                    if attempt:
+                        raise ProviderError("embedding_unavailable") from None
+                except (ValueError, RecursionError):
+                    raise ProviderError("invalid_embedding_response") from None
+                time.sleep(1)
+            try:
+                items = sorted(value["data"], key=lambda item: item["index"])
+                if [item["index"] for item in items] != list(range(len(batch))):
+                    raise ValueError
+                for item in items:
+                    vector = item["embedding"]
+                    if not isinstance(vector, list) or not 16 <= len(vector) <= 8192:
+                        raise ValueError
+                    if self.dimension is None:
+                        self.dimension = len(vector)
+                    if len(vector) != self.dimension or not all(type(x) in (int, float) and math.isfinite(x) for x in vector):
+                        raise ValueError
+                    norm = math.sqrt(sum(x * x for x in vector))
+                    if norm <= 0:
+                        raise ValueError
+                    result.append(array("f", (x / norm for x in vector)))
+            except (ValueError, KeyError, TypeError, AttributeError):
+                raise ProviderError("invalid_embedding_response") from None
+        return result
+
+
+class RerankClient:
+    """Reranker of the same organizer proxy ({base}/rerank, RERANKER_MODEL).
+
+    Optional: without RERANKER_MODEL nothing is requested. Returns document
+    indices from most to least relevant; any failure is a ProviderError and
+    the retriever keeps its own ranking."""
+
+    def __init__(self, deadline: float):
+        self.base = env("LLM_BASE_URL", "OPENAI_BASE_URL", "BASE_URL").rstrip("/")
+        self.key = env("RERANKER_API_KEY", "LLM_API_KEY", "OPENAI_API_KEY")
+        self.model = env("RERANKER_MODEL")
+        self.deadline = deadline
+        parsed = urlparse(self.base)
+        if not self.model:
+            raise ProviderError("rerank_not_configured")
+        if not self.key or parsed.scheme not in {"http", "https"} or not parsed.hostname:
+            raise ProviderError("missing_proxy_configuration")
+        if parsed.username or parsed.password or parsed.query or parsed.fragment:
+            raise ProviderError("invalid_proxy_url")
+        if len(self.base) > 2048 or len(self.model) > 256 or any(ord(c) < 32 for c in self.base + self.key + self.model):
+            raise ProviderError("invalid_proxy_configuration")
+        self.opener = build_opener(NoRedirect())
+
+    def rank(self, query: str, documents: list[str]) -> list[int]:
+        body = json.dumps({"model": self.model, "query": query, "documents": documents,
+                           "top_n": len(documents)}, ensure_ascii=False).encode()
+        if len(body) > 512000:
+            raise ProviderError("request_size_limit")
+        for attempt in range(2):
+            remaining = self.deadline - time.monotonic()
+            if remaining <= 1:
+                raise ProviderError("rerank_deadline")
+            request = Request(self.base + "/rerank", data=body, method="POST",
+                              headers={"Authorization": "Bearer " + self.key, "Content-Type": "application/json"})
+            try:
+                with self.opener.open(request, timeout=min(30., remaining)) as response:
+                    raw = response.read(2_000_001)
+                if len(raw) > 2_000_000:
+                    raise ProviderError("response_size_limit")
+                value = strict_json(raw)
+                items = value.get("results", value.get("data")) if isinstance(value, dict) else None
+                if not isinstance(items, list) or not items:
+                    raise ValueError
+                order = []
+                for item in items:
+                    index = item.get("index") if isinstance(item, dict) else None
+                    if type(index) is not int or not 0 <= index < len(documents) or index in order:
+                        raise ValueError
+                    order.append(index)
+                return order
+            except HTTPError as exc:
+                code = exc.code
+                exc.close()
+                if code not in {429, 500, 502, 503, 504} or attempt:
+                    raise ProviderError("rerank_http_" + str(code) if type(code) is int and 100 <= code <= 599
+                                        else "rerank_http_other") from None
+            except (URLError, socket.timeout, TimeoutError, HTTPException, ConnectionError):
+                if attempt:
+                    raise ProviderError("rerank_unavailable") from None
+            except (ValueError, TypeError, AttributeError, RecursionError):
+                raise ProviderError("invalid_rerank_response") from None
+            time.sleep(1)
+        raise ProviderError("rerank_unavailable")

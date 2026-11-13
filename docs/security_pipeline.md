@@ -129,3 +129,12 @@ uv pip compile .github/security/requirements.in \
 - [pip-audit security model](https://github.com/pypa/pip-audit#security-model).
 - [actionlint](https://github.com/rhysd/actionlint).
 - [zizmor usage and exit codes](https://docs.zizmor.sh/usage/).
+
+## Веб-образ
+
+[web-image.yml](../.github/workflows/web-image.yml) проверяет образ веб-чата (`web/Dockerfile`, `compose.yaml`).
+На каждом PR (Web CI) — Hadolint, Trivy config для `web/Dockerfile` и разбор `compose.yaml` с синтетической
+конфигурацией. В плановом и ручном Security scans — также сборка образа, Trivy по исправимым уязвимостям
+HIGH/CRITICAL (`--ignore-unfixed`, образ на Debian) и поиск секретов в образе; job `web-image` входит в
+`Security gate`. Веб-образ не подписывается: агенты развёртывания собирают его на хосте из проверенного SHA
+`main`. Подпись и аттестация действуют для пакетного образа, публикуемого в GHCR.

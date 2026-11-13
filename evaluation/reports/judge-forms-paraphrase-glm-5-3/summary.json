@@ -1,0 +1,12 @@
+{
+  "scope": "Development comparison with an LLM judge; not the platform judge or Score.",
+  "judge_model": "glm-5.3",
+  "report": "hyb-demo-paraphrase-hybrid",
+  "corpus": "demo-paraphrase",
+  "judged": 8,
+  "same_form": 26,
+  "mean_compact_vs_full": 0.438,
+  "compact_wins": 1,
+  "compact_losses": 4,
+  "ties": 3
+}

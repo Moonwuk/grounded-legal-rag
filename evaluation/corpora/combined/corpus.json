@@ -1,0 +1,15 @@
+{
+  "corpus_id": "combined-platform-format",
+  "knowledge_base": "data/knowledge-base.zip",
+  "knowledge_base_sha256": "0f031740481391d231eb9202e4d192ec457e83b2e5b1e4006c1c164572a7ca7b",
+  "questions": "data/questions.csv",
+  "questions_sha256": "ca99d9b4f9cfc83d7573db3464aa61ee8f0dad8a4ebbf34ca2e908739f1ac6fe",
+  "gold": "gold/cases.json",
+  "sources": [
+    "synthetic-b148e60beaa44f30",
+    "legalbench-ru-public-grounded",
+    "templated unlawful requests"
+  ],
+  "license": "LegalBench-RU part: CC-BY-4.0, ru-legal contributors",
+  "tuning_note": "Synthetic development cases (split=development) were used for tuning; split=holdout and split=external were not. Element gold is narrower than the source gold: it checks key values, polarity and phrases."
+}

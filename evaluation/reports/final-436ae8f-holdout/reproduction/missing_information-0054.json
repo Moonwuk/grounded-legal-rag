@@ -1,0 +1,24 @@
+{
+  "case_id": "missing_information-0054",
+  "question": "Какой срок оплаты КТ-55/2026? Дата акта не указана.",
+  "history": [],
+  "corpus": "evaluation/generated_corpora/synthetic/knowledge-base.zip",
+  "candidate_documents": [
+    "contract/contract_0162.txt",
+    "contract/contract_0163.md",
+    "contract/contract_0164.txt",
+    "financial/financial_0054.txt",
+    "financial/financial_0154.txt",
+    "irrelevant/irrelevant_0054.txt",
+    "memo/memo_0002.txt",
+    "memo/memo_0008.txt",
+    "memo/memo_0054.txt",
+    "regulation/regulation_0054.txt",
+    "regulation/regulation_0154.txt"
+  ],
+  "command": "python -m evaluation.run_benchmark --corpus synthetic --mode holdout --engine deepseek --case-id missing_information-0054 --run-id repro-missing_information-0054",
+  "caution": "candidate reduced context; full corpus is authoritative for rank reproduction",
+  "failures": [
+    "system_error"
+  ]
+}

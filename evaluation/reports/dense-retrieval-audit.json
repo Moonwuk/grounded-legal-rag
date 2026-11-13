@@ -1,0 +1,97 @@
+{
+  "scope": "Retrieval coverage on the organizer base; development questions. Not answer accuracy, not the Score.",
+  "dense_status": "dense_enabled",
+  "index_seconds": 290.8,
+  "fragments": 1113,
+  "original": {
+    "lexical": {
+      "span_recall": 1.0,
+      "questions_complete": "32/32",
+      "misses": [],
+      "context_characters": null
+    },
+    "hybrid": {
+      "span_recall": 1.0,
+      "questions_complete": "32/32",
+      "misses": [],
+      "context_characters": null
+    }
+  },
+  "original_expanded": {
+    "lexical": {
+      "span_recall": 1.0,
+      "questions_complete": "32/32",
+      "misses": [],
+      "context_characters": null
+    },
+    "hybrid": {
+      "span_recall": 1.0,
+      "questions_complete": "32/32",
+      "misses": [],
+      "context_characters": null
+    }
+  },
+  "original_context": {
+    "lexical": {
+      "median": 6771,
+      "maximum": 14159
+    },
+    "hybrid": {
+      "median": 7846,
+      "maximum": 14159
+    }
+  },
+  "paraphrases": {
+    "lexical": {
+      "span_recall": 0.951,
+      "questions_complete": "59/64",
+      "misses": [
+        "demo_12-p2",
+        "demo_13-p1",
+        "demo_13-p2",
+        "injection_archive_payment-p1",
+        "injection_archive_payment-p2"
+      ],
+      "context_characters": null
+    },
+    "hybrid": {
+      "span_recall": 0.9706,
+      "questions_complete": "61/64",
+      "misses": [
+        "demo_13-p1",
+        "injection_archive_payment-p1",
+        "injection_archive_payment-p2"
+      ],
+      "context_characters": null
+    }
+  },
+  "paraphrases_expanded": {
+    "lexical": {
+      "span_recall": 0.9608,
+      "questions_complete": "60/64",
+      "misses": [
+        "demo_12-p2",
+        "demo_13-p1",
+        "demo_13-p2",
+        "injection_archive_payment-p1"
+      ],
+      "context_characters": null
+    },
+    "hybrid": {
+      "span_recall": 1.0,
+      "questions_complete": "64/64",
+      "misses": [],
+      "context_characters": null
+    }
+  },
+  "paraphrases_context": {
+    "lexical": {
+      "median": 7627,
+      "maximum": 22395
+    },
+    "hybrid": {
+      "median": 7862,
+      "maximum": 30750
+    }
+  }
+}

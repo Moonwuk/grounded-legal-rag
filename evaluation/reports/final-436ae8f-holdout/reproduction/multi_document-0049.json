@@ -1,0 +1,26 @@
+{
+  "case_id": "multi_document-0049",
+  "question": "Для КТ-50/2026 акт подписан 2026-07-10. Назови срок оплаты и срок согласования обычной сделки, единицы, условия и события отсчёта.",
+  "history": [],
+  "corpus": "evaluation/generated_corpora/synthetic/knowledge-base.zip",
+  "candidate_documents": [
+    "contract/contract_0147.md",
+    "contract/contract_0148.txt",
+    "contract/contract_0149.md",
+    "financial/financial_0049.md",
+    "financial/financial_0149.md",
+    "irrelevant/irrelevant_0049.md",
+    "memo/memo_0049.md",
+    "memo/memo_0149.md",
+    "regulation/regulation_0009.md",
+    "regulation/regulation_0049.md",
+    "regulation/regulation_0109.md",
+    "regulation/regulation_0149.md",
+    "regulation/regulation_0249.md"
+  ],
+  "command": "python -m evaluation.run_benchmark --corpus synthetic --mode holdout --engine deepseek --case-id multi_document-0049 --run-id repro-multi_document-0049",
+  "caution": "candidate reduced context; full corpus is authoritative for rank reproduction",
+  "failures": [
+    "system_error"
+  ]
+}

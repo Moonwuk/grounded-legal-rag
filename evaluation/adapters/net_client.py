@@ -81,7 +81,7 @@ class Client(ProxyClient):
         super().__init__(deadline)
         # Generation settings default to the runtime's own defaults. Overriding
         # them would measure a different configuration than the submission.
-        for key,name in (('max_tokens','MAX_TOKENS'),('temperature','TEMPERATURE')):
+        for key,name in (('max_tokens','MAX_TOKENS'),('temperature','TEMPERATURE'),('reasoning_effort','LLM_REASONING_EFFORT')):
             if config.get(key) is None:os.environ.pop(name,None)
             else:os.environ[name]=str(config[key])
         self.attempts=0;self.errors=[];self.usage=[];self.events=[]

@@ -6,6 +6,17 @@ from evaluation.validators.prose import evaluate_prose
 FIELDS=('subject_id','predicate','value','unit','condition','start_event')
 STATUS={'clarify':'clarification','insufficient':'insufficient_evidence','technical_error':'system_error'}
 
+
+# Fixed request labels the application publishes (prototype/psb_policy.py FOLLOWUPS).
+PUBLISHED_GAPS={
+    'документ с условиями, необходимыми для ответа':'document',
+    'тексты документов, на которые ссылаются найденные положения, и сведения для проверки их применимости':'referenced_documents',
+    'документ или сведения, определяющие, какое из противоречащих условий применяется':'priority_rule',
+    'дата события':'event_date',
+    'дата подписания спецификации':'specification_date',
+    'обстоятельства конкретного случая':'facts',
+}
+
 def norm(s): return ' '.join(s.split()).casefold().replace('ё','е')
 
 def fact_equal(a,b):
@@ -182,7 +193,9 @@ def validate(case,gold,result):
             time_ok=applicable(f,case.get('event_date')) if f['predicate']=='payment_term' else True
             if f['predicate']=='payment_term' and matches and not contextual:
                 time_ok=time_ok and any(applicable(r['fact'],case.get('event_date')) for r in matches)
-            if 'event_date' in expected.get('missing',[]):time_ok=True
+            # Quoting both sides of a conflict, or both revisions when the date is
+            # missing, is legitimate; the inapplicable side is not a temporal error.
+            if contextual:time_ok=True
             if f['predicate']=='payment_term': temporal.append(time_ok)
             support=any(sufficient(r['acceptable_evidence_sets'],sources,citefrags) for r in matches)
             correct=bool(matches and time_ok and valid and support)
@@ -233,6 +246,10 @@ def validate(case,gold,result):
         # Fixed runtime code can identify a broad gap but not penalty_document/conflict resolution.
         code_map={'event_date':{'event_date','specification_date'},'penalty_document':{'document','referenced_documents'},'conflict_resolution':{'facts','document','referenced_documents','priority_rule'}}
         gaps=set(candidate.get('requested_facts',[]))
+        # The application may publish another code than the model asked for
+        # (a known contract becomes "документ с условиями"): read its request line.
+        for request in re.finditer(r'(?:Уточните или предоставьте:|Если у вас есть)([^.\n]*)',text):
+            gaps|={code for label,code in PUBLISHED_GAPS.items() if label in request.group(1)}
         checks['gap']=all(bool(gaps & code_map[m]) for m in expected['missing'])
         if not checks['gap']: failures.append('incomplete_answer')
         if expected['issue']=='conflict': unknown.append('conflict_explanation_requires_manual_review')

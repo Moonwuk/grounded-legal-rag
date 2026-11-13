@@ -72,6 +72,33 @@ class ValidatorTests(unittest.TestCase):
     def test_missing_required_part(self):
         c,g,r=fixture();c['expected']['required_claims'].append(dict(fact={**FACT,'predicate':'other'},acceptable_evidence_sets=[['a:p1']]))
         self.assertIn('incomplete_answer',validate(c,g,r)['failures'])
+    def test_gap_is_read_from_the_published_text(self):
+        # Holdout b083c46, missing_information-0004/0064: the model asked for
+        # "contract", the application published "документ с условиями…" because
+        # the question names the object; the text is the same as in passing runs.
+        def refusal(codes,text):
+            c,g,r=fixture();c['category']='missing_information'
+            c['expected'].update(required_claims=[],forbidden_claims=[],allowed_statuses=['insufficient','partial'],missing=['penalty_document'])
+            r['status']='insufficient';r['candidate']=dict(status='insufficient',claims=[],missing=['source_gap'],requested_facts=codes)
+            r['answer']=r['rendered_answer']=text
+            return validate(c,g,r)
+        published=('В найденных документах недостаточно оснований для ответа на вопрос «Какова ставка неустойки для КТ-5/2026?». '
+                   'Уточните или предоставьте: документ с условиями, необходимыми для ответа.')
+        self.assertTrue(refusal(['contract'],published)['checks']['gap'])
+        # Asking only for the contract number does not name the missing document.
+        asks_number=published.replace('документ с условиями, необходимыми для ответа','номер договора или его текст')
+        v=refusal(['contract'],asks_number)
+        self.assertFalse(v['checks']['gap']);self.assertIn('incomplete_answer',v['failures'])
+        # The label must stand in the application's request line, not anywhere in the text.
+        v=refusal(['contract'],asks_number+' В базе есть документ с условиями, необходимыми для ответа.')
+        self.assertFalse(v['checks']['gap'])
+    def test_published_gap_labels_match_the_runtime(self):
+        import sys
+        from evaluation.common import ROOT
+        from evaluation.validators.core import PUBLISHED_GAPS
+        sys.path.insert(0,str(ROOT/'prototype'))
+        from psb_policy import FOLLOWUPS
+        for label,code in PUBLISHED_GAPS.items():self.assertEqual(FOLLOWUPS[code],label)
     def test_false_refusal(self):
         c,g,r=fixture();r['status']='insufficient';r['candidate']['claims']=[]
         self.assertIn('false_refusal',validate(c,g,r)['failures'])
@@ -154,6 +181,18 @@ class ConflictGapTests(unittest.TestCase):
         r['status']='partial';r['candidate'].update(status='partial',requested_facts=['priority_rule'],issue='conflicting_documents')
         self.assertTrue(validate(c,g,r)['checks']['gap'])
         r['candidate']['requested_facts']=['event_date'];self.assertFalse(validate(c,g,r)['checks']['gap'])
+
+class ConflictTemporalTests(unittest.TestCase):
+    def test_quoting_the_inapplicable_side_of_a_conflict_is_not_a_temporal_error(self):
+        # Holdout 76f2b42 temporal-0004/0044: a correct conflict answer quoted the
+        # base clause whose period ended before the event date.
+        c,g,r=fixture();c['event_date']='2026-06-30'
+        c['expected'].update(allowed_statuses=['partial','clarification'],required_claims=[],missing=['conflict_resolution'],issue='conflict')
+        r['status']='partial';r['candidate'].update(status='partial',requested_facts=['priority_rule'],issue='conflicting_documents')
+        v=validate(c,g,r);self.assertNotIn('temporal_failure',v['failures'])
+        c['expected'].update(issue='',missing=[],allowed_statuses=['answer'],required_claims=[dict(fact={**FACT,'event_date':'2026-06-30'},acceptable_evidence_sets=[['a:p1']])])
+        r['status']='answer';r['candidate'].update(status='answer',requested_facts=[],issue='')
+        self.assertIn('temporal_failure',validate(c,g,r)['failures'])
 
 class CalibrationTests(unittest.TestCase):
     def test_report_calibrates_current_validator_not_stale_file(self):

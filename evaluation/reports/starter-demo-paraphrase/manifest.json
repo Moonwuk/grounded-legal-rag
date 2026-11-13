@@ -1,0 +1,10 @@
+{
+ "scope": "Baseline analog for judge_score: the organizer starter (organizer/sample_submission/solution.py) run unchanged; not the platform baseline.",
+ "starter_sha256": "430eb2352d25d1f1e819164931f49f841ea91826736241f94685a2294e72a9e9",
+ "corpus": "demo-paraphrase",
+ "knowledge_base_sha256": "cea8ef2c8f6c8b9f498efacf705b97bf3da53cc78f366f9b1fef7a6de66327e0",
+ "generation_model": "deepseek-flash",
+ "embeddings": "BAAI/bge-m3 ONNX, local",
+ "reranker": "Qwen3-Reranker-0.6B ONNX int8, local (platform: Qwen3 Reranker 8B)",
+ "settings": "starter defaults (TOP_K, RERANKER_TOP_N, CHUNKER, TEMPERATURE, MAX_TOKENS unset)"
+}

@@ -1,0 +1,117 @@
+{
+  "git_commit": "9dd8e3c6d5ecead325edad7a99ebec6ba7731ffa",
+  "corpus_id": "combined-platform-format",
+  "knowledge_base_sha256": "805b5d4e663899c9e7427bf3e47b6e8c672a0a758edee442177d5302b9913e6a",
+  "questions_sha256": "46754f1272f5ca5ade4a6eb6fb6d9d7ad31c869b65cbd75a71462637b81b5a88",
+  "gold_sha256": "32e47cfd364909d652a827a177a51734f02999b0bc6740f1cf645dbd49b035b4",
+  "runtime_sha256": "369bf987092cb95399a369dce9d28dbd12a07fe213f0286d75b3417cc6247643",
+  "model": "deepseek-flash",
+  "provider_base_url": "https://api.deepseek.com/v1",
+  "returncode": 0,
+  "elapsed_seconds": 614.6527618870005,
+  "generation_settings": {},
+  "shard": "8/8",
+  "questions_run": 75,
+  "tuning_note": "Synthetic development cases (split=development) were used for tuning; split=holdout and split=external were not. Element gold is narrower than the source gold: it checks key values, polarity and phrases.",
+  "scope": "Local element check, not the official Score.",
+  "outcomes": {
+    "not_evaluated": 8,
+    "pass": 51,
+    "fail": 16
+  },
+  "statuses": {
+    "answer": 62,
+    "unverified": 13
+  },
+  "passed": 51,
+  "total": 75,
+  "quotes_only": [
+    "lb065",
+    "lb066",
+    "lb099",
+    "lb104",
+    "lb123",
+    "lb131"
+  ],
+  "false_refusals": 13,
+  "failures": {
+    "lb073": [
+      "false_refusal"
+    ],
+    "lb077": [
+      "false_refusal"
+    ],
+    "lb080": [
+      "false_refusal"
+    ],
+    "lb089": [
+      "forbidden:polarity нет",
+      "missing:polarity да"
+    ],
+    "lb096": [
+      "false_refusal"
+    ],
+    "lb100": [
+      "forbidden:polarity нет",
+      "missing:polarity да"
+    ],
+    "lb105": [
+      "false_refusal"
+    ],
+    "lb111": [
+      "false_refusal"
+    ],
+    "lb117": [
+      "false_refusal"
+    ],
+    "lb118": [
+      "false_refusal"
+    ],
+    "lb119": [
+      "false_refusal"
+    ],
+    "lb120": [
+      "false_refusal"
+    ],
+    "lb121": [
+      "false_refusal"
+    ],
+    "lb125": [
+      "false_refusal"
+    ],
+    "lb128": [
+      "false_refusal"
+    ],
+    "lb139": [
+      "forbidden:polarity да",
+      "missing:polarity нет"
+    ]
+  },
+  "not_evaluated": {
+    "lb065": [
+      "polarity_not_stated"
+    ],
+    "lb066": [
+      "polarity_not_stated"
+    ],
+    "lb099": [
+      "polarity_not_stated"
+    ],
+    "lb104": [
+      "polarity_not_stated"
+    ],
+    "lb116": [
+      "polarity_not_stated"
+    ],
+    "lb123": [
+      "polarity_not_stated"
+    ],
+    "lb124": [
+      "polarity_not_stated"
+    ],
+    "lb131": [
+      "polarity_not_stated"
+    ]
+  },
+  "checked_by_hand": 0
+}

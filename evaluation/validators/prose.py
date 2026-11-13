@@ -33,12 +33,18 @@ TOPICS = {'payment_term': r'оплат', 'review_term': r'согласовани
 _NUMBER = re.compile(r'(?<![\w/.\-])(\d{1,3}(?:[   ]\d{3})+|\d+)(?![\w/\-]|[.,]\d)')
 _UNIT = re.compile(r'\s*(?:(календарн\w*)\s+(?:дн\w*|день)|(рабоч\w*)\s+(?:дн\w*|день)|(руб\w*|₽))', re.I)
 _ASSERTING_VERB = re.compile(r'(?:составля\w*|равн\w*|—|–|-)\s*$', re.I)
-_REFUTED = re.compile(r'(?:\bа\s+не|\bне\s+(?:равн\w*|составля\w*)|\bвместо|\bне)\s*$', re.I)
+_REFUTED = re.compile(r'(?:\bа\s+не|\bне\s+(?:равн\w*|раве\w*|составля\w*)|\bвместо|\bне)\s*$', re.I)
 _CONDITIONAL = re.compile(
     r'\bесли\b|\bпри\s+подписани|\bприменя\w*\s+(?:при|к|для|до|с)\b|\bдейству\w*\s+(?:при|до|с|для)\b'
     r'|\bне\s+(?:применя|распространя|действу)|\bначиная\s+с\b|\bдо\s+\d{4}-\d{2}-\d{2}'
     r'|\bранее\b|\bпрежн\w*|\bотносится\s+к\b|\bустановлен\w*\s+(?:при|для)\b'
-    r'|\bне\s+наступ|(?<!\bот\s)\bс\s+\d{4}-\d{2}-\d{2}', re.I)
+    r'|\bне\s+наступ|(?<!\bот\s)\bс\s+\d{4}-\d{2}-\d{2}'
+    # A value limited to another case in words: «действует только для актов …»,
+    # «охватывает только акты, подписанные до этой даты».
+    r'|\b(?:действу|примен|охватыва|распространя|относ)\w*\s+(?:только|лишь)\b'
+    r'|\b(?:до|с|начиная\s+с)\s+(?:этой|указанной|данной|той\s+же)\s+даты', re.I)
+# «а не допсоглашение с 60 …»: the denied value a few words after «а не».
+_REFUTED_NEAR = re.compile(r'\bа\s+не\b[^.;:!?«»()]{0,40}$', re.I)
 _CLAUSE = re.compile(r'[;:]|,\s+(?=(?:а|но|если|поскольку|так как|потому что|когда|который|которая|которое)\b)', re.I)
 # A digit after a period continues the sentence: "п. 1", "ст. 5".
 _SENTENCE = re.compile(r'(?<=[.!?])\s+(?=[«"(]?[А-ЯЁA-Z])')
@@ -59,9 +65,21 @@ class Mention:
     clause: str = ''     # the clause holding the value, citations in brackets removed
 
 
+_ABBREVIATION = re.compile(r'(?:^|[\s(«"])(?:п|пп|ст|ч|гл|разд|см|абз|подп)\.$', re.I)
+# A value named and then denied: "999 календарных дней не подтверждается".
+_DENIED_AFTER = re.compile(r'^[^.;:!?]{0,20}?\b(?:не\s+подтвержда\w*|не\s+соответству\w*|не\s+согласова\w*|не\s+установлен\w*|неверн\w*|ошибочн\w*)', re.I)
+
+
 def _sentences(text):
-    # Abbreviations such as "п. 1.1" are followed by a digit/lowercase and stay intact.
-    return [s for s in _SENTENCE.split(' '.join(text.split())) if s.strip()]
+    """Split on sentence ends; "п.", "ст." and similar abbreviations never end one."""
+    parts = [s for s in _SENTENCE.split(' '.join(text.split())) if s.strip()]
+    merged = []
+    for part in parts:
+        if merged and _ABBREVIATION.search(merged[-1]):
+            merged[-1] += ' ' + part
+        else:
+            merged.append(part)
+    return merged
 
 
 def _clauses(sentence):
@@ -98,7 +116,7 @@ def mentions(prose, required):
         clauses = _clauses(sentence)
         def status(position):
             before = sentence[max(0, position - 16):position]
-            if _REFUTED.search(before):
+            if _REFUTED.search(before) or _REFUTED_NEAR.search(sentence[max(0, position - 48):position]):
                 return 'refuted'
             for a, b, conditional in clauses:
                 if a <= position < b + 1:
@@ -115,6 +133,8 @@ def mentions(prose, required):
             if u:
                 unit = 'calendar_days' if u.group(1) else 'working_days' if u.group(2) else 'RUB'
             state = status(m.start())
+            if u and _DENIED_AFTER.search(sentence[u.end():]):
+                state = 'refuted'
             # A bare number is a value only when asserted by a verb/dash or refuted.
             if unit is None and state != 'refuted' and not _ASSERTING_VERB.search(sentence[max(0, m.start() - 14):m.start()]):
                 continue
@@ -149,6 +169,25 @@ def _present(phrase, text):
     return all(match(w) for w in words)
 
 
+def _conclusion_in_condition(own, sentences, event_date):
+    """The only value stated with "составляет/равен/—" inside a condition clause
+    is the conclusion when the event date of the question is named in that or
+    the next sentence ("…начиная с X составляет 60 дней. Акт от Y подпадает…").
+    Two such values stay ambiguous."""
+    if not event_date:
+        return []
+    picked = []
+    for m in own:
+        if m.status != 'conditional':
+            continue
+        sentence = sentences[m.sentence]
+        head = sentence[max(0, m.position - 16):m.position]
+        near = ' '.join(sentences[m.sentence:m.sentence + 2])
+        if _ASSERTING_VERB.search(head) and event_date in near:
+            picked.append(m)
+    return picked if len({(m.value, m.unit) for m in picked}) == 1 else []
+
+
 def evaluate_prose(prose, case):
     """Return (True|False|None, reasons). Reasons explain False or None."""
     expected = case['expected']
@@ -162,7 +201,17 @@ def evaluate_prose(prose, case):
     failures, unknown = [], []
     for f in required:
         own = [m for m in found if m.predicate == f['predicate']]
+        # A value stated about another object ("касается объекта КТ-7/2026-Б")
+        # is neither the conclusion nor a contradiction.
+        aside = lambda m: bool(_SUBJECT.findall(m.clause)) and f['subject_id'] not in _SUBJECT.findall(m.clause)
         asserted = [m for m in own if m.status == 'asserted']
+        # Only an aside next to a conclusion about the asked object; a lone
+        # value about another object still fails as a wrong subject.
+        if any(not aside(m) for m in asserted):
+            asserted = [m for m in asserted if not aside(m)]
+            own = [m for m in own if not aside(m)]
+        if not asserted:
+            asserted = _conclusion_in_condition(own, sentences, case.get('event_date'))
         if not asserted:
             unknown.append('prose_conclusion_not_identified')
             continue

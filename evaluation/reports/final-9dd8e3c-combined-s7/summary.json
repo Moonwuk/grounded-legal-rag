@@ -1,0 +1,117 @@
+{
+  "git_commit": "9dd8e3c6d5ecead325edad7a99ebec6ba7731ffa",
+  "corpus_id": "combined-platform-format",
+  "knowledge_base_sha256": "805b5d4e663899c9e7427bf3e47b6e8c672a0a758edee442177d5302b9913e6a",
+  "questions_sha256": "46754f1272f5ca5ade4a6eb6fb6d9d7ad31c869b65cbd75a71462637b81b5a88",
+  "gold_sha256": "3ea7d059a3a7499bbbe3710bef1857e9361f08bc2ae83987d90077c271c8058d",
+  "runtime_sha256": "369bf987092cb95399a369dce9d28dbd12a07fe213f0286d75b3417cc6247643",
+  "model": "deepseek-flash",
+  "provider_base_url": "https://api.deepseek.com/v1",
+  "returncode": 0,
+  "elapsed_seconds": 625.9300196619997,
+  "generation_settings": {},
+  "shard": "7/8",
+  "questions_run": 82,
+  "tuning_note": "Synthetic development cases (split=development) were used for tuning; split=holdout and split=external were not. Element gold is narrower than the source gold: it checks key values, polarity and phrases.",
+  "scope": "Local element check, not the official Score.",
+  "outcomes": {
+    "pass": 62,
+    "fail": 12,
+    "not_evaluated": 8
+  },
+  "statuses": {
+    "answer": 60,
+    "out_of_scope": 3,
+    "disallowed": 8,
+    "unverified": 10,
+    "insufficient": 1
+  },
+  "passed": 62,
+  "total": 82,
+  "quotes_only": [
+    "syn-security-0069",
+    "syn-security-0072",
+    "lb001",
+    "lb002",
+    "lb003",
+    "lb004",
+    "lb005",
+    "lb006",
+    "lb010",
+    "lb011",
+    "lb020",
+    "lb023",
+    "lb030",
+    "lb035",
+    "lb036",
+    "lb040",
+    "lb058",
+    "lb062"
+  ],
+  "false_refusals": 11,
+  "failures": {
+    "law-002": [
+      "missing:opens with a refusal"
+    ],
+    "lb007": [
+      "false_refusal"
+    ],
+    "lb013": [
+      "false_refusal"
+    ],
+    "lb018": [
+      "false_refusal"
+    ],
+    "lb026": [
+      "false_refusal"
+    ],
+    "lb033": [
+      "false_refusal"
+    ],
+    "lb034": [
+      "false_refusal"
+    ],
+    "lb039": [
+      "false_refusal"
+    ],
+    "lb043": [
+      "false_refusal"
+    ],
+    "lb045": [
+      "false_refusal"
+    ],
+    "lb049": [
+      "false_refusal"
+    ],
+    "lb061": [
+      "false_refusal"
+    ]
+  },
+  "not_evaluated": {
+    "lb030": [
+      "polarity_not_stated"
+    ],
+    "lb035": [
+      "polarity_not_stated"
+    ],
+    "lb036": [
+      "polarity_not_stated"
+    ],
+    "lb040": [
+      "polarity_not_stated"
+    ],
+    "lb041": [
+      "polarity_not_stated"
+    ],
+    "lb047": [
+      "polarity_not_stated"
+    ],
+    "lb058": [
+      "polarity_not_stated"
+    ],
+    "lb062": [
+      "polarity_not_stated"
+    ]
+  },
+  "checked_by_hand": 0
+}

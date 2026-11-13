@@ -1,0 +1,226 @@
+[
+  {
+    "case_id": "1-p1",
+    "judged": false
+  },
+  {
+    "case_id": "1-p2",
+    "judged": false
+  },
+  {
+    "case_id": "2-p1",
+    "judged": true,
+    "compact_vs_full": 0.375,
+    "rounds": [
+      0.5,
+      0.25
+    ],
+    "fabricated": {
+      "full": false,
+      "compact": false
+    },
+    "full_words": 111,
+    "compact_words": 54
+  },
+  {
+    "case_id": "2-p2",
+    "judged": false
+  },
+  {
+    "case_id": "4-p1",
+    "judged": false
+  },
+  {
+    "case_id": "4-p2",
+    "judged": false
+  },
+  {
+    "case_id": "5-p1",
+    "judged": false
+  },
+  {
+    "case_id": "5-p2",
+    "judged": false
+  },
+  {
+    "case_id": "6-p1",
+    "judged": true,
+    "compact_vs_full": 0.25,
+    "rounds": [
+      0.25,
+      0.25
+    ],
+    "fabricated": {
+      "full": false,
+      "compact": false
+    },
+    "full_words": 57,
+    "compact_words": 46
+  },
+  {
+    "case_id": "6-p2",
+    "judged": true,
+    "compact_vs_full": 0.25,
+    "rounds": [
+      0.25,
+      0.25
+    ],
+    "fabricated": {
+      "full": false,
+      "compact": false
+    },
+    "full_words": 45,
+    "compact_words": 34
+  },
+  {
+    "case_id": "7-p1",
+    "judged": false
+  },
+  {
+    "case_id": "7-p2",
+    "judged": false
+  },
+  {
+    "case_id": "8-p1",
+    "judged": false
+  },
+  {
+    "case_id": "8-p2",
+    "judged": false
+  },
+  {
+    "case_id": "9-p1",
+    "judged": true,
+    "compact_vs_full": 0.375,
+    "rounds": [
+      0.5,
+      0.25
+    ],
+    "fabricated": {
+      "full": false,
+      "compact": false
+    },
+    "full_words": 70,
+    "compact_words": 41
+  },
+  {
+    "case_id": "9-p2",
+    "judged": true,
+    "compact_vs_full": 0.375,
+    "rounds": [
+      0.5,
+      0.25
+    ],
+    "fabricated": {
+      "full": false,
+      "compact": false
+    },
+    "full_words": 76,
+    "compact_words": 47
+  },
+  {
+    "case_id": "10-p1",
+    "judged": false
+  },
+  {
+    "case_id": "10-p2",
+    "judged": false
+  },
+  {
+    "case_id": "11-p1",
+    "judged": false
+  },
+  {
+    "case_id": "11-p2",
+    "judged": false
+  },
+  {
+    "case_id": "12-p1",
+    "judged": false
+  },
+  {
+    "case_id": "12-p2",
+    "judged": false
+  },
+  {
+    "case_id": "13-p1",
+    "judged": true,
+    "compact_vs_full": 0.375,
+    "rounds": [
+      0.5,
+      0.25
+    ],
+    "fabricated": {
+      "full": false,
+      "compact": false
+    },
+    "full_words": 158,
+    "compact_words": 98
+  },
+  {
+    "case_id": "13-p2",
+    "judged": false
+  },
+  {
+    "case_id": "14-p1",
+    "judged": true,
+    "compact_vs_full": 0.5,
+    "rounds": [
+      0.5,
+      0.5
+    ],
+    "fabricated": {
+      "full": false,
+      "compact": false
+    },
+    "full_words": 83,
+    "compact_words": 51
+  },
+  {
+    "case_id": "14-p2",
+    "judged": true,
+    "compact_vs_full": 0.375,
+    "rounds": [
+      0.5,
+      0.25
+    ],
+    "fabricated": {
+      "full": false,
+      "compact": false
+    },
+    "full_words": 62,
+    "compact_words": 37
+  },
+  {
+    "case_id": "15-p1",
+    "judged": false
+  },
+  {
+    "case_id": "15-p2",
+    "judged": false
+  },
+  {
+    "case_id": "16-p1",
+    "judged": false
+  },
+  {
+    "case_id": "16-p2",
+    "judged": false
+  },
+  {
+    "case_id": "17-p1",
+    "judged": false
+  },
+  {
+    "case_id": "17-p2",
+    "judged": false
+  },
+  {
+    "case_id": "18-p1",
+    "judged": false
+  },
+  {
+    "case_id": "18-p2",
+    "judged": false
+  }
+]
