@@ -115,7 +115,12 @@ reference_scope=local допустим, когда прямой ответ це�
 установить содержание или применимость отсылочного основания, выбери required,
 partial и requested_facts ["referenced_documents"]. При сомнении выбери required.
 partial: дай подтверждённую часть и назови, каких именно сведений или документов
-не хватает для полного ответа. insufficient: скажи, каких документов нет в базе, и
+не хватает для полного ответа. Если вопрос предполагает документ или изменение
+(допсоглашение, приказ, новую редакцию), которых в evidence нет, а названный в
+вопросе договор или документ в evidence есть, это ложная предпосылка, а не
+insufficient: выбери partial с положением этого документа о том же условии,
+первой фразой скажи, что такого документа или изменения в базе нет, и назови
+действующее значение по документу. insufficient: скажи, каких документов нет в базе, и
 что по памяти ты не отвечаешь; не перечисляй, что в базе есть, и не утверждай, что
 в ней есть «только» что-либо; можно посоветовать обратиться к профильному
 специалисту. clarify: задай один конкретный вопрос. out_of_scope: коротко обозначь
@@ -337,8 +342,9 @@ def lost_restrictions(text: str, selected: list[Fragment]) -> list[str]:
     if bound and not re.search(_UPPER_BOUND_ANSWER, answer):
         lost.append(bound.group())
     rest = re.sub(_UPPER_BOUND_SOURCE, " ", source)
-    for pattern in _RESTRICTIONS.values():
-        found = re.search(pattern, rest)
+    required = _required_classes(answer)
+    for name, pattern in _RESTRICTIONS.items():
+        found = re.search(pattern, rest) if name in required else None
         if found and not re.search(pattern, answer):
             lost.append(found.group())
     return list(dict.fromkeys(lost))[:6]
@@ -357,7 +363,29 @@ def restrictions_kept(text: str, selected: list[Fragment]) -> bool:
     # The upper-bound phrases are accounted for above; any other prohibition
     # in the sources still requires a prohibition in the answer.
     rest = re.sub(_UPPER_BOUND_SOURCE, " ", source)
-    return all(re.search(pattern, answer) for pattern in _RESTRICTIONS.values() if re.search(pattern, rest))
+    required = _required_classes(answer)
+    return all(re.search(pattern, answer) for name, pattern in _RESTRICTIONS.items()
+               if name in required and re.search(pattern, rest))
+
+
+# Permission words outside a negation: «можно», «вправе», «допускается».
+_NEGATED_PERMISSION = re.compile(r"\bне\s+(?:можно|может|могут|вправе|допуска\w*|разреш\w*|позвол\w*"
+                                 r"|име(?:ет|ют)\s+прав[ао])", re.I)
+# A verb of permission; the noun «разрешение» states nothing.
+_PERMISSION = re.compile(r"^\s*да\b|\b(?:можно|может|могут|вправе|допуска\w*|разреш(?:а\w*|ен[оаы]?|ён|ить)\b|позвол\w*"
+                         r"|име(?:ет|ют)\s+прав[ао])", re.I)
+
+
+def _required_classes(answer: str) -> set[str]:
+    """Restriction classes the text must repeat.
+
+    «Только», «при условии», «по соглашению» qualify a permission. A text that
+    permits nothing, only prohibits, cannot loosen them; it must still keep the
+    prohibition and any exception to it. The source provisions are published
+    below the text either way."""
+    permits = _PERMISSION.search(_NEGATED_PERMISSION.sub(" ", answer))
+    prohibits = re.search(_RESTRICTIONS["prohibition"], answer)
+    return set(_RESTRICTIONS) if permits or not prohibits else {"prohibition", "exception"}
 
 
 def inapplicable_only(candidate: dict, verdict) -> list[int]:
@@ -512,9 +540,20 @@ def uncovered_parts(question: str, selected: list[Fragment]) -> list[str]:
     current = re.sub(r"\b[A-Za-zА-Яа-яЁё]{1,8}\s*[-–]\s*\d{1,8}\s*/\s*\d{4}\b|\d[\d.\-/ ]*", " ", current)
     source = {w[:5] for w in re.findall(r"[а-яё]{4,}", norm(" ".join(f.text for f in selected)).casefold().replace("ё", "е"))}
     result = []
-    for part in re.split(r",?\s+и\s+|[?;:]", current):
-        words = [w for w in re.findall(r"[А-Яа-яЁё]{4,}", part)
-                 if w.casefold().replace("ё", "е") not in STOP and w.casefold().replace("ё", "е")[:5] not in _REQUEST_WORDS]
+    parts = re.split(r",?\s+и\s+|[?;:]", current)
+    groups, head = [], []
+    for i, part in enumerate(parts):
+        words = head + [w for w in re.findall(r"[А-Яа-яЁё]{4,}", part)
+                        if w.casefold().replace("ё", "е") not in STOP and w.casefold().replace("ё", "е")[:5] not in _REQUEST_WORDS]
+        # «Назовите дату и номер соглашения»: a lone noun before «и» shares the
+        # complement of the next part; alone it would be a meaningless «дату».
+        if len(words) - len(head) == 1 and not re.search(r"[,?;:]\s*$", part) and i + 1 < len(parts) \
+                and re.search(r"[А-Яа-яЁё]{4,}", parts[i + 1]):
+            head = words
+            continue
+        head = []
+        groups.append(words)
+    for words in groups:
         if words and not any(w.casefold().replace("ё", "е")[:5] in source for w in words):
             result.append(" ".join(w.casefold() for w in words))
     # Only a part beside a covered one is a gap of a partial answer.
@@ -578,7 +617,7 @@ def _scope_words(text):
     return {('прим' if w in _SCOPE_VERBS else w) for w in _assertion_words(text)}
 
 
-def prose_scope_safe(text: str, selected: list[Fragment]) -> bool:
+def prose_scope_safe(text: str, selected: list[Fragment], question: str = "") -> bool:
     # A positive model verdict cannot introduce these restrictive operators.
     # This small lexical barrier is not a general entailment/negation checker.
     raw = "\n".join(f.text for f in selected)
@@ -588,10 +627,41 @@ def prose_scope_safe(text: str, selected: list[Fragment]) -> bool:
     operators = {m.group() for m in _EXCLUSIVE.finditer(source)}
     scopes = [_scope_words(s) for f in selected for s in _sentences(f.text) if _SCOPE_RULE.search(s)]
     return (all(m.group().lower().replace("ё", "е") in operators or _restates_scope(text, m, scopes)
-                or _CONTENT_ONLY.search(text[max(0, m.start() - 80):m.end()])
+                or _CONTENT_ONLY.search(text[max(0, m.start() - 80):m.end()]) or _quoted_from(question, text, m)
                 for m in _EXCLUSIVE.finditer(text))
             and not (_ROLE_NEGATION.search(text) and not _ROLE_NEGATION.search(source))
             and added_assertions_safe(text, selected))
+
+
+def _quoted_from(question: str, text: str, m) -> bool:
+    """The exclusive word comes with its next two words from the latest user
+    turn: «только из-за суммы» answering «… только из-за суммы?»."""
+    if not question:
+        return False
+    following = re.findall(r'[а-яё-]+', text[m.end():m.end() + 60].lower().replace('ё', 'е'))[:2]
+    phrase = r'\s+'.join(re.escape(w) for w in [m.group().lower().replace('ё', 'е')] + following)
+    return len(following) == 2 and bool(re.search(r'\b' + phrase + r'\b',
+                                                  user_turns(question)[-1].lower().replace('ё', 'е')))
+
+
+def scope_block_reason(text: str, selected: list[Fragment], retriever, question: str = "") -> str:
+    """Application-owned code of the first barrier that rejects the text, or "".
+
+    Logged instead of the text: payload, exclusive word, role negation, added
+    assertion, false absence of a document, invented section."""
+    raw = "\n".join(f.text for f in selected)
+    if any(m.group() not in raw for m in _PAYLOAD.finditer(text)):
+        return "payload"
+    if not prose_scope_safe(text, selected, question):
+        source = raw.lower().replace("ё", "е")
+        if _ROLE_NEGATION.search(text) and not _ROLE_NEGATION.search(source):
+            return "role_negation"
+        return "added_assertion" if not added_assertions_safe(text, selected) else "exclusive_word"
+    if false_absence(text, retriever):
+        return "false_absence"
+    if invented_section(text, selected, retriever):
+        return "invented_section"
+    return ""
 
 
 # Narrow syntactic barriers for reproduced unsupported additions, not a general
@@ -603,8 +673,11 @@ _DOCUMENT_NOUN = (r'акт\w*|протокол\w*|ведомост\w*|реест
 _RECORD_DOCUMENT = re.compile(
     r'\bв(?:о)?\s+(?:[а-яё]+\s+){0,2}?(' + _DOCUMENT_NOUN + r')\b', re.I)
 _RECORD_SUBJECT = re.compile(r'\b(' + _DOCUMENT_NOUN + r')\b[^.!?;\n]{0,40}?\b' + _RECORD_VERB, re.I)
-_OTHER = r'\b(?:ин(?:ой|ого|ому|ым|ом|ая|ую|ою|ое|ые|ых|ыми)|друг\w*|дополнительн\w*|отдельн\w*)\b'
-_ABSENCE = r'(?:\bне\s+(?:треб\w*|нуж\w*|предусмотр\w*)|\bнет\b|\bотсутств\w*)'
+# «Дополнительное соглашение» names a document type, not «other requirements»:
+# whether the base holds one is a claim about the corpus, checked by false_absence.
+_OTHER = (r'\b(?:ин(?:ой|ого|ому|ым|ом|ая|ую|ою|ое|ые|ых|ыми)|друг\w*|отдельн\w*'
+          r'|дополнительн\w*\b(?!\s+соглашени))\b')
+_ABSENCE = r'(?:\bне\s+(?:треб\w*|нуж\w*|предусм[ао]тр\w*)|\bнет\b|\bотсутств\w*)'
 _OTHER_ABSENCE = re.compile(
     _OTHER + r'[^.!?;\n]{0,140}?' + _ABSENCE + '|' +
     _ABSENCE + r'[^.!?;\n]{0,140}?' + _OTHER, re.I)
@@ -643,7 +716,7 @@ _REFERENCE = re.compile(
     r'\b(?:(?:под)?пункт\w*|п{1,2}\.|стать\w*|ст\.|част\w*|ч\.|абзац\w*|абз\.)\s*\d+(?:\.\d+)*'
     r'|\b(?:ТК|ГК|НК|УК|ЖК|КоАП|АПК|ГПК|БК)(?:\s+РФ)?\b|\bРФ\b'
     # a numbered document: «по договору поставки № П-17/2024», «приказ № 14-П»
-    r'|\b(?:по\s+|в\s+|из\s+|согласно\s+)?(?:договор|соглашени|допсоглашени|регламент|положени|приказ|записк|справк|протокол)\w*'
+    r'|\b(?:по\s+|в\s+|из\s+|согласно\s+)?(?:дополнительн\w*\s+)?(?:договор|соглашени|допсоглашени|регламент|положени|приказ|записк|справк|протокол)\w*'
     r'(?:\s+[а-яё]+){0,3}?\s*№\s*[\w./-]+(?:\s*/\s*\d+)?', re.I)
 
 
@@ -666,6 +739,7 @@ def added_assertions_safe(text, selected):
         if not any(doc == sd and negative == sn and (not so or optional) and words <= sw
                    for sd, sn, so, sw in source_facts):
             return False
+    text = _restated_other(text, selected)
     source_absences = [_assertion_words(s) for f in selected for s in _sentences(f.text)
                        if _OTHER_ABSENCE.search(s)]
     return all(any(_assertion_words(s) <= source for source in source_absences)
@@ -673,6 +747,36 @@ def added_assertions_safe(text, selected):
                or any(_included_not_separate(_with_antecedent(whole, i), inclusions)
                       for i, w in enumerate(whole) if s in w.lower().replace('ё', 'е'))
                for s in _sentences(text) if _OTHER_ABSENCE.search(s))
+
+
+def _restated_other(text, selected):
+    """Blank an «other» word that repeats the source's own phrase with its object.
+
+    «Директор дополнительно согласует закупки свыше …, поэтому закупка на
+    500 000 его согласования не требует» restates «закупки … дополнительно
+    согласуются с директором»: «дополнительно» belongs to the source, not to an
+    added «no other requirements». The word stays when the sentence does not name
+    a content word that follows the phrase in the source («дополнительно
+    согласовывать ничего не нужно»)."""
+    stem = lambda w: w[:5]
+    after = {}
+    for f in selected:
+        words = [w for w in re.findall(r'[а-яё]+', f.text.lower().replace('ё', 'е'))]
+        for i in range(len(words) - 1):
+            if re.fullmatch(_OTHER, words[i]):
+                objects = {stem(w) for w in words[i + 2:i + 8] if len(w) >= 4 and w not in STOP}
+                after.setdefault((stem(words[i]), stem(words[i + 1])), set()).update(objects)
+
+    def replace(sentence):
+        lower = sentence.lower().replace('ё', 'е')
+        own = {stem(w) for w in re.findall(r'[а-яё]+', lower)}
+        for m in re.finditer(_OTHER + r'\s+([а-яё]+)', lower):
+            key = (stem(m.group().split()[0]), stem(m.group(1)))
+            if after.get(key, set()) & own:
+                word_end = m.start() + len(m.group().split()[0])
+                sentence = sentence[:m.start()] + ' ' * (word_end - m.start()) + sentence[word_end:]
+        return sentence
+    return ''.join(replace(part) for part in re.split(r'((?<=[.!?;])\s+)', text))
 
 
 def _with_antecedent(sentences, i):
@@ -1070,6 +1174,7 @@ def false_absence(text: str, retriever) -> bool:
     known = getattr(retriever, "doc_ids", None)
     if not text or not known:
         return False
+    documents = getattr(retriever, "documents", {})
     present = set().union(*known.values())
     for sentence in re.split(r'(?<=[.!?])\s+', text):
         # A citation in brackets names an existing document; an opening "Нет," is
@@ -1095,7 +1200,24 @@ def false_absence(text: str, retriever) -> bool:
         for m in re.finditer(_DOCUMENT_WORD + r'\s+(?:№\s*)?([A-Za-zА-Яа-яЁё]{1,8}\s*[-–]\s*\d{1,8}\s*/\s*\d{4})', sentence, re.I):
             if re.sub(r'\s+', '', m[1]).lower() in named and not reference.search(sentence[:m.start()]) and denied(m):
                 return True
+        # "Дополнительного соглашения к договору П-17/2024 в базе нет", while the
+        # base holds one. Qualified ones ("которым плату изменили…") are left to
+        # the verifier: an agreement on another subject may exist.
+        for m in _SUPPLEMENT_TO.finditer(sentence):
+            target = re.sub(r'\s+', '', m[1]).lower()
+            if (target in named and not reference.search(sentence[:m.start()])
+                    and (denied(m) or _ABSENCE_WORD.search(sentence[:m.start()]))
+                    and not _QUALIFIED.search(sentence[m.end():])
+                    and any(target in ids and name in documents and _SUPPLEMENT.match(documents[name].text.lstrip())
+                            for name, ids in known.items())):
+                return True
     return False
+
+
+_SUPPLEMENT = re.compile(r'(?:доп(?:олнительн\w*)?\.?\s*соглашени\w*|допсоглашени\w*)', re.I)
+_SUPPLEMENT_TO = re.compile(_SUPPLEMENT.pattern + r'(?:\s+№\s*\S+)?\s+к\s+' + _DOCUMENT_WORD
+                            + r'(?:\s+[а-яё]+){0,2}?\s*(?:№\s*)?([A-Za-zА-Яа-яЁё]{1,8}\s*[-–]\s*\d{1,8}\s*/\s*\d{4})', re.I)
+_QUALIFIED = re.compile(r'^[^.!?;]{0,40}?(?:\bкотор\w*|\bоб?\s+[а-яё]{3,})', re.I)
 
 
 def edition_mismatch(question: str, selected: list[Fragment], retriever) -> bool:
@@ -1148,12 +1270,34 @@ def source_wording(claim, evidence):
     return "\n".join("«" + q + "»" for q in quotes)
 
 
+def _one_edit(a: str, b: str) -> bool:
+    """One insertion, deletion or substitution apart (not equal)."""
+    if a == b or abs(len(a) - len(b)) > 1:
+        return False
+    if len(a) == len(b):
+        return sum(x != y for x, y in zip(a, b)) == 1
+    short, long = (a, b) if len(a) < len(b) else (b, a)
+    return any(long[:i] + long[i + 1:] == short for i in range(len(long)))
+
+
+def _restore_id(value, by_id):
+    """A model-copied fragment id with a one-character slip («e925b2…» for
+    «925b2…») names the only evidence id one edit away; otherwise it stays
+    unknown and the candidate fails as before."""
+    if not isinstance(value, str) or value in by_id or not 8 <= len(value) <= 64:
+        return value
+    near = [i for i in by_id if _one_edit(value, i)]
+    return near[0] if len(near) == 1 else value
+
+
 def expand_selection(value, evidence):
     """Materialize the compact ID-only wire format from immutable evidence."""
     if not isinstance(value, dict) or "source_ids" not in value:
         return value
     ids = value.get("source_ids")
     by_id = {f.id:f for f in evidence}
+    if isinstance(ids, list):
+        ids = [_restore_id(i, by_id) for i in ids]
     if ("claims" in value or not isinstance(ids,list) or len(ids)>12
             or any(not isinstance(i,str) or i not in by_id for i in ids)
             or len(set(ids))!=len(ids)):
@@ -1402,9 +1546,9 @@ def answer_steps(question: str, retriever, client, top_k: int = 6):
             # restriction class of the sources; a positive verdict cannot waive this.
             restricted = any(_SOURCE_ONLY.search(norm(f.text)) for f in selected)
             source_only = bool(value_gaps) or (restricted and not (draft and restrictions_kept(draft, selected)))
-            scope_blocked = bool(draft and selected and not source_only and
-                                 (not prose_scope_safe(draft, selected) or false_absence(draft, retriever)
-                                  or invented_section(draft, selected, retriever)))
+            scope_guard = (scope_block_reason(draft, selected, retriever, question)
+                           if draft and selected and not source_only else "")
+            scope_blocked = bool(scope_guard)
             # Figures may also come from provisions the verifier confirmed as
             # authentic but inapplicable: they explain the contrast and are not
             # published as a basis of the answer.
@@ -1466,7 +1610,8 @@ def answer_steps(question: str, retriever, client, top_k: int = 6):
                                    evidence, source_gaps, prose, question=question, value_gaps=value_gaps,
                                    keep_sources=True, context_sources=context_sources, editions=editions,
                                    published_sources=kept_sources)
-                incomplete = {"text": kept_text, "status": "partial", "sources": kept_sources}
+                incomplete = {"text": kept_text, "status": "partial", "sources": kept_sources,
+                              "quote_only": not prose}
             elif prose and allowed:
                 prose_state = "published"
             checks = verdict.get("claim_checks") if isinstance(verdict, dict) else None
@@ -1475,7 +1620,7 @@ def answer_steps(question: str, retriever, client, top_k: int = 6):
             event = {"event":"policy_verdict", "position":position if type(position) is int else None,
                      "expanded":expanded, "reduced":bool(reduced), "candidate_status":candidate["status"], "approved":allowed,
                      "edition_mismatch":edition_wrong,
-                     "prose":prose_state,
+                     "prose":prose_state, "scope_guard":scope_guard,
                      "verdict_status":vstatus if isinstance(vstatus,str) and vstatus in STATUSES else "invalid",
                      "check_count":len(checks) if isinstance(checks,list) else -1,
                      "source_gap_count":sum(len(g["articles"]) for g in source_gaps),
@@ -1524,7 +1669,8 @@ def answer_steps(question: str, retriever, client, top_k: int = 6):
                                                + ([] if expanded else [(True, None)]))
                 continue
             if allowed:
-                result = {"text": rendered, "status": candidate["status"], "sources": published_sources}
+                result = {"text": rendered, "status": candidate["status"], "sources": published_sources,
+                          "quote_only": prose_state != "published"}
                 if retry_extra:
                     # The attempt without the unasked provisions replaces the
                     # verified answer only if it is again a verified answer with text.
@@ -1560,7 +1706,9 @@ def answer_steps(question: str, retriever, client, top_k: int = 6):
                 if candidate["status"] == "partial" and document_gap and not source_gaps and not expanded:
                     fallback = result
                     continue
-                return result
+                # A later verified attempt replaces an earlier one only if it is
+                # not poorer: a partial or bare quotations do not replace text.
+                return fallback if fallback is not None and _rank(fallback) > _rank(result) else result
         return fallback or incomplete or {"text": UNVERIFIED, "status": "unverified", "sources": []}
     except ProviderError as error:
         # Only an application-owned code is logged; never provider text/keys.
@@ -1568,6 +1716,11 @@ def answer_steps(question: str, retriever, client, top_k: int = 6):
         safe = code if re.fullmatch(r"[a-z_]{1,64}|http_[0-9]{3}", code) else "provider_error"
         print("provider_error: " + safe, file=sys.stderr)
         return fallback or incomplete or {"text": TECHNICAL, "status": "technical_error", "sources": []}
+
+
+def _rank(result: dict) -> tuple:
+    """Verified answers compared: a full answer first, then one with checked text."""
+    return result["status"] == "answer", not result.get("quote_only", True)
 
 
 def answer_structured(question: str, retriever, client, top_k: int = 6) -> dict:

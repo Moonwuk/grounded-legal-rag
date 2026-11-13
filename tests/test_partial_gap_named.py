@@ -60,6 +60,17 @@ class PartialGapTests(unittest.TestCase):
         # Nothing covered: not a partial gap, the request scope handles it.
         self.assertEqual(uncovered_parts('Какова ставка неустойки для КТ-7/2031?', [lim]), [])
 
+    def test_lone_noun_before_and_shares_the_next_complement(self):
+        # 24-question run on 06a3dda, N24: «Назовите дату и номер дополнительного
+        # соглашения …» gave the gap «дату», published as «нет сведений: «дату»».
+        rent = Fragment('x', 'd', 0, 10, '2.1. Арендная плата составляет 310 000 рублей в месяц.', '')
+        bonus = Fragment('y', 'd', 0, 10, 'Премия по приказу Б-2/2033 составляет 15% оклада.', '')
+        self.assertEqual(uncovered_parts('Назовите дату и номер соглашения к Б-11/2031, которым изменили арендную плату.', [rent]), [])
+        self.assertEqual(uncovered_parts('Укажите основание и размер премии по приказу Б-2/2033.', [bonus]), [])
+        # A lone noun at the end is an item of its own.
+        lim = Fragment('z', 'd', 0, 10, 'Для объекта КТ-7/2031 лимит резерва составляет 41000 рублей.', '')
+        self.assertEqual(uncovered_parts('Укажите лимит резерва КТ-7/2031 и срок.', [lim]), ['срок'])
+
 
     def test_insufficient_does_not_ask_for_a_named_contract_number(self):
         # Smoke 9dd8e3c, missing_information-0001: "Какова ставка неустойки для

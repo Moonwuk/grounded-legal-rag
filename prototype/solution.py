@@ -86,8 +86,9 @@ def run_questions(questions, retriever, deadline, workers, top_k):
     """Yield complete row checkpoints, with a barrier before each retry round.
 
     Each worker advances one generation/verification step. A verified full answer
-    ends the batch task; a retry for wording alone must not consume other rows'
-    time. Unverified/partial tasks resume only after all rows had their first step.
+    with checked text ends the batch task. Unverified/partial tasks resume only
+    after all rows had their first step; a verified answer published as bare
+    quotations gets its one text retry last, so it never takes other rows' time.
     """
     queue = deque((index, None, None, None) for index in range(len(questions)))
 
@@ -102,7 +103,7 @@ def run_questions(questions, retriever, deadline, workers, top_k):
                 result = next(steps)
             except StopIteration as finished:
                 return index, finished.value, None
-            if result["status"] == "answer":
+            if result["status"] == "answer" and not result.get("quote_only"):
                 steps.close()
                 return index, result, None
             return index, result, (index, client, steps, result)
@@ -136,8 +137,9 @@ def run_questions(questions, retriever, deadline, workers, top_k):
                     if resume is not None:
                         deferred.append(resume)
                     yield index, result["text"], result["status"]
-            # Give unresolved answers priority over an already verified partial.
-            queue = deque(sorted(deferred, key=lambda task: (task[3]["status"] == "partial", task[0])))
+            # Unresolved rows first, then verified partials, then verified answers
+            # whose text was dropped (bare quotations).
+            queue = deque(sorted(deferred, key=lambda task: ({"partial": 1, "answer": 2}.get(task[3]["status"], 0), task[0])))
         for _, _, steps, _ in queue:
             if steps is not None:
                 steps.close()

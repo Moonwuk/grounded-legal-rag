@@ -32,8 +32,9 @@ class BatchFairnessTests(unittest.TestCase):
                 windows.append(self.deadline - time.monotonic())
                 if mode == 'failed_retry' and self.position == 0 and self.calls > 2:
                     raise ProviderError('http_503')
+                rejected_row = 2 if mode == 'mixed' else 0
                 if 'candidate' in payload:
-                    ok = not (mode == 'rejected' and self.position == 0 and self.calls == 2)
+                    ok = not (mode in {'rejected', 'mixed'} and self.position == rejected_row and self.calls == 2)
                     return {'approved': ok, 'complete': ok, 'status': payload['candidate']['status'],
                             'answer_supported': ok, 'claim_checks': [
                                 {'index': i, 'supported': ok, 'applicable': True}
@@ -41,7 +42,9 @@ class BatchFairnessTests(unittest.TestCase):
                 f = next(f for f in payload['evidence'] if f['text'].startswith('9.1.'))
                 partial = mode == 'failed_retry' and self.position == 0
                 return {'status': 'partial' if partial else 'answer',
-                        'answer': 'Помещение можно передавать.' if mode == 'cosmetic' else '',
+                        'answer': ('Помещение можно передавать только при письменном согласии владельца (п. 9.1).'
+                                   if mode == 'restored' and self.calls > 2 else
+                                   'Помещение можно передавать.' if mode in {'cosmetic', 'restored', 'mixed'} else ''),
                         'source_ids': [f['id']], 'requested_facts': ['document'] if partial else []}
 
         with tempfile.TemporaryDirectory() as temp:
@@ -59,10 +62,24 @@ class BatchFairnessTests(unittest.TestCase):
                 rows = list(csv.DictReader(h))
         return events, windows, rows
 
-    def test_verified_answer_is_not_regenerated_for_cosmetic_prose(self):
+    def test_quote_only_answer_retries_its_text_after_all_first_attempts(self):
+        # 24-question run on 06a3dda, N16-N18: a verified answer whose text was
+        # dropped was published as bare quotations, without «Нет»/«120 часов»;
+        # the one retry that restores the text never ran in batch.
         events, _, rows = self.run_batch('cosmetic')
-        self.assertEqual([i for i, _ in events], [0, 0, 1, 1, 2, 2])
+        self.assertEqual([i for i, _ in events], [0, 0, 1, 1, 2, 2, 0, 0, 1, 1, 2, 2])
         self.assertTrue(all('письменном согласии' in row['answer'] for row in rows))
+
+    def test_restored_text_is_published(self):
+        _, _, rows = self.run_batch('restored')
+        self.assertTrue(all(row['answer'].startswith('Помещение можно передавать только при письменном согласии')
+                            for row in rows), rows)
+
+    def test_unresolved_rows_retry_before_quote_only_answers(self):
+        events, _, rows = self.run_batch('mixed')
+        self.assertEqual([i for i, _ in events][:6], [0, 0, 1, 1, 2, 2])
+        self.assertEqual([i for i, _ in events][6:8], [2, 2])
+        self.assertTrue(all(row['answer'] != TECHNICAL for row in rows))
 
     def test_unverified_retry_runs_after_all_first_attempts(self):
         events, windows, rows = self.run_batch('rejected')
@@ -80,7 +97,7 @@ class BatchFairnessTests(unittest.TestCase):
 
     def test_parallel_batch_preserves_all_rows(self):
         events, _, rows = self.run_batch('cosmetic', workers=2)
-        self.assertEqual(len(events), 6)
+        self.assertEqual(len(events), 12)
         self.assertEqual(len(rows), 3)
         self.assertTrue(all('письменном согласии' in row['answer'] for row in rows))
 
