@@ -51,6 +51,9 @@ def strict_json(raw):
 
 # Logical model calls per question. The policy plans its attempts within it.
 QUESTION_CALL_LIMIT = 5
+# One slot per transport attempt; the final delay still applies to other workers
+# when the last response is 429, although this call has no retry left.
+TRANSPORT_BACKOFF_SECONDS = (2, 5, 10, 10)
 
 
 # Reasoning effort: measured on deepseek-flash, "low" kept accuracy on the demo
@@ -105,9 +108,8 @@ class ProxyClient:
             "messages": [{"role": "system", "content": system},
                          {"role": "user", "content": json.dumps(payload, ensure_ascii=False)}],
             "temperature": temperature,
-            # The platform passes MAX_TOKENS=1024 (readable configuration, regulation
-            # section 6). With reasoning counted in it, 15–25% of the JSON answers
-            # were cut and became technical stubs; 2048 is the floor.
+            # At MAX_TOKENS=1024 local runs lost JSON answers to truncation;
+            # 2048 is the floor. The platform's actual setting is unconfirmed.
             "max_tokens": max(MIN_OUTPUT_TOKENS, integer("MAX_TOKENS", 8192, 256, 65536)),
         }
         effort = env("LLM_REASONING_EFFORT", default=DEFAULT_EFFORT)
@@ -123,11 +125,11 @@ class ProxyClient:
         effort_dropped = False
         # An overloaded proxy (429, 5xx, timeouts) needs patience: four attempts
         # with growing pauses, all within the run deadline (regulation, section 9).
-        for attempt in range(4):
-            # A new request waits out another worker's 429 pause; a retry has
-            # already slept its own pause below.
-            wait_for = ProxyClient.cooldown_until - time.monotonic() if attempt == 0 else 0
-            if wait_for > 0:
+        for attempt, delay in enumerate(TRANSPORT_BACKOFF_SECONDS):
+            retry_available = attempt + 1 < len(TRANSPORT_BACKOFF_SECONDS)
+            # Every attempt respects the shared pause. Another worker can extend
+            # it while this call is in flight, backing off, or already waiting.
+            while (wait_for := ProxyClient.cooldown_until - time.monotonic()) > 0:
                 if self.deadline - time.monotonic() <= wait_for + 1:
                     raise ProviderError("run_deadline")
                 time.sleep(wait_for)
@@ -137,7 +139,6 @@ class ProxyClient:
             request = Request(self.base + "/chat/completions", data=body, method="POST",
                               headers={"Authorization": "Bearer " + self.key,
                                        "Content-Type": "application/json"})
-            delay = (2, 5, 10, 10)[attempt]
             request_started = time.monotonic()
             try:
                 with self.opener.open(request, timeout=min(45., remaining)) as response:
@@ -171,13 +172,13 @@ class ProxyClient:
                 print(json.dumps(event), file=sys.stderr)
                 if finish == "length":
                     # Never parse or publish a truncated candidate. One bounded
-                    # fresh attempt shares the three-attempt transport budget.
-                    if not truncation_retry and attempt < 2:
+                    # fresh attempt shares the remaining transport budget.
+                    if not truncation_retry and retry_available:
                         truncation_retry = True
                         # Reasoning that used the budget is not shortened by an
                         # instruction about the answer; the effort level is.
-                        # Without usage details: every visible token is at least one
-                        # character, so a short visible text means hidden reasoning.
+                        # Without usage details, short visible text is only a
+                        # heuristic: character length is not a token count.
                         message = choice.get("message")
                         visible = message.get("content") if isinstance(message, dict) else None
                         budget = request_body["max_tokens"]
@@ -210,7 +211,7 @@ class ProxyClient:
                     # The model answered outside the JSON contract (plain prose,
                     # a broken object). One fresh attempt with a format reminder
                     # shares the transport budget; a second failure is reported.
-                    if format_retry or attempt >= 2:
+                    if format_retry or not retry_available:
                         raise
                     format_retry = True
                     print(json.dumps({"event": "format_retry", "position": self.position,
@@ -234,7 +235,7 @@ class ProxyClient:
                     "elapsed_ms":round((time.monotonic() - request_started) * 1000)}), file=sys.stderr)
                 retry = exc.headers.get("Retry-After", "")
                 exc.close()
-                if code in {400, 422} and "reasoning_effort" in request_body and attempt < 2:
+                if code in {400, 422} and "reasoning_effort" in request_body and retry_available:
                     # The provider may not know the parameter: retry once without
                     # it. Another cause of the error repeats and is reported.
                     effort_dropped = True
@@ -258,7 +259,7 @@ class ProxyClient:
                     "elapsed_ms":round((time.monotonic() - request_started) * 1000)}), file=sys.stderr)
             except (ValueError, KeyError, IndexError, TypeError, AttributeError, RecursionError):
                 raise ProviderError("invalid_model_response") from None
-            if attempt == 3:
+            if not retry_available:
                 break
             remaining = self.deadline - time.monotonic()
             if remaining <= delay + 1:

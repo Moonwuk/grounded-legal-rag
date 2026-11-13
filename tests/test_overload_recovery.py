@@ -2,11 +2,11 @@
 
 Archive 24 on the platform: 20.354 at 00:22, right after the daily limit reset,
 in 542 of 1100 s; locally the same archive beats archive 12 (34.2) on every set.
-A row whose calls all failed (429, 5xx, timeouts) kept «Не удалось проверить
+A locally simulated row whose calls all failed (429, 5xx, timeouts) kept «Не удалось проверить
 ответ из-за технической ошибки» for good, although half of the time was left;
-the client gave up after three attempts with 1 and 2 s pauses. The strongest
-public solution records the same effect (the same answers scored 13.65–25.74
-under evening load) and waits for the proxy.
+the client gave up after three attempts with 1 and 2 s pauses. Other teams
+report score variation, but without platform outputs or logs it does not prove
+that identical answers were scored differently or that server load caused it.
 
 Now a failed row is started again after the other rows, at most twice, and a
 429 pauses every worker (shared cooldown).

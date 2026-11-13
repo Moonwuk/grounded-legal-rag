@@ -80,7 +80,7 @@ class ReasoningBudgetTests(unittest.TestCase):
         with provider(script) as calls:
             self.assertEqual(self.complete()['status'], 'out_of_scope')
         # low is the floor: the retry keeps it, asks for a compact JSON and gets a
-        # doubled budget (a cut JSON cannot be parsed; the platform passes 1024).
+        # doubled budget (a cut JSON cannot be parsed at the tested low limit).
         self.assertEqual([c.get('reasoning_effort') for c in calls], ['low', 'low'])
         self.assertEqual(calls[1]['max_tokens'], min(4096, calls[0]['max_tokens'] * 2))
         self.assertGreaterEqual(calls[0]['max_tokens'], 2048)

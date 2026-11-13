@@ -376,7 +376,13 @@ class ProxyTests(unittest.TestCase):
     def test_recovery_and_transient_retry_bound(self):
         for mode in ('recover', '429', '503'):
             ProxyClient.cooldown_until = 0.0  # a 429 of the previous mode pauses new requests on purpose
-            with self.subTest(mode=mode), proxy(mode) as (_, calls), patch('psb_llm.time.sleep') as sleep:
+            clock = [time.monotonic()]
+            def advance(seconds):
+                clock[0] += seconds
+            # A mocked wait must advance the same clock as the shared cooldown.
+            with self.subTest(mode=mode), proxy(mode) as (_, calls), \
+                    patch('psb_llm.time.monotonic', side_effect=lambda: clock[0]), \
+                    patch('psb_llm.time.sleep', side_effect=advance) as sleep:
                 client = ProxyClient(time.monotonic() + 60)
                 if mode == 'recover':
                     self.assertIsInstance(client.complete('policy', {}), dict)
