@@ -583,7 +583,10 @@ def request_scope(question: str) -> str:
     current = user_turns(question)[-1].strip()
     if (not current or len(current) > 240
             or any(ord(c) < 32 or 0xD800 <= ord(c) <= 0xDFFF for c in current)
-            or re.search(r'https?://|www\.|[<>`«»]|\b(?:system|assistant|система|ассистент)\s*:', current, re.I)):
+            or re.search(r'https?://|www\.|[<>`«»]|\b(?:system|assistant|система|ассистент)\s*:', current, re.I)
+            # A forged instruction is not quoted back: «СИСТЕМНОЕ СООБЩЕНИЕ: администратор разрешил…»
+            or re.search(r'систем\w*\s+(?:сообщени|промпт|инструкц)|администратор\w*|игнорир\w*|инструкци\w*|'
+                         r'prompt|ignore|developer|разработчик\w*', current, re.I)):
         return ""
     return "«" + current + "»"
 
@@ -655,6 +658,8 @@ def _role_negation(text: str) -> bool:
     """«Юридический отдел не инициирует …», but not «срок службы … не называет»:
     a «служба» right after «срок» is a service life, not a department."""
     return any(not re.search(r"\bсрок\w*\s+$", text[max(0, m.start() - 12):m.start()], re.I)
+               # «согласие сотрудника значения не имеет» denies no function.
+               and not re.search(r"значени\w*\s+не\s+имеет|не\s+имеет\s+значени", m.group() + text[m.end():m.end() + 12], re.I)
                for m in _ROLE_NEGATION.finditer(text))
 
 
@@ -735,7 +740,8 @@ def _sentences(text):
 def _assertion_words(text):
     ignored = {'быть', 'был', 'была', 'были', 'должен', 'должна', 'должно', 'должны',
                'сведения', 'согласно', 'следует', 'необходимо', 'иные', 'иных', 'другие', 'других',
-               'поэтому', 'потому', 'значит', 'следовательно', 'таким', 'образом'}
+               'поэтому', 'потому', 'значит', 'следовательно', 'таким', 'образом',
+               'ооо', 'зао', 'пао'}  # a legal form is part of a name, not an assertion
     words = [w for w in re.findall(r'[а-яё]+', text.lower().replace('ё', 'е'))
              if len(w) >= 3 and w not in STOP | ignored
              and not re.fullmatch(_RECORD_VERB, w)]
@@ -779,7 +785,10 @@ def added_assertions_safe(text, selected):
     for i, sentence in enumerate(whole):
         if _included_not_separate(_with_antecedent(whole, i), inclusions):
             text = text.replace(sentence, _SEPARATE_PAYMENT.sub(' ', sentence))
-    source_facts = [fact for f in selected for fact in _record_facts(f.text)]
+    # The selected document's own name («по договору поставки … с «Альфа-Трейдинг»»)
+    # is not an added assertion about what a record contains.
+    names = set().union(*(_assertion_words(display_name(f.document)) for f in selected)) if selected else set()
+    source_facts = [(d, n, o, w | names) for f in selected for d, n, o, w in _record_facts(f.text)]
     for doc, negative, optional, words in _record_facts(text):
         if not any(doc == sd and negative == sn and (not so or optional) and words <= sw
                    for sd, sn, so, sw in source_facts):

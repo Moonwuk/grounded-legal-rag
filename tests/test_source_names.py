@@ -83,6 +83,18 @@ class ValueInAnotherDocumentTests(unittest.TestCase):
         self.assertIn('нужен этот документ', text)
         self.assertNotIn('«5.4.', text)
 
+    def test_the_source_document_name_is_not_an_added_record_claim(self):
+        # Demo 17: «Срок гарантии по договору с ООО «Альфа-Трейдинг» … указывает в
+        # гарантийном талоне» was rejected for the contract and party name.
+        from psb_policy import scope_block_reason
+        src = [Fragment('s', 'документы компании__Договор поставки Н-9-2032 Бета-Сервис.txt', 0, 1,
+                        '5.4. Срок службы оборудования определяется заводом-изготовителем и указывается в сервисном паспорте.', '')]
+        good = ('Срок службы по договору с ООО «Бета-Сервис» определяет завод-изготовитель и указывает в сервисном '
+                'паспорте (п. 5.4).')
+        self.assertEqual(scope_block_reason(good, src, None), '')
+        self.assertEqual(scope_block_reason('В сервисном паспорте указывается цена и подпись директора.', src, None),
+                         'added_assertion')
+
     def test_service_life_is_not_a_department(self):
         from psb_policy import prose_scope_safe
         src = [Fragment('s', 'd', 0, 10, '5.4. Срок службы определяется заводом-изготовителем.', '')]
