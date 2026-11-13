@@ -82,7 +82,7 @@ def enable_optional_rerank(retriever, deadline):
         return "rerank_disabled:" + str(error)
 
 
-def run_questions(questions, retriever, deadline, workers, top_k):
+def run_questions(questions, retriever, deadline, workers, top_k, verify=False):
     """Yield complete row checkpoints, with a barrier before each retry round.
 
     Each worker advances one generation/verification step. A verified full answer
@@ -106,7 +106,7 @@ def run_questions(questions, retriever, deadline, workers, top_k):
                 # calls, 120 s: 0 answers instead of 21). Fairness comes from the
                 # order: one step per row before any retry.
                 client = ProxyClient(deadline, position=index)
-                steps = answer_steps(questions[index][1], retriever, client, top_k)
+                steps = answer_steps(questions[index][1], retriever, client, top_k, verify)
             try:
                 result = next(steps)
                 if result["status"] == "provisional":
@@ -202,7 +202,12 @@ def main() -> int:
     workers = integer("MAX_WORKERS", 2, 1, 8)
 
     next_checkpoint = 0.
-    for index, text, status in run_questions(questions, retriever, deadline, workers, top_k):
+    # One model call per answer by default (docs/one_call_answers.md); the
+    # verifier call is opt-in. Platform runs: 21-24 points at 1100+ s with it,
+    # 34.2 at 507 s without it.
+    verify = os.environ.get("PSB_VERIFY", "").strip() == "1"
+    print(f"questions={len(questions)} workers={workers} verify={int(verify)}", file=sys.stderr)
+    for index, text, status in run_questions(questions, retriever, deadline, workers, top_k, verify):
         answers[index] = text
         print(f"completed_position={index} status={status}", file=sys.stderr)
         # Coalesce completed rows instead of rewriting an N-row file N times.

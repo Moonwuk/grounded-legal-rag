@@ -20,7 +20,7 @@ from psb_policy import TECHNICAL
 
 
 class BatchFairnessTests(unittest.TestCase):
-    def run_batch(self, mode, workers=1):
+    def run_batch(self, mode, workers=1, verify='1'):
         events, windows = [], []
 
         class Client:
@@ -61,7 +61,7 @@ class BatchFairnessTests(unittest.TestCase):
                     [f'00{i}', 'Можно ли передавать помещение?'] for i in range(3)])
             with zipfile.ZipFile(root / 'knowledge-base.zip', 'w') as z:
                 z.writestr('terms.txt', '9.1. Помещение можно передавать только при письменном согласии владельца.')
-            env = {'DATA_DIR': temp, 'MAX_WORKERS': str(workers), 'PSB_RUN_SECONDS': '1100'}
+            env = {'DATA_DIR': temp, 'MAX_WORKERS': str(workers), 'PSB_RUN_SECONDS': '1100', 'PSB_VERIFY': verify}
             with patch.dict(os.environ, env, clear=True), patch.object(solution, 'ProxyClient', Client), \
                     patch.object(solution.Path, 'cwd', return_value=root), redirect_stderr(io.StringIO()):
                 self.assertEqual(solution.main(), 0)

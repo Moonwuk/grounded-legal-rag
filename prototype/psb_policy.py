@@ -1459,12 +1459,17 @@ def editions_of(retriever) -> dict:
     return cached
 
 
-def answer_steps(question: str, retriever, client, top_k: int = 6):
-    """Pause before retries; each checkpoint contains only already verified text.
+def answer_steps(question: str, retriever, client, top_k: int = 6, verify: bool = True):
+    """Pause before retries; each checkpoint contains only already checked text.
 
-    Batch can let other questions start or keep a verified answer without a
-    cosmetic retry. The same generator/client retains the five-call budget.
-    Single-question callers drain the steps through answer_structured().
+    Batch can let other questions start before a retry. The same
+    generator/client retains the five-call budget. Single-question callers
+    drain the steps through answer_structured().
+
+    verify=False (batch default, docs/one_call_answers.md): one generation per
+    attempt and no verifier call. The text is published after the programmatic
+    checks only; a text they reject gets one more generation, deferred by the
+    batch until every row has its first answer.
     """
     # Do not silently truncate a question: this could remove a legal condition.
     if not isinstance(question, str) or len(question) > 32000:
@@ -1580,6 +1585,45 @@ def answer_steps(question: str, retriever, client, top_k: int = 6):
             rendered = render(candidate, evidence, source_gaps, prose, question=question, value_gaps=value_gaps,
                               keep_sources=quote_restricted, context_sources=context_sources, editions=editions,
                               published_sources=published_sources)
+            if not verify:
+                if prose:
+                    prose_state = "published"
+                edition_wrong = bool(candidate["status"] in {"answer", "partial"}
+                                     and edition_mismatch(question, selected, retriever))
+                position = getattr(client, "position", None)
+                print(json.dumps({"event": "policy_one_call",
+                                  "position": position if type(position) is int else None,
+                                  "expanded": expanded, "candidate_status": candidate["status"],
+                                  "prose": prose_state, "scope_guard": scope_guard,
+                                  "edition_mismatch": edition_wrong}), file=sys.stderr)
+                if edition_wrong:
+                    # Every selected provision was out of force on the event date.
+                    if expanded:
+                        break
+                    retry_reason, retry_scope_guard = "inapplicable_edition", False
+                    continue
+                result = {"text": rendered, "status": candidate["status"], "sources": published_sources,
+                          "quote_only": prose_state != "published"}
+                if not expanded:
+                    if prose_state in {"rejected", "ungrounded"}:
+                        # The checks rejected the text: the provisions are kept, the
+                        # text gets one more generation told the reason.
+                        fallback = result
+                        retry_reason = ("answer_numbers_not_in_sources" if prose_state == "ungrounded"
+                                        else "answer_not_supported")
+                        retry_scope_guard = scope_blocked
+                        continue
+                    if prose_state == "source_only" and draft and restricted and not value_gaps:
+                        fallback = result
+                        retry_reason, retry_scope_guard = "answer_lost_restrictions", False
+                        retry_restrictions = lost_restrictions(draft, selected)
+                        continue
+                    if (candidate["status"] == "partial" and not source_gaps and set(candidate.get("requested_facts", []))
+                            & {"document", "referenced_documents", "warranty_document"}):
+                        # A missing document: one expanded search (AGENTS rule 3).
+                        fallback = result
+                        continue
+                return fallback if fallback is not None and _rank(fallback) > _rank(result) else result
             if not verified_once:
                 # Before the first verification only: the selected provisions
                 # verbatim and application text, never unverified model prose. A
@@ -1743,8 +1787,8 @@ def _rank(result: dict) -> tuple:
     return result["status"] == "answer", not result.get("quote_only", True)
 
 
-def answer_structured(question: str, retriever, client, top_k: int = 6) -> dict:
-    steps = answer_steps(question, retriever, client, top_k)
+def answer_structured(question: str, retriever, client, top_k: int = 6, verify: bool = True) -> dict:
+    steps = answer_steps(question, retriever, client, top_k, verify)
     while True:
         try:
             next(steps)

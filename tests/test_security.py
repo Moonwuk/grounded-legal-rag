@@ -492,7 +492,8 @@ class EntrypointTests(unittest.TestCase):
         result, _, rows, calls = self.run_zip(count=200, seconds='20')
         self.assertEqual(result.returncode, 0)
         self.assertTrue(all('пределы моей задачи' in r['answer'] for r in rows))
-        self.assertEqual(len(calls), 400)
+        # One generation per question by default (docs/one_call_answers.md).
+        self.assertEqual(len(calls), 200)
         for call in calls:
             payload = json.loads(call['body']['messages'][1]['content'])
             self.assertEqual(len(call['body']['messages']), 2)
