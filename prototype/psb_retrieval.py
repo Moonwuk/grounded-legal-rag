@@ -53,8 +53,11 @@ _DAY = (r"(?<![\d.\-])(\d{4}-\d{2}-\d{2}|\d{1,2}\.\d{1,2}\.\d{4}|\d{1,2}\s+(?:я
 # Article and point references in any case form: «статье 114», «ст. 41»,
 # «пункту 4 статьи 114», «п. 3.1».
 ARTICLE_REF = re.compile(r"(?<![а-яё])(?:стать[а-яё]*|ст\.)\s*(\d+(?:\.\d+)*)", re.I)
-POINT_REF = re.compile(r"(?<![а-яё])(?:пункт[а-яё]*|п\.)\s*(\d+(?:\.\d+)*)", re.I)
-POINT_OF_ARTICLE = re.compile(r"(?<![а-яё])(?:пункт[а-яё]*|п\.)\s*(\d+(?:\.\d+)*)\s+(?:стать[а-яё]*|ст\.)\s*(\d+(?:\.\d+)*)", re.I)
+# «пункт 4», «п. 4», «часть 1», «ч. 1»: a part of a code article is numbered like a point.
+POINT_REF = re.compile(r"(?<![а-яё])(?:пункт[а-яё]*|п\.|част[ьию][а-яё]*|ч\.)\s*(\d+(?:\.\d+)*)", re.I)
+POINT_OF_ARTICLE = re.compile(r"(?<![а-яё])(?:пункт[а-яё]*|п\.|част[ьию][а-яё]*|ч\.)\s*(\d+(?:\.\d+)*)\s+(?:стать[а-яё]*|ст\.)\s*(\d+(?:\.\d+)*)", re.I)
+# The opening line of a numbered point of a long article: its table of contents.
+OUTLINE_POINT = re.compile(r"\s*\d{1,3}(?:\.\d{1,3})?\.\s")
 CODE_REF = re.compile(r"\b(?:НК|ТК|ГК|ЖК|БК|УК|КоАП)\b|\b(?:налогов|трудов|гражданск|жилищн|бюджетн|уголовн)[а-яё]*\s+кодекс", re.I)
 CODE_NAMES = {"нк": "налоговый", "тк": "трудовой", "гк": "гражданский", "жк": "жилищный", "бк": "бюджетный", "ук": "уголовный"}
 VALID_FROM = re.compile(r"(?:начиная\s+с|^\s*действует\s+с|\.\s*действует\s+с)\s+" + _DAY + r"(?:\s*г\.?)?(?!\s*\(не)", re.I | re.M)
@@ -380,7 +383,10 @@ class Retriever:
                 for point, article, _ in bound:
                     if article == number:
                         mark = re.compile(re.escape(point) + r"[.)]\s")
-                        result.extend(f for f in self.by_doc[d] if mark.match(f.text))
+                        # The point and its continuation paragraphs (a sanction
+                        # «влечет наложение штрафа …» follows its part separately).
+                        result.extend(f for f in self.by_doc[d]
+                                      if mark.match(f.text) or mark.match(getattr(f, "heading", "") or ""))
         return result
 
     def search(self, question: str, top_k: int = 6, expanded: bool = False) -> list[Fragment]:
@@ -498,6 +504,13 @@ class Retriever:
                 # Preserve editorial and article-level context as well as hit text.
                 for f in siblings[:7]:
                     selected[f.id] = f
+                # A long law article also brings its table of contents: the short
+                # opening line of each numbered point. A general rule («по ставке
+                # 22 процента в случаях, не указанных в пунктах 1, 2 и 4») is not
+                # outranked by dozens of fragments on the special cases.
+                if hit.document in self.law_by_doc:
+                    for f in [f for f in siblings if OUTLINE_POINT.match(f.text) and len(f.text) <= 400][:24]:
+                        selected[f.id] = f
         # If the context does not fit, drop whole documents, never sever an
         # amendment from its parent. Budget is a soft cap at document boundaries.
         budget = 65000 if expanded else 42000

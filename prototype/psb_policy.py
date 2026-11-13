@@ -606,7 +606,23 @@ def _restates_scope(text, match, scopes):
             clause = part
             break
     words = _scope_words(_REFERENCE.sub(' ', clause)) - {'толь', 'лиш', 'искл', 'нет', 'да'}
-    return bool(words) and any(words <= scope for scope in scopes)
+    # Within the scope rule's own words; or naming its subject from the selected
+    # provisions of the same document («Новый адрес — <address from the sentence before> — применяется
+    # только к партиям …, подписаны после …»), while repeating the scope verb and
+    # the whole condition of the rule.
+    return bool(words) and any(words <= scope or ('прим' in words and condition and condition <= words
+                                                  and words <= scope | provision)
+                               for scope, condition, provision in scopes)
+
+
+def _scope_condition(sentence):
+    """Words of a scope rule's condition: «подписаны после 1 октября 2024 г.»."""
+    m = _SCOPE_RULE.search(sentence)
+    if not m:
+        return set()
+    tail = re.search(r'\b(?:после|до|начиная\s+с|с\s+\d|если|при\s+условии)\b.*', m.group())
+    clause_start = m.group().rfind(',', 0, tail.start()) if tail else -1
+    return _scope_words(m.group()[clause_start + 1:]) - {'прим'} if tail else set()
 
 
 _SCOPE_VERBS = {'прим', 'расп', 'дейс', 'отно'}
@@ -626,7 +642,11 @@ def prose_scope_safe(text: str, selected: list[Fragment], question: str = "") ->
         return False
     source = raw.lower().replace("ё", "е")
     operators = {m.group() for m in _EXCLUSIVE.finditer(source)}
-    scopes = [_scope_words(s) for f in selected for s in _sentences(f.text) if _SCOPE_RULE.search(s)]
+    # A document's selected fragments together: its sentences may be separate fragments.
+    by_document = {d: _scope_words(" ".join(x.text for x in selected if x.document == d))
+                   for d in {f.document for f in selected}}
+    scopes = [(_scope_words(s), _scope_condition(s), by_document[f.document])
+              for f in selected for s in _sentences(f.text) if _SCOPE_RULE.search(s)]
     return (all(m.group().lower().replace("ё", "е") in operators or _restates_scope(text, m, scopes)
                 or _CONTENT_ONLY.search(text[max(0, m.start() - 80):m.end()]) or _quoted_from(question, text, m)
                 for m in _EXCLUSIVE.finditer(text))

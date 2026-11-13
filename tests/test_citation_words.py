@@ -111,6 +111,37 @@ class ScopeRuleExclusiveTests(unittest.TestCase):
                 self.assertFalse(prose_scope_safe(text, self.SOURCE))
 
 
+class ScopeRuleWithSubjectFromTheSameProvisionTests(unittest.TestCase):
+    """One-call run on 13 November, question on the delivery address under a
+    supplementary agreement: «Новый адрес — Московская область, г. Химки, … —
+    применяется только к партиям, спецификации на которые подписаны после 1
+    октября» was rejected. The scope rule was restated, but the clause also named
+    the new address, which the same agreement states in the sentence before."""
+
+    SOURCE = [Fragment('f', 'Доп соглашение 3 к договору Р-4-2033.txt', 0, 400,
+                       'Изложить пункт 5.1 договора в следующей редакции: «5.1. Хранение осуществляется на складе '
+                       'по адресу: г. Тверь, ул. Озёрная, д. 9, склад № 2».\nНовый адрес хранения применяется к партиям, '
+                       'накладные на которые оформлены после 20 мая 2033 г.', '')]
+
+    def test_scope_rule_with_the_subject_named_passes(self):
+        from psb_policy import prose_scope_safe
+        for text in ('Новый адрес — г. Тверь, ул. Озёрная, д. 9, склад № 2 — применяется только к партиям, накладные на которые '
+                     'оформлены после 20 мая 2033 г., а ваша накладная оформлена раньше.',
+                     'Новый адрес хранения (г. Тверь, ул. Озёрная, д. 9, склад № 2) применяется лишь к партиям, накладные на '
+                     'которые оформлены после 20 мая 2033 г.'):
+            with self.subTest(text):
+                self.assertTrue(prose_scope_safe(text, self.SOURCE))
+
+    def test_words_from_outside_the_provision_still_fail(self):
+        from psb_policy import prose_scope_safe
+        for text in ('Новый адрес — г. Тверь, ул. Озёрная, д. 9, склад № 2 — применяется только к партиям мебели, '
+                     'оплаченным авансом после 20 мая 2033 г.',
+                     'Хранение на складе в Твери возможно только для партий, оформленных после 20 мая 2033 г. руководителем.',
+                     'Только склад № 2 по адресу г. Тверь, ул. Озёрная, д. 9 принимает партии.'):
+            with self.subTest(text):
+                self.assertFalse(prose_scope_safe(text, self.SOURCE))
+
+
 class ContentDescriptionOnlyTests(unittest.TestCase):
     """Diagnostic set on the organizer base (PSB_AB_20_vs_24, N14): «срок возврата в
     договоре не установлен; пункт 3.5 устанавливает лишь размер платежа» was cut
