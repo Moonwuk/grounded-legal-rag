@@ -30,6 +30,12 @@
 | Развёртывание и ручной batch-запуск | [infra/ansible/](infra/ansible/), [run_batch.py](infra/ansible/roles/psb/files/run_batch.py) | [infra README](infra/ansible/README.md), [guards и runner tests](infra/ansible/tests/) |
 
 **Исполняемый код:** `prototype/solution.py` и модули `prototype/psb_*.py`. Сборщик переносит их в корень ZIP.
+
+Очередь batch и область отсылок: [описание](docs/batch_budget_and_reference_scope.md),
+`solution.run_questions`, `psb_policy.answer_steps`,
+[регрессии очереди](tests/test_batch_fairness.py),
+[регрессии отсылок](tests/test_reference_scope.py).
+
 `organizer/sample_submission/` — пример организаторов; `dist/` — результат сборки. Исправляй исходники и пересобирай архив; правка примера или готового ZIP не заменяет изменения рабочего кода.
 
 При добавлении, переносе или удалении компонента обновляй карту и связанные ссылки в том же PR.
