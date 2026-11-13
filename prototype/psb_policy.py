@@ -196,6 +196,12 @@ source_references_required — независимость ответа от от
 При partial/insufficient/clarify назови конкретный тип недостающих сведений в requested_facts:
 contract, counterparty, event_date, specification_date, warranty_document, document,
 facts, referenced_documents, priority_rule. При answer requested_facts пуст.
+Если должность, лицо или понятие из вопроса прямо не названо в документе, не
+утверждай, что норма к нему не относится: это тоже выдуманный факт. Если оно по
+смыслу совпадает с категорией документа (заведующий кассой — кассир, руководитель
+кадровой службы — начальник отдела кадров), ответь для этой категории и назови её;
+если совпадение неочевидно, дай ответ для этой категории с оговоркой «если вы —
+…». Не делай вывод «не предусмотрено для вашей должности».
 Не превращай описание функции подразделения в исключительный перечень его прав:
 «согласует проект» не означает «лишь согласует» или «никогда не инициирует».
 Если значение определяется другим лицом и указывается в отдельном документе,
@@ -367,6 +373,33 @@ _BOILERPLATE_EXCEPTION = re.compile(
     r"за\s+исключением\s+случаев,?\s+(?:предусмотренн|установленн)\w*\s+[^.;]{0,120}?"
     r"(?:кодекс|закон|част|стать|пункт)\w*[^.;,]{0,40}", re.I)
 _CONDITION_PHRASE = re.compile(r"при\s+(?:наличии|условии)\s+([^.;,]{3,80})", re.I)
+
+
+_BOUND_CONDITION = re.compile(r"^\s*(?:\d+(?:\.\d+)*[.)]\s*)?(?:при|если|для|в\s+случае)\b(.{3,160}?)"
+                              r"(?:не\s+может\s+превышать|не\s+превышает|не\s+более)", re.I | re.S)
+
+
+def bound_elsewhere(context: Fragment, source: Fragment, retriever, question: str) -> bool:
+    """A conditional upper bound for a situation the question does not describe.
+
+    «При заключении трудового договора на срок от двух до шести месяцев
+    испытание не может превышать двух недель» was printed under every answer
+    about the probation limit, also for «какой предельный срок для главного
+    бухгалтера?». An exception for another situation is an unasked detail; it
+    is printed when the condition's first content words meet the question
+    (≥ min(2, n) shared stems), as for restriction conditions. Date definitions
+    are not affected."""
+    if not hasattr(retriever, "bound_dependencies"):
+        return False
+    if context.id not in {f.id for f in retriever.bound_dependencies(source, include_contained=True)}:
+        return False
+    m = _BOUND_CONDITION.search(norm(context.text))
+    if not m:
+        return False
+    words = [w for w in re.findall(r"[а-яё]{4,}", m.group(1).lower().replace("ё", "е")) if w not in STOP][:4]
+    stems = {w[:4] for w in words}
+    asked = {w[:4] for w in re.findall(r"[а-яё]{4,}", user_turns(question)[-1].lower().replace("ё", "е"))} if question else set()
+    return len(stems & asked) < min(2, len(stems))
 
 
 def _restriction_source(selected: list[Fragment], question: str = "") -> str:
@@ -1634,7 +1667,7 @@ def render(candidate: dict, evidence: list[Fragment], source_gaps=(), prose: str
         # general duration correctly. Keep the source-owned context in prose mode.
         # A context provision the text already cites by its clause number is not repeated.
         lines.extend('«' + norm(f.text) + '»' for f in context_sources
-                     if norm(f.text) not in prose and not ((clause := re.match(r"(\d+(?:\.\d+)+)[.)]?\s", norm(f.text)))
+                     if norm(f.text).rstrip('.') not in norm(prose) and not ((clause := re.match(r"(\d+(?:\.\d+)+)[.)]?\s", norm(f.text)))
                                                           and _cites(prose, clause.group(1))))
         if candidate["claims"]:
             lines.append(source_line(candidate, evidence, editions, prose))
@@ -1837,7 +1870,8 @@ def answer_steps(question: str, retriever, client, top_k: int = 6, verify: bool 
             by_id = {f.id:f for f in evidence}
             selected = [by_id[cite["fragment_id"]] for c in candidate["claims"] for cite in c["sources"]]
             context_sources = list({f.id:f for source in selected
-                                    for f in retriever.publication_context(source)}.values()) if hasattr(retriever, 'publication_context') else []
+                                    for f in retriever.publication_context(source)
+                                    if not bound_elsewhere(f, source, retriever, question)}.values()) if hasattr(retriever, 'publication_context') else []
             source_gaps = retriever.reference_gaps(selected) if hasattr(retriever, "reference_gaps") else []
             value_gaps = value_dependencies(question, selected, getattr(retriever, "documents", {}))
             candidate = {**candidate, "claims": [{**c, "text": source_wording(c, evidence),
