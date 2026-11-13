@@ -92,13 +92,17 @@ def run_questions(questions, retriever, deadline, workers, top_k):
     """
     queue = deque((index, None, None, None) for index in range(len(questions)))
 
-    def advance(task, task_deadline):
+    def advance(task):
         index, client, steps, checkpoint = task
         try:
             if client is None:
-                client = ProxyClient(task_deadline, position=index)
+                # A started call is bounded by the run deadline only. A per-row
+                # time share shorter than one generation and verification turned
+                # every row into a technical error under a slow API (40 rows, 5 s
+                # calls, 120 s: 0 answers instead of 21). Fairness comes from the
+                # order: one step per row before any retry.
+                client = ProxyClient(deadline, position=index)
                 steps = answer_steps(questions[index][1], retriever, client, top_k)
-            client.deadline = task_deadline
             try:
                 result = next(steps)
             except StopIteration as finished:
@@ -119,15 +123,8 @@ def run_questions(questions, retriever, deadline, workers, top_k):
             pending, deferred = {}, []
             while queue or pending:
                 while queue and len(pending) < workers and time.monotonic() < deadline:
-                    # Fair wall-time share of the remaining round, including active
-                    # tasks. Recompute as workers finish, so quick rows release time.
-                    now = time.monotonic()
-                    waves = max(1, (len(queue) + len(pending) + workers - 1) // workers)
-                    # Keep a usable minimum slice: ProxyClient reserves one second
-                    # before a call. Sub-second shares must not skip even a fast API.
-                    task_deadline = min(deadline, now + max(2., (deadline - now) / waves))
                     task = queue.popleft()
-                    pending[pool.submit(advance, task, task_deadline)] = task
+                    pending[pool.submit(advance, task)] = task
                 if not pending:
                     break
                 done, _ = wait(pending, timeout=.5, return_when=FIRST_COMPLETED)
