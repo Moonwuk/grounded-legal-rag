@@ -1,0 +1,147 @@
+{
+  "checked_at": "2026-11-14 16:34:42 UTC",
+  "scope": "Public repositories compared with previously recorded commits; live contest leaderboard and private submissions not accessible",
+  "confirmed_team_repository": {
+    "repo": "yenqo/hack-change-psb",
+    "head": "bd6216a045231233d2c9d17b18e9a06f8d64cec9",
+    "changed": false,
+    "committed_at": "2026-11-13T12:56:21Z",
+    "open_prs": 0,
+    "releases": 0,
+    "other_branches": [
+      {
+        "name": "web",
+        "sha": "5cc38954753eaf2511e6ecf01ec175c878782f0e",
+        "date": "2026-11-12T23:54:03Z"
+      },
+      {
+        "name": "web-public",
+        "sha": "b11565811065d92ccd0c8b39cf371dd2439dbf91",
+        "date": "2026-11-12T13:00:37Z"
+      }
+    ],
+    "team": "misis-mirea-usptu-innopolis; mapping from historical materials, not a fresh leaderboard verification",
+    "historical_reported_best_score": 51.746,
+    "historical_reported_version": "v1.9",
+    "url": "https://github.com/yenqo/hack-change-psb/commit/bd6216a045231233d2c9d17b18e9a06f8d64cec9"
+  },
+  "other_repositories": [
+    {
+      "repo": "LaimOr127/hacaton_psb",
+      "old": "ea5f5a633173eb8b5d99049dcbc4006c5c4ee9c7",
+      "head": "ea5f5a633173eb8b5d99049dcbc4006c5c4ee9c7",
+      "changed": false,
+      "date": "2026-11-09T14:56:21Z",
+      "message": "Merge pull request #5 from LaimOr127/feature/stage5-packaging"
+    },
+    {
+      "repo": "LankiSer/psb_hack",
+      "old": "c0d18b9ec3171e8ef98ef2d1a7b8dc6fefa49e7a",
+      "head": "c0d18b9ec3171e8ef98ef2d1a7b8dc6fefa49e7a",
+      "changed": false,
+      "date": "2026-11-13T17:32:59Z",
+      "message": "Preserve legal clause context and add bounded retrieval planning"
+    },
+    {
+      "repo": "psb-hack/psb-legal-assistant",
+      "old": "64252bdea73e9d24493ad7a77d3c4fc72326703f",
+      "head": "64252bdea73e9d24493ad7a77d3c4fc72326703f",
+      "changed": false,
+      "date": "2026-11-13T15:40:19Z",
+      "message": "style(PSB-5): выровнять формат под ruff format (#35)"
+    },
+    {
+      "repo": "Koomaz/PSBcase-bablteam",
+      "old": "7d63512635fda2365d19006949aa7f377249f681",
+      "head": "7d63512635fda2365d19006949aa7f377249f681",
+      "changed": false,
+      "date": "2026-11-11T20:31:21Z",
+      "message": "Cover compound queries and validate cited quantities"
+    },
+    {
+      "repo": "filipp880/Alfa-PSB",
+      "old": "a13acf7109df4447b224fdf7a68bd72c05385860",
+      "head": "a13acf7109df4447b224fdf7a68bd72c05385860",
+      "changed": false,
+      "date": "2026-11-13T21:08:13Z",
+      "message": "Build PSB submission 9 from the proven baseline"
+    },
+    {
+      "repo": "Artyomtula/psb-legal",
+      "old": "c66d3ce38ab04f3f204f5a17ce0adb0f76682877",
+      "head": "c66d3ce38ab04f3f204f5a17ce0adb0f76682877",
+      "changed": false,
+      "date": "2026-11-13T21:38:02Z",
+      "message": "Юридический ассистент ПСБ: RAG-конвейер, API, оценка и интерфейс на базе Open WebUI"
+    },
+    {
+      "repo": "vladislavprozorov/psb-legal-assistant",
+      "old": "cd10a8971f4f071a658886fada26dda4c727981e",
+      "head": "cd10a8971f4f071a658886fada26dda4c727981e",
+      "changed": false,
+      "date": "2026-11-11T02:52:07Z",
+      "message": "feat: правила оформления по эталонам, вариант сборки без самопроверки"
+    },
+    {
+      "repo": "menzurka228/psb-legal-assistant",
+      "old": "8e8bed4c74e458a81a362752e44e6eb2a286c94a",
+      "head": "8e8bed4c74e458a81a362752e44e6eb2a286c94a",
+      "changed": false,
+      "date": "2026-11-11T12:24:18Z",
+      "message": "Улучшение поиска и ответов: диалоги, ссылки на статьи, проверка номеров"
+    }
+  ],
+  "team_mapping_limit": "Other top teams from historical leaderboard are not reliably mapped to repositories",
+  "newly_found_updates": [
+    {
+      "repo": "antonshkelll/opora-psb",
+      "old": "2dd1627561a9b8aefcf51d28811e35b91acda148",
+      "head": "b24dca3bb44a76752e9cbf16bcbc4f0861fc9ff8",
+      "committed_at": "2026-11-14T07:04:24Z",
+      "changed": true,
+      "commits_ahead": 4,
+      "release_url": "https://github.com/antonshkelll/opora-psb/releases/tag/v3.0.0",
+      "published_at": "2026-11-14T07:04:32Z",
+      "release_body": "# ОПОРА 3.0\n\nПрямой вывод с доказательствами, проверка новых чисел, смысловая проверка с исправлением ответа, ISO-даты, расширенное покрытие источников и локализация ошибок задач. 35 тестов активного пути на Windows и Docker. Локальный контроль: docs/v3-real-smoke.json.\n\nПервый тур: opora-submit-v3.zip. Финальный комплект: opora-final-v3.zip. PDF: opora-presentation-v3.pdf.\n\nНовый балл V3 пока неизвестен. Цель: 51; предыдущий результат V2: 24. Публичная витрина показывает помеченные учебные примеры организаторов, а не живые ответы V3. Ограничения: docs/V3_CHANGES.md.\n",
+      "assets": [
+        {
+          "name": "opora-final-v3.zip",
+          "size": 428730,
+          "sha256": "sha256:1c7ccfef5f85dd3638f46a0ddeb62cbd3f15a8569beb69966d533ad16a81f1cf",
+          "url": "https://github.com/antonshkelll/opora-psb/releases/download/v3.0.0/opora-final-v3.zip"
+        },
+        {
+          "name": "opora-presentation-v3.pdf",
+          "size": 103512,
+          "sha256": "sha256:4682122b3cbae95924607cef9aecaf79ce7b030f2780491343b308c7a747f49e",
+          "url": "https://github.com/antonshkelll/opora-psb/releases/download/v3.0.0/opora-presentation-v3.pdf"
+        },
+        {
+          "name": "opora-submit-v3.zip",
+          "size": 14276,
+          "sha256": "sha256:dda72cd8e60d8e59f5e2536fa2a8481f472f824378ec11f7c240988e1a879d80",
+          "url": "https://github.com/antonshkelll/opora-psb/releases/download/v3.0.0/opora-submit-v3.zip"
+        }
+      ],
+      "changes": "# Изменения и границы V3\n\nРеализовано приоритетное ядро аудита: прямые выводы, проверка доказательств и чисел, смысловое исправление, ISO-даты, отказ от календарного запрета всех прошлых лет, более широкий поиск, локализация исключений задач, удаление неактивного старого кода.\n\n35 тестов активного пути проходят на Windows и Docker. Смысловая проверка тестируется на имитации ошибочного «да»: исправление должно попасть в ответ. Это тест программы, не частота ошибки реального DeepSeek.\n\nЛокальная Qwen проверяется отдельно в v3-real-smoke.json. Первая попытка показала слишком строгую числовую проверку и missing=null. Форматы нормализованы до повторного прогона. Первоначальную неудачу нельзя выдавать за успешное испытание.\n\nНе все 24 исследовательских пункта аудита закрыты. Остались: полный граф статей и ссылок, универсальные операции сравнения с календарём рабочих дней, динамические алиасы контрагентов, однозначное разрешение всех дат и подтверждений «да», независимая юридическая выборка, проверенные эмбеддинги и реранкер. Проверяющая модель может ошибаться. Её исправление проходит проверки ID и чисел, но не третьего независимого судью.\n\nСохраняются корпус как единственный правовой источник, технические состояния отдельно от юридического отказа, атомарный CSV, организаторский профиль сабмита и отсутствие ключей в Git.\n\nСледующий эксперимент: минимальный пакет V3 на платформе. Контроль V2: 24 балла, 172,6 секунды. Цель 51 не является обещанием. Если результата нет, разбирать технические состояния и ложные отказы, а затем по отдельности сравнивать поиск и синтез.\n\nРеальная модель и проверяющий не исправили сравнение трёх и четырёх дней: исходный ответ сохранён в v3-observed-review-failure.json. В окончательной версии ограничение выдачи оригинала из архива извлекается из источника и сравнивается кодом при совпадении единиц. Результат для четырёх дней: нет; для трёх: предел не превышен. Это узкая проверяемая операция, не универсальный решатель.\n",
+      "readme_url": "https://github.com/antonshkelll/opora-psb/blob/b24dca3bb44a76752e9cbf16bcbc4f0861fc9ff8/README.md",
+      "team": "VIBESECURITY (repository statement); current contest rank unverified"
+    },
+    {
+      "repo": "ProofMrNick/psb_hackathon",
+      "old": "de280f94b2c9acd54c0c5ef6aa8ccf077dc3484e",
+      "head": "6626b81d9fade5d696139e292a5a25bf9ef80145",
+      "committed_at": "2026-11-14T10:22:47Z",
+      "changed": true,
+      "commits_ahead": 2,
+      "files": [
+        "backend/src/routes/chatRoutes.js",
+        "backend/todo-app.rest"
+      ],
+      "scope": "Chat return fix only; no ML changes or new score established by these commits",
+      "url": "https://github.com/ProofMrNick/psb_hackathon/compare/de280f94b2c9acd54c0c5ef6aa8ccf077dc3484e...6626b81d9fade5d696139e292a5a25bf9ef80145",
+      "team": "Current contest rank unverified"
+    }
+  ],
+  "report_completed_at": "2026-11-14T16:44:34.455874+00:00"
+}

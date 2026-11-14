@@ -109,6 +109,10 @@ topic заполняй только при insufficient: о чём вопрос,
 назови верный вариант; кратко объясни роль альтернативы, если это снимает
 неопределённость. Для перечисления из источника передай спрошенные элементы
 и существенные связанные условия, не теряя смысл положения ради краткости.
+Если источник указывает, где определено значение обсуждаемого условия
+(в приложении, спецификации, акте или другом документе), сохрани эту привязку
+при объяснении значения или его состава. Не превращай отсылку в известное
+число: если самого значения нет, назови нужный документ и границу вывода.
 При вопросе об условиях увеличения предела проверь также
 отдельные положения о допуске к превышению этого предела: они могут содержать
 дополнительные обязательные условия, а не только новое числовое значение.
@@ -932,7 +936,7 @@ def unasked_items(text: str, selected: list[Fragment], question: str) -> list[st
     return found[:4]
 
 
-def without_blocked_sentence(text: str, selected: list[Fragment], retriever, question: str = "") -> str:
+def without_blocked_sentence(text: str, selected: list[Fragment], retriever, question: str = "", *, preserved_sources=None) -> str:
     """The text without the one later sentence that the scope barriers reject.
 
     «Запускает начальник вашего отдела (п. 1.3). Юридический отдел проект
@@ -941,13 +945,21 @@ def without_blocked_sentence(text: str, selected: list[Fragment], retriever, que
     never dropped, only one sentence may go, at least ten words must stay (a
     bare «Нет.» is not an answer), and the shorter text must pass the barriers;
     every other check then runs on it as usual. Otherwise the text is returned
-    unchanged and rejected as before."""
+    unchanged and rejected as before. A uniquely addressed selected provision
+    cited only in the removed sentence can be kept as a source-owned quotation;
+    the rejected assertion itself is never transferred."""
     if not scope_block_reason(text, selected, retriever, question):
         return text
     sentences = [x for x in re.split(r"(?<=[.!?])\s+(?=[А-ЯЁA-Z«(])", text.strip()) if x]
     for i in range(1, len(sentences)):
         shorter = " ".join(sentences[:i] + sentences[i + 1:])
         if len(shorter.split()) >= 10 and not scope_block_reason(shorter, selected, retriever, question):
+            if preserved_sources is not None and len({f.document for f in selected}) == 1:
+                for fragment in selected:
+                    clause = re.match(r"(\d+(?:\.\d+)+)[.)]?(?:\s|$)", norm(fragment.text))
+                    if (clause and _cites(sentences[i], clause.group(1))
+                            and not _cites(shorter, clause.group(1))):
+                        preserved_sources.append(fragment)
             return shorter
     return text
 
@@ -1546,7 +1558,7 @@ def names_referenced_documents(text: str, value_gaps) -> bool:
     return True
 
 
-def source_line(candidate: dict, evidence: list[Fragment], editions=None, prose: str = "") -> str:
+def source_line(candidate: dict, evidence: list[Fragment], editions=None, prose: str = "", printed_context=()) -> str:
     """Application-owned reference: document names, editions and dotted clause numbers.
 
     With a model text, a document lists only the clauses the text cites, when it
@@ -1554,18 +1566,23 @@ def source_line(candidate: dict, evidence: list[Fragment], editions=None, prose:
     as a basis («п. 4.3, 1.1» for an answer resting on п. 4.3)."""
     by_id = {f.id: f for f in evidence}
     documents = {}
+    def add(fragment):
+        labels = documents.setdefault(cite_name(fragment.document, editions), [])
+        clause = re.match(r"(\d+(?:\.\d+)+)[.)]?(?:\s|$)", norm(fragment.text))
+        if clause and clause.group(1) not in labels:
+            labels.append(clause.group(1))
     for claim in candidate["claims"]:
         for cite in claim["sources"]:
-            f = by_id[cite["fragment_id"]]
-            labels = documents.setdefault(cite_name(f.document, editions), [])
-            clause = re.match(r"(\d+(?:\.\d+)+)[.)]?(?:\s|$)", norm(f.text))
-            if clause and clause.group(1) not in labels:
-                labels.append(clause.group(1))
+            add(by_id[cite["fragment_id"]])
     if prose:
         for name, labels in documents.items():
             cited = [label for label in labels if _cites(prose, label)]
             if cited:
                 labels[:] = cited
+    # These source-owned quotations were actually appended by render. Their
+    # references must survive filtering by the model's original prose.
+    for fragment in printed_context:
+        add(fragment)
     parts = [name + (", п. " + ", ".join(labels) if labels else "") for name, labels in documents.items()]
     if not parts:
         return ""
@@ -1869,17 +1886,20 @@ def render(candidate: dict, evidence: list[Fragment], source_gaps=(), prose: str
         # A model can omit a start event or conditional bound while citing the
         # general duration correctly. Keep the source-owned context in prose mode.
         # A context provision the text already cites by its clause number is not repeated.
-        lines.extend('«' + norm(f.text) + '»' for f in context_sources
-                     if norm(f.text).rstrip('.') not in norm(prose) and not ((clause := re.match(r"(\d+(?:\.\d+)+)[.)]?\s", norm(f.text)))
-                                                          and _cites(prose, clause.group(1))))
+        printed_context = list({f.id: f for f in context_sources
+                                if norm(f.text).rstrip('.') not in norm(prose) and not (
+                                    (clause := re.match(r"(\d+(?:\.\d+)+)[.)]?\s", norm(f.text)))
+                                    and _cites(prose, clause.group(1)))}.values())
+        lines.extend('«' + norm(f.text) + '»' for f in printed_context)
         if candidate["claims"]:
-            lines.append(source_line(candidate, evidence, editions, prose))
+            lines.append(source_line(candidate, evidence, editions, prose, printed_context))
             if published_sources is not None:
                 by_id = {fragment.id: fragment for fragment in evidence}
                 cited_ids = dict.fromkeys(
                     cite["fragment_id"] for claim in candidate["claims"] for cite in claim["sources"]
                 )
                 published_sources.extend(by_id[fragment_id] for fragment_id in cited_ids)
+                published_sources.extend(f for f in printed_context if f.id not in cited_ids)
         # Mentioning an article number does not explain that its text is absent.
         if value_gaps:
             lines.append("Чтобы назвать конкретное значение, нужен этот документ.")
@@ -2096,7 +2116,8 @@ def answer_steps(question: str, retriever, client, top_k: int = 6, verify: bool 
             # remaining text goes through every check below and is the one published.
             scope_trimmed = False
             if draft and selected:
-                trimmed = without_blocked_sentence(draft, selected, retriever, question)
+                trimmed = without_blocked_sentence(draft, selected, retriever, question,
+                                                   preserved_sources=context_sources)
                 scope_trimmed, draft = trimmed != draft, trimmed
             # Known restrictive units always keep their source wording in the
             # answer. A model conclusion may precede it only if it repeats every
