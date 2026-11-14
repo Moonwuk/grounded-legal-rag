@@ -1014,6 +1014,43 @@ def _record_clauses(text):
         yield from clauses or [sentence]
 
 
+_SETTING = re.compile(r'\b(?:устанавливает(?:ся)?|определяет(?:ся)?)\s+([а-яё]+)\b', re.I)
+
+
+def _predicate_limits(text):
+    """Keep explicit modality and conditions when normalizing a predicate.
+
+    Conditions compare verbatim: unsupported paraphrases fail conservatively.
+    """
+    text = text.lower().replace('ё', 'е')
+    modal = tuple(re.findall(r'\b(?:может|могут|будет|будут|допускается)\b', text))
+    conditions = tuple(m.group().strip() for m in re.finditer(
+        r'\b(?:если|при|только|после|до|кроме|исключая)\b[^.!?;]*', text))
+    return modal, conditions
+
+
+def _setting_actor(text):
+    """Bind the actor to the setting verb, not to the sentence's bag of words.
+
+    Only the present-tense, verb-before-actor construction is recognized. Other
+    word orders keep their original lexical comparison; this is not a parser.
+    """
+    result = []
+    for match in _SETTING.finditer(text):
+        actor = re.sub(r'(?:ем|ом|а|я|у|е|ы|и)$', '', match[1].lower()).rstrip('ь')
+        negative = bool(re.search(r'\bне\s*$', text[:match.start()]))
+        result.append((actor, negative, _predicate_limits(text)))
+    return tuple(result)
+
+
+def _equivalent_record_words(text):
+    # Do not ignore either verb globally: retain a common predicate and its actor.
+    text = _SETTING.sub(lambda m: 'задает ' + m[1], text)
+    # Aspect is redundant only immediately before a present inclusion predicate.
+    text = re.sub(r'\bуже\s+(?=включает\b|включен[аоы]?\b)', '', text, flags=re.I)
+    return _assertion_words(text)
+
+
 def _record_facts(text):
     result = []
     for sentence in _record_clauses(text):
@@ -1022,7 +1059,10 @@ def _record_facts(text):
             negative = bool(re.search(r'\bне\s+(?:долж\w*\s+)?(?:быть\s+)?' + _RECORD_VERB, sentence))
             optional = bool(re.search(r'\b(?:может|могут|допускается)\b', sentence))
             doc = next(iter(_assertion_words(document[1])))
-            result.append((doc, negative, optional, _assertion_words(sentence)))
+            inclusion = ((bool(re.search(r'\bне\b', sentence)), _predicate_limits(sentence))
+                         if _INCLUDED.search(sentence) else None)
+            result.append((doc, negative, optional, _equivalent_record_words(sentence),
+                           _setting_actor(sentence), inclusion))
     return result
 
 
@@ -1044,20 +1084,22 @@ def added_assertions_safe(text, selected):
     text = _REFERENCE.sub(' ', text)
     # The document's own name ("по договору поставки № …") may accompany the items.
     inclusions = [_assertion_words(s) | _assertion_words(display_name(f.document))
-                  for f in selected for s in _sentences(f.text) if _INCLUDED.search(s)]
+                  for f in selected for s in _sentences(f.text) if _positive_inclusion(s)]
     # A separate-payment absence covered by an inclusion clause is not a claim
     # about a document's contents either.
     whole = re.split(r'(?<=[.!?])\s+|\n', text)
     for i, sentence in enumerate(whole):
         if _included_not_separate(_with_antecedent(whole, i), inclusions):
-            text = text.replace(sentence, _SEPARATE_PAYMENT.sub(' ', sentence))
+            text = text.replace(sentence, _without_payment_absence(sentence))
     # The selected document's own name («по договору поставки … с «Альфа-Трейдинг»»)
     # is not an added assertion about what a record contains.
-    names = set().union(*(_assertion_words(display_name(f.document)) for f in selected)) if selected else set()
-    source_facts = [(d, n, o, w | names) for f in selected for d, n, o, w in _record_facts(f.text)]
-    for doc, negative, optional, words in _record_facts(text):
+    source_facts = [(d, n, o, w | _assertion_words(display_name(f.document)), actors, inclusion)
+                    for f in selected for d, n, o, w, actors, inclusion in _record_facts(f.text)]
+    for doc, negative, optional, words, actors, inclusion in _record_facts(text):
         if not any(doc == sd and negative == sn and (not so or optional) and words <= sw
-                   for sd, sn, so, sw in source_facts):
+                   and (not actors or actors == sa)
+                   and (inclusion is None or inclusion == si)
+                   for sd, sn, so, sw, sa, si in source_facts):
             return False
     text = _restated_other(text, selected)
     source_absences = [_assertion_words(s) for f in selected for s in _sentences(f.text)
@@ -1102,7 +1144,7 @@ def _restated_other(text, selected):
 def _with_antecedent(sentences, i):
     """«Отдельно их оплачивать не нужно.» names its items in the sentence before."""
     sentence = sentences[i].lower().replace('ё', 'е')
-    if i and _SEPARATE_PAYMENT.search(sentence) and not (_assertion_words(sentence) - _PAYMENT_WORDS):
+    if i and _SEPARATE_PAYMENT.search(sentence) and not _payment_content_words(sentence):
         return sentences[i - 1].lower().replace('ё', 'е') + ' ' + sentence
     return sentence
 
@@ -1123,12 +1165,37 @@ _SEPARATE_PAYMENT = re.compile(r'\bотдельн\w*[^.!?;\n]{0,40}?\b(?:опл�
 _PAYMENT_WORDS = {'отде', 'опла', 'плат', 'нужн', 'треб', 'поэт', 'пото', 'знач', 'нет', 'вход', 'вклю'}
 
 
+def _payment_content_words(sentence):
+    # These expenses refer only to the immediately preceding inclusion clause.
+    # Do not erase named expenses, arbitrary conditions, or other payments.
+    sentence = re.sub(r'\bэтих\s+расходов\b', '', sentence, flags=re.I)
+    sentence = re.sub(r'\bусловиями\s+(?=не\s+предусмотрена\b)', '', sentence, flags=re.I)
+    sentence = re.sub(r'\bне\s+предусмотрена\b', '', sentence, flags=re.I)
+    return _equivalent_record_words(sentence) - _PAYMENT_WORDS
+
+
+def _positive_inclusion(sentence):
+    # A possible, future, negative or conditional inclusion cannot prove that an
+    # expense is already covered. Inspect the inclusion, not the payment negation.
+    inclusion = _SEPARATE_PAYMENT.split(sentence)[0]
+    return bool(_INCLUDED.search(inclusion)) and not re.search(
+        r'\b(?:не|может|могут|будет|будут|если|при|кроме|исключая|только|возможно)\b', inclusion, re.I)
+
+
+def _without_payment_absence(sentence):
+    match = _SEPARATE_PAYMENT.search(sentence)
+    return sentence[:match.start()] if match else sentence
+
+
 def _included_not_separate(sentence, inclusions):
-    if not inclusions or not _SEPARATE_PAYMENT.search(sentence) or not _INCLUDED.search(sentence):
+    payment = _SEPARATE_PAYMENT.search(sentence)
+    if not inclusions or not payment or not _positive_inclusion(sentence):
         return False
     if re.search(r'\b(?:ин\w*|друг\w*|дополнительн\w*|ничего|никаких)\b', sentence, re.I):
         return False  # a claim about other payments is not covered by the inclusion
-    words = _assertion_words(sentence) - _PAYMENT_WORDS
+    if not re.search(_ABSENCE + r'|\bне\s+оплач\w*', sentence[payment.start():], re.I):
+        return False
+    words = _payment_content_words(sentence)
     return any(words <= source for source in inclusions)
 
 
