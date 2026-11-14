@@ -1,0 +1,95 @@
+{
+  "git_commit": "9dd8e3c6d5ecead325edad7a99ebec6ba7731ffa",
+  "corpus_id": "combined-platform-format",
+  "knowledge_base_sha256": "805b5d4e663899c9e7427bf3e47b6e8c672a0a758edee442177d5302b9913e6a",
+  "questions_sha256": "46754f1272f5ca5ade4a6eb6fb6d9d7ad31c869b65cbd75a71462637b81b5a88",
+  "gold_sha256": "0e75c691f98387697be2173f556e4887fae5d559606bbce2bab86b0cd01b5bb3",
+  "runtime_sha256": "369bf987092cb95399a369dce9d28dbd12a07fe213f0286d75b3417cc6247643",
+  "model": "deepseek-flash",
+  "provider_base_url": "https://api.deepseek.com/v1",
+  "returncode": 0,
+  "elapsed_seconds": 1100.1232639159998,
+  "generation_settings": {},
+  "shard": "3/8",
+  "questions_run": 82,
+  "tuning_note": "Synthetic development cases (split=development) were used for tuning; split=holdout and split=external were not. Element gold is narrower than the source gold: it checks key values, polarity and phrases.",
+  "scope": "Local element check, not the official Score.",
+  "outcomes": {
+    "pass": 74,
+    "fail": 1,
+    "system_error": 7
+  },
+  "statuses": {
+    "answer": 74,
+    "unverified": 1,
+    "technical_error": 7
+  },
+  "passed": 74,
+  "total": 82,
+  "quotes_only": [
+    "syn-multi_document-0067",
+    "syn-multi_document-0068",
+    "syn-multi_document-0069",
+    "syn-multi_document-0072",
+    "syn-multi_document-0073",
+    "syn-multi_document-0076",
+    "syn-multi_document-0078",
+    "syn-multi_document-0079",
+    "syn-multi_document-0080",
+    "syn-multi_document-0081",
+    "syn-multi_document-0082",
+    "syn-multi_document-0086",
+    "syn-multi_document-0088",
+    "syn-multi_document-0089",
+    "syn-multi_document-0090",
+    "syn-multi_document-0091",
+    "syn-multi_document-0092",
+    "syn-multi_document-0093",
+    "syn-multi_document-0096",
+    "syn-multi_document-0098",
+    "syn-multi_document-0099",
+    "syn-temporal-0000",
+    "syn-temporal-0003",
+    "syn-temporal-0009",
+    "syn-temporal-0010",
+    "syn-temporal-0011",
+    "syn-temporal-0012",
+    "syn-temporal-0014",
+    "syn-temporal-0018",
+    "syn-temporal-0023",
+    "syn-temporal-0025",
+    "syn-temporal-0027",
+    "syn-temporal-0033",
+    "syn-temporal-0036",
+    "syn-temporal-0037"
+  ],
+  "false_refusals": 1,
+  "failures": {
+    "syn-multi_document-0083": [
+      "false_refusal"
+    ],
+    "syn-temporal-0039": [
+      "system_error"
+    ],
+    "syn-temporal-0040": [
+      "system_error"
+    ],
+    "syn-temporal-0041": [
+      "system_error"
+    ],
+    "syn-temporal-0042": [
+      "system_error"
+    ],
+    "syn-temporal-0043": [
+      "system_error"
+    ],
+    "syn-temporal-0044": [
+      "system_error"
+    ],
+    "syn-temporal-0045": [
+      "system_error"
+    ]
+  },
+  "not_evaluated": {},
+  "checked_by_hand": 0
+}

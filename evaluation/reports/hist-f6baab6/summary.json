@@ -1,0 +1,41 @@
+{
+  "git_commit": "f6baab6f2a2ac7dffbe1ba76dc85d0918743110d",
+  "corpus_id": "hist-subset",
+  "knowledge_base_sha256": "0f031740481391d231eb9202e4d192ec457e83b2e5b1e4006c1c164572a7ca7b",
+  "questions_sha256": "964595316b63895bf3786407a5368264edbdec9791e38d60e94a8f615362d1ee",
+  "gold_sha256": "ab5b371f1701637891cad070c2bb0473d9f512b469e73c0f5f0a415ad4e304dc",
+  "runtime_sha256": "c3178a2cbd54532c680107edfaaaac3b4ec50e889101c2d561992d60bdc1144b",
+  "model": "deepseek-flash",
+  "provider_base_url": "https://api.deepseek.com/v1",
+  "returncode": 0,
+  "elapsed_seconds": 165.84165955399976,
+  "generation_settings": {},
+  "shard": null,
+  "questions_run": 10,
+  "tuning_note": null,
+  "scope": "Local element check, not the official Score.",
+  "outcomes": {
+    "pass": 7,
+    "fail": 3
+  },
+  "statuses": {
+    "answer": 10
+  },
+  "passed": 7,
+  "total": 10,
+  "quotes_only": [],
+  "false_refusals": 0,
+  "failures": {
+    "hist-002": [
+      "missing:names the missing edition"
+    ],
+    "hist-003": [
+      "missing:names the missing edition"
+    ],
+    "hist-006": [
+      "missing:names the missing edition"
+    ]
+  },
+  "not_evaluated": {},
+  "checked_by_hand": 0
+}

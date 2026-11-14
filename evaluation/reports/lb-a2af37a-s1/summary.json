@@ -1,0 +1,114 @@
+{
+  "git_commit": "a2af37a81a2ae3289ff82d2456925c44bc5cf07d",
+  "corpus_id": "legalbench-ru-public-grounded",
+  "knowledge_base_sha256": "5dd1f05959f2ae1a138d538d3c94ccfece8044bdb5d6afa93f148c444e46ed2a",
+  "questions_sha256": "a8c660585fb42e4e5ba617e50624f110a0f44240c378546953f729e71d5f8f4b",
+  "gold_sha256": "b38148846c71b3b270af361972d4308a0592fc597d044b6b5acd11466e0a7c64",
+  "runtime_sha256": "e64279b92d2c82c38a61c31f02adb77f2507ff830ae1de3b71d531cc2b23869a",
+  "model": "deepseek-flash",
+  "provider_base_url": "https://api.deepseek.com/v1",
+  "returncode": 0,
+  "elapsed_seconds": 640.9857658680003,
+  "generation_settings": {},
+  "shard": "1/2",
+  "questions_run": 70,
+  "tuning_note": "External set, not used for tuning. Gold is generated and adversarially verified, not lawyer-annotated.",
+  "scope": "Local element check, not the official Score.",
+  "outcomes": {
+    "pass": 49,
+    "fail": 10,
+    "not_evaluated": 11
+  },
+  "statuses": {
+    "answer": 62,
+    "unverified": 8
+  },
+  "passed": 49,
+  "total": 70,
+  "quotes_only": [
+    "lb001",
+    "lb003",
+    "lb005",
+    "lb006",
+    "lb010",
+    "lb020",
+    "lb030",
+    "lb035",
+    "lb036",
+    "lb043",
+    "lb058",
+    "lb062",
+    "lb065",
+    "lb066",
+    "lb067"
+  ],
+  "false_refusals": 8,
+  "failures": {
+    "lb013": [
+      "missing:article 1102"
+    ],
+    "lb015": [
+      "false_refusal"
+    ],
+    "lb018": [
+      "missing:article 169"
+    ],
+    "lb033": [
+      "false_refusal"
+    ],
+    "lb034": [
+      "false_refusal"
+    ],
+    "lb039": [
+      "false_refusal"
+    ],
+    "lb046": [
+      "false_refusal"
+    ],
+    "lb047": [
+      "false_refusal"
+    ],
+    "lb049": [
+      "false_refusal"
+    ],
+    "lb059": [
+      "false_refusal"
+    ]
+  },
+  "not_evaluated": {
+    "lb030": [
+      "polarity_not_stated"
+    ],
+    "lb035": [
+      "polarity_not_stated"
+    ],
+    "lb036": [
+      "polarity_not_stated"
+    ],
+    "lb041": [
+      "polarity_not_stated"
+    ],
+    "lb043": [
+      "polarity_not_stated"
+    ],
+    "lb050": [
+      "polarity_not_stated"
+    ],
+    "lb058": [
+      "polarity_not_stated"
+    ],
+    "lb062": [
+      "polarity_not_stated"
+    ],
+    "lb065": [
+      "polarity_not_stated"
+    ],
+    "lb066": [
+      "polarity_not_stated"
+    ],
+    "lb067": [
+      "polarity_not_stated"
+    ]
+  },
+  "checked_by_hand": 0
+}

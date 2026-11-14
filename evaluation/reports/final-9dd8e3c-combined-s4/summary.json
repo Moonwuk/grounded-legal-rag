@@ -1,0 +1,67 @@
+{
+  "git_commit": "9dd8e3c6d5ecead325edad7a99ebec6ba7731ffa",
+  "corpus_id": "combined-platform-format",
+  "knowledge_base_sha256": "805b5d4e663899c9e7427bf3e47b6e8c672a0a758edee442177d5302b9913e6a",
+  "questions_sha256": "46754f1272f5ca5ade4a6eb6fb6d9d7ad31c869b65cbd75a71462637b81b5a88",
+  "gold_sha256": "5494d11e7af94c31cd392bfb1f530227bb6e033a26517be8f5048048fa606b19",
+  "runtime_sha256": "369bf987092cb95399a369dce9d28dbd12a07fe213f0286d75b3417cc6247643",
+  "model": "deepseek-flash",
+  "provider_base_url": "https://api.deepseek.com/v1",
+  "returncode": 0,
+  "elapsed_seconds": 1100.1305330750001,
+  "generation_settings": {},
+  "shard": "4/8",
+  "questions_run": 82,
+  "tuning_note": "Synthetic development cases (split=development) were used for tuning; split=holdout and split=external were not. Element gold is narrower than the source gold: it checks key values, polarity and phrases.",
+  "scope": "Local element check, not the official Score.",
+  "outcomes": {
+    "pass": 77,
+    "fail": 3,
+    "system_error": 2
+  },
+  "statuses": {
+    "answer": 57,
+    "insufficient": 15,
+    "clarify": 8,
+    "technical_error": 2
+  },
+  "passed": 77,
+  "total": 82,
+  "quotes_only": [
+    "syn-temporal-0046",
+    "syn-temporal-0047",
+    "syn-temporal-0048",
+    "syn-temporal-0050",
+    "syn-temporal-0051",
+    "syn-temporal-0058",
+    "syn-temporal-0060",
+    "syn-temporal-0065",
+    "syn-temporal-0066",
+    "syn-temporal-0069",
+    "syn-temporal-0072",
+    "syn-temporal-0073",
+    "syn-temporal-0074",
+    "syn-missing_information-0022",
+    "syn-missing_information-0029"
+  ],
+  "false_refusals": 0,
+  "failures": {
+    "syn-missing_information-0016": [
+      "missing:names the gap"
+    ],
+    "syn-missing_information-0041": [
+      "missing:names the gap"
+    ],
+    "syn-missing_information-0050": [
+      "missing:names the gap"
+    ],
+    "syn-missing_information-0051": [
+      "system_error"
+    ],
+    "syn-missing_information-0052": [
+      "system_error"
+    ]
+  },
+  "not_evaluated": {},
+  "checked_by_hand": 0
+}

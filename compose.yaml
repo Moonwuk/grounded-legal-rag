@@ -18,6 +18,9 @@ services:
       MAX_TOKENS: "${MAX_TOKENS:-}"
       TEMPERATURE: "${TEMPERATURE:-}"
       TOP_K: "${TOP_K:-}"
+      # Embedding model of the same proxy for dense candidates; empty keeps BM25 only.
+      EMB_MODEL: "${EMB_MODEL:-}"
+      PSB_DENSE_SECONDS: "${PSB_DENSE_SECONDS:-}"
       KB_PATH: /data/knowledge-base.zip
     volumes:
       - type: bind

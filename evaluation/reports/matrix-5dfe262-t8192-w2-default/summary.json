@@ -1,0 +1,37 @@
+{
+  "git_commit": "0d2ed2f124581d51b5a9dea92e6aff97655ea244",
+  "corpus_id": "demo-organizer",
+  "knowledge_base_sha256": "cea8ef2c8f6c8b9f498efacf705b97bf3da53cc78f366f9b1fef7a6de66327e0",
+  "questions_sha256": "e922cee1e155ed23f9f1c8f9758e396ed0e72e4309343dffe33824139bbf1423",
+  "gold_sha256": "5a18e320ad6d28544a3a97699793ea62c860dec8d353ab84f5f6ad5728c90ae8",
+  "runtime_sha256": "c8b7299ead599a2c3fc39bad0714535f3ea257cf85c4f2aea7f373d600f3add0",
+  "model": "deepseek-flash",
+  "provider_base_url": "https://api.deepseek.com/v1",
+  "returncode": 0,
+  "elapsed_seconds": 183.0207517240001,
+  "generation_settings": {
+    "MAX_TOKENS": "8192",
+    "MAX_WORKERS": "2"
+  },
+  "shard": null,
+  "questions_run": 18,
+  "tuning_note": "The solution prompt was tuned on these 18 questions; results here are not an independent measurement.",
+  "scope": "Local element check, not the official Score.",
+  "outcomes": {
+    "pass": 18
+  },
+  "statuses": {
+    "answer": 17,
+    "insufficient": 1
+  },
+  "passed": 18,
+  "total": 18,
+  "quotes_only": [
+    "9",
+    "17"
+  ],
+  "false_refusals": 0,
+  "failures": {},
+  "not_evaluated": {},
+  "checked_by_hand": 0
+}

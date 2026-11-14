@@ -1,0 +1,104 @@
+name: Web image security
+
+# Web chat image (web/Dockerfile, compose.yaml). Every pull request runs the
+# fast Dockerfile checks; the scheduled Security gate also builds the image
+# and scans it for vulnerabilities and secrets.
+on:
+  workflow_call:
+    inputs:
+      image_scan:
+        description: Build the web image and scan it for vulnerabilities and secrets
+        type: boolean
+        required: false
+        default: false
+
+permissions:
+  contents: read
+
+defaults:
+  run:
+    shell: bash
+
+jobs:
+  web-image:
+    name: Web Dockerfile and image
+    runs-on: ubuntu-24.04
+    timeout-minutes: 25
+    env:
+      WEB_IMAGE: psb-web:ci
+    steps:
+      - name: Check out image sources
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - name: Set up Python
+        uses: actions/setup-python@6d4fd22b20465ccc0f7354476588e8df7c9ca0e0 # v7.1.0
+        with:
+          python-version: "3.12"
+      - name: Install verified container scanners
+        env:
+          TRIVY_VERSION: "0.76.2"
+          TRIVY_SHA256: bc0fc726e017b8927a62b2d3531d7a84ee01769daf5c99ed866dced54089fdbf
+          HADOLINT_VERSION: "2.15.1"
+          HADOLINT_SHA256: c7187db94eeeeca956519a6af171adc31453941a1e777961f6e680f697c8c507
+        run: |
+          mkdir -p "$RUNNER_TEMP/container-tools" reports
+          archive="$RUNNER_TEMP/container-tools/trivy.tar.gz"
+          curl --fail --silent --show-error --location --retry 3 --proto '=https' --tlsv1.2 \
+            "https://github.com/aquasecurity/trivy/releases/download/v${TRIVY_VERSION}/trivy_${TRIVY_VERSION}_Linux-64bit.tar.gz" \
+            --output "$archive"
+          printf '%s  %s\n' "$TRIVY_SHA256" "$archive" | sha256sum --check --strict
+          tar -xzf "$archive" -C "$RUNNER_TEMP/container-tools" trivy
+          binary="$RUNNER_TEMP/container-tools/hadolint"
+          curl --fail --silent --show-error --location --retry 3 --proto '=https' --tlsv1.2 \
+            "https://github.com/hadolint/hadolint/releases/download/v${HADOLINT_VERSION}/hadolint-linux-x86_64" \
+            --output "$binary"
+          printf '%s  %s\n' "$HADOLINT_SHA256" "$binary" | sha256sum --check --strict
+          chmod +x "$binary"
+      - name: Lint the web Dockerfile with Hadolint
+        run: |
+          "$RUNNER_TEMP/container-tools/hadolint" --failure-threshold warning --disable-ignore-pragma \
+            --format json web/Dockerfile > reports/web-hadolint.json
+      - name: Check web Dockerfile misconfigurations
+        if: ${{ !cancelled() }}
+        run: |
+          "$RUNNER_TEMP/container-tools/trivy" config --cache-dir "$RUNNER_TEMP/trivy-cache" --config '' --ignorefile '' \
+            --misconfig-scanners dockerfile --skip-check-update --include-non-failures \
+            --severity MEDIUM,HIGH,CRITICAL --exit-code 1 --format json \
+            --output reports/web-dockerfile-config.json web/Dockerfile
+          python .github/scripts/check_trivy_report.py config reports/web-dockerfile-config.json
+      - name: Check the web Compose file with synthetic configuration
+        if: ${{ !cancelled() }}
+        run: docker compose --env-file .env.example config --quiet
+      - name: Build the web image
+        id: build
+        if: ${{ !cancelled() && inputs.image_scan }}
+        run: docker build --pull --tag "$WEB_IMAGE" --file web/Dockerfile .
+      - name: Scan the web image for fixable high and critical vulnerabilities
+        if: ${{ !cancelled() && inputs.image_scan && steps.build.outcome == 'success' }}
+        run: |
+          "$RUNNER_TEMP/container-tools/trivy" image --cache-dir "$RUNNER_TEMP/trivy-cache" --config '' --ignorefile '' \
+            --image-src docker --scanners vuln --pkg-types os,library --ignore-unfixed \
+            --severity HIGH,CRITICAL --exit-code 1 --timeout 10m --no-progress \
+            --format json --output reports/web-image-vulnerabilities.json "$WEB_IMAGE"
+          python - <<'PY'
+          import json
+          report = json.load(open("reports/web-image-vulnerabilities.json", encoding="utf-8"))
+          results = report.get("Results")
+          if report.get("SchemaVersion") != 2 or not isinstance(results, list) or not results:
+              raise SystemExit("incomplete web image vulnerability report")
+          print("web image: no fixable HIGH or CRITICAL vulnerabilities")
+          PY
+      - name: Scan the web image for secrets with sanitized output
+        if: ${{ !cancelled() && inputs.image_scan && steps.build.outcome == 'success' }}
+        run: |
+          python .github/scripts/run_image_secrets.py "$RUNNER_TEMP/container-tools/trivy" \
+            --image "$WEB_IMAGE" --report reports/web-image-secrets.json
+      - name: Save web image reports
+        if: ${{ always() }}
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: web-image-security
+          path: reports/
+          if-no-files-found: error
+          retention-days: 7

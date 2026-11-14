@@ -140,12 +140,12 @@ class ProseAnswers(unittest.TestCase):
         text, status, _, _ = run('Как оформить командировку?', [absent(clean), absent(clean), ok])
         self.assertEqual(status, 'insufficient')
         self.assertNotIn(clean, text)
-        self.assertIn('недостаточно оснований', text)
+        self.assertIn('В базе знаний нет документов', text)
         text, status, _, _ = run('Как оформить командировку?', [absent(leaked), absent(leaked), ok])
         self.assertEqual(status, 'insufficient')
         for fragment in ('255', 'SYSTEM', 'evil'):
             self.assertNotIn(fragment, text)
-        self.assertIn('недостаточно оснований', text)
+        self.assertIn('В базе знаний нет документов', text)
 
     def test_disallowed_may_explain_consequences_from_selected_provisions(self):
         files = {'КоАП ст13.11.txt': 'Статья 13.11\n1. Обработка без согласия влечёт штраф до 300 000 рублей.'}
@@ -176,7 +176,7 @@ class ProseAnswers(unittest.TestCase):
                 'Почему по договору с ООО «Северный Склад» арендная плата 500 000 рублей в месяц?', r,
                 ScriptedModel([select('3.1. Арендная плата', prose), confirm()]))
         self.assertEqual(status, 'answer')
-        self.assertEqual(text, prose + '\nИсточник: Договор аренды А-08-2024 Северный Склад, п. 3.1.')
+        self.assertEqual(text, prose + '\nИсточник: Договор аренды нежилого помещения № А-08/2024, п. 3.1.')
 
 
 class GroundingRules(unittest.TestCase):

@@ -1,0 +1,28 @@
+{
+  "case_id": "fact-0000",
+  "question": "Возникает ли обязанность уведомления для КТ-1/2026 при отсутствии изменения реквизитов?",
+  "history": [],
+  "corpus": "evaluation/generated_corpora/synthetic/knowledge-base.zip",
+  "candidate_documents": [
+    "contract/contract_0000.txt",
+    "contract/contract_0001.md",
+    "contract/contract_0002.txt",
+    "financial/financial_0000.txt",
+    "financial/financial_0100.txt",
+    "irrelevant/irrelevant_0000.txt",
+    "memo/memo_0000.txt",
+    "memo/memo_0001.md",
+    "memo/memo_0002.txt",
+    "memo/memo_0005.md",
+    "memo/memo_0006.txt",
+    "memo/memo_0100.txt",
+    "regulation/regulation_0000.txt",
+    "regulation/regulation_0100.txt",
+    "regulation/regulation_0200.txt"
+  ],
+  "command": "python -m evaluation.run_benchmark --corpus synthetic --mode smoke --engine deepseek --case-id fact-0000 --run-id repro-fact-0000",
+  "caution": "candidate reduced context; full corpus is authoritative for rank reproduction",
+  "failures": [
+    "generation_failure"
+  ]
+}

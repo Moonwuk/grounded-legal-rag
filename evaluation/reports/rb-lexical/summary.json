@@ -1,0 +1,31 @@
+{
+  "scope": "Retrieval coverage only; development sets.",
+  "expanded": false,
+  "organizer_modes": {},
+  "original": {
+    "covered": "32/32",
+    "misses": [],
+    "median_context": 6771
+  },
+  "paraphrases": {
+    "covered": "59/64",
+    "misses": [
+      "demo_12-p2",
+      "demo_13-p1",
+      "demo_13-p2",
+      "injection_archive_payment-p1",
+      "injection_archive_payment-p2"
+    ],
+    "median_context": 7627
+  },
+  "legalbench_modes": {},
+  "legalbench": {
+    "covered": "136/139",
+    "misses": [
+      "lb013",
+      "lb026",
+      "lb110"
+    ],
+    "median_context": 2812
+  }
+}

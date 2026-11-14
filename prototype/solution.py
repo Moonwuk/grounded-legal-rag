@@ -1,6 +1,7 @@
 """Organizer contract: DATA_DIR/questions.csv + knowledge-base.zip -> submission.csv."""
 from __future__ import annotations
 from concurrent.futures import ThreadPoolExecutor, wait, FIRST_COMPLETED
+from collections import deque
 from pathlib import Path
 import csv
 import os
@@ -10,8 +11,8 @@ import threading
 import zipfile
 from psb_corpus import load_corpus
 from psb_retrieval import Retriever
-from psb_llm import ProxyClient, ProviderError, env, integer
-from psb_policy import answer_question, TECHNICAL
+from psb_llm import EmbeddingClient, ProxyClient, ProviderError, RerankClient, env, integer
+from psb_policy import answer_steps, TECHNICAL
 
 
 def input_directory() -> Path:
@@ -65,6 +66,88 @@ def write_output(path: Path, questions: list[tuple[str, str]], answers: list[str
     os.replace(temp, path)
 
 
+def enable_optional_rerank(retriever, deadline):
+    """Reranker only on request (PSB_RERANK=1 and RERANKER_MODEL).
+
+    The platform sets RERANKER_MODEL, but its latency is unknown and the
+    measured gain was one LegalBench case of 139 (docs/hybrid_retrieval.md),
+    so a set model alone does not add a call to every search."""
+    if not env("RERANKER_MODEL"):
+        return None
+    if os.environ.get("PSB_RERANK", "").strip() != "1":
+        return "rerank_off"
+    try:
+        return retriever.enable_rerank(RerankClient(deadline))
+    except ProviderError as error:
+        return "rerank_disabled:" + str(error)
+
+
+def run_questions(questions, retriever, deadline, workers, top_k, verify=False):
+    """Yield complete row checkpoints, with a barrier before each retry round.
+
+    Each worker advances one generation/verification step. A verified full answer
+    with checked text ends the batch task. Unverified/partial tasks resume only
+    after all rows had their first step; a verified answer published as bare
+    quotations gets its one text retry last, so it never takes other rows' time.
+
+    The first verification follows the generation at once. If the run deadline
+    interrupts it, the row keeps the selected provisions verbatim (answer_steps
+    returns its provisional text) instead of a technical stub.
+    """
+    queue = deque((index, None, None, None) for index in range(len(questions)))
+
+    def advance(task):
+        index, client, steps, checkpoint = task
+        try:
+            if client is None:
+                # A started call is bounded by the run deadline only. A per-row
+                # time share shorter than one generation and verification turned
+                # every row into a technical error under a slow API (40 rows, 5 s
+                # calls, 120 s: 0 answers instead of 21). Fairness comes from the
+                # order: one step per row before any retry.
+                client = ProxyClient(deadline, position=index)
+                steps = answer_steps(questions[index][1], retriever, client, top_k, verify)
+            try:
+                result = next(steps)
+                if result["status"] == "provisional":
+                    result = next(steps)
+            except StopIteration as finished:
+                return index, finished.value, None
+            if result["status"] == "answer" and not result.get("quote_only"):
+                steps.close()
+                return index, result, None
+            return index, result, (index, client, steps, result)
+        except Exception as error:
+            # Safe diagnostics only; preserve any already verified partial answer.
+            print("question_error: " + type(error).__name__, file=sys.stderr)
+            if steps is not None:
+                steps.close()
+            return index, checkpoint or {"text": TECHNICAL, "status": "technical_error"}, None
+
+    with ThreadPoolExecutor(max_workers=workers) as pool:
+        while queue and time.monotonic() < deadline:
+            pending, deferred = {}, []
+            while queue or pending:
+                while queue and len(pending) < workers and time.monotonic() < deadline:
+                    task = queue.popleft()
+                    pending[pool.submit(advance, task)] = task
+                if not pending:
+                    break
+                done, _ = wait(pending, timeout=.5, return_when=FIRST_COMPLETED)
+                for future in done:
+                    pending.pop(future)
+                    index, result, resume = future.result()
+                    if resume is not None:
+                        deferred.append(resume)
+                    yield index, result["text"], result["status"]
+            # Unresolved rows first, then verified partials, then verified answers
+            # whose text was dropped (bare quotations).
+            queue = deque(sorted(deferred, key=lambda task: ({"partial": 1, "answer": 2}.get(task[3]["status"], 0), task[0])))
+        for _, _, steps, _ in queue:
+            if steps is not None:
+                steps.close()
+
+
 def main() -> int:
     start = time.monotonic()
     deadline = start + integer("PSB_RUN_SECONDS", 1100, 1, 1150)
@@ -89,48 +172,48 @@ def main() -> int:
         print("configuration_error: corpus_missing", file=sys.stderr)
         return 2
     try:
-        documents, fragments = load_corpus(corpus_path, deadline)
+        # A single unreadable document is left out, not the whole base: every
+        # answer would otherwise be a technical error. Only reason codes are logged.
+        skipped = []
+        documents, fragments = load_corpus(corpus_path, deadline, skipped=skipped)
+        if skipped:
+            codes = sorted({code for _, code in skipped})
+            print(f"documents_skipped={len(skipped)} reasons=" + ",".join(codes), file=sys.stderr)
         retriever = Retriever(documents, fragments, deadline)
         ProxyClient(deadline)  # Validate once, without disclosing configuration.
     except (ProviderError, ValueError, OSError, zipfile.BadZipFile, RuntimeError) as error:
         watchdog.cancel()
         print("configuration_error: " + type(error).__name__, file=sys.stderr)
         return 2
+    # Optional dense candidates: only when the platform names an embedding model.
+    # Indexing may take at most a fifth of the run; any failure keeps BM25 only.
+    if env("EMB_MODEL"):
+        try:
+            started_dense = time.monotonic()
+            seconds = integer("PSB_DENSE_SECONDS", int(min(240., max(0., (deadline - started_dense) / 5))), 0, 600)
+            budget = min(deadline - 60, started_dense + seconds)
+            print(retriever.enable_dense(EmbeddingClient(deadline), budget), file=sys.stderr)
+        except ProviderError as error:
+            print("dense_disabled:" + str(error), file=sys.stderr)
+    code = enable_optional_rerank(retriever, deadline)
+    if code:
+        print(code, file=sys.stderr)
     top_k = integer("TOP_K", 6, 1, 40)
     workers = integer("MAX_WORKERS", 2, 1, 8)
 
-    def work(index):
-        try:
-            text, status = answer_question(questions[index][1], retriever, ProxyClient(deadline, position=index), top_k)
-            return index, text, status
-        except Exception as error:
-            # Never log prompts, source bodies, API response bodies or secrets.
-            print("question_error: " + type(error).__name__, file=sys.stderr)
-            return index, TECHNICAL, "technical_error"
-
-    next_index = 0
     next_checkpoint = 0.
-    with ThreadPoolExecutor(max_workers=workers) as pool:
-        pending = {}
-        while next_index < len(questions) and len(pending) < workers and time.monotonic() < deadline:
-            future = pool.submit(work, next_index)
-            pending[future] = next_index
-            next_index += 1
-        while pending:
-            done, _ = wait(pending, timeout=.5, return_when=FIRST_COMPLETED)
-            for future in done:
-                pending.pop(future)
-                index, text, status = future.result()
-                answers[index] = text
-                print(f"completed_position={index} status={status}", file=sys.stderr)
-            # Coalesce completed rows instead of rewriting an N-row file N times.
-            if done and time.monotonic() >= next_checkpoint:
-                write_output(output, questions, answers)
-                next_checkpoint = time.monotonic() + .25
-            while next_index < len(questions) and len(pending) < workers and time.monotonic() < deadline:
-                future = pool.submit(work, next_index)
-                pending[future] = next_index
-                next_index += 1
+    # One model call per answer by default (docs/one_call_answers.md); the
+    # verifier call is opt-in. Platform runs: 21-24 points at 1100+ s with it,
+    # 34.2 at 507 s without it.
+    verify = os.environ.get("PSB_VERIFY", "").strip() == "1"
+    print(f"questions={len(questions)} workers={workers} verify={int(verify)}", file=sys.stderr)
+    for index, text, status in run_questions(questions, retriever, deadline, workers, top_k, verify):
+        answers[index] = text
+        print(f"completed_position={index} status={status}", file=sys.stderr)
+        # Coalesce completed rows instead of rewriting an N-row file N times.
+        if time.monotonic() >= next_checkpoint:
+            write_output(output, questions, answers)
+            next_checkpoint = time.monotonic() + .25
     write_output(output, questions, answers)
     print(f"rows={len(answers)} elapsed_seconds={time.monotonic() - start:.3f}", file=sys.stderr)
     watchdog.cancel()

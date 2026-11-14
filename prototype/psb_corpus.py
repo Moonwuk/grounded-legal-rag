@@ -94,7 +94,28 @@ def read_docx(raw: bytes) -> str:
     return "\n".join(paragraphs)
 
 
-def load_corpus(path: Path, deadline: float | None = None) -> tuple[list[Document], list[Fragment]]:
+# Problems of a single document. With a `skipped` list the document is left
+# out with its reason and the rest of the base is read; archive-level limits and
+# protections stay fatal.
+DOCUMENT_ERRORS = {"unsupported_document_format", "empty_document", "document_not_utf8", "invalid_docx",
+                   "invalid_docx_main_document", "docx_notes_not_supported", "docx_entities_not_allowed",
+                   "invalid_docx_xml", "docx_structure_limit", "docx_semantic_part_not_supported"}
+
+
+def read_document(suffix: str, raw: bytes) -> str:
+    try:
+        text = read_docx(raw) if suffix == ".docx" else raw.decode("utf-8-sig")
+    except UnicodeDecodeError:
+        raise ValueError("document_not_utf8") from None
+    except zipfile.BadZipFile:
+        raise ValueError("invalid_docx") from None
+    if not text.strip():
+        raise ValueError("empty_document")
+    return text
+
+
+def load_corpus(path: Path, deadline: float | None = None,
+                skipped: list | None = None) -> tuple[list[Document], list[Fragment]]:
     documents = []
     fragments = []
     if path.stat().st_size > 128 * 1024 * 1024:
@@ -117,7 +138,10 @@ def load_corpus(path: Path, deadline: float | None = None) -> tuple[list[Documen
             if info.is_dir() or name.startswith("__MACOSX/"):
                 continue
             if p.suffix.lower() not in {".txt", ".md", ".docx"}:
-                raise ValueError("unsupported_document_format")
+                if skipped is None:
+                    raise ValueError("unsupported_document_format")
+                skipped.append((name, "unsupported_document_format"))
+                continue
             if name in names or len(names) >= MAX_DOCUMENTS:
                 raise ValueError("duplicate_document_or_count_limit")
             names.add(name)
@@ -125,9 +149,13 @@ def load_corpus(path: Path, deadline: float | None = None) -> tuple[list[Documen
             if total > 64 * 1024 * 1024 or info.file_size > 8 * 1024 * 1024:
                 raise ValueError("corpus_size_limit")
             raw = archive.read(info)
-            text = read_docx(raw) if p.suffix.lower() == ".docx" else raw.decode("utf-8-sig")
-            if not text.strip():
-                raise ValueError("empty_document")
+            try:
+                text = read_document(p.suffix.lower(), raw)
+            except ValueError as error:
+                if skipped is None or str(error) not in DOCUMENT_ERRORS:
+                    raise
+                skipped.append((name, str(error)))
+                continue
             decoded_total += len(text)
             if decoded_total > MAX_TEXT:
                 raise ValueError("decoded_corpus_size_limit")

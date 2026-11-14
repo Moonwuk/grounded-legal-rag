@@ -171,7 +171,7 @@ class AnswerEvidenceCompleteness(unittest.TestCase):
         self.assertIn('Предоставьте', text)
         self.assertNotIn('7000000000', text)
         self.assertIn('7000000000', str(model.calls[1][1]['candidate']))
-        self.assertEqual(text.count('Договор Орион.'), 1)
+        self.assertEqual(text.count('Договор поставки № М-42/2031.'), 1)
         # A metadata question and a preamble containing a norm must keep it.
         for question, extra in [('Кто является поставщиком и каков срок обслуживания?', ''),
                                 ('Какой срок обслуживания?', '\nПредоплата запрещена.')]:

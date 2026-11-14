@@ -5,7 +5,7 @@ import os
 import re
 from pathlib import Path
 import sys
-from threading import BoundedSemaphore
+from threading import BoundedSemaphore, Thread
 import time
 from typing import Literal
 
@@ -20,7 +20,7 @@ STATIC = Path(__file__).with_name("static")
 sys.path.insert(0, str(ROOT / "prototype"))
 
 from psb_corpus import load_corpus
-from psb_llm import ProviderError, ProxyClient, integer
+from psb_llm import EmbeddingClient, ProviderError, ProxyClient, integer
 from psb_policy import TECHNICAL, answer_structured, display_name
 from psb_retrieval import Retriever
 
@@ -32,11 +32,30 @@ TOO_LONG = "Диалог слишком длинный. Начните новы�
 @asynccontextmanager
 async def lifespan(app):
     path = Path(os.getenv("KB_PATH") or ROOT / "organizer" / "knowledge-base.zip")
-    documents, fragments = load_corpus(path)
+    skipped = []
+    documents, fragments = load_corpus(path, skipped=skipped)
+    if skipped:
+        print("documents_skipped=%d reasons=%s" % (len(skipped), ",".join(sorted({c for _, c in skipped}))), file=sys.stderr)
+    app.state.skipped = len(skipped)
     app.state.retriever = Retriever(documents, fragments)
     app.state.documents = {doc.sha256: doc for doc in documents}
     app.state.slots = BoundedSemaphore(integer("WEB_WORKERS", 2, 1, 8))
+    app.state.dense = "off"
+    if os.getenv("EMB_MODEL", "").strip():
+        # Dense candidates are indexed after start-up; until then search is BM25 only.
+        app.state.dense = "indexing"
+        Thread(target=index_dense, args=(app.state,), daemon=True).start()
     yield
+
+
+def index_dense(state):
+    try:
+        client = EmbeddingClient(time.monotonic() + 10 * 365 * 86400)
+        status = state.retriever.enable_dense(client, time.monotonic() + integer("PSB_DENSE_SECONDS", 600, 0, 3600))
+    except ProviderError as error:
+        status = "dense_disabled:" + str(error)
+    state.dense = status
+    print(status, file=sys.stderr)
 
 
 app = FastAPI(title="Юридический ассистент", lifespan=lifespan,
@@ -149,7 +168,8 @@ async def chat(request: Request):
 @app.get("/healthz")
 def healthz(request: Request):
     retriever = request.app.state.retriever
-    return dict(status="ok", documents=len(retriever.documents), fragments=len(retriever.fragments))
+    return dict(status="ok", documents=len(retriever.documents), fragments=len(retriever.fragments),
+                dense=request.app.state.dense, skipped=request.app.state.skipped)
 
 
 @app.get("/api/documents")

@@ -586,7 +586,8 @@
      "id": "included",
      "kind": "phrase",
      "any": [
-      "включ"
+      "включ",
+      "вход\\w*\\s+в\\s+(?:цен|стоимост)"
      ]
     },
     {
@@ -611,14 +612,9 @@
      ]
     }
    ],
-   "forbidden": [
-    {
-     "id": "polarity нет",
-     "kind": "polarity",
-     "value": "нет"
-    }
-   ],
-   "checked_by_hand": false
+   "forbidden": [],
+   "checked_by_hand": false,
+   "note": "Alternative question (\"included or paid separately?\"): an opening \"Нет\"/\"Да\" is not polarity."
   },
   {
    "case_id": "17",

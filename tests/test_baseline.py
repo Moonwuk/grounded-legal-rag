@@ -235,7 +235,8 @@ class BaselineTests(unittest.TestCase):
                 with (p/'submission.csv').open(newline='') as h:rows=list(csv.DictReader(h))
                 self.assertEqual(rows[0]['id'],'001')
                 self.assertIn('450 000',rows[0]['answer'])
-                self.assertEqual(calls,[('/v1/chat/completions','stub-organizer-model',['system','user'])]*2)
+                # One generation per question by default (docs/one_call_answers.md).
+                self.assertEqual(calls,[('/v1/chat/completions','stub-organizer-model',['system','user'])])
         finally:
             server.shutdown();server.server_close();worker.join(timeout=2)
 

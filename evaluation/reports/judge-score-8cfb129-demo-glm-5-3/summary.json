@@ -1,0 +1,17 @@
+{
+  "scope": "Development estimate of the regulation judge (section 8) against a baseline analog; not the platform judge, baseline or Score.",
+  "judge_model": "glm-5.3",
+  "report": "final-8cfb129-demo",
+  "team_model": "deepseek-flash",
+  "baseline": "evaluation/reports/starter-demo/submission.csv",
+  "corpus": "demo-organizer",
+  "judge_failures": 0,
+  "fabricated_team": 0,
+  "judged": 18,
+  "wins": 14,
+  "losses": 3,
+  "ties": 1,
+  "match_rate": 0.812,
+  "win_rate": 0.824,
+  "score": 0.816
+}

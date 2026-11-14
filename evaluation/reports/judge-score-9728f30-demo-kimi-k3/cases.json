@@ -1,0 +1,200 @@
+[
+  {
+    "case_id": "1",
+    "judged": true,
+    "score": 0.0,
+    "rounds": [
+      0.75,
+      0.25
+    ],
+    "fabricated_team": true,
+    "status": "answer"
+  },
+  {
+    "case_id": "2",
+    "judged": true,
+    "score": 1.0,
+    "rounds": [
+      1.0,
+      1.0
+    ],
+    "fabricated_team": false,
+    "status": "answer"
+  },
+  {
+    "case_id": "3",
+    "judged": true,
+    "score": 0.75,
+    "rounds": [
+      0.75,
+      0.75
+    ],
+    "fabricated_team": false,
+    "status": "insufficient"
+  },
+  {
+    "case_id": "4",
+    "judged": true,
+    "score": 0.75,
+    "rounds": [
+      0.75,
+      0.75
+    ],
+    "fabricated_team": false,
+    "status": "answer"
+  },
+  {
+    "case_id": "5",
+    "judged": true,
+    "score": 1.0,
+    "rounds": [
+      1.0,
+      1.0
+    ],
+    "fabricated_team": false,
+    "status": "answer"
+  },
+  {
+    "case_id": "6",
+    "judged": true,
+    "score": 1.0,
+    "rounds": [
+      1.0,
+      1.0
+    ],
+    "fabricated_team": false,
+    "status": "answer"
+  },
+  {
+    "case_id": "7",
+    "judged": true,
+    "score": 1.0,
+    "rounds": [
+      1.0,
+      1.0
+    ],
+    "fabricated_team": false,
+    "status": "answer"
+  },
+  {
+    "case_id": "8",
+    "judged": true,
+    "score": 1.0,
+    "rounds": [
+      1.0,
+      1.0
+    ],
+    "fabricated_team": false,
+    "status": "answer"
+  },
+  {
+    "case_id": "9",
+    "judged": true,
+    "score": 1.0,
+    "rounds": [
+      1.0,
+      1.0
+    ],
+    "fabricated_team": false,
+    "status": "answer"
+  },
+  {
+    "case_id": "10",
+    "judged": true,
+    "score": 0.0,
+    "rounds": [
+      0.25,
+      0.25
+    ],
+    "fabricated_team": true,
+    "status": "answer"
+  },
+  {
+    "case_id": "11",
+    "judged": true,
+    "score": 0.25,
+    "rounds": [
+      0.25,
+      0.25
+    ],
+    "fabricated_team": false,
+    "status": "answer"
+  },
+  {
+    "case_id": "12",
+    "judged": true,
+    "score": 1.0,
+    "rounds": [
+      1.0,
+      1.0
+    ],
+    "fabricated_team": false,
+    "status": "answer"
+  },
+  {
+    "case_id": "13",
+    "judged": true,
+    "score": 1.0,
+    "rounds": [
+      1.0,
+      1.0
+    ],
+    "fabricated_team": false,
+    "status": "answer"
+  },
+  {
+    "case_id": "14",
+    "judged": true,
+    "score": 0.25,
+    "rounds": [
+      0.25,
+      0.25
+    ],
+    "fabricated_team": false,
+    "status": "answer"
+  },
+  {
+    "case_id": "15",
+    "judged": true,
+    "score": 1.0,
+    "rounds": [
+      1.0,
+      1.0
+    ],
+    "fabricated_team": false,
+    "status": "answer"
+  },
+  {
+    "case_id": "16",
+    "judged": true,
+    "score": 0.75,
+    "rounds": [
+      0.75,
+      0.75
+    ],
+    "fabricated_team": false,
+    "status": "answer"
+  },
+  {
+    "case_id": "17",
+    "judged": true,
+    "score": 1.0,
+    "rounds": [
+      1.0,
+      1.0
+    ],
+    "fabricated_team": false,
+    "status": "answer"
+  },
+  {
+    "case_id": "18",
+    "judged": true,
+    "score": 1.0,
+    "rounds": [
+      1.0,
+      1.0
+    ],
+    "fabricated_team": false,
+    "status": "answer"
+  }
+]

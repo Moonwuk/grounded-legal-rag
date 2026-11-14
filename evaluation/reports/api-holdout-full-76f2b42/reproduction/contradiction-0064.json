@@ -1,0 +1,25 @@
+{
+  "case_id": "contradiction-0064",
+  "question": "Для КТ-65/2026 акт подписан 2026-07-14. В документах разные сроки оплаты без правила приоритета. Какой один срок достоверен?",
+  "history": [],
+  "corpus": "evaluation/generated_corpora/synthetic/knowledge-base.zip",
+  "candidate_documents": [
+    "contract/contract_0039.md",
+    "contract/contract_0040.txt",
+    "contract/contract_0041.md",
+    "contract/contract_0192.txt",
+    "contract/contract_0193.md",
+    "contract/contract_0194.txt",
+    "financial/financial_0064.txt",
+    "financial/financial_0164.txt",
+    "irrelevant/irrelevant_0064.txt",
+    "memo/memo_0064.txt",
+    "regulation/regulation_0064.txt",
+    "regulation/regulation_0164.txt"
+  ],
+  "command": "python -m evaluation.run_benchmark --corpus synthetic --mode holdout --engine deepseek --case-id contradiction-0064 --run-id repro-contradiction-0064",
+  "caution": "candidate reduced context; full corpus is authoritative for rank reproduction",
+  "failures": [
+    "system_error"
+  ]
+}

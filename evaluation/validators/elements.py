@@ -12,15 +12,18 @@ Element kinds:
   phrase    {"any": ["круглосуточ", ...]}    one alternative must occur (lowercase stem/regex)
   polarity  {"value": "да"|"нет"}            the answer opens with this word
 Forbidden kinds: value (asserted, not refuted), phrase, polarity.
+Optional case key "required_for": statuses whose text must carry the required
+elements (default ["answer"]).
 """
 from __future__ import annotations
 import re
-from evaluation.validators.prose import _REFUTED
+from evaluation.validators.prose import _DENIED_AFTER, _REFUTED
 
 STATUS_TEXTS = (
     ('technical_error', 'Не удалось проверить ответ из-за технической ошибки'),
     ('unverified', 'Не удалось получить достаточно проверенных оснований'),
     ('insufficient', 'В найденных документах недостаточно оснований'),
+    ('insufficient', 'В базе знаний нет документов'),
     ('out_of_scope', 'Я отвечаю на юридические вопросы по предоставленной базе'),
     ('disallowed', 'Я не могу помогать совершать противоправные действия'),
     ('clarify', 'Уточните'),
@@ -37,7 +40,8 @@ _ABSENT = re.compile(r'^[^.;!?]{0,80}?\b(?:нет|отсутству\w*|не\s+(
 
 
 def _refuted(text, start, end):
-    return bool(_REFUTED.search(text[max(0, start - 16):start]) or _ABSENT.search(text[end:]))
+    # "999 рублей неверно", "999 дней не подтверждается": the value is named and denied.
+    return bool(_REFUTED.search(text[max(0, start - 16):start]) or _ABSENT.search(text[end:]) or _DENIED_AFTER.search(text[end:]))
 
 
 def norm(text):
@@ -105,6 +109,34 @@ def has(element, text, found):
     raise ValueError('unknown element kind: ' + kind)
 
 
+# Lines the application writes itself (refusals, gaps, conflicts); not a model conclusion.
+APPLICATION_LINES = tuple(text for _, text in STATUS_TEXTS) + (
+    'Найденные документы устанавливают', 'Приведённые документы подтверждают', 'Найденное положение отсылает',
+    'В предоставленной базе не найдены', 'В найденных документах', 'Конкретное значение в найденных документах')
+
+
+def conclusion(answer):
+    """The model's own statement, if the answer has one.
+
+    The solution puts the model text first, before the quoted provisions «…».
+    A quoted provision is a source, not a claim: a phrase or a value inside it
+    proves nothing about the conclusion ("Три месяца" before the quoted rule
+    "…не может превышать шести месяцев…"). An answer that opens with a quote or
+    with an application-owned line has no separate statement and is read whole."""
+    first = next((line.strip() for line in answer.splitlines() if line.strip()), '')
+    if not first or first.startswith('«') or first.startswith(APPLICATION_LINES):
+        return answer
+    # The statement plus application lines (gaps, requests); quotes and source lines removed.
+    text = answer
+    while True:
+        stripped = re.sub(r'«[^«»]*»\s*(?:\[\d+\])?', ' ', text)
+        if stripped == text:
+            break
+        text = stripped
+    return '\n'.join(line for line in text.splitlines() if line.strip()
+                     and not re.match(r'\s*(?:\[\d+\]|Источник)', line))
+
+
 def check(case, answer):
     """Return dict(outcome=pass|fail|not_evaluated|system_error, status, failures, not_evaluated)."""
     status = status_of(answer)
@@ -114,16 +146,20 @@ def check(case, answer):
     if status not in case['allowed_statuses']:
         answerable = 'answer' in case['allowed_statuses']
         failures.append('false_refusal' if answerable and status != 'answer' else 'wrong_status')
-    found = values(answer)
-    if status == 'answer':
+    own = conclusion(answer)
+    found = values(own)
+    # Required elements apply to an answer; a case may extend this to a
+    # clarification whose text must still name the gap ("required_for").
+    if status in case.get('required_for', ['answer']):
         for element in case.get('required', []):
-            if not has(element, answer, found):
+            # Clause numbers may sit in the source line; the rest must be stated.
+            if not has(element, answer if element['kind'] in ('clause', 'polarity') else own, found):
                 if element['kind'] == 'polarity' and opening(answer) is None:
                     unknown.append('polarity_not_stated')
                 else:
                     failures.append('missing:' + element.get('id', element['kind']))
     for element in case.get('forbidden', []):
-        if has(element, answer, found):
+        if has(element, answer if element['kind'] == 'polarity' else own, found):
             failures.append('forbidden:' + element.get('id', element['kind']))
     outcome = 'fail' if failures else 'not_evaluated' if unknown else 'pass'
     return dict(outcome=outcome, status=status, failures=sorted(set(failures)), not_evaluated=sorted(set(unknown)))

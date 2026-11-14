@@ -1,0 +1,3250 @@
+{
+  "version": "1.0.0",
+  "corpus_id": "legalbench-ru-public-grounded",
+  "source": "https://huggingface.co/datasets/AlsKozlov/legalbench-ru",
+  "license": "CC-BY-4.0, ru-legal contributors",
+  "cases": [
+    {
+      "case_id": "lb001",
+      "family": "reasoning/extraction/contract",
+      "source_task": "rule-application-contract",
+      "allowed_statuses": [
+        "answer"
+      ],
+      "checked_by_hand": false,
+      "needs_expert_review": true,
+      "required": [
+        {
+          "id": "article 782",
+          "kind": "clause",
+          "any": [
+            "782"
+          ]
+        }
+      ],
+      "reference_answer": "Да, заказчик вправе отказаться от договора возмездного оказания услуг в одностороннем порядке при условии оплаты исполнителю фактически понесённых им расходов (ст.782 ГК РФ)."
+    },
+    {
+      "case_id": "lb002",
+      "family": "reasoning/extraction/contract",
+      "source_task": "rule-application-contract",
+      "allowed_statuses": [
+        "answer"
+      ],
+      "checked_by_hand": false,
+      "needs_expert_review": true,
+      "required": [
+        {
+          "id": "article 432",
+          "kind": "clause",
+          "any": [
+            "432",
+            "455"
+          ]
+        }
+      ],
+      "reference_answer": "Договор считается незаключённым, поскольку не согласованы существенные условия (предмет): по ст.432 ГК РФ договор заключён лишь при согласовании всех существенных условий."
+    },
+    {
+      "case_id": "lb003",
+      "family": "reasoning/extraction/contract",
+      "source_task": "rule-application-contract",
+      "allowed_statuses": [
+        "answer"
+      ],
+      "checked_by_hand": false,
+      "needs_expert_review": true,
+      "required": [
+        {
+          "id": "article 431.2",
+          "kind": "clause",
+          "any": [
+            "431.2"
+          ]
+        }
+      ],
+      "reference_answer": "Требование основано на ст.431.2 ГК РФ (заверения об обстоятельствах); сторона, давшая недостоверное заверение в связи с предпринимательской деятельностью, отвечает независимо от вины и обязана возместить убытки."
+    },
+    {
+      "case_id": "lb004",
+      "family": "reasoning/extraction/contract",
+      "source_task": "rule-application-contract",
+      "allowed_statuses": [
+        "answer"
+      ],
+      "checked_by_hand": false,
+      "needs_expert_review": true,
+      "required": [
+        {
+          "id": "article 450.1",
+          "kind": "clause",
+          "any": [
+            "450.1"
+          ]
+        }
+      ],
+      "reference_answer": "Договор прекращается с момента получения контрагентом уведомления об отказе (ст.450.1 ГК РФ); обращение в суд не требуется."
+    },
+    {
+      "case_id": "lb005",
+      "family": "reasoning/extraction/contract",
+      "source_task": "rule-application-contract",
+      "allowed_statuses": [
+        "answer"
+      ],
+      "checked_by_hand": false,
+      "needs_expert_review": true,
+      "required": [
+        {
+          "id": "article 401",
+          "kind": "clause",
+          "any": [
+            "401"
+          ]
+        }
+      ],
+      "reference_answer": "Нет: предприниматель отвечает за нарушение обязательства независимо от вины и освобождается лишь при непреодолимой силе (ст.401 ГК РФ); отсутствие вины и недостатки контрагентов от ответственности не освобождают."
+    },
+    {
+      "case_id": "lb006",
+      "family": "reasoning/extraction/contract",
+      "source_task": "rule-application-contract",
+      "allowed_statuses": [
+        "answer"
+      ],
+      "checked_by_hand": false,
+      "needs_expert_review": true,
+      "required": [
+        {
+          "id": "article 421",
+          "kind": "clause",
+          "any": [
+            "421"
+          ]
+        }
+      ],
+      "reference_answer": "Нет: по ст.421 ГК РФ (свобода договора) стороны вправе заключить как не предусмотренный законом договор, так и смешанный договор, содержащий элементы разных договоров."
+    },
+    {
+      "case_id": "lb007",
+      "family": "reasoning/extraction/labor",
+      "source_task": "rule-application-labor",
+      "allowed_statuses": [
+        "answer"
+      ],
+      "checked_by_hand": false,
+      "needs_expert_review": true,
+      "required": [
+        {
+          "id": "article 152",
+          "kind": "clause",
+          "any": [
+            "152"
+          ]
+        }
+      ],
+      "reference_answer": "3600 ₽"
+    },
+    {
+      "case_id": "lb008",
+      "family": "reasoning/extraction/labor",
+      "source_task": "rule-application-labor",
+      "allowed_statuses": [
+        "answer"
+      ],
+      "checked_by_hand": false,
+      "needs_expert_review": true,
+      "required": [
+        {
+          "id": "article 99",
+          "kind": "clause",
+          "any": [
+            "99"
+          ]
+        }
+      ],
+      "reference_answer": "2 часа"
+    },
+    {
+      "case_id": "lb009",
+      "family": "reasoning/extraction/labor",
+      "source_task": "rule-application-labor",
+      "allowed_statuses": [
+        "answer"
+      ],
+      "checked_by_hand": false,
+      "needs_expert_review": true,
+      "required": [
+        {
+          "id": "article 193",
+          "kind": "clause",
+          "any": [
+            "193"
+          ]
+        }
+      ],
+      "reference_answer": "2 рабочих дня"
+    },
+    {
+      "case_id": "lb010",
+      "family": "reasoning/extraction/labor",
+      "source_task": "rule-application-labor",
+      "allowed_statuses": [
+        "answer"
+      ],
+      "checked_by_hand": false,
+      "needs_expert_review": true,
+      "required": [
+        {
+          "id": "article 193",
+          "kind": "clause",
+          "any": [
+            "193"
+          ]
+        }
+      ],
+      "reference_answer": "1 месяц"
+    },
+    {
+      "case_id": "lb011",
+      "family": "reasoning/extraction/labor",
+      "source_task": "rule-application-labor",
+      "allowed_statuses": [
+        "answer"
+      ],
+      "checked_by_hand": false,
+      "needs_expert_review": true,
+      "required": [
+        {
+          "id": "article 70",
+          "kind": "clause",
+          "any": [
+            "70"
+          ]
+        }
+      ],
+      "reference_answer": "3 месяца"
+    },
+    {
+      "case_id": "lb012",
+      "family": "reasoning/extraction/labor",
+      "source_task": "rule-application-labor",
+      "allowed_statuses": [
+        "answer"
+      ],
+      "checked_by_hand": false,
+      "needs_expert_review": true,
+      "required": [
+        {
+          "id": "article 125",
+          "kind": "clause",
+          "any": [
+            "125"
+          ]
+        }
+      ],
+      "reference_answer": "14 календарных дней"
+    },
+    {
+      "case_id": "lb013",
+      "family": "reasoning/extraction/litigation",
+      "source_task": "rule-application-litigation",
+      "allowed_statuses": [
+        "answer"
+      ],
+      "checked_by_hand": false,
+      "needs_expert_review": true,
+      "required": [
+        {
+          "id": "article 1102",
+          "kind": "clause",
+          "any": [
+            "1102"
+          ]
+        }
+      ],
+      "reference_answer": "На основании института неосновательного обогащения (кондикционное требование); покупатель вправе требовать возврата 100 000 рублей как неосновательно сбережённых/приобретённых."
+    },
+    {
+      "case_id": "lb014",
+      "family": "reasoning/extraction/litigation",
+      "source_task": "rule-application-litigation",
+      "allowed_statuses": [
+        "answer"
+      ],
+      "checked_by_hand": false,
+      "needs_expert_review": true,
+      "required": [
+        {
+          "id": "article 333",
+          "kind": "clause",
+          "any": [
+            "333"
+          ]
+        }
+      ],
+      "reference_answer": "Суд вправе уменьшить неустойку при её явной несоразмерности последствиям нарушения обязательства; для должника-предпринимателя — только по его заявлению (ходатайству)."
+    },
+    {
+      "case_id": "lb015",
+      "family": "reasoning/extraction/litigation",
+      "source_task": "rule-application-litigation",
+      "allowed_statuses": [
+        "answer"
+      ],
+      "checked_by_hand": false,
+      "needs_expert_review": true,
+      "required": [
+        {
+          "id": "article 15",
+          "kind": "clause",
+          "any": [
+            "15",
+            "393"
+          ]
+        }
+      ],
+      "reference_answer": "Недостаточно факта нарушения; истец должен доказать нарушение обязательства, наличие и размер убытков и причинно-следственную связь между нарушением и убытками."
+    },
+    {
+      "case_id": "lb016",
+      "family": "reasoning/extraction/tax",
+      "source_task": "rule-application-tax",
+      "allowed_statuses": [
+        "answer"
+      ],
+      "checked_by_hand": false,
+      "needs_expert_review": true,
+      "required": [
+        {
+          "id": "article 346.20",
+          "kind": "clause",
+          "any": [
+            "346.20"
+          ]
+        }
+      ],
+      "reference_answer": "240 000 руб (6% от 4 000 000 руб; расходы на объекте \"доходы\" не учитываются)."
+    },
+    {
+      "case_id": "lb017",
+      "family": "reasoning/extraction/tax",
+      "source_task": "rule-application-tax",
+      "allowed_statuses": [
+        "answer"
+      ],
+      "checked_by_hand": false,
+      "needs_expert_review": true,
+      "required": [
+        {
+          "id": "article 346.18",
+          "kind": "clause",
+          "any": [
+            "346.18"
+          ]
+        }
+      ],
+      "reference_answer": "100 000 руб — это минимальный налог 1% от доходов (15% от прибыли 500 000 = 75 000 < 100 000, поэтому платится минимальный)."
+    },
+    {
+      "case_id": "lb018",
+      "family": "reasoning/extraction/tax",
+      "source_task": "rule-application-tax",
+      "allowed_statuses": [
+        "answer"
+      ],
+      "checked_by_hand": false,
+      "needs_expert_review": true,
+      "required": [
+        {
+          "id": "article 169",
+          "kind": "clause",
+          "any": [
+            "169"
+          ]
+        }
+      ],
+      "reference_answer": "Не позднее 15 марта — в течение 5 календарных дней со дня отгрузки."
+    },
+    {
+      "case_id": "lb019",
+      "family": "reasoning/extraction/tax",
+      "source_task": "rule-application-tax",
+      "allowed_statuses": [
+        "answer"
+      ],
+      "checked_by_hand": false,
+      "needs_expert_review": true,
+      "required": [
+        {
+          "id": "article 164",
+          "kind": "clause",
+          "any": [
+            "164"
+          ]
+        }
+      ],
+      "reference_answer": "0% (нулевая ставка при подтверждённом экспорте)."
+    },
+    {
+      "case_id": "lb020",
+      "family": "reasoning/extraction/tax",
+      "source_task": "rule-application-tax",
+      "allowed_statuses": [
+        "answer"
+      ],
+      "checked_by_hand": false,
+      "needs_expert_review": true,
+      "required": [
+        {
+          "id": "article 54.1",
+          "kind": "clause",
+          "any": [
+            "54.1"
+          ]
+        }
+      ],
+      "reference_answer": "Нет, вычет неправомерен: операция фактически не совершена, что нарушает условия ст.54.1 НК (реальность сделки)."
+    },
+    {
+      "case_id": "lb021",
+      "family": "reasoning/extraction/tax",
+      "source_task": "rule-application-tax",
+      "allowed_statuses": [
+        "answer"
+      ],
+      "checked_by_hand": false,
+      "needs_expert_review": true,
+      "required": [
+        {
+          "id": "article 100",
+          "kind": "clause",
+          "any": [
+            "100"
+          ]
+        }
+      ],
+      "reference_answer": "В течение 1 месяца со дня получения акта, то есть до 3 мая."
+    },
+    {
+      "case_id": "lb022",
+      "family": "reasoning/extraction/tax",
+      "source_task": "rule-application-tax",
+      "allowed_statuses": [
+        "answer"
+      ],
+      "checked_by_hand": false,
+      "needs_expert_review": true,
+      "required": [
+        {
+          "id": "article 138",
+          "kind": "clause",
+          "any": [
+            "138"
+          ]
+        }
+      ],
+      "reference_answer": "Нет: по решениям налоговой проверки обязателен досудебный порядок обжалования в вышестоящем органе; без него суд заявление не примет (оставит без рассмотрения)."
+    },
+    {
+      "case_id": "lb023",
+      "family": "reasoning/extraction/tax",
+      "source_task": "rule-application-tax",
+      "allowed_statuses": [
+        "answer"
+      ],
+      "checked_by_hand": false,
+      "needs_expert_review": true,
+      "required": [
+        {
+          "id": "article 93.1",
+          "kind": "clause",
+          "any": [
+            "93.1"
+          ]
+        }
+      ],
+      "reference_answer": "В течение 5 рабочих дней со дня получения требования."
+    },
+    {
+      "case_id": "lb024",
+      "family": "reasoning/extraction/tax",
+      "source_task": "rule-application-tax",
+      "allowed_statuses": [
+        "answer"
+      ],
+      "checked_by_hand": false,
+      "needs_expert_review": true,
+      "required": [
+        {
+          "id": "article 346.43",
+          "kind": "clause",
+          "any": [
+            "346.43"
+          ]
+        }
+      ],
+      "reference_answer": "Нет: ПСН вправе применять только индивидуальные предприниматели; для ООО (организаций) патентная система недоступна."
+    },
+    {
+      "case_id": "lb025",
+      "family": "reasoning/binary/administrative",
+      "source_task": "rule-conclusion-administrative",
+      "allowed_statuses": [
+        "answer"
+      ],
+      "checked_by_hand": false,
+      "needs_expert_review": true,
+      "required": [
+        {
+          "id": "polarity да",
+          "kind": "polarity",
+          "value": "да"
+        }
+      ],
+      "forbidden": [
+        {
+          "id": "polarity нет",
+          "kind": "polarity",
+          "value": "нет"
+        }
+      ]
+    },
+    {
+      "case_id": "lb026",
+      "family": "reasoning/binary/administrative",
+      "source_task": "rule-conclusion-administrative",
+      "allowed_statuses": [
+        "answer"
+      ],
+      "checked_by_hand": false,
+      "needs_expert_review": true,
+      "required": [
+        {
+          "id": "polarity да",
+          "kind": "polarity",
+          "value": "да"
+        }
+      ],
+      "forbidden": [
+        {
+          "id": "polarity нет",
+          "kind": "polarity",
+          "value": "нет"
+        }
+      ]
+    },
+    {
+      "case_id": "lb027",
+      "family": "reasoning/binary/administrative",
+      "source_task": "rule-conclusion-administrative",
+      "allowed_statuses": [
+        "answer"
+      ],
+      "checked_by_hand": false,
+      "needs_expert_review": true,
+      "required": [
+        {
+          "id": "polarity да",
+          "kind": "polarity",
+          "value": "да"
+        }
+      ],
+      "forbidden": [
+        {
+          "id": "polarity нет",
+          "kind": "polarity",
+          "value": "нет"
+        }
+      ]
+    },
+    {
+      "case_id": "lb028",
+      "family": "reasoning/binary/administrative",
+      "source_task": "rule-conclusion-administrative",
+      "allowed_statuses": [
+        "answer"
+      ],
+      "checked_by_hand": false,
+      "needs_expert_review": true,
+      "required": [
+        {
+          "id": "polarity нет",
+          "kind": "polarity",
+          "value": "нет"
+        }
+      ],
+      "forbidden": [
+        {
+          "id": "polarity да",
+          "kind": "polarity",
+          "value": "да"
+        }
+      ]
+    },
+    {
+      "case_id": "lb029",
+      "family": "reasoning/binary/administrative",
+      "source_task": "rule-conclusion-administrative",
+      "allowed_statuses": [
+        "answer"
+      ],
+      "checked_by_hand": false,
+      "needs_expert_review": true,
+      "required": [
+        {
+          "id": "polarity да",
+          "kind": "polarity",
+          "value": "да"
+        }
+      ],
+      "forbidden": [
+        {
+          "id": "polarity нет",
+          "kind": "polarity",
+          "value": "нет"
+        }
+      ]
+    },
+    {
+      "case_id": "lb030",
+      "family": "reasoning/binary/administrative",
+      "source_task": "rule-conclusion-administrative",
+      "allowed_statuses": [
+        "answer"
+      ],
+      "checked_by_hand": false,
+      "needs_expert_review": true,
+      "required": [
+        {
+          "id": "polarity да",
+          "kind": "polarity",
+          "value": "да"
+        }
+      ],
+      "forbidden": [
+        {
+          "id": "polarity нет",
+          "kind": "polarity",
+          "value": "нет"
+        }
+      ]
+    },
+    {
+      "case_id": "lb031",
+      "family": "reasoning/binary/administrative",
+      "source_task": "rule-conclusion-administrative",
+      "allowed_statuses": [
+        "answer"
+      ],
+      "checked_by_hand": false,
+      "needs_expert_review": true,
+      "required": [
+        {
+          "id": "polarity да",
+          "kind": "polarity",
+          "value": "да"
+        }
+      ],
+      "forbidden": [
+        {
+          "id": "polarity нет",
+          "kind": "polarity",
+          "value": "нет"
+        }
+      ]
+    },
+    {
+      "case_id": "lb032",
+      "family": "reasoning/binary/ai-governance",
+      "source_task": "rule-conclusion-ai-governance",
+      "allowed_statuses": [
+        "answer"
+      ],
+      "checked_by_hand": false,
+      "needs_expert_review": true,
+      "required": [
+        {
+          "id": "polarity нет",
+          "kind": "polarity",
+          "value": "нет"
+        }
+      ],
+      "forbidden": [
+        {
+          "id": "polarity да",
+          "kind": "polarity",
+          "value": "да"
+        }
+      ]
+    },
+    {
+      "case_id": "lb033",
+      "family": "reasoning/binary/ai-governance",
+      "source_task": "rule-conclusion-ai-governance",
+      "allowed_statuses": [
+        "answer"
+      ],
+      "checked_by_hand": false,
+      "needs_expert_review": true,
+      "required": [
+        {
+          "id": "polarity нет",
+          "kind": "polarity",
+          "value": "нет"
+        }
+      ],
+      "forbidden": [
+        {
+          "id": "polarity да",
+          "kind": "polarity",
+          "value": "да"
+        }
+      ]
+    },
+    {
+      "case_id": "lb034",
+      "family": "reasoning/binary/ai-governance",
+      "source_task": "rule-conclusion-ai-governance",
+      "allowed_statuses": [
+        "answer"
+      ],
+      "checked_by_hand": false,
+      "needs_expert_review": true,
+      "required": [
+        {
+          "id": "polarity нет",
+          "kind": "polarity",
+          "value": "нет"
+        }
+      ],
+      "forbidden": [
+        {
+          "id": "polarity да",
+          "kind": "polarity",
+          "value": "да"
+        }
+      ]
+    },
+    {
+      "case_id": "lb035",
+      "family": "reasoning/binary/ai-governance",
+      "source_task": "rule-conclusion-ai-governance",
+      "allowed_statuses": [
+        "answer"
+      ],
+      "checked_by_hand": false,
+      "needs_expert_review": true,
+      "required": [
+        {
+          "id": "polarity да",
+          "kind": "polarity",
+          "value": "да"
+        }
+      ],
+      "forbidden": [
+        {
+          "id": "polarity нет",
+          "kind": "polarity",
+          "value": "нет"
+        }
+      ]
+    },
+    {
+      "case_id": "lb036",
+      "family": "reasoning/binary/ai-governance",
+      "source_task": "rule-conclusion-ai-governance",
+      "allowed_statuses": [
+        "answer"
+      ],
+      "checked_by_hand": false,
+      "needs_expert_review": true,
+      "required": [
+        {
+          "id": "polarity нет",
+          "kind": "polarity",
+          "value": "нет"
+        }
+      ],
+      "forbidden": [
+        {
+          "id": "polarity да",
+          "kind": "polarity",
+          "value": "да"
+        }
+      ]
+    },
+    {
+      "case_id": "lb037",
+      "family": "reasoning/binary/ai-governance",
+      "source_task": "rule-conclusion-ai-governance",
+      "allowed_statuses": [
+        "answer"
+      ],
+      "checked_by_hand": false,
+      "needs_expert_review": true,
+      "required": [
+        {
+          "id": "polarity нет",
+          "kind": "polarity",
+          "value": "нет"
+        }
+      ],
+      "forbidden": [
+        {
+          "id": "polarity да",
+          "kind": "polarity",
+          "value": "да"
+        }
+      ]
+    },
+    {
+      "case_id": "lb038",
+      "family": "reasoning/binary/ai-governance",
+      "source_task": "rule-conclusion-ai-governance",
+      "allowed_statuses": [
+        "answer"
+      ],
+      "checked_by_hand": false,
+      "needs_expert_review": true,
+      "required": [
+        {
+          "id": "polarity да",
+          "kind": "polarity",
+          "value": "да"
+        }
+      ],
+      "forbidden": [
+        {
+          "id": "polarity нет",
+          "kind": "polarity",
+          "value": "нет"
+        }
+      ]
+    },
+    {
+      "case_id": "lb039",
+      "family": "reasoning/binary/ai-governance",
+      "source_task": "rule-conclusion-ai-governance",
+      "allowed_statuses": [
+        "answer"
+      ],
+      "checked_by_hand": false,
+      "needs_expert_review": true,
+      "required": [
+        {
+          "id": "polarity нет",
+          "kind": "polarity",
+          "value": "нет"
+        }
+      ],
+      "forbidden": [
+        {
+          "id": "polarity да",
+          "kind": "polarity",
+          "value": "да"
+        }
+      ]
+    },
+    {
+      "case_id": "lb040",
+      "family": "reasoning/binary/civil",
+      "source_task": "rule-conclusion-civil",
+      "allowed_statuses": [
+        "answer"
+      ],
+      "checked_by_hand": false,
+      "needs_expert_review": true,
+      "required": [
+        {
+          "id": "polarity нет",
+          "kind": "polarity",
+          "value": "нет"
+        }
+      ],
+      "forbidden": [
+        {
+          "id": "polarity да",
+          "kind": "polarity",
+          "value": "да"
+        }
+      ]
+    },
+    {
+      "case_id": "lb041",
+      "family": "reasoning/binary/civil",
+      "source_task": "rule-conclusion-civil",
+      "allowed_statuses": [
+        "answer"
+      ],
+      "checked_by_hand": false,
+      "needs_expert_review": true,
+      "required": [
+        {
+          "id": "polarity да",
+          "kind": "polarity",
+          "value": "да"
+        }
+      ],
+      "forbidden": [
+        {
+          "id": "polarity нет",
+          "kind": "polarity",
+          "value": "нет"
+        }
+      ]
+    },
+    {
+      "case_id": "lb042",
+      "family": "reasoning/binary/civil",
+      "source_task": "rule-conclusion-civil",
+      "allowed_statuses": [
+        "answer"
+      ],
+      "checked_by_hand": false,
+      "needs_expert_review": true,
+      "required": [
+        {
+          "id": "polarity да",
+          "kind": "polarity",
+          "value": "да"
+        }
+      ],
+      "forbidden": [
+        {
+          "id": "polarity нет",
+          "kind": "polarity",
+          "value": "нет"
+        }
+      ]
+    },
+    {
+      "case_id": "lb043",
+      "family": "reasoning/binary/civil",
+      "source_task": "rule-conclusion-civil",
+      "allowed_statuses": [
+        "answer"
+      ],
+      "checked_by_hand": false,
+      "needs_expert_review": true,
+      "required": [
+        {
+          "id": "polarity да",
+          "kind": "polarity",
+          "value": "да"
+        }
+      ],
+      "forbidden": [
+        {
+          "id": "polarity нет",
+          "kind": "polarity",
+          "value": "нет"
+        }
+      ]
+    },
+    {
+      "case_id": "lb044",
+      "family": "reasoning/binary/civil",
+      "source_task": "rule-conclusion-civil",
+      "allowed_statuses": [
+        "answer"
+      ],
+      "checked_by_hand": false,
+      "needs_expert_review": true,
+      "required": [
+        {
+          "id": "polarity да",
+          "kind": "polarity",
+          "value": "да"
+        }
+      ],
+      "forbidden": [
+        {
+          "id": "polarity нет",
+          "kind": "polarity",
+          "value": "нет"
+        }
+      ]
+    },
+    {
+      "case_id": "lb045",
+      "family": "reasoning/binary/civil",
+      "source_task": "rule-conclusion-civil",
+      "allowed_statuses": [
+        "answer"
+      ],
+      "checked_by_hand": false,
+      "needs_expert_review": true,
+      "required": [
+        {
+          "id": "polarity да",
+          "kind": "polarity",
+          "value": "да"
+        }
+      ],
+      "forbidden": [
+        {
+          "id": "polarity нет",
+          "kind": "polarity",
+          "value": "нет"
+        }
+      ]
+    },
+    {
+      "case_id": "lb046",
+      "family": "reasoning/binary/civil",
+      "source_task": "rule-conclusion-civil",
+      "allowed_statuses": [
+        "answer"
+      ],
+      "checked_by_hand": false,
+      "needs_expert_review": true,
+      "required": [
+        {
+          "id": "polarity да",
+          "kind": "polarity",
+          "value": "да"
+        }
+      ],
+      "forbidden": [
+        {
+          "id": "polarity нет",
+          "kind": "polarity",
+          "value": "нет"
+        }
+      ]
+    },
+    {
+      "case_id": "lb047",
+      "family": "reasoning/binary/civil",
+      "source_task": "rule-conclusion-civil",
+      "allowed_statuses": [
+        "answer"
+      ],
+      "checked_by_hand": false,
+      "needs_expert_review": true,
+      "required": [
+        {
+          "id": "polarity да",
+          "kind": "polarity",
+          "value": "да"
+        }
+      ],
+      "forbidden": [
+        {
+          "id": "polarity нет",
+          "kind": "polarity",
+          "value": "нет"
+        }
+      ]
+    },
+    {
+      "case_id": "lb048",
+      "family": "reasoning/binary/compliance",
+      "source_task": "rule-conclusion-compliance",
+      "allowed_statuses": [
+        "answer"
+      ],
+      "checked_by_hand": false,
+      "needs_expert_review": true,
+      "required": [
+        {
+          "id": "polarity да",
+          "kind": "polarity",
+          "value": "да"
+        }
+      ],
+      "forbidden": [
+        {
+          "id": "polarity нет",
+          "kind": "polarity",
+          "value": "нет"
+        }
+      ]
+    },
+    {
+      "case_id": "lb049",
+      "family": "reasoning/binary/compliance",
+      "source_task": "rule-conclusion-compliance",
+      "allowed_statuses": [
+        "answer"
+      ],
+      "checked_by_hand": false,
+      "needs_expert_review": true,
+      "required": [
+        {
+          "id": "polarity нет",
+          "kind": "polarity",
+          "value": "нет"
+        }
+      ],
+      "forbidden": [
+        {
+          "id": "polarity да",
+          "kind": "polarity",
+          "value": "да"
+        }
+      ]
+    },
+    {
+      "case_id": "lb050",
+      "family": "reasoning/binary/compliance",
+      "source_task": "rule-conclusion-compliance",
+      "allowed_statuses": [
+        "answer"
+      ],
+      "checked_by_hand": false,
+      "needs_expert_review": true,
+      "required": [
+        {
+          "id": "polarity да",
+          "kind": "polarity",
+          "value": "да"
+        }
+      ],
+      "forbidden": [
+        {
+          "id": "polarity нет",
+          "kind": "polarity",
+          "value": "нет"
+        }
+      ]
+    },
+    {
+      "case_id": "lb051",
+      "family": "reasoning/binary/compliance",
+      "source_task": "rule-conclusion-compliance",
+      "allowed_statuses": [
+        "answer"
+      ],
+      "checked_by_hand": false,
+      "needs_expert_review": true,
+      "required": [
+        {
+          "id": "polarity да",
+          "kind": "polarity",
+          "value": "да"
+        }
+      ],
+      "forbidden": [
+        {
+          "id": "polarity нет",
+          "kind": "polarity",
+          "value": "нет"
+        }
+      ]
+    },
+    {
+      "case_id": "lb052",
+      "family": "reasoning/binary/compliance",
+      "source_task": "rule-conclusion-compliance",
+      "allowed_statuses": [
+        "answer"
+      ],
+      "checked_by_hand": false,
+      "needs_expert_review": true,
+      "required": [
+        {
+          "id": "polarity да",
+          "kind": "polarity",
+          "value": "да"
+        }
+      ],
+      "forbidden": [
+        {
+          "id": "polarity нет",
+          "kind": "polarity",
+          "value": "нет"
+        }
+      ]
+    },
+    {
+      "case_id": "lb053",
+      "family": "reasoning/binary/compliance",
+      "source_task": "rule-conclusion-compliance",
+      "allowed_statuses": [
+        "answer"
+      ],
+      "checked_by_hand": false,
+      "needs_expert_review": true,
+      "required": [
+        {
+          "id": "polarity да",
+          "kind": "polarity",
+          "value": "да"
+        }
+      ],
+      "forbidden": [
+        {
+          "id": "polarity нет",
+          "kind": "polarity",
+          "value": "нет"
+        }
+      ]
+    },
+    {
+      "case_id": "lb054",
+      "family": "reasoning/binary/compliance",
+      "source_task": "rule-conclusion-compliance",
+      "allowed_statuses": [
+        "answer"
+      ],
+      "checked_by_hand": false,
+      "needs_expert_review": true,
+      "required": [
+        {
+          "id": "polarity да",
+          "kind": "polarity",
+          "value": "да"
+        }
+      ],
+      "forbidden": [
+        {
+          "id": "polarity нет",
+          "kind": "polarity",
+          "value": "нет"
+        }
+      ]
+    },
+    {
+      "case_id": "lb055",
+      "family": "reasoning/binary/compliance",
+      "source_task": "rule-conclusion-compliance",
+      "allowed_statuses": [
+        "answer"
+      ],
+      "checked_by_hand": false,
+      "needs_expert_review": true,
+      "required": [
+        {
+          "id": "polarity да",
+          "kind": "polarity",
+          "value": "да"
+        }
+      ],
+      "forbidden": [
+        {
+          "id": "polarity нет",
+          "kind": "polarity",
+          "value": "нет"
+        }
+      ]
+    },
+    {
+      "case_id": "lb056",
+      "family": "reasoning/binary/compliance",
+      "source_task": "rule-conclusion-compliance",
+      "allowed_statuses": [
+        "answer"
+      ],
+      "checked_by_hand": false,
+      "needs_expert_review": true,
+      "required": [
+        {
+          "id": "polarity нет",
+          "kind": "polarity",
+          "value": "нет"
+        }
+      ],
+      "forbidden": [
+        {
+          "id": "polarity да",
+          "kind": "polarity",
+          "value": "да"
+        }
+      ]
+    },
+    {
+      "case_id": "lb057",
+      "family": "reasoning/binary/consumer",
+      "source_task": "rule-conclusion-consumer",
+      "allowed_statuses": [
+        "answer"
+      ],
+      "checked_by_hand": false,
+      "needs_expert_review": true,
+      "required": [
+        {
+          "id": "polarity да",
+          "kind": "polarity",
+          "value": "да"
+        }
+      ],
+      "forbidden": [
+        {
+          "id": "polarity нет",
+          "kind": "polarity",
+          "value": "нет"
+        }
+      ]
+    },
+    {
+      "case_id": "lb058",
+      "family": "reasoning/binary/consumer",
+      "source_task": "rule-conclusion-consumer",
+      "allowed_statuses": [
+        "answer"
+      ],
+      "checked_by_hand": false,
+      "needs_expert_review": true,
+      "required": [
+        {
+          "id": "polarity да",
+          "kind": "polarity",
+          "value": "да"
+        }
+      ],
+      "forbidden": [
+        {
+          "id": "polarity нет",
+          "kind": "polarity",
+          "value": "нет"
+        }
+      ]
+    },
+    {
+      "case_id": "lb059",
+      "family": "reasoning/binary/consumer",
+      "source_task": "rule-conclusion-consumer",
+      "allowed_statuses": [
+        "answer"
+      ],
+      "checked_by_hand": false,
+      "needs_expert_review": true,
+      "required": [
+        {
+          "id": "polarity нет",
+          "kind": "polarity",
+          "value": "нет"
+        }
+      ],
+      "forbidden": [
+        {
+          "id": "polarity да",
+          "kind": "polarity",
+          "value": "да"
+        }
+      ]
+    },
+    {
+      "case_id": "lb060",
+      "family": "reasoning/binary/consumer",
+      "source_task": "rule-conclusion-consumer",
+      "allowed_statuses": [
+        "answer"
+      ],
+      "checked_by_hand": false,
+      "needs_expert_review": true,
+      "required": [
+        {
+          "id": "polarity да",
+          "kind": "polarity",
+          "value": "да"
+        }
+      ],
+      "forbidden": [
+        {
+          "id": "polarity нет",
+          "kind": "polarity",
+          "value": "нет"
+        }
+      ]
+    },
+    {
+      "case_id": "lb061",
+      "family": "reasoning/binary/consumer",
+      "source_task": "rule-conclusion-consumer",
+      "allowed_statuses": [
+        "answer"
+      ],
+      "checked_by_hand": false,
+      "needs_expert_review": true,
+      "required": [
+        {
+          "id": "polarity нет",
+          "kind": "polarity",
+          "value": "нет"
+        }
+      ],
+      "forbidden": [
+        {
+          "id": "polarity да",
+          "kind": "polarity",
+          "value": "да"
+        }
+      ]
+    },
+    {
+      "case_id": "lb062",
+      "family": "reasoning/binary/contract",
+      "source_task": "rule-conclusion-contract",
+      "allowed_statuses": [
+        "answer"
+      ],
+      "checked_by_hand": false,
+      "needs_expert_review": true,
+      "required": [
+        {
+          "id": "polarity да",
+          "kind": "polarity",
+          "value": "да"
+        }
+      ],
+      "forbidden": [
+        {
+          "id": "polarity нет",
+          "kind": "polarity",
+          "value": "нет"
+        }
+      ]
+    },
+    {
+      "case_id": "lb063",
+      "family": "reasoning/binary/contract",
+      "source_task": "rule-conclusion-contract",
+      "allowed_statuses": [
+        "answer"
+      ],
+      "checked_by_hand": false,
+      "needs_expert_review": true,
+      "required": [
+        {
+          "id": "polarity да",
+          "kind": "polarity",
+          "value": "да"
+        }
+      ],
+      "forbidden": [
+        {
+          "id": "polarity нет",
+          "kind": "polarity",
+          "value": "нет"
+        }
+      ]
+    },
+    {
+      "case_id": "lb064",
+      "family": "reasoning/binary/contract",
+      "source_task": "rule-conclusion-contract",
+      "allowed_statuses": [
+        "answer"
+      ],
+      "checked_by_hand": false,
+      "needs_expert_review": true,
+      "required": [
+        {
+          "id": "polarity нет",
+          "kind": "polarity",
+          "value": "нет"
+        }
+      ],
+      "forbidden": [
+        {
+          "id": "polarity да",
+          "kind": "polarity",
+          "value": "да"
+        }
+      ]
+    },
+    {
+      "case_id": "lb065",
+      "family": "reasoning/binary/contract",
+      "source_task": "rule-conclusion-contract",
+      "allowed_statuses": [
+        "answer"
+      ],
+      "checked_by_hand": false,
+      "needs_expert_review": true,
+      "required": [
+        {
+          "id": "polarity да",
+          "kind": "polarity",
+          "value": "да"
+        }
+      ],
+      "forbidden": [
+        {
+          "id": "polarity нет",
+          "kind": "polarity",
+          "value": "нет"
+        }
+      ]
+    },
+    {
+      "case_id": "lb066",
+      "family": "reasoning/binary/contract",
+      "source_task": "rule-conclusion-contract",
+      "allowed_statuses": [
+        "answer"
+      ],
+      "checked_by_hand": false,
+      "needs_expert_review": true,
+      "required": [
+        {
+          "id": "polarity да",
+          "kind": "polarity",
+          "value": "да"
+        }
+      ],
+      "forbidden": [
+        {
+          "id": "polarity нет",
+          "kind": "polarity",
+          "value": "нет"
+        }
+      ]
+    },
+    {
+      "case_id": "lb067",
+      "family": "reasoning/binary/contract",
+      "source_task": "rule-conclusion-contract",
+      "allowed_statuses": [
+        "answer"
+      ],
+      "checked_by_hand": false,
+      "needs_expert_review": true,
+      "required": [
+        {
+          "id": "polarity да",
+          "kind": "polarity",
+          "value": "да"
+        }
+      ],
+      "forbidden": [
+        {
+          "id": "polarity нет",
+          "kind": "polarity",
+          "value": "нет"
+        }
+      ]
+    },
+    {
+      "case_id": "lb068",
+      "family": "reasoning/binary/contract",
+      "source_task": "rule-conclusion-contract",
+      "allowed_statuses": [
+        "answer"
+      ],
+      "checked_by_hand": false,
+      "needs_expert_review": true,
+      "required": [
+        {
+          "id": "polarity да",
+          "kind": "polarity",
+          "value": "да"
+        }
+      ],
+      "forbidden": [
+        {
+          "id": "polarity нет",
+          "kind": "polarity",
+          "value": "нет"
+        }
+      ]
+    },
+    {
+      "case_id": "lb069",
+      "family": "reasoning/binary/contract",
+      "source_task": "rule-conclusion-contract",
+      "allowed_statuses": [
+        "answer"
+      ],
+      "checked_by_hand": false,
+      "needs_expert_review": true,
+      "required": [
+        {
+          "id": "polarity нет",
+          "kind": "polarity",
+          "value": "нет"
+        }
+      ],
+      "forbidden": [
+        {
+          "id": "polarity да",
+          "kind": "polarity",
+          "value": "да"
+        }
+      ]
+    },
+    {
+      "case_id": "lb070",
+      "family": "reasoning/binary/corporate",
+      "source_task": "rule-conclusion-corporate",
+      "allowed_statuses": [
+        "answer"
+      ],
+      "checked_by_hand": false,
+      "needs_expert_review": true,
+      "required": [
+        {
+          "id": "polarity да",
+          "kind": "polarity",
+          "value": "да"
+        }
+      ],
+      "forbidden": [
+        {
+          "id": "polarity нет",
+          "kind": "polarity",
+          "value": "нет"
+        }
+      ]
+    },
+    {
+      "case_id": "lb071",
+      "family": "reasoning/binary/corporate",
+      "source_task": "rule-conclusion-corporate",
+      "allowed_statuses": [
+        "answer"
+      ],
+      "checked_by_hand": false,
+      "needs_expert_review": true,
+      "required": [
+        {
+          "id": "polarity нет",
+          "kind": "polarity",
+          "value": "нет"
+        }
+      ],
+      "forbidden": [
+        {
+          "id": "polarity да",
+          "kind": "polarity",
+          "value": "да"
+        }
+      ]
+    },
+    {
+      "case_id": "lb072",
+      "family": "reasoning/binary/corporate",
+      "source_task": "rule-conclusion-corporate",
+      "allowed_statuses": [
+        "answer"
+      ],
+      "checked_by_hand": false,
+      "needs_expert_review": true,
+      "required": [
+        {
+          "id": "polarity да",
+          "kind": "polarity",
+          "value": "да"
+        }
+      ],
+      "forbidden": [
+        {
+          "id": "polarity нет",
+          "kind": "polarity",
+          "value": "нет"
+        }
+      ]
+    },
+    {
+      "case_id": "lb073",
+      "family": "reasoning/binary/corporate",
+      "source_task": "rule-conclusion-corporate",
+      "allowed_statuses": [
+        "answer"
+      ],
+      "checked_by_hand": false,
+      "needs_expert_review": true,
+      "required": [
+        {
+          "id": "polarity да",
+          "kind": "polarity",
+          "value": "да"
+        }
+      ],
+      "forbidden": [
+        {
+          "id": "polarity нет",
+          "kind": "polarity",
+          "value": "нет"
+        }
+      ]
+    },
+    {
+      "case_id": "lb074",
+      "family": "reasoning/binary/corporate",
+      "source_task": "rule-conclusion-corporate",
+      "allowed_statuses": [
+        "answer"
+      ],
+      "checked_by_hand": false,
+      "needs_expert_review": true,
+      "required": [
+        {
+          "id": "polarity да",
+          "kind": "polarity",
+          "value": "да"
+        }
+      ],
+      "forbidden": [
+        {
+          "id": "polarity нет",
+          "kind": "polarity",
+          "value": "нет"
+        }
+      ]
+    },
+    {
+      "case_id": "lb075",
+      "family": "reasoning/binary/corporate",
+      "source_task": "rule-conclusion-corporate",
+      "allowed_statuses": [
+        "answer"
+      ],
+      "checked_by_hand": false,
+      "needs_expert_review": true,
+      "required": [
+        {
+          "id": "polarity да",
+          "kind": "polarity",
+          "value": "да"
+        }
+      ],
+      "forbidden": [
+        {
+          "id": "polarity нет",
+          "kind": "polarity",
+          "value": "нет"
+        }
+      ]
+    },
+    {
+      "case_id": "lb076",
+      "family": "reasoning/binary/data-protection",
+      "source_task": "rule-conclusion-data-protection",
+      "allowed_statuses": [
+        "answer"
+      ],
+      "checked_by_hand": false,
+      "needs_expert_review": true,
+      "required": [
+        {
+          "id": "polarity нет",
+          "kind": "polarity",
+          "value": "нет"
+        }
+      ],
+      "forbidden": [
+        {
+          "id": "polarity да",
+          "kind": "polarity",
+          "value": "да"
+        }
+      ]
+    },
+    {
+      "case_id": "lb077",
+      "family": "reasoning/binary/data-protection",
+      "source_task": "rule-conclusion-data-protection",
+      "allowed_statuses": [
+        "answer"
+      ],
+      "checked_by_hand": false,
+      "needs_expert_review": true,
+      "required": [
+        {
+          "id": "polarity да",
+          "kind": "polarity",
+          "value": "да"
+        }
+      ],
+      "forbidden": [
+        {
+          "id": "polarity нет",
+          "kind": "polarity",
+          "value": "нет"
+        }
+      ]
+    },
+    {
+      "case_id": "lb078",
+      "family": "reasoning/binary/data-protection",
+      "source_task": "rule-conclusion-data-protection",
+      "allowed_statuses": [
+        "answer"
+      ],
+      "checked_by_hand": false,
+      "needs_expert_review": true,
+      "required": [
+        {
+          "id": "polarity да",
+          "kind": "polarity",
+          "value": "да"
+        }
+      ],
+      "forbidden": [
+        {
+          "id": "polarity нет",
+          "kind": "polarity",
+          "value": "нет"
+        }
+      ]
+    },
+    {
+      "case_id": "lb079",
+      "family": "reasoning/binary/data-protection",
+      "source_task": "rule-conclusion-data-protection",
+      "allowed_statuses": [
+        "answer"
+      ],
+      "checked_by_hand": false,
+      "needs_expert_review": true,
+      "required": [
+        {
+          "id": "polarity да",
+          "kind": "polarity",
+          "value": "да"
+        }
+      ],
+      "forbidden": [
+        {
+          "id": "polarity нет",
+          "kind": "polarity",
+          "value": "нет"
+        }
+      ]
+    },
+    {
+      "case_id": "lb080",
+      "family": "reasoning/binary/data-protection",
+      "source_task": "rule-conclusion-data-protection",
+      "allowed_statuses": [
+        "answer"
+      ],
+      "checked_by_hand": false,
+      "needs_expert_review": true,
+      "required": [
+        {
+          "id": "polarity нет",
+          "kind": "polarity",
+          "value": "нет"
+        }
+      ],
+      "forbidden": [
+        {
+          "id": "polarity да",
+          "kind": "polarity",
+          "value": "да"
+        }
+      ]
+    },
+    {
+      "case_id": "lb081",
+      "family": "reasoning/binary/data-protection",
+      "source_task": "rule-conclusion-data-protection",
+      "allowed_statuses": [
+        "answer"
+      ],
+      "checked_by_hand": false,
+      "needs_expert_review": true,
+      "required": [
+        {
+          "id": "polarity да",
+          "kind": "polarity",
+          "value": "да"
+        }
+      ],
+      "forbidden": [
+        {
+          "id": "polarity нет",
+          "kind": "polarity",
+          "value": "нет"
+        }
+      ]
+    },
+    {
+      "case_id": "lb082",
+      "family": "reasoning/binary/data-protection",
+      "source_task": "rule-conclusion-data-protection",
+      "allowed_statuses": [
+        "answer"
+      ],
+      "checked_by_hand": false,
+      "needs_expert_review": true,
+      "required": [
+        {
+          "id": "polarity да",
+          "kind": "polarity",
+          "value": "да"
+        }
+      ],
+      "forbidden": [
+        {
+          "id": "polarity нет",
+          "kind": "polarity",
+          "value": "нет"
+        }
+      ]
+    },
+    {
+      "case_id": "lb083",
+      "family": "reasoning/binary/ip",
+      "source_task": "rule-conclusion-ip",
+      "allowed_statuses": [
+        "answer"
+      ],
+      "checked_by_hand": false,
+      "needs_expert_review": true,
+      "required": [
+        {
+          "id": "polarity да",
+          "kind": "polarity",
+          "value": "да"
+        }
+      ],
+      "forbidden": [
+        {
+          "id": "polarity нет",
+          "kind": "polarity",
+          "value": "нет"
+        }
+      ]
+    },
+    {
+      "case_id": "lb084",
+      "family": "reasoning/binary/ip",
+      "source_task": "rule-conclusion-ip",
+      "allowed_statuses": [
+        "answer"
+      ],
+      "checked_by_hand": false,
+      "needs_expert_review": true,
+      "required": [
+        {
+          "id": "polarity нет",
+          "kind": "polarity",
+          "value": "нет"
+        }
+      ],
+      "forbidden": [
+        {
+          "id": "polarity да",
+          "kind": "polarity",
+          "value": "да"
+        }
+      ]
+    },
+    {
+      "case_id": "lb085",
+      "family": "reasoning/binary/ip",
+      "source_task": "rule-conclusion-ip",
+      "allowed_statuses": [
+        "answer"
+      ],
+      "checked_by_hand": false,
+      "needs_expert_review": true,
+      "required": [
+        {
+          "id": "polarity да",
+          "kind": "polarity",
+          "value": "да"
+        }
+      ],
+      "forbidden": [
+        {
+          "id": "polarity нет",
+          "kind": "polarity",
+          "value": "нет"
+        }
+      ]
+    },
+    {
+      "case_id": "lb086",
+      "family": "reasoning/binary/ip",
+      "source_task": "rule-conclusion-ip",
+      "allowed_statuses": [
+        "answer"
+      ],
+      "checked_by_hand": false,
+      "needs_expert_review": true,
+      "required": [
+        {
+          "id": "polarity нет",
+          "kind": "polarity",
+          "value": "нет"
+        }
+      ],
+      "forbidden": [
+        {
+          "id": "polarity да",
+          "kind": "polarity",
+          "value": "да"
+        }
+      ]
+    },
+    {
+      "case_id": "lb087",
+      "family": "reasoning/binary/ip",
+      "source_task": "rule-conclusion-ip",
+      "allowed_statuses": [
+        "answer"
+      ],
+      "checked_by_hand": false,
+      "needs_expert_review": true,
+      "required": [
+        {
+          "id": "polarity да",
+          "kind": "polarity",
+          "value": "да"
+        }
+      ],
+      "forbidden": [
+        {
+          "id": "polarity нет",
+          "kind": "polarity",
+          "value": "нет"
+        }
+      ]
+    },
+    {
+      "case_id": "lb088",
+      "family": "reasoning/binary/ip",
+      "source_task": "rule-conclusion-ip",
+      "allowed_statuses": [
+        "answer"
+      ],
+      "checked_by_hand": false,
+      "needs_expert_review": true,
+      "required": [
+        {
+          "id": "polarity да",
+          "kind": "polarity",
+          "value": "да"
+        }
+      ],
+      "forbidden": [
+        {
+          "id": "polarity нет",
+          "kind": "polarity",
+          "value": "нет"
+        }
+      ]
+    },
+    {
+      "case_id": "lb089",
+      "family": "reasoning/binary/ip",
+      "source_task": "rule-conclusion-ip",
+      "allowed_statuses": [
+        "answer"
+      ],
+      "checked_by_hand": false,
+      "needs_expert_review": true,
+      "required": [
+        {
+          "id": "polarity да",
+          "kind": "polarity",
+          "value": "да"
+        }
+      ],
+      "forbidden": [
+        {
+          "id": "polarity нет",
+          "kind": "polarity",
+          "value": "нет"
+        }
+      ]
+    },
+    {
+      "case_id": "lb090",
+      "family": "reasoning/binary/labor",
+      "source_task": "rule-conclusion-labor",
+      "allowed_statuses": [
+        "answer"
+      ],
+      "checked_by_hand": false,
+      "needs_expert_review": true,
+      "required": [
+        {
+          "id": "polarity да",
+          "kind": "polarity",
+          "value": "да"
+        }
+      ],
+      "forbidden": [
+        {
+          "id": "polarity нет",
+          "kind": "polarity",
+          "value": "нет"
+        }
+      ]
+    },
+    {
+      "case_id": "lb091",
+      "family": "reasoning/binary/labor",
+      "source_task": "rule-conclusion-labor",
+      "allowed_statuses": [
+        "answer"
+      ],
+      "checked_by_hand": false,
+      "needs_expert_review": true,
+      "required": [
+        {
+          "id": "polarity да",
+          "kind": "polarity",
+          "value": "да"
+        }
+      ],
+      "forbidden": [
+        {
+          "id": "polarity нет",
+          "kind": "polarity",
+          "value": "нет"
+        }
+      ]
+    },
+    {
+      "case_id": "lb092",
+      "family": "reasoning/binary/labor",
+      "source_task": "rule-conclusion-labor",
+      "allowed_statuses": [
+        "answer"
+      ],
+      "checked_by_hand": false,
+      "needs_expert_review": true,
+      "required": [
+        {
+          "id": "polarity нет",
+          "kind": "polarity",
+          "value": "нет"
+        }
+      ],
+      "forbidden": [
+        {
+          "id": "polarity да",
+          "kind": "polarity",
+          "value": "да"
+        }
+      ]
+    },
+    {
+      "case_id": "lb093",
+      "family": "reasoning/binary/labor",
+      "source_task": "rule-conclusion-labor",
+      "allowed_statuses": [
+        "answer"
+      ],
+      "checked_by_hand": false,
+      "needs_expert_review": true,
+      "required": [
+        {
+          "id": "polarity нет",
+          "kind": "polarity",
+          "value": "нет"
+        }
+      ],
+      "forbidden": [
+        {
+          "id": "polarity да",
+          "kind": "polarity",
+          "value": "да"
+        }
+      ]
+    },
+    {
+      "case_id": "lb094",
+      "family": "reasoning/binary/labor",
+      "source_task": "rule-conclusion-labor",
+      "allowed_statuses": [
+        "answer"
+      ],
+      "checked_by_hand": false,
+      "needs_expert_review": true,
+      "required": [
+        {
+          "id": "polarity да",
+          "kind": "polarity",
+          "value": "да"
+        }
+      ],
+      "forbidden": [
+        {
+          "id": "polarity нет",
+          "kind": "polarity",
+          "value": "нет"
+        }
+      ]
+    },
+    {
+      "case_id": "lb095",
+      "family": "reasoning/binary/labor",
+      "source_task": "rule-conclusion-labor",
+      "allowed_statuses": [
+        "answer"
+      ],
+      "checked_by_hand": false,
+      "needs_expert_review": true,
+      "required": [
+        {
+          "id": "polarity да",
+          "kind": "polarity",
+          "value": "да"
+        }
+      ],
+      "forbidden": [
+        {
+          "id": "polarity нет",
+          "kind": "polarity",
+          "value": "нет"
+        }
+      ]
+    },
+    {
+      "case_id": "lb096",
+      "family": "reasoning/binary/labor",
+      "source_task": "rule-conclusion-labor",
+      "allowed_statuses": [
+        "answer"
+      ],
+      "checked_by_hand": false,
+      "needs_expert_review": true,
+      "required": [
+        {
+          "id": "polarity да",
+          "kind": "polarity",
+          "value": "да"
+        }
+      ],
+      "forbidden": [
+        {
+          "id": "polarity нет",
+          "kind": "polarity",
+          "value": "нет"
+        }
+      ]
+    },
+    {
+      "case_id": "lb097",
+      "family": "reasoning/binary/labor",
+      "source_task": "rule-conclusion-labor",
+      "allowed_statuses": [
+        "answer"
+      ],
+      "checked_by_hand": false,
+      "needs_expert_review": true,
+      "required": [
+        {
+          "id": "polarity да",
+          "kind": "polarity",
+          "value": "да"
+        }
+      ],
+      "forbidden": [
+        {
+          "id": "polarity нет",
+          "kind": "polarity",
+          "value": "нет"
+        }
+      ]
+    },
+    {
+      "case_id": "lb098",
+      "family": "reasoning/binary/litigation",
+      "source_task": "rule-conclusion-litigation",
+      "allowed_statuses": [
+        "answer"
+      ],
+      "checked_by_hand": false,
+      "needs_expert_review": true,
+      "required": [
+        {
+          "id": "polarity нет",
+          "kind": "polarity",
+          "value": "нет"
+        }
+      ],
+      "forbidden": [
+        {
+          "id": "polarity да",
+          "kind": "polarity",
+          "value": "да"
+        }
+      ]
+    },
+    {
+      "case_id": "lb099",
+      "family": "reasoning/binary/litigation",
+      "source_task": "rule-conclusion-litigation",
+      "allowed_statuses": [
+        "answer"
+      ],
+      "checked_by_hand": false,
+      "needs_expert_review": true,
+      "required": [
+        {
+          "id": "polarity нет",
+          "kind": "polarity",
+          "value": "нет"
+        }
+      ],
+      "forbidden": [
+        {
+          "id": "polarity да",
+          "kind": "polarity",
+          "value": "да"
+        }
+      ]
+    },
+    {
+      "case_id": "lb100",
+      "family": "reasoning/binary/litigation",
+      "source_task": "rule-conclusion-litigation",
+      "allowed_statuses": [
+        "answer"
+      ],
+      "checked_by_hand": false,
+      "needs_expert_review": true,
+      "required": [
+        {
+          "id": "polarity да",
+          "kind": "polarity",
+          "value": "да"
+        }
+      ],
+      "forbidden": [
+        {
+          "id": "polarity нет",
+          "kind": "polarity",
+          "value": "нет"
+        }
+      ]
+    },
+    {
+      "case_id": "lb101",
+      "family": "reasoning/binary/litigation",
+      "source_task": "rule-conclusion-litigation",
+      "allowed_statuses": [
+        "answer"
+      ],
+      "checked_by_hand": false,
+      "needs_expert_review": true,
+      "required": [
+        {
+          "id": "polarity да",
+          "kind": "polarity",
+          "value": "да"
+        }
+      ],
+      "forbidden": [
+        {
+          "id": "polarity нет",
+          "kind": "polarity",
+          "value": "нет"
+        }
+      ]
+    },
+    {
+      "case_id": "lb102",
+      "family": "reasoning/binary/litigation",
+      "source_task": "rule-conclusion-litigation",
+      "allowed_statuses": [
+        "answer"
+      ],
+      "checked_by_hand": false,
+      "needs_expert_review": true,
+      "required": [
+        {
+          "id": "polarity да",
+          "kind": "polarity",
+          "value": "да"
+        }
+      ],
+      "forbidden": [
+        {
+          "id": "polarity нет",
+          "kind": "polarity",
+          "value": "нет"
+        }
+      ]
+    },
+    {
+      "case_id": "lb103",
+      "family": "reasoning/binary/litigation",
+      "source_task": "rule-conclusion-litigation",
+      "allowed_statuses": [
+        "answer"
+      ],
+      "checked_by_hand": false,
+      "needs_expert_review": true,
+      "required": [
+        {
+          "id": "polarity да",
+          "kind": "polarity",
+          "value": "да"
+        }
+      ],
+      "forbidden": [
+        {
+          "id": "polarity нет",
+          "kind": "polarity",
+          "value": "нет"
+        }
+      ]
+    },
+    {
+      "case_id": "lb104",
+      "family": "reasoning/binary/litigation",
+      "source_task": "rule-conclusion-litigation",
+      "allowed_statuses": [
+        "answer"
+      ],
+      "checked_by_hand": false,
+      "needs_expert_review": true,
+      "required": [
+        {
+          "id": "polarity да",
+          "kind": "polarity",
+          "value": "да"
+        }
+      ],
+      "forbidden": [
+        {
+          "id": "polarity нет",
+          "kind": "polarity",
+          "value": "нет"
+        }
+      ]
+    },
+    {
+      "case_id": "lb105",
+      "family": "reasoning/binary/contract",
+      "source_task": "rule-conclusion-neustojka",
+      "allowed_statuses": [
+        "answer"
+      ],
+      "checked_by_hand": false,
+      "needs_expert_review": true,
+      "required": [
+        {
+          "id": "polarity нет",
+          "kind": "polarity",
+          "value": "нет"
+        }
+      ],
+      "forbidden": [
+        {
+          "id": "polarity да",
+          "kind": "polarity",
+          "value": "да"
+        }
+      ]
+    },
+    {
+      "case_id": "lb106",
+      "family": "reasoning/binary/contract",
+      "source_task": "rule-conclusion-neustojka",
+      "allowed_statuses": [
+        "answer"
+      ],
+      "checked_by_hand": false,
+      "needs_expert_review": true,
+      "required": [
+        {
+          "id": "polarity да",
+          "kind": "polarity",
+          "value": "да"
+        }
+      ],
+      "forbidden": [
+        {
+          "id": "polarity нет",
+          "kind": "polarity",
+          "value": "нет"
+        }
+      ]
+    },
+    {
+      "case_id": "lb107",
+      "family": "reasoning/binary/contract",
+      "source_task": "rule-conclusion-neustojka",
+      "allowed_statuses": [
+        "answer"
+      ],
+      "checked_by_hand": false,
+      "needs_expert_review": true,
+      "required": [
+        {
+          "id": "polarity нет",
+          "kind": "polarity",
+          "value": "нет"
+        }
+      ],
+      "forbidden": [
+        {
+          "id": "polarity да",
+          "kind": "polarity",
+          "value": "да"
+        }
+      ]
+    },
+    {
+      "case_id": "lb108",
+      "family": "reasoning/binary/contract",
+      "source_task": "rule-conclusion-neustojka",
+      "allowed_statuses": [
+        "answer"
+      ],
+      "checked_by_hand": false,
+      "needs_expert_review": true,
+      "required": [
+        {
+          "id": "polarity да",
+          "kind": "polarity",
+          "value": "да"
+        }
+      ],
+      "forbidden": [
+        {
+          "id": "polarity нет",
+          "kind": "polarity",
+          "value": "нет"
+        }
+      ]
+    },
+    {
+      "case_id": "lb109",
+      "family": "reasoning/binary/contract",
+      "source_task": "rule-conclusion-neustojka",
+      "allowed_statuses": [
+        "answer"
+      ],
+      "checked_by_hand": false,
+      "needs_expert_review": true,
+      "required": [
+        {
+          "id": "polarity нет",
+          "kind": "polarity",
+          "value": "нет"
+        }
+      ],
+      "forbidden": [
+        {
+          "id": "polarity да",
+          "kind": "polarity",
+          "value": "да"
+        }
+      ]
+    },
+    {
+      "case_id": "lb110",
+      "family": "reasoning/binary/procurement",
+      "source_task": "rule-conclusion-procurement",
+      "allowed_statuses": [
+        "answer"
+      ],
+      "checked_by_hand": false,
+      "needs_expert_review": true,
+      "required": [
+        {
+          "id": "polarity нет",
+          "kind": "polarity",
+          "value": "нет"
+        }
+      ],
+      "forbidden": [
+        {
+          "id": "polarity да",
+          "kind": "polarity",
+          "value": "да"
+        }
+      ]
+    },
+    {
+      "case_id": "lb111",
+      "family": "reasoning/binary/procurement",
+      "source_task": "rule-conclusion-procurement",
+      "allowed_statuses": [
+        "answer"
+      ],
+      "checked_by_hand": false,
+      "needs_expert_review": true,
+      "required": [
+        {
+          "id": "polarity да",
+          "kind": "polarity",
+          "value": "да"
+        }
+      ],
+      "forbidden": [
+        {
+          "id": "polarity нет",
+          "kind": "polarity",
+          "value": "нет"
+        }
+      ]
+    },
+    {
+      "case_id": "lb112",
+      "family": "reasoning/binary/procurement",
+      "source_task": "rule-conclusion-procurement",
+      "allowed_statuses": [
+        "answer"
+      ],
+      "checked_by_hand": false,
+      "needs_expert_review": true,
+      "required": [
+        {
+          "id": "polarity нет",
+          "kind": "polarity",
+          "value": "нет"
+        }
+      ],
+      "forbidden": [
+        {
+          "id": "polarity да",
+          "kind": "polarity",
+          "value": "да"
+        }
+      ]
+    },
+    {
+      "case_id": "lb113",
+      "family": "reasoning/binary/procurement",
+      "source_task": "rule-conclusion-procurement",
+      "allowed_statuses": [
+        "answer"
+      ],
+      "checked_by_hand": false,
+      "needs_expert_review": true,
+      "required": [
+        {
+          "id": "polarity да",
+          "kind": "polarity",
+          "value": "да"
+        }
+      ],
+      "forbidden": [
+        {
+          "id": "polarity нет",
+          "kind": "polarity",
+          "value": "нет"
+        }
+      ]
+    },
+    {
+      "case_id": "lb114",
+      "family": "reasoning/binary/procurement",
+      "source_task": "rule-conclusion-procurement",
+      "allowed_statuses": [
+        "answer"
+      ],
+      "checked_by_hand": false,
+      "needs_expert_review": true,
+      "required": [
+        {
+          "id": "polarity да",
+          "kind": "polarity",
+          "value": "да"
+        }
+      ],
+      "forbidden": [
+        {
+          "id": "polarity нет",
+          "kind": "polarity",
+          "value": "нет"
+        }
+      ]
+    },
+    {
+      "case_id": "lb115",
+      "family": "reasoning/binary/procurement",
+      "source_task": "rule-conclusion-procurement",
+      "allowed_statuses": [
+        "answer"
+      ],
+      "checked_by_hand": false,
+      "needs_expert_review": true,
+      "required": [
+        {
+          "id": "polarity да",
+          "kind": "polarity",
+          "value": "да"
+        }
+      ],
+      "forbidden": [
+        {
+          "id": "polarity нет",
+          "kind": "polarity",
+          "value": "нет"
+        }
+      ]
+    },
+    {
+      "case_id": "lb116",
+      "family": "reasoning/binary/real-estate",
+      "source_task": "rule-conclusion-real-estate",
+      "allowed_statuses": [
+        "answer"
+      ],
+      "checked_by_hand": false,
+      "needs_expert_review": true,
+      "required": [
+        {
+          "id": "polarity нет",
+          "kind": "polarity",
+          "value": "нет"
+        }
+      ],
+      "forbidden": [
+        {
+          "id": "polarity да",
+          "kind": "polarity",
+          "value": "да"
+        }
+      ]
+    },
+    {
+      "case_id": "lb117",
+      "family": "reasoning/binary/real-estate",
+      "source_task": "rule-conclusion-real-estate",
+      "allowed_statuses": [
+        "answer"
+      ],
+      "checked_by_hand": false,
+      "needs_expert_review": true,
+      "required": [
+        {
+          "id": "polarity да",
+          "kind": "polarity",
+          "value": "да"
+        }
+      ],
+      "forbidden": [
+        {
+          "id": "polarity нет",
+          "kind": "polarity",
+          "value": "нет"
+        }
+      ]
+    },
+    {
+      "case_id": "lb118",
+      "family": "reasoning/binary/real-estate",
+      "source_task": "rule-conclusion-real-estate",
+      "allowed_statuses": [
+        "answer"
+      ],
+      "checked_by_hand": false,
+      "needs_expert_review": true,
+      "required": [
+        {
+          "id": "polarity да",
+          "kind": "polarity",
+          "value": "да"
+        }
+      ],
+      "forbidden": [
+        {
+          "id": "polarity нет",
+          "kind": "polarity",
+          "value": "нет"
+        }
+      ]
+    },
+    {
+      "case_id": "lb119",
+      "family": "reasoning/binary/real-estate",
+      "source_task": "rule-conclusion-real-estate",
+      "allowed_statuses": [
+        "answer"
+      ],
+      "checked_by_hand": false,
+      "needs_expert_review": true,
+      "required": [
+        {
+          "id": "polarity да",
+          "kind": "polarity",
+          "value": "да"
+        }
+      ],
+      "forbidden": [
+        {
+          "id": "polarity нет",
+          "kind": "polarity",
+          "value": "нет"
+        }
+      ]
+    },
+    {
+      "case_id": "lb120",
+      "family": "reasoning/binary/real-estate",
+      "source_task": "rule-conclusion-real-estate",
+      "allowed_statuses": [
+        "answer"
+      ],
+      "checked_by_hand": false,
+      "needs_expert_review": true,
+      "required": [
+        {
+          "id": "polarity нет",
+          "kind": "polarity",
+          "value": "нет"
+        }
+      ],
+      "forbidden": [
+        {
+          "id": "polarity да",
+          "kind": "polarity",
+          "value": "да"
+        }
+      ]
+    },
+    {
+      "case_id": "lb121",
+      "family": "reasoning/binary/real-estate",
+      "source_task": "rule-conclusion-real-estate",
+      "allowed_statuses": [
+        "answer"
+      ],
+      "checked_by_hand": false,
+      "needs_expert_review": true,
+      "required": [
+        {
+          "id": "polarity нет",
+          "kind": "polarity",
+          "value": "нет"
+        }
+      ],
+      "forbidden": [
+        {
+          "id": "polarity да",
+          "kind": "polarity",
+          "value": "да"
+        }
+      ]
+    },
+    {
+      "case_id": "lb122",
+      "family": "reasoning/binary/real-estate",
+      "source_task": "rule-conclusion-real-estate",
+      "allowed_statuses": [
+        "answer"
+      ],
+      "checked_by_hand": false,
+      "needs_expert_review": true,
+      "required": [
+        {
+          "id": "polarity нет",
+          "kind": "polarity",
+          "value": "нет"
+        }
+      ],
+      "forbidden": [
+        {
+          "id": "polarity да",
+          "kind": "polarity",
+          "value": "да"
+        }
+      ]
+    },
+    {
+      "case_id": "lb123",
+      "family": "reasoning/binary/real-estate",
+      "source_task": "rule-conclusion-real-estate",
+      "allowed_statuses": [
+        "answer"
+      ],
+      "checked_by_hand": false,
+      "needs_expert_review": true,
+      "required": [
+        {
+          "id": "polarity да",
+          "kind": "polarity",
+          "value": "да"
+        }
+      ],
+      "forbidden": [
+        {
+          "id": "polarity нет",
+          "kind": "polarity",
+          "value": "нет"
+        }
+      ]
+    },
+    {
+      "case_id": "lb124",
+      "family": "reasoning/binary/real-estate",
+      "source_task": "rule-conclusion-real-estate",
+      "allowed_statuses": [
+        "answer"
+      ],
+      "checked_by_hand": false,
+      "needs_expert_review": true,
+      "required": [
+        {
+          "id": "polarity нет",
+          "kind": "polarity",
+          "value": "нет"
+        }
+      ],
+      "forbidden": [
+        {
+          "id": "polarity да",
+          "kind": "polarity",
+          "value": "да"
+        }
+      ]
+    },
+    {
+      "case_id": "lb125",
+      "family": "reasoning/binary/tax",
+      "source_task": "rule-conclusion-tax",
+      "allowed_statuses": [
+        "answer"
+      ],
+      "checked_by_hand": false,
+      "needs_expert_review": true,
+      "required": [
+        {
+          "id": "polarity да",
+          "kind": "polarity",
+          "value": "да"
+        }
+      ],
+      "forbidden": [
+        {
+          "id": "polarity нет",
+          "kind": "polarity",
+          "value": "нет"
+        }
+      ]
+    },
+    {
+      "case_id": "lb126",
+      "family": "reasoning/binary/tax",
+      "source_task": "rule-conclusion-tax",
+      "allowed_statuses": [
+        "answer"
+      ],
+      "checked_by_hand": false,
+      "needs_expert_review": true,
+      "required": [
+        {
+          "id": "polarity да",
+          "kind": "polarity",
+          "value": "да"
+        }
+      ],
+      "forbidden": [
+        {
+          "id": "polarity нет",
+          "kind": "polarity",
+          "value": "нет"
+        }
+      ]
+    },
+    {
+      "case_id": "lb127",
+      "family": "reasoning/binary/tax",
+      "source_task": "rule-conclusion-tax",
+      "allowed_statuses": [
+        "answer"
+      ],
+      "checked_by_hand": false,
+      "needs_expert_review": true,
+      "required": [
+        {
+          "id": "polarity нет",
+          "kind": "polarity",
+          "value": "нет"
+        }
+      ],
+      "forbidden": [
+        {
+          "id": "polarity да",
+          "kind": "polarity",
+          "value": "да"
+        }
+      ]
+    },
+    {
+      "case_id": "lb128",
+      "family": "reasoning/binary/tax",
+      "source_task": "rule-conclusion-tax",
+      "allowed_statuses": [
+        "answer"
+      ],
+      "checked_by_hand": false,
+      "needs_expert_review": true,
+      "required": [
+        {
+          "id": "polarity да",
+          "kind": "polarity",
+          "value": "да"
+        }
+      ],
+      "forbidden": [
+        {
+          "id": "polarity нет",
+          "kind": "polarity",
+          "value": "нет"
+        }
+      ]
+    },
+    {
+      "case_id": "lb129",
+      "family": "reasoning/binary/tax",
+      "source_task": "rule-conclusion-tax",
+      "allowed_statuses": [
+        "answer"
+      ],
+      "checked_by_hand": false,
+      "needs_expert_review": true,
+      "required": [
+        {
+          "id": "polarity да",
+          "kind": "polarity",
+          "value": "да"
+        }
+      ],
+      "forbidden": [
+        {
+          "id": "polarity нет",
+          "kind": "polarity",
+          "value": "нет"
+        }
+      ]
+    },
+    {
+      "case_id": "lb130",
+      "family": "reasoning/binary/tax",
+      "source_task": "rule-conclusion-tax",
+      "allowed_statuses": [
+        "answer"
+      ],
+      "checked_by_hand": false,
+      "needs_expert_review": true,
+      "required": [
+        {
+          "id": "polarity да",
+          "kind": "polarity",
+          "value": "да"
+        }
+      ],
+      "forbidden": [
+        {
+          "id": "polarity нет",
+          "kind": "polarity",
+          "value": "нет"
+        }
+      ]
+    },
+    {
+      "case_id": "lb131",
+      "family": "reasoning/binary/tax",
+      "source_task": "rule-conclusion-tax",
+      "allowed_statuses": [
+        "answer"
+      ],
+      "checked_by_hand": false,
+      "needs_expert_review": true,
+      "required": [
+        {
+          "id": "polarity нет",
+          "kind": "polarity",
+          "value": "нет"
+        }
+      ],
+      "forbidden": [
+        {
+          "id": "polarity да",
+          "kind": "polarity",
+          "value": "да"
+        }
+      ]
+    },
+    {
+      "case_id": "lb132",
+      "family": "reasoning/binary/tax",
+      "source_task": "rule-conclusion-tax",
+      "allowed_statuses": [
+        "answer"
+      ],
+      "checked_by_hand": false,
+      "needs_expert_review": true,
+      "required": [
+        {
+          "id": "polarity да",
+          "kind": "polarity",
+          "value": "да"
+        }
+      ],
+      "forbidden": [
+        {
+          "id": "polarity нет",
+          "kind": "polarity",
+          "value": "нет"
+        }
+      ]
+    },
+    {
+      "case_id": "lb133",
+      "family": "reasoning/binary/general",
+      "source_task": "temporal-statute-flip",
+      "allowed_statuses": [
+        "answer"
+      ],
+      "checked_by_hand": false,
+      "needs_expert_review": true,
+      "required": [
+        {
+          "id": "polarity да",
+          "kind": "polarity",
+          "value": "да"
+        }
+      ],
+      "forbidden": [
+        {
+          "id": "polarity нет",
+          "kind": "polarity",
+          "value": "нет"
+        }
+      ]
+    },
+    {
+      "case_id": "lb134",
+      "family": "reasoning/binary/general",
+      "source_task": "temporal-statute-flip",
+      "allowed_statuses": [
+        "answer"
+      ],
+      "checked_by_hand": false,
+      "needs_expert_review": true,
+      "required": [
+        {
+          "id": "polarity да",
+          "kind": "polarity",
+          "value": "да"
+        }
+      ],
+      "forbidden": [
+        {
+          "id": "polarity нет",
+          "kind": "polarity",
+          "value": "нет"
+        }
+      ]
+    },
+    {
+      "case_id": "lb135",
+      "family": "reasoning/binary/general",
+      "source_task": "temporal-statute-flip",
+      "allowed_statuses": [
+        "answer"
+      ],
+      "checked_by_hand": false,
+      "needs_expert_review": true,
+      "required": [
+        {
+          "id": "polarity да",
+          "kind": "polarity",
+          "value": "да"
+        }
+      ],
+      "forbidden": [
+        {
+          "id": "polarity нет",
+          "kind": "polarity",
+          "value": "нет"
+        }
+      ]
+    },
+    {
+      "case_id": "lb136",
+      "family": "reasoning/binary/general",
+      "source_task": "temporal-statute-flip",
+      "allowed_statuses": [
+        "answer"
+      ],
+      "checked_by_hand": false,
+      "needs_expert_review": true,
+      "required": [
+        {
+          "id": "polarity да",
+          "kind": "polarity",
+          "value": "да"
+        }
+      ],
+      "forbidden": [
+        {
+          "id": "polarity нет",
+          "kind": "polarity",
+          "value": "нет"
+        }
+      ]
+    },
+    {
+      "case_id": "lb137",
+      "family": "reasoning/binary/general",
+      "source_task": "temporal-statute-flip",
+      "allowed_statuses": [
+        "answer"
+      ],
+      "checked_by_hand": false,
+      "needs_expert_review": true,
+      "required": [
+        {
+          "id": "polarity нет",
+          "kind": "polarity",
+          "value": "нет"
+        }
+      ],
+      "forbidden": [
+        {
+          "id": "polarity да",
+          "kind": "polarity",
+          "value": "да"
+        }
+      ]
+    },
+    {
+      "case_id": "lb138",
+      "family": "reasoning/binary/general",
+      "source_task": "temporal-statute-flip",
+      "allowed_statuses": [
+        "answer"
+      ],
+      "checked_by_hand": false,
+      "needs_expert_review": true,
+      "required": [
+        {
+          "id": "polarity нет",
+          "kind": "polarity",
+          "value": "нет"
+        }
+      ],
+      "forbidden": [
+        {
+          "id": "polarity да",
+          "kind": "polarity",
+          "value": "да"
+        }
+      ]
+    },
+    {
+      "case_id": "lb139",
+      "family": "reasoning/binary/general",
+      "source_task": "temporal-statute-flip",
+      "allowed_statuses": [
+        "answer"
+      ],
+      "checked_by_hand": false,
+      "needs_expert_review": true,
+      "required": [
+        {
+          "id": "polarity нет",
+          "kind": "polarity",
+          "value": "нет"
+        }
+      ],
+      "forbidden": [
+        {
+          "id": "polarity да",
+          "kind": "polarity",
+          "value": "да"
+        }
+      ]
+    }
+  ]
+}

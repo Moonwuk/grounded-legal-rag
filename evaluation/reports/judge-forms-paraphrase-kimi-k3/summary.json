@@ -1,0 +1,12 @@
+{
+  "scope": "Development comparison with an LLM judge; not the platform judge or Score.",
+  "judge_model": "kimi-k3",
+  "report": "hyb-demo-paraphrase-hybrid",
+  "corpus": "demo-paraphrase",
+  "judged": 8,
+  "same_form": 26,
+  "mean_compact_vs_full": 0.359,
+  "compact_wins": 0,
+  "compact_losses": 7,
+  "ties": 1
+}

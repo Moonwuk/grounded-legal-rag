@@ -106,7 +106,7 @@ class CompactSelectionTests(unittest.TestCase):
         with proxy() as (_,calls),patch.dict(os.environ,{'MAX_TOKENS':'16384'}):
             ProxyClient(time.monotonic()+10).complete('Fixed policy',{})
             self.assertEqual(calls[0]['body']['max_tokens'],16384)
-            self.assertNotIn('reasoning_effort',calls[0]['body'])
+            self.assertEqual(calls[0]['body']['reasoning_effort'],'low')
 
     def test_catalog_gap_in_real_corpus_is_derived_not_named_in_code(self):
         from psb_corpus import load_corpus

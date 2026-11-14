@@ -1,0 +1,17 @@
+{
+  "scope": "Development estimate of the regulation judge (section 8) against a baseline analog; not the platform judge, baseline or Score.",
+  "judge_model": "kimi-k3",
+  "report": "final-836a6d4-demo",
+  "team_model": "deepseek-flash",
+  "baseline": "evaluation/reports/starter-demo/submission.csv",
+  "corpus": "demo-organizer",
+  "judge_failures": 0,
+  "fabricated_team": 0,
+  "judged": 18,
+  "wins": 16,
+  "losses": 2,
+  "ties": 0,
+  "match_rate": 0.854,
+  "win_rate": 0.889,
+  "score": 0.865
+}

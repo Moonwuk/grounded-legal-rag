@@ -1,0 +1,9 @@
+{
+  "corpus_id": "demo-paraphrase",
+  "knowledge_base": "organizer/knowledge-base.zip",
+  "knowledge_base_sha256": "cea8ef2c8f6c8b9f498efacf705b97bf3da53cc78f366f9b1fef7a6de66327e0",
+  "questions": "data/questions.csv",
+  "questions_sha256": "674eb14ccf421d92adcc815980a9c208a3134d98cc71f2a69562e97ebb90d740",
+  "gold": "gold/cases.json",
+  "tuning_note": "Paraphrases of the 18 demo questions (evaluation/make_paraphrases.py) with the demo element gold. The demo was used for tuning."
+}

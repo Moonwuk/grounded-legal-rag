@@ -1,0 +1,24 @@
+{
+  "case_id": "fact-0094",
+  "question": "Каков лимит резерва для КТ-95/2026, при каком условии и событии он применяется?",
+  "history": [],
+  "corpus": "evaluation/generated_corpora/synthetic/knowledge-base.zip",
+  "candidate_documents": [
+    "contract/contract_0282.txt",
+    "contract/contract_0283.md",
+    "contract/contract_0284.txt",
+    "financial/financial_0000.txt",
+    "financial/financial_0001.md",
+    "financial/financial_0094.txt",
+    "financial/financial_0194.txt",
+    "irrelevant/irrelevant_0094.txt",
+    "memo/memo_0094.txt",
+    "regulation/regulation_0094.txt",
+    "regulation/regulation_0194.txt"
+  ],
+  "command": "python -m evaluation.run_benchmark --corpus synthetic --mode holdout --engine deepseek --case-id fact-0094 --run-id repro-fact-0094",
+  "caution": "candidate reduced context; full corpus is authoritative for rank reproduction",
+  "failures": [
+    "system_error"
+  ]
+}
