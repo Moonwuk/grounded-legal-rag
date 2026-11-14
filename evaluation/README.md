@@ -76,6 +76,8 @@ Raw BM25 — отдельная диагностика, использующая
 
 Это оценка разработки с нашим промптом судьи, не Score платформы. Результаты —
 [reports/STABILITY_AND_FULL_HOLDOUT.md](reports/STABILITY_AND_FULL_HOLDOUT.md), раздел 11.
+Сравнение с ответами лидера по эталонам организаторов и калибровка по баллам платформы —
+[reports/PLATFORM_CALIBRATION_2026-11-14.md](reports/PLATFORM_CALIBRATION_2026-11-14.md).
 
 ## Файлы и границы
 
