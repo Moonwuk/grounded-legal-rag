@@ -183,13 +183,15 @@ insufficient: выбери partial с положением этого докум
 по договору о практике: пропуск выдаётся на срок практики (п. 4.2 Положения о пропусках).»
 «Срок гарантии договором не назван: его определяет изготовитель, и он указывается
 в техническом паспорте (п. 6.1).»
-«Входит ли монтаж в цену? Да, цена оборудования включает монтаж (п. 3.1).» — при пункте
-«Цена включает НДС 20%, доставку и монтаж» НДС и доставку не называй: о них не спрашивали.
+«Входит ли монтаж в цену? Да, цена оборудования включает монтаж (п. 3.1).»
+Если включение зависит от суммы заказа или иных условий, назови их. Другие
+элементы перечисления добавляй, если они отвечают на вопрос или поясняют состав цены.
 «Штраф составит 48 000 рублей: 24 000 × 2 = 48 000 (п. 4 ст. 77 Учебного кодекса).»
 «Нет. По договору подряда № Д-3/2030 с ООО «Вектор» аванс составляет 20% цены
 работ, а не 50% (п. 4.2). Документов об изменении этого условия в базе нет.»
 «Кто утверждает график дежурств — служба охраны или начальник смены? Начальник
-смены: график утверждает он (п. 2.2).» — без пересказа того, что делает служба охраны.
+смены: график утверждает он (п. 2.2).» Роль службы охраны кратко поясни, если это
+снимает неоднозначность и подтверждено выбранным положением.
 При insufficient answer не публикуется: отказ формирует приложение по полю topic.
 Если есть поле retry_reason, прошлый answer не прошёл проверку приложения:
 answer_numbers_not_in_sources — в тексте были числа или номера пунктов, которых нет
@@ -207,9 +209,6 @@ source_references_required — независимость ответа от от
 положения, о которых не спрашивали; их id перечислены в retry_extra_source_ids.
 Дай тот же ответ без них: не выбирай и не упоминай их, если без них ответ не
 становится неполным или вводящим в заблуждение.
-Если retry_reason=answer_extra_items, прошлый answer верен, но назвал элементы
-выбранного положения, о которых не спрашивали; они перечислены в retry_extra_items.
-Дай тот же ответ без них.
 Если retry_reason=answer_lost_restrictions, прошлый answer опустил ограничения
 выбранных положений; поле retry_restrictions перечисляет их формулировки из
 источника. Новый answer должен прямо сохранить каждое из них.
@@ -457,6 +456,55 @@ _UPPER_BOUND_ANSWER = (r"\bне\s+(?:может|могут)\s+превыша\w*|
                        r"|\bмаксимальн\w*|\bпредельн\w*|\bпредел\w*")
 
 
+def _agreement_paraphrase_kept(answer: str, source: str) -> bool:
+    """Positive «если стороны согласуют X» for a permission of X by agreement.
+
+    Bind both the agreed and permitted operation to the same source clause.
+    Only a short nominal permission or «можно оплатить авансом» is recognised;
+    arbitrary consequences of agreeing X are not permissions of X. This extra
+    path rejects negations and waived consent; literal checks stay unchanged.
+    """
+    if (re.search(r"\b(?:не|нет|без|односторон\w*|независимо|неважно)\b", answer)
+            or re.search(r"\bдаже\s+если\b", answer)):
+        return False
+    permitted = re.findall(
+        r"(?:^|[.;:!?])\s*(?:\d+(?:\.\d+)*\.\s*)?по\s+соглашению\s+сторон\s+"
+        r"(?:допускается|разрешается)\s+([^.;,:!?]+)", source)
+    def subject_words(text):
+        return [w[:6] for w in re.findall(r"[а-яё]{4,}", text) if w not in STOP]
+
+    for match in re.finditer(r"\bесли\s+стороны\s+согласуют\s+([^.;,:!?]+)", answer):
+        agreed = subject_words(match.group(1))
+        before = re.split(r"[.;:!?]", answer[:match.start()])[-1].strip()
+        nominal = re.fullmatch(r"(?:да,\s*)?([а-яё][а-яё\s-]+?)\s+"
+                               r"(?:возможн[аоы]?|допускается|разрешается)\s*,?", before)
+        operation = subject_words(nominal.group(1)) if nominal else []
+        same_operation = bool(operation and agreed and operation[0] == agreed[0]
+                              and set(operation) <= set(agreed))
+        # A verb form of prepayment, confined to this short conditional clause.
+        payment = re.fullmatch(
+            r"(?:да,\s*)?((?:[а-яё]+\s+){0,2})можно\s+оплатить\s+авансом\s*,?", before)
+        prepayment = bool(agreed and agreed[0] == "предоп" and payment)
+        if not (same_operation or prepayment):
+            continue
+        for words in map(subject_words, permitted):
+            if not (words and words[0] == agreed[0] and set(agreed) <= set(words)):
+                continue
+            if prepayment and words[1:]:
+                # An explicit object stays explicit: prepaying equipment does
+                # not permit paying a fine in advance under the same condition.
+                paid = subject_words(payment.group(1))
+                if not paid or not set(paid) <= set(words[1:]):
+                    continue
+            return True
+    return False
+
+
+def _restriction_kept(name: str, pattern: str, answer: str, source: str) -> bool:
+    return bool(re.search(_KEPT_IN_ANSWER.get(name, pattern), answer)
+                or (name == "agreement" and _agreement_paraphrase_kept(answer, source)))
+
+
 def lost_restrictions(text: str, selected: list[Fragment], question: str = "") -> list[str]:
     """Source wording of each restriction class the text does not repeat
     ("только", "не вправе", "не может превышать"): application-owned quotes."""
@@ -470,7 +518,7 @@ def lost_restrictions(text: str, selected: list[Fragment], question: str = "") -
     required = _required_classes(answer)
     for name, pattern in _RESTRICTIONS.items():
         found = re.search(pattern, rest) if name in required else None
-        if found and not re.search(_KEPT_IN_ANSWER.get(name, pattern), answer):
+        if found and not _restriction_kept(name, pattern, answer, rest):
             lost.append(found.group())
     return list(dict.fromkeys(lost))[:6]
 
@@ -490,7 +538,7 @@ def restrictions_kept(text: str, selected: list[Fragment], strict: bool = False,
     rest = _restriction_source(selected, question)
     # strict: every class, also for a text that only prohibits.
     required = set(_RESTRICTIONS) if strict else _required_classes(answer)
-    return all(re.search(_KEPT_IN_ANSWER.get(name, pattern), answer) for name, pattern in _RESTRICTIONS.items()
+    return all(_restriction_kept(name, pattern, answer, rest) for name, pattern in _RESTRICTIONS.items()
                if name in required and re.search(pattern, rest))
 
 
@@ -1258,6 +1306,55 @@ def _title_stems(text: str) -> set[str]:
     return {w[:3 if len(w) <= 4 else 4] for w in re.findall(r"[а-яёa-z]+", text.lower().replace("ё", "е")) if len(w) >= 3}
 
 
+def _has_explicit_duration(text: str) -> bool:
+    """A number and a duration unit, without confusing identifiers with values."""
+    current = text.lower().replace("ё", "е")
+    for m in re.finditer(r"\b(?:\d+(?:[.,]\d+)?|[а-я]+)\b", current):
+        word = m.group()
+        if (word[0].isdigit() or _word_value(word) is not None) and re.match(
+                r"\s+(?:[а-я]+\s+)?(?:дн\w*|день|сут\w*|недел\w*|месяц\w*|"
+                r"год\w*|года|лет|час\w*|минут\w*|секунд\w*|квартал\w*)\b", current[m.end():]):
+            return True
+    return False
+
+
+def proposed_value_question(question: str) -> bool:
+    """A duration to check, rather than the author/location of its definition.
+
+    This extra heuristic is deliberately limited to durations. Other value
+    kinds and open value questions retain the existing validation path.
+    """
+    current = user_turns(question)[-1].lower().replace("ё", "е")
+    if _VALUE_QUESTION.search(current):
+        return False  # an open value request already has its own handling
+    if re.match(r"\s*(?:(?:подскажите|скажите|уточните)(?:\s*,\s*|\s+))?"
+                r"(?:по\s+договору\s+(?:№\s*)?[а-яa-z0-9]+(?:[-/][а-яa-z0-9]+)*\s*,?\s+)?"
+                r"(?:кто|кем|кому|где|в\s+каком\s+документе)\b", current):
+        return False
+    return _has_explicit_duration(current)
+
+
+def _states_duration_for_subject(text: str, reference_subject: str) -> bool:
+    """Conservatively match an explicit duration statement to its subject.
+
+    Equality, rather than overlap, keeps the payment period for a service from
+    being treated as that service's period. Short words such as «оплаты» count.
+    """
+    generic = {"сро", "пери", "прод", "тов", "това", "дого", "разм"}
+    subject = _title_stems(reference_subject) - generic
+    if not subject:
+        return False
+    for m in re.finditer(
+            r"(?P<subject>[а-яё][^.!?;\n]{2,100}?)\s+"
+            r"(?:составляет|равен|равна|равно|установлен[ао]?|определ[её]н[ао]?)\b"
+            r"(?P<value>[^.!?;\n]{1,120})", text, re.I):
+        if (not re.search(r"\bне\b", m.group(), re.I)
+                and _title_stems(m['subject']) - generic == subject
+                and _has_explicit_duration(m['value'])):
+            return True
+    return False
+
+
 def value_dependencies(question: str, selected: list[Fragment], documents) -> list[str]:
     """Recognize explicit value-to-document references, not arbitrary legal links.
 
@@ -1265,7 +1362,8 @@ def value_dependencies(question: str, selected: list[Fragment], documents) -> li
     referenced document applies. Retrieval and the semantic judge still decide.
     """
     turns = user_turns(question)
-    if not _VALUE_QUESTION.search(turns[-1]):
+    open_value_request = bool(_VALUE_QUESTION.search(turns[-1]))
+    if not (open_value_request or proposed_value_question(question)):
         return []
     generic = {"^срок", "^това", "^дого", "^разм", "^пери", "^рабо"}
     question_words = {"^како", "^кака", "^скол", "^назо", "^укаж"}
@@ -1275,8 +1373,22 @@ def value_dependencies(question: str, selected: list[Fragment], documents) -> li
     result = []
     for f in selected:
         for m in _VALUE_REFERENCE.finditer(f.text):
+            if not open_value_request and (
+                    not re.search(r"\b(?:срок\w*|период\w*|продолжительност\w*)\b", m['subject'], re.I)
+                    or _has_explicit_duration(f.text)):
+                # A price reference cannot resolve a proposed duration. A
+                # passage that already gives a duration also cannot establish
+                # its absence: leave its interpretation to the ordinary guards.
+                continue
             subject = {t for t in tokens(m['subject']) if t.startswith("^")} - generic
             if not subject & query:
+                continue
+            if not open_value_request and any(
+                    other.document == f.document and other is not f
+                    and _states_duration_for_subject(other.text, m['subject'])
+                    for other in selected):
+                # Another selected provision of this document can give the
+                # value. An unrelated duration or another contract cannot.
                 continue
             # Compare by a short stem of every word (three letters for words of
             # three or four, otherwise four): the search tokens stem only words of
@@ -1545,10 +1657,21 @@ def formal_name(text: str) -> str:
     return ""
 
 
-def names_referenced_documents(text: str, value_gaps) -> bool:
+def names_referenced_documents(text: str, value_gaps, question: str = "") -> bool:
     """The text names every document a value is referred to («указывается в
     гарантийном талоне» → «… в гарантийном талоне»). «Договором срок не
     установлен» alone hides where the value is and is not published."""
+    if value_gaps and question and proposed_value_question(question):
+        # An absent defining document cannot establish that the user's proposed
+        # value is true OR false. A scoped statement about the available document
+        # ("Нет, значение в договоре не указано") remains a valid explanation.
+        first = next(iter(_sentences(text.lower().replace("ё", "е"))), "")
+        categorical = re.match(r"\s*(да|нет)\b", first)
+        scoped_absence = re.search(
+            r"\bв\s+(?:[а-я]+\s+){0,2}(?:договор|документ|положени|источник)\w*"
+            r"[^.!?]{0,60}\bне\s+(?:указан|установлен|определен)\w*", first)
+        if categorical and not (categorical.group(1) == "нет" and scoped_absence):
+            return False
     words = {w[:5] for w in re.findall(r"[а-яё]{4,}", text.lower().replace("ё", "е"))}
     for gap in value_gaps:
         document = re.split(r"\s(?:в|во)\s", gap.lower().replace("ё", "е"), maxsplit=1)[-1]
@@ -2127,7 +2250,7 @@ def answer_steps(question: str, retriever, client, top_k: int = 6, verify: bool 
             # checked text may say so; its figures still have to be in the provisions,
             # so it cannot name the missing value. The application adds what is needed.
             source_only = ((restricted and not (draft and restrictions_kept(draft, selected, question=question)))
-                           or bool(value_gaps and not (draft and names_referenced_documents(draft, value_gaps))))
+                           or bool(value_gaps and not (draft and names_referenced_documents(draft, value_gaps, question))))
             scope_guard = (scope_block_reason(draft, selected, retriever, question)
                            if draft and selected and not source_only else "")
             scope_blocked = bool(scope_guard)
@@ -2187,14 +2310,9 @@ def answer_steps(question: str, retriever, client, top_k: int = 6, verify: bool 
                                         else "answer_not_supported")
                         retry_scope_guard = scope_blocked
                         continue
-                    extra_items = unasked_items(prose, selected, question) if prose_state == "published" else []
-                    if extra_items:
-                        # A listed element nobody asked about («включает НДС 20%, …»
-                        # for a question on delivery and packaging): the judge reads it
-                        # as invented. The checked text stays as the fallback.
-                        fallback = result
-                        retry_reason, retry_scope_guard, retry_items = "answer_extra_items", False, extra_items
-                        continue
+                    # A safe answer is not regenerated just because a lexical
+                    # overlap heuristic calls part of an enumeration "unasked".
+                    # It can be the requested remainder or a shared condition.
                     if prose_state == "source_only" and draft and restricted and not value_gaps:
                         fallback = result
                         retry_reason, retry_scope_guard = "answer_lost_restrictions", False

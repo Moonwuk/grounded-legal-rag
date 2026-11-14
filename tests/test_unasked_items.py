@@ -1,11 +1,9 @@
-"""An element of a listing that the question does not ask about gets one retry.
+"""A lexical overlap heuristic must not delete grounded parts of an answer.
 
-Same-time runs of 13 November, demo 16 and its paraphrases: «Доставка и упаковка
-включены в цену?» was answered «цена включает НДС по ставке 20%, стоимость
-упаковки и доставки» in 2 of 4 runs even with the prompt rule of archive 22. VAT
-is in the clause but was not asked, and the judge analogue zeroed the answer.
-The batch now retries once naming the extra element; a text that still names it
-is published rather than the bare provisions (the fact is true).
+Open enumeration questions can ask for words not explicitly present in the
+question. A final list item can also carry a condition applying to the whole
+list. Re-generating a safe answer just to remove such an item loses requested
+information or the condition. Actual unsupported numbers still require repair.
 """
 from pathlib import Path
 import sys
@@ -33,18 +31,44 @@ class UnaskedItemTests(unittest.TestCase):
         rent = [Fragment('b', 'd', 0, 1, '2.1. Плата составляет 90 000 рублей в месяц, включая НДС.', '')]
         self.assertEqual(unasked_items('Плата — 90 000 рублей в месяц, включая НДС (п. 2.1).', rent, 'Какая плата?'), [])
 
-    def test_retry_drops_the_element(self):
+    def test_grounded_detail_does_not_trigger_deletion_retry(self):
         result, model, _ = one_call(QUESTION, [answer('3.4.', FULL), answer('3.4.', SHORT)], FILES)
-        self.assertEqual(len(model.calls), 2)
-        self.assertEqual(model.calls[1][1].get('retry_reason'), 'answer_extra_items')
-        self.assertEqual(model.calls[1][1].get('retry_extra_items'), ['налог по ставке 7%'])
-        self.assertTrue(result['text'].startswith(SHORT), result['text'])
+        self.assertEqual(len(model.calls), 1)
+        self.assertTrue(result['text'].startswith(FULL), result['text'])
 
     def test_text_still_naming_it_is_published_not_the_provision(self):
         result, model, _ = one_call(QUESTION, [answer('3.4.', FULL), answer('3.4.', FULL)], FILES)
-        self.assertEqual(len(model.calls), 2)
+        self.assertEqual(len(model.calls), 1)
         self.assertTrue(result['text'].startswith(FULL), result['text'])
         self.assertFalse(result['quote_only'])
+
+    def test_open_enumeration_keeps_the_requested_other_items(self):
+        files = {'Договор обслуживания М-19-2032.txt': 'Договор обслуживания № М-19/2032\n'
+                 '7.8. Цена включает монтаж, доставку и упаковку.\n'}
+        question = 'Кроме монтажа, что ещё входит в цену по договору М-19/2032?'
+        full = 'Кроме монтажа, цена включает доставку и упаковку (п. 7.8).'
+        incomplete = 'Цена включает монтаж (п. 7.8).'
+        result, model, _ = one_call(question, [answer('7.8.', full), answer('7.8.', incomplete)], files)
+        self.assertIn('доставку и упаковку', result['text'])
+        self.assertEqual(len(model.calls), 1)
+
+    def test_condition_after_last_list_item_is_preserved(self):
+        files = {'Договор обслуживания М-19-2032.txt': 'Договор обслуживания № М-19/2032\n'
+                 '7.8. Цена включает монтаж, доставку и упаковку при заказе от 900 000 рублей.\n'}
+        question = 'Входит ли монтаж в цену по договору М-19/2032?'
+        full = 'Монтаж включён в цену при заказе от 900 000 рублей (п. 7.8).'
+        unconditional = 'Монтаж включён в цену (п. 7.8).'
+        result, model, _ = one_call(question, [answer('7.8.', full), answer('7.8.', unconditional)], files)
+        self.assertIn('при заказе от 900 000 рублей', result['text'])
+        self.assertEqual(len(model.calls), 1)
+
+    def test_unsupported_extra_number_still_requires_repair(self):
+        unsupported = FULL.replace('7%', '8%')
+        result, model, _ = one_call(QUESTION, [answer('3.4.', unsupported), answer('3.4.', FULL)], FILES)
+        self.assertEqual(len(model.calls), 2)
+        self.assertEqual(model.calls[1][1].get('retry_reason'), 'answer_numbers_not_in_sources')
+        self.assertNotIn('8%', result['text'])
+        self.assertIn('7%', result['text'])
 
 
 if __name__ == '__main__':

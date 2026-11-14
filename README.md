@@ -120,6 +120,10 @@ python3 build_submission.py && python3 .github/scripts/check_submission.py
 
 ## Результаты и границы
 
+Кандидат №30: [полнота ответа, неизвестные сроки и проверка собранного ZIP](docs/source_completeness_v30.md).
+Официальный результат №29, сообщённый пользователем: 37.375; локальные сравнения
+кандидата №30 не являются конкурсной оценкой.
+
 Сводка прогонов (демо организаторов, отложенный синтетический набор, общий
 корпус, LegalBench-RU, другие модели, аналог LLM-судьи регламента) —
 [evaluation/reports/STABILITY_AND_FULL_HOLDOUT.md](evaluation/reports/STABILITY_AND_FULL_HOLDOUT.md).
