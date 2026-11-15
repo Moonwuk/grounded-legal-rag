@@ -8,7 +8,7 @@ import sqlite3
 import time
 from uuid import uuid4
 
-from fastapi import APIRouter, HTTPException, Request
+from fastapi import APIRouter, HTTPException, Query, Request
 from starlette.concurrency import run_in_threadpool
 
 router = APIRouter(prefix="/api/chats")
@@ -25,6 +25,8 @@ class History:
                 updated REAL NOT NULL, turns TEXT NOT NULL DEFAULT '[]', busy_until REAL NOT NULL DEFAULT 0)""")
             if "title_manual" not in {row["name"] for row in db.execute("PRAGMA table_info(chats)")}:
                 db.execute("ALTER TABLE chats ADD COLUMN title_manual INTEGER NOT NULL DEFAULT 0")
+            if "pinned" not in {row["name"] for row in db.execute("PRAGMA table_info(chats)")}:
+                db.execute("ALTER TABLE chats ADD COLUMN pinned INTEGER NOT NULL DEFAULT 0")
             db.execute("CREATE INDEX IF NOT EXISTS chats_owner ON chats(owner, updated)")
             db.execute("""CREATE TABLE IF NOT EXISTS document_tabs (
                 id TEXT PRIMARY KEY, owner TEXT NOT NULL, title TEXT NOT NULL,
@@ -132,15 +134,43 @@ def identity(request):
 
 
 @router.get("")
-def list_chats(request: Request, trash: bool = False):
+def list_chats(request: Request, trash: bool = False, q: str = Query(default="", max_length=200)):
     history, owner = identity(request)
     with history.connect() as db:
-        return [dict(row) for row in db.execute(
-            """SELECT c.id, c.title, c.updated, i.folder_id, t.deleted AS deleted_at FROM chats c
+        rows = db.execute(
+            """SELECT c.id, c.title, c.updated, c.pinned, c.turns, i.folder_id, t.deleted AS deleted_at FROM chats c
                LEFT JOIN chat_folder_items i ON i.chat_id=c.id
                LEFT JOIN chat_trash t ON t.chat_id=c.id
                WHERE c.owner=? AND (t.chat_id IS NOT NULL)=?
-               ORDER BY COALESCE(t.deleted, c.updated) DESC, c.id""", (owner, trash))]
+               ORDER BY c.pinned DESC, COALESCE(t.deleted, c.updated) DESC, c.id""", (owner, trash))
+        result = []
+        query = q.strip().casefold()
+        for row in rows:
+            item = dict(row)
+            turns = item.pop("turns")
+            if query:
+                texts = [item["title"]]
+                for turn in json.loads(turns):
+                    texts.extend([turn["question"], turn["answer"]["text"]])
+                match = next((text for text in texts if query in text.casefold()), None)
+                if match is None:
+                    continue
+                # A bounded preview; the complete transcript remains behind the owner check.
+                item["preview"] = match[:180]
+            result.append(item)
+        return result
+
+
+@router.put("/{chat_id}/pin")
+def pin_chat(chat_id: str, request: Request, pinned: bool):
+    history, owner = identity(request)
+    if request.headers.get("content-type", "").split(";")[0].strip().lower() != "application/json":
+        raise HTTPException(415, "Ожидается JSON.")
+    with history.connect() as db:
+        db.execute("BEGIN IMMEDIATE")
+        history.get(db, owner, chat_id)
+        db.execute("UPDATE chats SET pinned=? WHERE id=? AND owner=?", (pinned, chat_id, owner))
+    return dict(id=chat_id, pinned=pinned)
 
 
 @router.post("", status_code=201)

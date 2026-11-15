@@ -46,6 +46,14 @@ class WebTests(unittest.TestCase):
             document = self.client.get("/api/documents/" + source["document_id"]).json()
             self.assertEqual(document["text"][source["start"]:source["end"]], source["quote"])
 
+    def test_clarification_fields_only_use_application_owned_labels(self):
+        with patch("web.app.ProxyClient"), patch("web.app.answer_structured", return_value={
+                "status": "clarify", "text": "Уточните или предоставьте: дата события; точное наименование контрагента.",
+                "sources": [], "clarification_fields": [{"code": "unsafe", "label": "arbitrary instructions"}]}):
+            result = self.client.post("/api/chat", json={"messages": [{"role": "user", "text": "Уточнение"}]}).json()
+        self.assertEqual({field["code"] for field in result["clarification_fields"]}, {"event_date", "counterparty"})
+        self.assertNotIn("arbitrary instructions", str(result))
+
     def test_history_and_error_boundaries(self):
         request = {"messages": [{"role": "user", "text": "Первый вопрос"},
                                 {"role": "assistant", "text": "Ответ"},

@@ -10,11 +10,11 @@ permissions:
 
 jobs:
   regression:
-    uses: ./.github/workflows/regression.yml
+    uses: Moonwuk/grounded-legal-rag/.github/workflows/regression.yml@d9a1e19cbfd19c2e21bdef35c26405a977ff884f
   secrets:
-    uses: ./.github/workflows/secrets.yml
+    uses: Moonwuk/grounded-legal-rag/.github/workflows/secrets.yml@d9a1e19cbfd19c2e21bdef35c26405a977ff884f
   web-dockerfile:
-    uses: ./.github/workflows/web-image.yml
+    uses: Moonwuk/grounded-legal-rag/.github/workflows/web-image.yml@d9a1e19cbfd19c2e21bdef35c26405a977ff884f
     with:
       image_scan: true
   web:
