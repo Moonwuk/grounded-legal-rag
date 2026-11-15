@@ -579,6 +579,7 @@ function renderHistory() {
         await historyRequest("/" + encodeURIComponent(chat.id) + "/pin?pinned=" + !chat.pinned, "PUT");
         await loadChatLists();
       }));
+      globalThis.WebIcons?.set(pin, "pin", undefined, false);
       menu.append(pin, rename, move, remove);
     }
     globalThis.WebIcons?.set(move, inTrash ? "restore" : "folder", undefined, false);
@@ -597,7 +598,7 @@ async function navigateHistory(action) {
   try {
     if (globalThis.WebWorkspace) await globalThis.WebWorkspace.leave();
     await action();
-    byId("history-status").textContent = savedChats.length ? "Сохранено на сервере" : trashedChats.length ? "Чаты находятся в корзине" : "Пока нет сохранённых диалогов";
+    byId("history-status").textContent = savedChats.length ? "Сохранено на сервере" : trashedChats.length ? "Удалённые диалоги — в корзине" : "Пока нет сохранённых диалогов";
     return true;
   } catch (error) {
     byId("history-status").textContent = error.message;
@@ -705,7 +706,7 @@ async function loadHistory() {
       if (globalThis.WebWorkspace) await globalThis.WebWorkspace.open(null, draft);
     } else if (globalThis.WebWorkspace) await globalThis.WebWorkspace.open(currentChat);
     historyReady = historyInitialized = true;
-    byId("history-status").textContent = savedChats.length ? "Сохранено на сервере" : trashedChats.length ? "Чаты находятся в корзине" : "Пока нет сохранённых диалогов";
+    byId("history-status").textContent = savedChats.length ? "Сохранено на сервере" : trashedChats.length ? "Удалённые диалоги — в корзине" : "Пока нет сохранённых диалогов";
     send.disabled = byId("new-dialogue").disabled = reset.disabled = false;
   } catch (error) {
     const unconfigured = !historyEnabled && error.status === 503 && error.message === "История на сервере не настроена.";
