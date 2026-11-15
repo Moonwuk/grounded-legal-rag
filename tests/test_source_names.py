@@ -66,22 +66,24 @@ class CitedClausesTests(unittest.TestCase):
 
 
 class ValueInAnotherDocumentTests(unittest.TestCase):
-    """Demo question 17 (warranty in the manufacturer's coupon): a checked text that
-    says where the value is replaces the machine wording and the quotation."""
+    """An absent defining document keeps the unknown-value explanation and
+    source wording, even when a model paraphrase names that document."""
 
     FILES = {'Договор.txt': 'ДОГОВОР ПОСТАВКИ № Н-9/2032\n5.4. Срок службы оборудования определяется заводом-изготовителем '
                             'и указывается в техническом формуляре.\n'}
 
-    def test_text_naming_the_document_is_published(self):
+    def test_unknown_value_keeps_source_wording_and_the_named_document(self):
         draft = ('Договор срок службы не называет: его определяет завод-изготовитель, '
                  'и он указывается в техническом формуляре (п. 5.4).')
         # A partial with a missing document gets one expanded search (AGENTS rule 3).
         text, status, _, _ = run('Какой срок службы оборудования?', [select('5.4.', draft), confirm()] * 2, self.FILES)
         self.assertEqual(status, 'partial')
-        self.assertTrue(text.startswith(draft), text)
-        self.assertIn('Источник: Договор поставки № Н-9/2032, п. 5.4.', text)
+        self.assertTrue(text.startswith('Конкретное значение в найденных документах не установлено:'), text)
+        self.assertNotIn(draft, text)
+        self.assertIn('Договор поставки № Н-9/2032', text)
         self.assertIn('нужен этот документ', text)
-        self.assertNotIn('«5.4.', text)
+        self.assertIn('«5.4. Срок службы оборудования определяется заводом-изготовителем '
+                      'и указывается в техническом формуляре.»', text)
 
     def test_the_source_document_name_is_not_an_added_record_claim(self):
         # Demo 17: «Срок гарантии по договору с ООО «Альфа-Трейдинг» … указывает в
