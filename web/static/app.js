@@ -393,6 +393,8 @@ byId("move-form").addEventListener("submit", event => { event.preventDefault(); 
 byId("cancel-chat-move").addEventListener("click", () => byId("move-dialog").close());
 for (const id of ["folder-dialog", "move-dialog"]) byId(id).addEventListener("cancel", event => { if (folderSaving) event.preventDefault(); });
 let historyEnabled = false;
+let historyReady = false;
+let historyInitialized = false;
 let navigating = false;
 let renamingChat = null, renameSaving = false;
 
@@ -613,21 +615,35 @@ async function selectChat(id) {
 async function loadHistory() {
   send.disabled = reset.disabled = true;
   navigating = true;
+  historyReady = false;
   try {
     await loadChatLists();
     historyEnabled = true;
     await loadFolders();
-    let selected;
-    try { selected = localStorage.getItem("psb-current-chat"); } catch { /* Optional selection only. */ }
-    const chat = savedChats.find(item => item.id === (currentChat || selected)) || savedChats[0];
-    if (chat) await selectChat(chat.id);
-    else clearChat();
+    if (!historyInitialized) {
+      let selected;
+      try { selected = localStorage.getItem("psb-current-chat"); } catch { /* Optional selection only. */ }
+      const chat = savedChats.find(item => item.id === selected) || savedChats[0];
+      if (chat) await selectChat(chat.id);
+    } else if (currentChat && !savedChats.some(item => item.id === currentChat)) {
+      // The selected chat was removed on another device. Keep the draft, but
+      // never move it silently into a different saved conversation.
+      const draft = input.value;
+      clearChat();
+      input.value = draft;
+      globalThis.MobileLayout?.resizeInput();
+    }
+    historyReady = historyInitialized = true;
     byId("history-status").textContent = savedChats.length ? "Сохранено на сервере" : trashedChats.length ? "Чаты находятся в корзине" : "Пока нет сохранённых диалогов";
     send.disabled = reset.disabled = false;
   } catch (error) {
-    byId("history-status").textContent = error.status === 503
+    const unconfigured = !historyEnabled && error.status === 503 && error.message === "История на сервере не настроена.";
+    byId("history-status").textContent = unconfigured
       ? "История на сервере не настроена. Диалог сохранится только до закрытия страницы." : error.message;
-    if (error.status === 503) send.disabled = reset.disabled = false;
+    if (unconfigured) {
+      historyReady = historyInitialized = true;
+      send.disabled = reset.disabled = false;
+    }
   } finally {
     navigating = false;
     renderHistory();
@@ -906,7 +922,14 @@ async function ask(question, existing, signal) {
 let retryRequest;
 const sendController = SLComponent.mount(send.closest(".sl-component"), {
   async onSend({signal}) {
-    if (navigating) throw new Error("history_loading");
+    if (navigating || !historyReady) {
+      byId("input-error").textContent = "Дождитесь загрузки истории или нажмите «Обновить список».";
+      throw new Error("history_unavailable");
+    }
+    if (historyEnabled && !globalThis.ChatQueue) {
+      byId("input-error").textContent = "Не удалось загрузить очередь. Обновите страницу.";
+      throw new Error("queue_unavailable");
+    }
     const retry = retryRequest;
     retryRequest = null;
     const question = retry?.question || input.value.trim();

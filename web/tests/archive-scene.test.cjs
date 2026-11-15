@@ -43,7 +43,7 @@ class Element {
     return new Element();
   }
 }
-function harness(saved = null, documents = [], tabs = [], folders = []) {
+function harness(saved = null, documents = [], tabs = [], folders = [], historyFailure = null) {
   const requests = [];
   const trash = [];
   const storage = new Map();
@@ -74,7 +74,8 @@ function harness(saved = null, documents = [], tabs = [], folders = []) {
         });
       }
       if (url.startsWith("/api/chats")) {
-        if (!saved) return {ok: false, status: 503, json: async () => ({detail: "disabled"})};
+        if (historyFailure) return {ok: false, status: historyFailure, json: async () => ({detail: "Unavailable"})};
+        if (!saved) return {ok: false, status: 503, json: async () => ({detail: "История на сервере не настроена."})};
         if (url.includes("?trash=true")) return ok(trash);
         const id = url.split("/")[3];
         if (options.method === "POST" && url.endsWith("/restore")) {
@@ -257,7 +258,7 @@ test("only registered citation numbers become links and the answer text stays in
 });
 
 
-test("server history restores citations after a new browser and sends only the current question", async () => {
+test("server history restores citations and never falls back to synchronous sending without the queue", async () => {
   const saved = [{id: "first", title: "Аренда", updated: 1000, turns: [
     {question: "Вопрос", answer: {status: "answer", text: "Ответ [1]", sources: [source]}}
   ]}];
@@ -267,22 +268,33 @@ test("server history restores citations after a new browser and sends only the c
   const body = answer.children.find(n => n.className === "message-body");
   assert.ok(body.children.find(n => n.className === "source"));
   h.get("question").value = "Уточнение";
-  const request = h.send(); await new Promise(resolve => setImmediate(resolve));
-  assert.deepEqual(h.requests[0], {chat_id: "first", messages: [{role: "user", text: "Уточнение"}]});
-  h.reply({status: "clarify", text: "Уточните дату", sources: []}); await request;
-  const second = harness(saved); await second.ready;
-  assert.equal(second.get("conversation").children.filter(n => n.classes.has("message")).length, 4);
-  second.get("reset").events.click();
-  assert.equal(saved.length, 1);
-  second.get("question").value = "Другой договор";
-  const newRequest = second.send(); await new Promise(resolve => setImmediate(resolve));
-  assert.equal(saved.length, 2);
-  assert.notEqual(second.requests[0].chat_id, "first");
-  second.reply({status: "answer", text: "Другой ответ", sources: []}); await newRequest;
-  const row = second.get("chat-list").children[0];
-  row.children.find(n => n.className === "chat-delete").events.click(); second.get("confirm-accept").events.click(); await new Promise(resolve => setImmediate(resolve));
-  assert.equal(saved.length, 1);
-  assert.equal(second.get("welcome").hidden, false);
+  await assert.rejects(h.send(), /queue_unavailable/);
+  assert.equal(h.requests.length, 0);
+  assert.equal(h.get("question").value, "Уточнение");
+  assert.equal(saved[0].turns.length, 1);
+});
+
+test("history errors block sending even when invoked directly instead of the disabled button", async () => {
+  for (const status of [401, 500, 503]) {
+    const h = harness(null, [], [], [], status); await h.ready;
+    h.get("question").value = "Сохраните вопрос";
+    await assert.rejects(h.send(), /history_unavailable/);
+    assert.equal(h.requests.length, 0);
+    assert.equal(h.get("question").value, "Сохраните вопрос");
+  }
+});
+
+test("refresh preserves a new dialogue and its draft instead of opening the first saved chat", async () => {
+  const h = harness([{id: "old", title: "Старый диалог", updated: 1, turns: [
+    {question: "Старый вопрос", answer: {status: "answer", text: "Ответ", sources: []}}
+  ]}]); await h.ready;
+  h.get("reset").events.click();
+  h.get("question").value = "Новый вопрос";
+  h.get("refresh-history").events.click();
+  await new Promise(resolve => setImmediate(resolve));
+  assert.equal(h.get("question").value, "Новый вопрос");
+  assert.equal(h.get("welcome").hidden, false);
+  assert.equal(h.get("conversation").children.length, 1);
 });
 
 test("chat folders filter existing history without removing chats or losing the all/unfiled views", async () => {
