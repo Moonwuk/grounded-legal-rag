@@ -336,6 +336,11 @@ select:focus-visible { outline: 3px solid #3868df; outline-offset: 2px; }
 .history-dialog p { margin: 0; overflow-wrap: anywhere; font-size: .85rem; }
 .history-dialog input, .history-dialog select { width: 100%; min-width: 0; min-height: 44px; padding: .55rem; border: 1px solid #9eb4d7; border-radius: 8px; background: white; color: var(--ink); font: inherit; }
 .history-dialog-actions { display: flex; gap: .5rem; flex-wrap: wrap; }
+.confirmation-content { display: flex; flex-direction: column; gap: 1rem; }
+.confirmation-dialog .history-dialog-actions { justify-content: flex-end; }
+.confirmation-dialog button { min-height: 44px; }
+#confirm-accept { color: white; background: #a52e2b; border-color: #a52e2b; }
+#confirm-accept:hover:not(:disabled) { background: #842420; border-color: #842420; }
 #folder-error, #move-error { color: #962c29; }
 @media (min-width: 901px) and (max-width: 1150px) { .chat-history { max-height: 29rem; } #folder-list { max-height: 9rem; } }
 

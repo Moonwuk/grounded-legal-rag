@@ -34,6 +34,8 @@ class Element {
   addEventListener(name, fn) { this.events[name] = fn; }
   dispatchEvent() {}
   focus() {}
+  showModal() { this.open = true; }
+  close(value = "") { this.returnValue = value; this.open = false; this.events.close?.(); }
   animate() { return {cancel() {}}; }
   closest() { return this; }
   querySelector(selector) {
@@ -58,7 +60,7 @@ function harness(saved = null, documents = [], tabs = [], folders = []) {
       return {start() { startCalls++; }, reset() {}};
     }},
     localStorage: {getItem: key => storage.get(key), setItem: (key, value) => storage.set(key, value), removeItem: key => storage.delete(key)},
-    confirm: () => true,
+    confirm: () => { throw new Error("Native confirmation must not be used"); },
     fetch: async (url, options = {}) => {
       const ok = data => ({ok: true, json: async () => JSON.parse(JSON.stringify(data))});
       if (url === "/api/chat") {
@@ -278,7 +280,7 @@ test("server history restores citations after a new browser and sends only the c
   assert.notEqual(second.requests[0].chat_id, "first");
   second.reply({status: "answer", text: "Другой ответ", sources: []}); await newRequest;
   const row = second.get("chat-list").children[0];
-  row.children.find(n => n.className === "chat-delete").events.click(); await new Promise(resolve => setImmediate(resolve));
+  row.children.find(n => n.className === "chat-delete").events.click(); second.get("confirm-accept").events.click(); await new Promise(resolve => setImmediate(resolve));
   assert.equal(saved.length, 1);
   assert.equal(second.get("welcome").hidden, false);
 });
@@ -310,7 +312,7 @@ test("trash keeps deleted chats out of active folders, restores sources, and exp
   ]}];
   const h = harness(saved); await h.ready;
   const settle = () => new Promise(resolve => setImmediate(resolve));
-  h.get("chat-list").children[0].children.find(n => n.className === "chat-delete").events.click(); await settle();
+  h.get("chat-list").children[0].children.find(n => n.className === "chat-delete").events.click(); h.get("confirm-accept").events.click(); await settle();
   assert.equal(saved.length, 0);
   h.get("folder-list").children.at(-1).events.click();
   let row = h.get("chat-list").children[0];
@@ -320,10 +322,28 @@ test("trash keeps deleted chats out of active folders, restores sources, and exp
   row.children[1].events.click(); await settle();
   assert.equal(saved.length, 1);
   assert.ok(h.get("conversation").children.find(n => n.dataset.status === "answer"));
-  h.get("chat-list").children[0].children.find(n => n.className === "chat-delete").events.click(); await settle();
+  h.get("chat-list").children[0].children.find(n => n.className === "chat-delete").events.click(); h.get("confirm-accept").events.click(); await settle();
   h.get("folder-list").children.at(-1).events.click();
   row = h.get("chat-list").children[0];
-  row.children[2].events.click(); await settle();
+  row.children[2].events.click(); h.get("confirm-accept").events.click(); await settle();
   assert.equal(h.get("chat-list").children.length, 0);
   assert.equal(h.get("folder-empty").textContent, "Корзина пуста.");
+});
+
+
+test("site confirmation waits for explicit acceptance and cancellation preserves the dialogue", async () => {
+  const saved = [{id: "kept", title: "Мой договор", updated: 1, turns: []}];
+  const h = harness(saved); await h.ready;
+  const remove = () => h.get("chat-list").children[0].children.find(n => n.className === "chat-delete").events.click();
+  const pending = remove();
+  assert.equal(h.get("confirm-dialog").open, true);
+  assert.equal(saved.length, 1);
+  assert.match(h.get("confirm-message").textContent, /Мой договор/);
+  h.get("confirm-cancel").events.click(); await pending;
+  assert.equal(saved.length, 1);
+  remove();
+  assert.equal(h.get("confirm-accept").textContent, "В корзину");
+  h.get("confirm-accept").events.click();
+  await new Promise(resolve => setImmediate(resolve));
+  assert.equal(saved.length, 0);
 });

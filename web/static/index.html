@@ -127,6 +127,16 @@
       <div id="doc-text" tabindex="0" aria-label="Текст документа" hidden></div>
     </aside>
   </main>
+  <dialog id="confirm-dialog" class="history-dialog confirmation-dialog" aria-labelledby="confirm-title" aria-describedby="confirm-message">
+    <div class="confirmation-content">
+      <h2 id="confirm-title">Подтвердите действие</h2>
+      <p id="confirm-message"></p>
+      <div class="history-dialog-actions">
+        <button id="confirm-cancel" type="button" autofocus>Отмена</button>
+        <button id="confirm-accept" type="button">Подтвердить</button>
+      </div>
+    </div>
+  </dialog>
   <dialog id="mobile-panel" aria-labelledby="mobile-panel-title">
     <div class="mobile-panel-toolbar"><button id="close-mobile-panel" type="button" aria-label="Закрыть панель и вернуться к диалогу">← К диалогу</button><h2 id="mobile-panel-title">Документы</h2></div>
     <div id="mobile-panel-content"></div>

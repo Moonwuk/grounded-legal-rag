@@ -1,6 +1,21 @@
 "use strict";
 
 const byId = id => document.getElementById(id);
+function confirmAction(title, message, action) {
+  const dialog = byId("confirm-dialog");
+  if (dialog.open) return Promise.resolve(false);
+  byId("confirm-title").textContent = title;
+  byId("confirm-message").textContent = message;
+  byId("confirm-accept").textContent = action;
+  dialog.returnValue = "cancel";
+  return new Promise(resolve => {
+    dialog.addEventListener("close", () => resolve(dialog.returnValue === "accept"), {once: true});
+    dialog.showModal();
+    byId("confirm-cancel").focus();
+  });
+}
+byId("confirm-cancel").addEventListener("click", () => byId("confirm-dialog").close("cancel"));
+byId("confirm-accept").addEventListener("click", () => byId("confirm-dialog").close("accept"));
 const log = byId("conversation");
 const input = byId("question");
 const send = byId("send");
@@ -198,7 +213,7 @@ byId("reset-tab-filters").addEventListener("click", () => {
 });
 async function saveTab(remove = false) {
   if (savingTab) return;
-  if (remove && !confirm("Удалить вкладку «" + editingTab.title + "»? Документы останутся в базе.")) return;
+  if (remove && !await confirmAction("Удалить вкладку?", "Вкладка «" + editingTab.title + "» будет удалена. Документы останутся в базе.", "Удалить вкладку")) return;
   savingTab = true;
   for (const id of ["save-doc-tab", "delete-doc-tab", "cancel-doc-tab"]) byId(id).disabled = true;
   byId("tab-error").textContent = "";
@@ -305,7 +320,7 @@ function folderPending(pending) {
 }
 async function saveFolder(remove = false) {
   if (folderSaving) return;
-  if (remove && !confirm("Удалить папку «" + editingFolder.title + "»? Чаты сохранятся в разделе «Без папки».")) return;
+  if (remove && !await confirmAction("Удалить папку?", "Папка «" + editingFolder.title + "» будет удалена. Диалоги сохранятся в разделе «Без папки».", "Удалить папку")) return;
   folderPending(true);
   byId("folder-error").textContent = "";
   try {
@@ -475,10 +490,12 @@ function renderHistory() {
     remove.textContent = inTrash ? "Удалить навсегда" : "В корзину";
     remove.setAttribute("aria-label", (inTrash ? "Удалить навсегда: " : "В корзину: ") + chat.title);
     remove.disabled = busy || navigating;
-    remove.addEventListener("click", () => {
+    remove.addEventListener("click", async () => {
       const question = inTrash ? "Удалить диалог «" + chat.title + "» навсегда? Восстановить его будет нельзя." :
         "Переместить диалог «" + chat.title + "» в корзину? Его можно будет восстановить.";
-      if (busy || navigating || !confirm(question)) return;
+      if (busy || navigating) return;
+      if (!await confirmAction(inTrash ? "Удалить диалог навсегда?" : "Переместить в корзину?", question,
+        inTrash ? "Удалить навсегда" : "В корзину")) return;
       navigateHistory(async () => {
         await historyRequest("/" + encodeURIComponent(chat.id) + (inTrash ? "/permanent" : ""), "DELETE");
         if (currentChat === chat.id) clearChat();

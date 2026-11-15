@@ -13,6 +13,7 @@ const fs = require('node:fs');
   const context = await browser.newContext({...auth, viewport: {width: 390, height: 844}});
   const page = await context.newPage();
   const errors = []; page.on('pageerror', error => errors.push(error.message));
+  page.on('dialog', async d => { errors.push('Unexpected native dialog: ' + d.type()); await d.dismiss(); });
   let folderId, chats = [];
   const name = 'Проверка папки ' + Date.now();
   try {
@@ -63,8 +64,11 @@ const fs = require('node:fs');
     await page.locator('#open-history').click();
     assert.equal(await page.locator('#chat-list li').count(), 2);
     await page.locator('#edit-chat-folder').click();
-    page.once('dialog', dialog => dialog.accept());
     await page.locator('#delete-chat-folder').click();
+    await page.locator('#confirm-cancel').click();
+    assert.equal(await page.locator('#folder-dialog').evaluate(e => e.open), true);
+    await page.locator('#delete-chat-folder').click();
+    await page.locator('#confirm-accept').click();
     await page.waitForFunction(() => !document.querySelector('#folder-dialog').open);
     for (const id of chats) {
       const kept = await context.request.get(base + '/api/chats/' + id);
