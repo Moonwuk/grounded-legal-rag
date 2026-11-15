@@ -403,9 +403,41 @@ def _residual_literal(text: str) -> str:
     return norm(re.sub(r'(?<!\d),|,(?!\d)', ' ', text)).lower().replace('ё', 'е').rstrip('.')
 
 
-def _residual_citation_forms(selected: list[Fragment], documents: dict) -> list[tuple[str, str, str]]:
-    """Closed citation wrappers grounded in the selected point and official header."""
-    forms = []
+def _simple_residual_rate(sentence: str) -> Decimal | None:
+    condition = _RESIDUAL_CASE_GROUP.search(sentence)
+    if not condition or norm(sentence[condition.end():]) not in {'', '.'}:
+        return None
+    rate = re.fullmatch(
+        r'Налогообложение производится по налоговой ставке (\d+(?:[.,]\d+)?) процент(?:а|ов)?',
+        norm(sentence[:condition.start()]), re.I)
+    return _value(rate.group(1)) if rate else None
+
+
+def _residual_rate_mentions(text: str) -> list[tuple[int, int, Decimal]]:
+    """Percentage spans, with the existing numeric and whole-word parsers."""
+    percentages = re.compile(
+        rf'(?<![\w.,−-])\+?(?P<rate>\d{{1,{MAX_FIGURE_DIGITS}}}'
+        rf'(?:[.,]\d{{1,{MAX_FIGURE_DIGITS}}})?)(?![\d.,])'
+        r'(?:\s*(?:%|процент(?:а|ов)?\b)|\s*[-‑–]?\s*процентн[а-яё]*\b)', re.I)
+    found = [(m.start(), m.end(), _value(m['rate'])) for m in percentages.finditer(text)]
+    low = text.lower().replace('ё', 'е')
+    for unit in re.finditer(r'%|\bпроцент(?:а|ов)?\b', low):
+        start = unit.start()
+        for _ in range(6):
+            word = re.search(r'([а-я]+)\s*$', low[:start])
+            if not word or _word_value(word.group(1)) is None:
+                break
+            start = word.start()
+        if start != unit.start():
+            values = _word_numbers(low[start:unit.start()] + ' процентов')
+            if len(values) == 1:
+                found.append((start, unit.end(), Decimal(next(iter(values)))))
+    return found
+
+
+def _residual_addressed_rules(selected: list[Fragment], documents: dict) -> list[tuple[str, str, str, str]]:
+    """Residual propositions with an unambiguous source-owned legal address."""
+    rules = []
     for fragment in selected:
         document = documents.get(fragment.document)
         point = re.match(r'^\s*(\d+(?:\.\d+)*)[.)]\s+', fragment.text)
@@ -422,19 +454,24 @@ def _residual_citation_forms(selected: list[Fragment], documents: dict) -> list[
         # A later provision in a composite fragment must not inherit its first number.
         if not sentences or not _RESIDUAL_CASE_GROUP.search(sentences[0]):
             continue
-        literal = _residual_literal(sentences[0])
-        p, a, c = map(re.escape, (point.group(1), article, code))
+        rules.append((point.group(1), article, code, sentences[0]))
+    return rules
+
+
+def _residual_citation_forms(selected: list[Fragment], documents: dict) -> list[tuple[str, str, str]]:
+    """Closed citation wrappers grounded in the selected point and official header."""
+    forms = []
+    for point, article, code, sentence in _residual_addressed_rules(selected, documents):
+        literal = _residual_literal(sentence)
+        p, a, c = map(re.escape, (point, article, code))
         address = rf'пункту\s+{p}\s+статьи\s+{a}\s+{c}\s+РФ'
         forms.extend((literal, pattern, literal) for pattern in (
             rf'(?P<body>.+?)\s+\(п\.\s*{p}\s+ст\.\s*{a}(?:\s+{c}\s+РФ)?\)\.?',
             rf'По\s+{address}\s+(?P<body>.+)',
             rf'Пункт\s+{p}\s+статьи\s+{a}\s+{c}\s+РФ\s+устанавливает:\s*«(?P<body>[^«»]+)»\.?',
         ))
-        condition = _RESIDUAL_CASE_GROUP.search(sentences[0])
-        simple_rate = re.fullmatch(
-            r'Налогообложение производится по налоговой ставке \d+(?:[.,]\d+)? процент(?:а|ов)?',
-            norm(sentences[0][:condition.start()]), re.I)
-        if simple_rate and norm(sentences[0][condition.end():]) in {'', '.'}:
+        condition = _RESIDUAL_CASE_GROUP.search(sentence)
+        if _simple_residual_rate(sentence) is not None:
             # A closed statement of this same provision's applicability keeps
             # the entire condition of a simple rate rule. Other predicates or
             # qualifiers before/after the group still require the full literal.
@@ -445,6 +482,61 @@ def _residual_citation_forms(selected: list[Fragment], documents: dict) -> list[
     return forms
 
 
+_RESIDUAL_POINT_LIST = r'\d+(?:\.\d+)*(?:(?:\s*,\s*|\s+и\s+)\d+(?:\.\d+)*)*'
+
+
+def _residual_logic_context(selected: list[Fragment], documents: dict):
+    # The short secondary forms do not name an article: require one selected
+    # document and one complete residual rule, never infer an owner from a query.
+    if len({f.document for f in selected}) != 1 or len(residual_source_conditions(selected)) != 1:
+        return None
+    rules = set(_residual_addressed_rules(selected, documents))
+    if len(rules) != 1:
+        return None
+    point, _, _, sentence = next(iter(rules))
+    rate = _simple_residual_rate(sentence)
+    group = _RESIDUAL_CASE_GROUP.search(sentence)
+    references = re.fullmatch(
+        r'в\s+случаях\s*,?\s*не\s+(?:указанных|предусмотренных|перечисленных)\s+в\s+'
+        rf'пунктах\s+(?P<refs>{_RESIDUAL_POINT_LIST})\s+настоящей\s+статьи',
+        norm(group.group(0)), re.I)
+    if rate is None or not references:
+        return None
+    ids = re.findall(r'\d+(?:\.\d+)*', references['refs'])
+    return (point, rate, set(ids)) if len(ids) == len(set(ids)) else None
+
+
+def _residual_rate_logic(sentence: str, context) -> bool:
+    """Two closed deductions about this exact rule, not category applications."""
+    if context is None:
+        return False
+    point, rate, required = context
+    mentions = _residual_rate_mentions(sentence)
+    if len(mentions) != 1 or mentions[0][2] != rate:
+        return False
+    start, end, _ = mentions[0]
+    text = norm(sentence[:start] + '<RATE>' + sentence[end:])
+    scope = r'(?:\s+настоящей\s+статьи)?'
+    owner = rf'по\s+пункту\s+{re.escape(point)}'
+    insufficient = re.fullmatch(
+        rf'(?:Нет,\s*)?проверки\s+неприменимости\s+(?P<kind>пункта|пунктов)\s+'
+        rf'(?P<refs>{_RESIDUAL_POINT_LIST}){scope}\s+недостаточно\s+для\s+обоснования\s+'
+        rf'ставки\s+<RATE>\s+{owner}\.?', text, re.I)
+    conditional = re.fullmatch(
+        rf'Если\s+ни\s+один\s+из\s+пунктов\s+(?P<refs>{_RESIDUAL_POINT_LIST}){scope}\s+'
+        rf'не\s+применяется,\s*ставка\s+<RATE>\s+{owner}\s+(?:обоснована|применяется)\.?', text, re.I)
+    match = insufficient or conditional
+    if not match:
+        return False
+    ids = re.findall(r'\d+(?:\.\d+)*', match['refs'])
+    if len(ids) != len(set(ids)):
+        return False
+    if insufficient:
+        return (bool(ids) and set(ids) < required
+                and insufficient['kind'].lower() == ('пункта' if len(ids) == 1 else 'пунктов'))
+    return set(ids) == required
+
+
 def residual_conditions_kept(text: str, selected: list[Fragment], documents: dict | None = None) -> bool:
     """Conservative literal gate for an explicitly selected residual rule.
 
@@ -452,7 +544,8 @@ def residual_conditions_kept(text: str, selected: list[Fragment], documents: dic
     may remove an irrelevant selected rule or state its complete proposition.
     This does not claim to prove all other assertions in the answer.
     """
-    expected = {_residual_literal(s) for s in residual_source_conditions(selected)}
+    conditions = residual_source_conditions(selected)
+    expected = {_residual_literal(s) for s in conditions}
     if not expected:
         return True
     forms = _residual_citation_forms(selected, documents or {})
@@ -468,6 +561,26 @@ def residual_conditions_kept(text: str, selected: list[Fragment], documents: dic
     sentences = _trim_sentences(text)
     if not expected <= {sentence_key(s) for s in sentences}:
         return False
+    rates = {rate: condition for condition in conditions
+             if (rate := _simple_residual_rate(condition)) is not None}
+    logical_context = _residual_logic_context(selected, documents or {})
+    for index, sentence in enumerate(sentences):
+        if sentence_key(sentence) in expected:
+            continue
+        if _residual_rate_logic(sentence, logical_context):
+            continue
+        for start, end, rate in _residual_rate_mentions(sentence):
+            if rate not in rates:
+                continue
+            # Bare short answers and an explicit contrast are not an additional
+            # categorical application. A suffix may only be a trusted citation.
+            suffix = sentence[end:]
+            suffix_kept = sentence_key(rates[rate].rstrip('.') + suffix) in expected
+            bare_first = (index == 0 and not sentence[:start].strip()
+                          and not re.search('процентн', sentence[start:end], re.I))
+            contrast = re.search(r'\bа\s+не\s*$', sentence[:start], re.I)
+            if not suffix_kept or not (bare_first or contrast):
+                return False
     # Do not append the correct source sentence while retaining the old
     # truncated negative implication elsewhere in the same answer.
     return not any(_NEGATIVE_NUMERIC_REFERENCE.search(sentence)
@@ -2941,8 +3054,13 @@ retry_residual_conditions содержит дословные предложен
 что она уже применима.
 Сохраняй уточняющие слова в перечнях условий и исключений; не заменяй конкретные
 виды или категории общим родовым названием.
+Единственное развёрнутое утверждение об остаточной ставке — полное предложение
+источника. Не добавляй отдельно, что эта ставка действует для конкретной категории,
+если выполнение всех условий её применения не установлено.
 Не заменяй полный набор одним пунктом. Если правило не относится к ответу,
 убери его источник и вывод о нём. Это диагностика: юридические основания — evidence.
+Для каждого оставленного источника поле answer должно содержать соответствующее
+предложение из retry_residual_conditions в точности, как отдельное предложение.
 """
 
 EXCLUSIVE_RETRY_GUIDANCE = """
@@ -3082,7 +3200,6 @@ def answer_steps(question: str, retriever, client, top_k: int = 6, verify: bool 
                 if retry_reason == "answer_lost_restrictions" and retry_restrictions:
                     generation_system += RESTRICTION_RETRY_GUIDANCE
                 if retry_reason == "answer_lost_restrictions" and retry_residual_conditions:
-                    generation_system += RESIDUAL_RETRY_GUIDANCE
                     generation_payload = {**generation_payload,
                                           "retry_residual_conditions": retry_residual_conditions}
                 if retry_reason == "answer_numbers_not_in_sources" and retry_numeric:
@@ -3112,6 +3229,10 @@ def answer_steps(question: str, retriever, client, top_k: int = 6, verify: bool 
                                               "retry_policy_draft": retry_policy_draft}
                     generation_system += FINAL_REPAIR_GUIDANCE
                     generation_payload = {**generation_payload, "final_text_repair": True}
+                if retry_reason == "answer_lost_restrictions" and retry_residual_conditions:
+                    # Keep the source-owned exact-copy requirement after the
+                    # general reformulation advice, including the final repair.
+                    generation_system += RESIDUAL_RETRY_GUIDANCE
                 retry_numeric, retry_draft = None, ""
                 retry_policy, retry_policy_draft = None, ""
                 retry_preserve_restrictions = []
