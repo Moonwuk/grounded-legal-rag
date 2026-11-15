@@ -74,7 +74,7 @@
         <div id="welcome">
           <div class="welcome-copy">
             <h3>Найдите нужное положение</h3>
-            <p>Укажите договор, контрагента или дату события. Откройте источник рядом с ответом, чтобы сверить формулировку.</p>
+            <p>Укажите договор, контрагента или дату события. Откройте источник ответа, чтобы сверить формулировку.</p>
           </div>
           <p class="example-heading">Примеры вопросов</p>
           <button type="button" class="example" disabled>Какова арендная плата по договору с ООО «Северный Склад»?</button>
@@ -113,7 +113,6 @@
         <div class="collection-heading">
           <label id="custom-tabs-label" for="custom-doc-tabs">Свои вкладки</label>
           <div class="tab-actions">
-            <button id="compare-documents" type="button" title="Документы рядом" aria-label="Документы рядом">Рядом</button>
             <button type="button" id="create-doc-tab" disabled>+ Создать</button>
             <button type="button" id="refresh-doc-tabs" aria-label="Обновить свои вкладки" title="Обновить свои вкладки">↻</button>
           </div>
@@ -146,7 +145,7 @@
       <p class="search-scope">Поиск ассистента — по всей базе, независимо от вкладки.</p>
       <div id="document-search" hidden><label for="document-query">Найти в документе</label><input id="document-query" type="search" maxlength="200" autocomplete="off"><div class="document-search-actions"><span id="document-search-status" role="status"></span><button id="document-prev" type="button" aria-label="Предыдущее совпадение">↑</button><button id="document-next" type="button" aria-label="Следующее совпадение">↓</button><button id="document-citation" type="button" hidden>К цитате</button><button id="print-document" type="button" aria-label="Печать документа или сохранение в PDF" title="Печать всего документа" disabled>Печать / PDF</button></div></div>
       <div id="doc-text" tabindex="0" aria-label="Текст документа" hidden></div>
-      <div id="document-workspace-actions" hidden><button id="ask-selection" type="button" disabled>Спросить о выделенном</button><button id="compare-current" type="button">Открыть рядом…</button><span id="selection-status" role="status">Выделите фрагмент текста.</span></div>
+      <div id="document-workspace-actions" hidden><button id="ask-selection" type="button" disabled>Спросить о выделенном</button><span id="selection-status" role="status">Выделите фрагмент текста.</span></div>
     </aside>
   </main>
   <dialog id="confirm-dialog" class="history-dialog confirmation-dialog" aria-labelledby="confirm-title" aria-describedby="confirm-message">
@@ -249,15 +248,6 @@
   <dialog id="passage-dialog" class="workspace-dialog" aria-labelledby="passage-title">
     <header><h2 id="passage-title">Вопрос по фрагменту</h2><button type="button" data-close="passage-dialog">Закрыть</button></header>
     <form id="passage-form"><div class="workspace-dialog-body"><p id="passage-document"></p><blockquote id="passage-quote"></blockquote><div class="passage-presets"><button type="button" data-passage="Объясните смысл этого пункта и укажите связанные условия.">Объяснить пункт</button><button type="button" data-passage="Какие условия, ограничения и исключения нужно учесть для этого пункта?">Условия и исключения</button></div><label for="passage-question">Ваш вопрос</label><textarea id="passage-question" rows="3" maxlength="3000" required></textarea><p id="passage-error" role="alert"></p></div><footer><button type="submit">Добавить в поле вопроса</button></footer></form>
-  </dialog>
-  <dialog id="comparison-dialog" class="workspace-dialog" aria-labelledby="comparison-title">
-    <header><h2 id="comparison-title">Документы рядом</h2><button type="button" data-close="comparison-dialog">Закрыть</button></header>
-    <p class="workspace-help comparison-help">Полные тексты из базы. Редакция — по сведениям документа.</p>
-    <div class="comparison-tabs" aria-label="Показать документ"><button type="button" data-comparison-side="0" aria-pressed="true">Первый</button><button type="button" data-comparison-side="1" aria-pressed="false">Второй</button></div>
-    <div class="comparison-columns">
-      <section class="comparison-column" data-side="0"><label for="comparison-left">Первый документ</label><select id="comparison-left"></select><p id="comparison-left-status" role="status"></p><div id="comparison-left-text" class="comparison-text" tabindex="0" aria-label="Текст первого документа"></div></section>
-      <section class="comparison-column" data-side="1"><label for="comparison-right">Второй документ</label><select id="comparison-right"></select><p id="comparison-right-status" role="status"></p><div id="comparison-right-text" class="comparison-text" tabindex="0" aria-label="Текст второго документа"></div></section>
-    </div>
   </dialog>
   <dialog id="draft-conflict-dialog" class="workspace-dialog" aria-labelledby="draft-conflict-title">
     <header><h2 id="draft-conflict-title">Черновик на другом устройстве</h2><button type="button" data-close="draft-conflict-dialog">Закрыть</button></header>

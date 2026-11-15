@@ -1297,7 +1297,7 @@ for (const example of document.querySelectorAll(".example")) {
 }
 byId("new-dialogue").disabled = reset.disabled = false;
 allDocs.disabled = false;
-globalThis.WebWorkspace?.init({ensureChat: ensureCurrentChat, documents: () => catalog, answerText, copy: openCopyDialog,
+globalThis.WebWorkspace?.init({ensureChat: ensureCurrentChat, answerText, copy: openCopyDialog,
   openChat: async id => {
     if (!await navigateHistory(async () => { await selectChat(id); await loadChatLists(); })) {
       throw new Error("Не удалось открыть диалог. Завершите текущее действие или обновите список.");
