@@ -2,7 +2,7 @@
 <html lang="ru">
 <head>
   <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, interactive-widget=resizes-content">
   <meta name="color-scheme" content="light">
   <title>Юридический ассистент</title>
   <link rel="stylesheet" href="/static/vendor/sl-ui/send/buttons.css">
@@ -11,24 +11,43 @@
   <script defer src="/static/vendor/sl-ui/send/buttons.js"></script>
   <script defer src="/static/vendor/sl-ui/copy/buttons.js"></script>
   <link rel="stylesheet" href="/static/archive-scene.css">
+  <link rel="stylesheet" href="/static/mobile.css">
   <link rel="preload" as="image" href="/static/media/archive-blue.webp">
   <link rel="preload" as="image" href="/static/media/archive-outcomes.webp">
   <link rel="preload" as="image" href="/static/media/archive-found.webp">
+  <link rel="preload" as="image" href="/static/media/archive-clarify.webp">
   <script defer src="/static/archive-scene.js"></script>
+  <script defer src="/static/mobile-layout.js"></script>
+  <script defer src="/static/queue-ui.js"></script>
   <script defer src="/static/app.js"></script>
 </head>
 <body>
   <header class="masthead">
     <div class="masthead-inner">
+      <button class="mobile-only mobile-icon" id="open-history" type="button" aria-label="Открыть историю чатов" aria-haspopup="dialog"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 6h16M4 12h11M4 18h16"/></svg></button>
       <div class="brand-mark" aria-hidden="true">§</div>
       <div class="identity">
         <span class="brand">ПСБ / Hack&amp;Change</span>
         <h1>Юридический ассистент</h1>
       </div>
-      <button type="button" id="reset" disabled>Новый диалог</button>
+      <button class="mobile-only mobile-icon" id="open-documents" type="button" aria-label="Открыть документы" aria-haspopup="dialog"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 3h8l4 4v14H6zM14 3v5h4M9 12h6M9 16h6"/></svg></button>
     </div>
   </header>
   <main class="workspace">
+    <aside id="history-panel" class="chat-history" aria-labelledby="history-title">
+      <div class="panel-heading"><h2 id="history-title">Ваши диалоги</h2></div>
+      <button type="button" id="reset" aria-label="Новый диалог" disabled>+ Новый диалог</button>
+      <p class="history-hint">Диалоги доступны с разных устройств под вашим логином.</p>
+      <div class="folder-heading"><span>Папки</span><button id="create-chat-folder" type="button" disabled>+ Папка</button></div>
+      <nav id="folder-list" aria-label="Папки чатов"></nav>
+      <button id="edit-chat-folder" type="button" hidden>Изменить папку</button>
+      <p id="folder-status" role="status"></p>
+      <p id="trash-hint" hidden>«Восстановить» вернёт диалог в историю. «Удалить навсегда» окончательно удалит его и все сообщения после подтверждения.</p>
+      <p id="history-status" role="status">Загружаем историю…</p>
+      <button type="button" id="refresh-history">Обновить список</button>
+      <ul id="chat-list" aria-label="Сохранённые диалоги"></ul>
+      <p id="folder-empty" hidden>В этой папке пока нет чатов. Перенесите сюда диалог кнопкой «В папку» или начните новый.</p>
+    </aside>
     <section class="chat" aria-labelledby="chat-title">
       <header class="panel-heading">
         <h2 id="chat-title">Диалог</h2>
@@ -45,6 +64,11 @@
           <button type="button" class="example" disabled>Нужно ли было одобрение гендиректора для договора на 12 млн рублей в августе 2024 года?</button>
         </div>
       </div>
+      <section id="question-queue" aria-label="Очередь вопросов" hidden>
+        <div class="queue-heading"><p id="queue-status" role="status"></p><button id="stop-generation" type="button" hidden>■ Остановить</button><button id="resume-queue" type="button" hidden>Продолжить</button></div>
+        <ol id="queue-list" aria-label="Ожидающие вопросы"></ol>
+        <p id="queue-error" role="alert"></p>
+      </section>
       <form id="chat-form" novalidate>
         <label for="question">Вопрос</label>
         <div class="composer-fields">
@@ -61,10 +85,25 @@
         <span id="input-error" role="status"></span>
       </form>
     </section>
-    <aside class="documents" aria-labelledby="doc-title">
+    <aside id="documents-panel" class="documents" aria-labelledby="doc-title">
       <div class="doc-header">
         <div><span class="brand">База знаний</span><h2 id="doc-title" tabindex="-1">Документы</h2></div>
         <button type="button" id="all-docs" hidden disabled>К списку</button>
+      </div>
+      <div id="doc-navigation" hidden>
+        <div id="doc-tabs" role="tablist" aria-label="Разделы документов"></div>
+        <div class="collection-heading">
+          <label id="custom-tabs-label" for="custom-doc-tabs">Свои вкладки</label>
+          <div class="tab-actions">
+            <button type="button" id="create-doc-tab" disabled>+ Создать</button>
+            <button type="button" id="refresh-doc-tabs" aria-label="Обновить свои вкладки" title="Обновить свои вкладки">↻</button>
+          </div>
+        </div>
+        <div class="collection-picker">
+          <select id="custom-doc-tabs" aria-label="Свои вкладки"></select>
+          <button type="button" id="edit-doc-tab" hidden>Изменить</button>
+        </div>
+        <p id="tabs-status" role="status"></p>
       </div>
       <div id="doc-filter" class="catalog-filter" hidden>
         <label for="doc-query">Поиск по названиям</label>
@@ -84,9 +123,74 @@
             <span class="sl-copy__label">Цитата</span>
           </span>
         </button><p class="copy-feedback" role="status" aria-live="polite" aria-atomic="true"></p></div>
-      <ul id="doc-list" aria-label="Документы базы"></ul>
+      <ul id="doc-list" role="tabpanel" tabindex="0" aria-label="Документы вкладки"></ul>
       <div id="doc-text" tabindex="0" aria-label="Текст документа" hidden></div>
     </aside>
   </main>
+  <dialog id="confirm-dialog" class="history-dialog confirmation-dialog" aria-labelledby="confirm-title" aria-describedby="confirm-message">
+    <div class="confirmation-content">
+      <h2 id="confirm-title">Подтвердите действие</h2>
+      <p id="confirm-message"></p>
+      <div class="history-dialog-actions">
+        <button id="confirm-cancel" type="button" autofocus>Отмена</button>
+        <button id="confirm-accept" type="button">Подтвердить</button>
+      </div>
+    </div>
+  </dialog>
+  <dialog id="mobile-panel" aria-labelledby="mobile-panel-title">
+    <div class="mobile-panel-toolbar"><button id="close-mobile-panel" type="button" aria-label="Закрыть панель и вернуться к диалогу">← К диалогу</button><h2 id="mobile-panel-title">Документы</h2></div>
+    <div id="mobile-panel-content"></div>
+  </dialog>
+  <dialog id="folder-dialog" class="history-dialog" aria-labelledby="folder-dialog-title">
+    <form id="folder-form">
+      <h2 id="folder-dialog-title">Создать папку</h2>
+      <label for="folder-name">Название папки</label>
+      <input id="folder-name" required maxlength="60" autocomplete="off" placeholder="Например, Договоры поставки">
+      <p id="folder-error" role="alert"></p>
+      <div class="history-dialog-actions"><button id="save-chat-folder" type="submit">Сохранить</button><button id="cancel-chat-folder" type="button">Отмена</button><button id="delete-chat-folder" type="button" hidden>Удалить папку</button></div>
+    </form>
+  </dialog>
+  <dialog id="rename-dialog" class="history-dialog" aria-labelledby="rename-dialog-title">
+    <form id="rename-form">
+      <h2 id="rename-dialog-title">Переименовать диалог</h2>
+      <label for="chat-name">Название диалога</label>
+      <input id="chat-name" required maxlength="80" autocomplete="off">
+      <p id="rename-error" role="alert"></p>
+      <div class="history-dialog-actions"><button id="save-chat-name" type="submit">Сохранить</button><button id="cancel-chat-name" type="button">Отмена</button></div>
+    </form>
+  </dialog>
+  <dialog id="move-dialog" class="history-dialog" aria-labelledby="move-dialog-title">
+    <form id="move-form">
+      <h2 id="move-dialog-title">Переместить чат</h2>
+      <p id="move-chat-title"></p>
+      <label for="move-folder">Папка</label>
+      <select id="move-folder"></select>
+      <p id="move-error" role="alert"></p>
+      <div class="history-dialog-actions"><button id="save-chat-move" type="submit">Переместить</button><button id="cancel-chat-move" type="button">Отмена</button></div>
+    </form>
+  </dialog>
+  <dialog id="tab-dialog" aria-labelledby="tab-dialog-title">
+    <form id="tab-form">
+      <h2 id="tab-dialog-title">Своя вкладка</h2>
+      <label for="tab-name">Название</label>
+      <input id="tab-name" required maxlength="60" autocomplete="off" placeholder="Например, Сделка с Альфой">
+      <p>Выберите документы из базы. Состав вкладки можно изменить позже.</p>
+      <div class="tab-filters">
+        <label class="tab-search" for="tab-doc-query">Поиск документов<input id="tab-doc-query" type="search" placeholder="Название документа" autocomplete="off"></label>
+        <label for="tab-doc-type">Тип<select id="tab-doc-type"><option value="">Все типы</option><option value="laws">Законы</option><option value="contracts">Договоры</option><option value="addenda">Допсоглашения</option><option value="policies">Регламенты</option><option value="other">Прочее</option></select></label>
+        <label for="tab-doc-status">Редакция<select id="tab-doc-status"><option value="">Все редакции</option><option value="current">Действующая</option><option value="expired">Утратил силу</option><option value="unspecified">Без отметки</option></select></label>
+        <label class="tab-selected-filter"><input id="tab-doc-selected" type="checkbox">Только выбранные</label>
+        <button id="reset-tab-filters" type="button">Сбросить фильтры</button>
+      </div>
+      <p id="tab-selection-status" role="status"></p>
+      <div id="tab-choice-scroll"><fieldset id="tab-choices"><legend>Документы во вкладке</legend></fieldset></div>
+      <p id="tab-error" role="alert"></p>
+      <div class="tab-dialog-actions">
+        <button type="submit" id="save-doc-tab">Сохранить</button>
+        <button type="button" id="cancel-doc-tab">Отмена</button>
+        <button type="button" id="delete-doc-tab" hidden>Удалить вкладку</button>
+      </div>
+    </form>
+  </dialog>
 </body>
 </html>
