@@ -36,6 +36,31 @@ const fs = require('node:fs');
     assert.equal(await page.locator('.source-group').count(), 1);
     assert.equal(await page.locator('.source-group .source').count(), 2);
     assert.equal(await page.locator('.quote-preview').first().textContent(), source.quote);
+    // Share only the chosen answer and its exact sources, never the whole dialogue.
+    await page.evaluate(() => Object.defineProperty(navigator, 'share', {configurable: true, value: async payload => { window.sharedAnswer = payload; }}));
+    await page.locator('.share-answer').first().click();
+    const shared = await page.evaluate(() => window.sharedAnswer);
+    assert.ok(shared.text.includes(second.quote));
+    assert.equal(shared.text.includes('А на дату сделки?'), false);
+    await page.evaluate(() => Object.defineProperty(navigator, 'share', {configurable: true, value: async () => { throw new DOMException('Cancelled', 'AbortError'); }}));
+    await page.locator('.share-answer').first().click();
+    assert.equal(await page.locator('#copy-dialog').isVisible(), false);
+    for (const mode of ['missing', 'denied']) {
+      await page.evaluate(mode => Object.defineProperty(navigator, 'share', {configurable: true, value: mode === 'missing' ? undefined : async () => { throw new DOMException('Denied', 'NotAllowedError'); }}), mode);
+      await page.locator('.share-answer').first().click();
+      await page.locator('#copy-dialog').waitFor({state:'visible'});
+      assert.equal(await page.locator('#copy-text').inputValue(), shared.text);
+      await page.locator('#copy-dialog-button').click();
+      assert.equal(await page.evaluate(() => navigator.clipboard.readText()), shared.text);
+      await page.locator('#close-copy').click();
+    }
+    await page.setViewportSize({width:390,height:420});
+    await page.locator('.share-answer').first().click();
+    const shareControls = await page.locator('#copy-dialog-button').boundingBox();
+    assert.ok(shareControls.y >= 0 && shareControls.y + shareControls.height <= 420);
+    await page.screenshot({path:output + '/share-mobile.png'});
+    await page.locator('#close-copy').click();
+    await page.setViewportSize({width:1440,height:1000});
     // Native Ctrl+P / browser menu must prepare the current transcript too.
     await page.evaluate(() => window.dispatchEvent(new Event('beforeprint')));
     assert.ok((await page.locator('#print-view').textContent()).includes(second.quote));
@@ -63,6 +88,17 @@ const fs = require('node:fs');
     await page.locator('#document-query').fill('[.*'); assert.equal(await page.locator('#document-search-status').textContent(), 'Не найдено');
     await page.locator('#document-query').fill('');
     assert.equal(await page.locator('.source-highlight').textContent(), source.quote);
+    // Printing a searched/cited document must retain its entire unchanged text.
+    await page.locator('#print-document').click();
+    await page.evaluate(() => window.dispatchEvent(new Event('beforeprint')));
+    assert.equal(await page.locator('#print-view .printed-document').textContent(), doc.text);
+    assert.equal(await page.locator('#print-view h1').textContent(), doc.title);
+    await page.emulateMedia({media:'print'});
+    await page.pdf({path: output + '/document.pdf', format:'A4'});
+    await page.emulateMedia({media:'screen'});
+    await page.evaluate(() => { window.dispatchEvent(new Event('afterprint')); window.dispatchEvent(new Event('beforeprint')); });
+    assert.equal(await page.locator('#print-view .printed-document').count(), 0);
+    assert.ok((await page.locator('#print-view').textContent()).includes('А на дату сделки?'));
     await page.screenshot({path: output + '/document.png'});
     await page.locator('#history-query').fill('условия');
     await page.waitForFunction(() => document.querySelector('#history-search-status').textContent.startsWith('Найдено:'));
@@ -112,6 +148,13 @@ const fs = require('node:fs');
       await page.locator('#document-next').click();
       const hit = await page.locator('.current-hit').boundingBox();
       assert.ok(hit.y >= 0 && hit.y + hit.height <= viewport.height, JSON.stringify({hit,viewport}));
+      await page.locator('#print-document').click();
+      assert.equal(await page.locator('#print-view .printed-document').textContent(), longText);
+      const printButton = await page.locator('#print-document').boundingBox();
+      assert.ok(printButton.y >= 0 && printButton.y + printButton.height <= viewport.height);
+      await page.screenshot({path: output + '/document-print-' + viewport.width + '.png'});
+      if (viewport.width === 390) { await page.emulateMedia({media:'print'}); await page.pdf({path: output + '/mobile-document.pdf', format:'A4'}); await page.emulateMedia({media:'screen'}); }
+      await page.evaluate(() => window.dispatchEvent(new Event('afterprint')));
       const controls = await page.locator('#document-next').boundingBox();
       assert.ok(controls.y >= 0 && controls.y + controls.height <= viewport.height);
     }
@@ -121,6 +164,6 @@ const fs = require('node:fs');
     assert.equal((await page.locator('#print-view').textContent()).includes(second.quote), false);
     assert.ok((await page.locator('#print-view').textContent()).includes('пока нет сообщений'));
     assert.deepEqual(errors, []);
-    console.log('PASS: grouped exact quotes, clipboard/PDF, clarification submission, document search/citation, pin/search, compact catalog/history and fixed collection actions at 4 viewports.');
+    console.log('PASS: answer sharing/cancellation/fallback, full document and dialogue PDF, exact quotes, clarification, search, pinning and mobile layouts.');
   } finally { await browser.close(); }
 })().catch(e => {console.error(e); process.exitCode = 1;});
