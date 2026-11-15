@@ -140,6 +140,10 @@ async function selectChat(id) {
   for (const turn of chat.turns) {
     const userNode = bubble("user", turn.question).item;
     const node = bubble("assistant", "");
+    if (turn.answer.status === "clarify") {
+      node.body.before(ArchiveScene.create("clarify"));
+      node.item.classList.add("with-scene");
+    }
     if (turn.answer.status !== "technical_error") messages.push(
       {role: "user", text: turn.question}, {role: "assistant", text: turn.answer.text});
     const contextLength = messages.length;

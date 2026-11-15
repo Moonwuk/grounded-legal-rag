@@ -159,6 +159,23 @@ test("refusal displays refusal frames and keeps its reason in the answer", async
   assert.equal(h.scene().dataset.state, "search_error");
   assert.equal(h.intervals.size, 0);
 });
+test("clarification uses its own whole image and survives opening saved history", async () => {
+  const h = harness(); await h.ready;
+  h.get("question").value = "Какой срок по договору?";
+  const request = h.send();
+  h.reply({status: "clarify", text: "Уточните договор.", sources: []});
+  await request;
+  assert.equal(h.scene().dataset.state, "clarify");
+  assert.equal(h.scene().children[0].style.backgroundImage, 'url("/static/media/archive-clarify.webp")');
+  assert.equal(h.scene().children[0].style.backgroundSize, "contain");
+  assert.equal(h.intervals.size, 0);
+  const restored = harness([{id: "clarify-test", title: "Договор", updated: 1000, turns: [
+    {question: "Какой срок по договору?", answer: {status: "clarify", text: "Уточните договор.", sources: []}}
+  ]}]);
+  await restored.ready;
+  assert.equal(restored.scene().dataset.state, "clarify");
+  assert.equal(restored.scene().children[0].style.backgroundSize, "contain");
+});
 test("cancel removes the scene and timer, restores the question and welcome", async () => {
   const h = harness(); await h.ready; h.get("question").value = "Вопрос";
   const controller = new AbortController();
