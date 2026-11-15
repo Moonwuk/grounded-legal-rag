@@ -265,11 +265,11 @@ figure{margin:0}
   <h2>Рабочее место, а не только чат</h2>
   <div>
     <div class="grid2 bigcards" style="gap:16px">
-      <div class="card small" style="padding:12px 16px"><b>Документы.</b> Каталог «Все / Законы / Договоры / Регламенты / Прочее», свои вкладки-подборки, фильтры по типу и редакции, поиск внутри текста.</div>
+      <div class="card small" style="padding:12px 16px"><b>Документы.</b> Каталог «Все / Законы / Договоры / Регламенты / Прочее», свои вкладки-подборки, фильтры по типу и редакции, сохранённые поиски, недавние документы, поиск внутри текста.</div>
       <div class="card small" style="padding:12px 16px"><b>История.</b> Серверные диалоги с источниками, поиск, закрепление, папки, корзина с восстановлением, отметка «Новый ответ».</div>
       <div class="card small" style="padding:12px 16px"><b>Избранное и заметки.</b> Личные заметки к ответу, фильтры, отметки «Источники просмотрены» / «Нужна дополнительная проверка».</div>
       <div class="card small" style="padding:12px 16px"><b>Черновики</b> для каждого диалога; проверка версий при работе с двух устройств, выбор при конфликте.</div>
-      <div class="card small" style="padding:12px 16px"><b>Шаблоны вопросов</b> с полями <span class="mono">{договор}</span>, <span class="mono">{дата}</span>, <span class="mono">{сумма}</span>; заполнение из карточки дела, свои шаблоны.</div>
+      <div class="card small" style="padding:12px 16px"><b>Карточка дела и задачи.</b> Договор, контрагент, дата, сумма; список задач со ссылками на документы и ответы. <b>Шаблоны вопросов</b> с полями <span class="mono">{договор}</span>, <span class="mono">{дата}</span>, <span class="mono">{сумма}</span>.</div>
       <div class="card small" style="padding:12px 16px"><b>Экспорт.</b> Копирование ответа с цитатами, «Поделиться», печать диалога и документа в PDF.</div>
       <div class="card small" style="padding:12px 16px"><b>Оформление.</b> Светлая, тёмная и системная темы, 6 акцентов, 5 шрифтов, размер 12–22 px.</div>
       <div class="card small" style="padding:12px 16px"><b>Доступность.</b> Клавиатура, видимый фокус, области нажатия ≥ 44 px, окна приложения вместо alert/confirm, уменьшение движения.</div>
@@ -405,6 +405,19 @@ figure{margin:0}
   <div class="foot"><span>grounded-legal-rag</span><span>14</span></div>
 </section>
 
+<!-- archivist -->
+<section class="slide"><div class="top"></div>
+  <div class="kicker">Персонаж интерфейса</div>
+  <h2 style="margin-bottom:6px">Архивариус показывает состояние ответа</h2>
+  <p class="small muted" style="margin-bottom:10px">Один персонаж на все состояния: пока идёт поиск, он роется в шкафу; результат проигрывается один раз, затем кадр сохраняется в истории. Анимация сообщает статус, но не заменяет проверку текста и источников; при системном уменьшении движения показывается неподвижный кадр.</p>
+  <div class="card" style="padding:14px 20px 10px">
+    <img src="img/archivist-frames.png" style="width:100%;display:block">
+    <div style="display:grid;grid-template-columns:repeat(6,1fr);margin-top:-205px;margin-bottom:0"><div style="text-align:center;font-size:14px;color:var(--navy);font-weight:600">Ожидание</div><div style="text-align:center;font-size:14px;color:var(--navy);font-weight:600">Поиск в архиве</div><div style="text-align:center;font-size:14px;color:var(--navy);font-weight:600">Поиск: нижний ящик</div><div style="text-align:center;font-size:14px;color:var(--navy);font-weight:600">Нашёл документ</div><div style="text-align:center;font-size:14px;color:var(--navy);font-weight:600">Ответ с источниками</div><div style="text-align:center;font-size:14px;color:var(--navy);font-weight:600">Частичный ответ</div></div>
+    <div style="display:grid;grid-template-columns:repeat(6,1fr);margin-top:185px"><div style="text-align:center;font-size:14px;color:var(--navy);font-weight:600">Нет в базе</div><div style="text-align:center;font-size:14px;color:var(--navy);font-weight:600">Вне роли: вопрос</div><div style="text-align:center;font-size:14px;color:var(--navy);font-weight:600">Техническая ошибка</div><div style="text-align:center;font-size:14px;color:var(--navy);font-weight:600">Недопустимый запрос</div><div style="text-align:center;font-size:14px;color:var(--navy);font-weight:600">Остановлено</div><div style="text-align:center;font-size:14px;color:var(--navy);font-weight:600">Нужно уточнение</div></div>
+  </div>
+  <div class="foot"><span>Кадры из web/static/media; состояния описаны в docs/UI_ANIMATIONS.md</span><span>15</span></div>
+</section>
+
 <!-- team -->
 <section class="slide"><div class="top"></div>
   <div class="kicker">Команда</div>
@@ -437,7 +450,7 @@ figure{margin:0}
       </div>
     </div>
   </div>
-  <div class="foot"><span>grounded-legal-rag</span><span>15</span></div>
+  <div class="foot"><span>grounded-legal-rag</span><span>16</span></div>
 </section>
 
 <!-- 13 -->
@@ -475,7 +488,7 @@ docker compose up --build -d --wait
     <tr><td><span class="mono">CHAT_PROXY_TOKEN</span></td><td>пусто</td><td>общий секрет с авторизующим прокси; включает серверную историю</td></tr>
     <tr><td><span class="mono">EMB_MODEL</span>, <span class="mono">TOP_K</span>, <span class="mono">MAX_TOKENS</span></td><td>пусто, 6, 8192</td><td>эмбеддинги (без них — BM25), число кандидатов поиска, лимит ответа модели</td></tr>
   </table>
-  <div class="foot"><span>https://github.com/Moonwuk/grounded-legal-rag</span><span>16</span></div>
+  <div class="foot"><span>https://github.com/Moonwuk/grounded-legal-rag</span><span>17</span></div>
 </section>
 
 </body>
