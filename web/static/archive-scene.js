@@ -58,19 +58,21 @@ const ArchiveScene = (() => {
   const scenes = {
     idle: {src: blue, frames: [0]},
     searching: {src: blue, frames: [...range(0, 24), ...range(1, 23).reverse()], loop: true},
-    success: {src: found, frames: range(15, 24)},
+    success: {src: found, frames: range(15, 24), fps: 10},
     partial: {src: found, frames: [20]},
     clarify: {images: ["/static/media/archive-clarify.webp"]},
-    search_error: {src: outcomes, frames: range(18, 29)},
+    search_error: {src: outcomes, frames: range(18, 29), fps: 12},
+    stopped: {src: blue, frames: [7]},
     role_protection: {src: blue, frames: [7, 8, 9, 7]},
     out_of_scope: {src: outcomes, frames: [18, 19, 20]},
     unsafe_legal_request: {src: blue, frames: range(20, 29)},
     system_error: {src: outcomes, frames: [20, 21, 22]},
     unverified: {src: outcomes, frames: [20, 21]}
   };
-  const symbols = {role_protection: "!", out_of_scope: "?", unsafe_legal_request: "⊘", system_error: "!"};
+  const symbols = {role_protection: "!", out_of_scope: "?", unsafe_legal_request: "⊘", system_error: "!", stopped: "Ⅱ"};
 
   function stateFor(answer) {
+    if (answer.status === "cancelled") return "stopped";
     if (answer.status === "technical_error") return "system_error";
     if (answer.ui_state === "role_protection" && ["disallowed", "out_of_scope"].includes(answer.status))
       return "role_protection";
@@ -86,14 +88,16 @@ const ArchiveScene = (() => {
     }
   }
 
-  function setState(scene, state) {
+  function setState(scene, state, {animate = true} = {}) {
     scene.dataset.state = state;
     const [frame, badge] = scene.children;
     badge.textContent = symbols[state] || "";
-    SpriteAnimation.play(frame, {columns: 6, rows: 5, ...scenes[state]});
+    const config = {columns: 6, rows: 5, ...scenes[state]};
+    if (!animate) { config.frames = [config.frames?.at(-1) ?? (config.images?.length || 1) - 1]; config.loop = false; }
+    SpriteAnimation.play(frame, config);
   }
 
-  function create(state = "searching") {
+  function create(state = "searching", options) {
     const scene = document.createElement("div");
     scene.className = "archive-scene";
     scene.setAttribute("aria-hidden", "true");
@@ -102,7 +106,7 @@ const ArchiveScene = (() => {
     const badge = document.createElement("span");
     badge.className = "archive-scene__badge";
     scene.append(frame, badge);
-    setState(scene, state);
+    setState(scene, state, options);
     return scene;
   }
 

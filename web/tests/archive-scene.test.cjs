@@ -36,7 +36,7 @@ class Element {
   focus() {}
   showModal() { this.open = true; }
   close(value = "") { this.returnValue = value; this.open = false; this.events.close?.(); }
-  animate() { return {cancel() {}}; }
+  animate(frames, options) { this.motion = options; return {cancel() {}}; }
   closest() { return this; }
   querySelector(selector) {
     if (selector === ".message") return this.children.find(c => c.classes?.has("message")) || null;
@@ -113,6 +113,7 @@ function harness(saved = null, documents = [], tabs = [], folders = [], historyF
     ready: new Promise(resolve => setImmediate(resolve)),
     scene: () => get("conversation").children.flatMap(n => n.children || []).find(n => n.className === "archive-scene"),
     stateFor: answer => { context.testAnswer = answer; return vm.runInContext("ArchiveScene.stateFor(testAnswer)", context); },
+    restore: (turns, index = -1) => { context.testTurns = turns; context.animateIndex = index; vm.runInContext("renderSavedTurns(testTurns, animateIndex)", context); },
     send: (signal = new AbortController().signal) => onSend({signal}),
     reply: answer => reply(answer), fail: error => reject(error),
     startCalls: () => startCalls
@@ -358,4 +359,23 @@ test("site confirmation waits for explicit acceptance and cancellation preserves
   h.get("confirm-accept").events.click();
   await new Promise(resolve => setImmediate(resolve));
   assert.equal(saved.length, 0);
+});
+
+test('saved replies preserve each outcome pose; only a newly completed reply animates', async () => {
+  const h = harness(); await h.ready;
+  const cases = [
+    ['answer', 'success'], ['partial', 'partial'], ['clarify', 'clarify'],
+    ['insufficient', 'search_error'], ['out_of_scope', 'out_of_scope'],
+    ['disallowed', 'unsafe_legal_request'], ['unverified', 'unverified'],
+    ['technical_error', 'system_error'], ['cancelled', 'stopped']
+  ];
+  const turns = cases.map(([status]) => ({question: 'Тестовое условие', answer: {status, text: 'Ответ', sources: [source]}}));
+  h.restore(turns);
+  const scenes = () => h.get('conversation').children.flatMap(node => node.children || []).filter(node => node.className === 'archive-scene');
+  assert.deepEqual(scenes().map(scene => scene.dataset.state), cases.map(item => item[1]));
+  assert.ok(scenes().every(scene => scene.children[0].motion === undefined));
+  h.restore([...turns, turns[0]], turns.length);
+  assert.equal(scenes().at(-1).dataset.state, 'success');
+  assert.equal(scenes().at(-1).children[0].motion.duration, 1000);
+  assert.ok(scenes().slice(0, -1).every(scene => scene.children[0].motion === undefined));
 });
