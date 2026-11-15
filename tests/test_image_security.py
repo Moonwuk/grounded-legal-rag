@@ -177,7 +177,7 @@ class ImageSecretTests(unittest.TestCase):
         report = {"SchemaVersion": 2, "ArtifactType": "container_image", "Results": results}
         with tempfile.TemporaryDirectory() as directory:
             path = Path(directory) / "report.json"
-            for os_type in ("none", "alpine"):
+            for os_type in ("none", "alpine", "debian"):
                 results[0]["Type"] = os_type
                 path.write_text(json.dumps(report))
                 self.assertEqual(secrets.sanitized_report(path, "container_image"), [])

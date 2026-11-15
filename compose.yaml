@@ -13,6 +13,8 @@ services:
       LLM_API_KEY: "${LLM_API_KEY:-}"
       LLM_MODEL: "${LLM_MODEL:-}"
       WEB_WORKERS: "${WEB_WORKERS:-2}"
+      WEB_REQUESTS_PER_MINUTE: "${WEB_REQUESTS_PER_MINUTE:-30}"
+      WEB_REQUESTS_PER_DAY: "${WEB_REQUESTS_PER_DAY:-300}"
       # Empty values keep the solution defaults (see README).
       LLM_REASONING_EFFORT: "${LLM_REASONING_EFFORT:-}"
       MAX_TOKENS: "${MAX_TOKENS:-}"
@@ -33,6 +35,14 @@ services:
         bind:
           create_host_path: false
     read_only: true
+    mem_limit: "${WEB_MEMORY_LIMIT:-2g}"
+    cpus: "${WEB_CPUS:-2}"
+    pids_limit: 128
+    logging:
+      driver: json-file
+      options:
+        max-size: 10m
+        max-file: "3"
     tmpfs:
       - /tmp
     cap_drop:

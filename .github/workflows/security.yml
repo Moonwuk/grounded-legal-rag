@@ -125,8 +125,9 @@ jobs:
       - name: Scan own Python code
         run: |
           mkdir -p reports
-          bandit -r prototype containers .github/scripts infra/ansible/roles/psb/files/run_batch.py \
+          bandit -r web prototype containers .github/scripts infra/ansible/roles/psb/files/run_batch.py \
             audit_retrieval.py build_cases.py build_submission.py \
+            -x web/tests,web/browser-tests \
             -f json -o reports/bandit.json
           python - <<'PY'
           import json
@@ -207,6 +208,7 @@ jobs:
     runs-on: ubuntu-24.04
     timeout-minutes: 20
     permissions:
+      actions: read
       contents: read
       security-events: write
     steps:

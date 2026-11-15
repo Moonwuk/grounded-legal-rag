@@ -8,9 +8,10 @@ import sys
 from threading import BoundedSemaphore, Thread
 import time
 from typing import Literal
+from urllib.parse import urlsplit
 
 from fastapi import FastAPI, HTTPException, Request
-from fastapi.responses import FileResponse
+from fastapi.responses import FileResponse, JSONResponse
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel, Field, ValidationError
 from starlette.concurrency import run_in_threadpool
@@ -83,9 +84,32 @@ app.include_router(queue_router)
 
 @app.middleware("http")
 async def private_chat_responses(request: Request, call_next):
-    response = await call_next(request)
-    if request.url.path == "/api/chat" or request.url.path.startswith(("/api/chats", "/api/chat-folders", "/api/document-tabs")):
+    response = None
+    if request.url.path.startswith("/api/"):
+        try:
+            if request.app.state.history is not None:
+                identity(request)
+            if request.method not in {"GET", "HEAD", "OPTIONS"}:
+                origin = request.headers.get("origin")
+                parsed = urlsplit(origin) if origin else None
+                if (request.headers.get("sec-fetch-site") == "cross-site" or
+                    (parsed and (parsed.scheme not in {"http", "https"} or parsed.netloc.lower() != request.headers.get("host", "").lower() or parsed.path or parsed.query or parsed.fragment))):
+                    raise HTTPException(403, "Запрос с другого сайта запрещён.")
+        except HTTPException as error:
+            response = JSONResponse({"detail": error.detail}, status_code=error.status_code, headers=error.headers)
+        except ValueError:
+            response = JSONResponse({"detail": "Некорректный Origin."}, status_code=403)
+    if response is None:
+        response = await call_next(request)
+    response.headers["Content-Security-Policy"] = "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self'; connect-src 'self'; object-src 'none'; base-uri 'none'; form-action 'self'; frame-ancestors 'none'"
+    response.headers["X-Frame-Options"] = "DENY"
+    response.headers["X-Content-Type-Options"] = "nosniff"
+    response.headers["Referrer-Policy"] = "no-referrer"
+    response.headers["Permissions-Policy"] = "camera=(), microphone=(), geolocation=()"
+    if request.url.path.startswith("/api/"):
         response.headers["Cache-Control"] = "private, no-store"
+        if response.status_code in {401, 403, 429}:
+            print(json.dumps({"event": "web_request_rejected", "status": response.status_code}), file=sys.stderr)
     return response
 
 
@@ -189,6 +213,9 @@ async def chat(request: Request):
         request_data = ChatRequest.model_validate(payload)
     except (ValidationError, ValueError, RecursionError):
         raise HTTPException(422, "Проверьте формат сообщений и длину вопроса.") from None
+    if request.app.state.history is not None:
+        history, owner = identity(request)
+        await run_in_threadpool(history.reserve_generation, owner)
     if request_data.chat_id is not None:
         history, owner = identity(request)
         if len(request_data.messages) != 1 or request_data.messages[0].role != "user":

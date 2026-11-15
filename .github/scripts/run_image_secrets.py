@@ -73,7 +73,7 @@ def sanitized_report(path, artifact_type):
             # Trivy 0.76 JSON includes package inventory even for secret-only
             # image scans. Accept only the observed inventory schema: a
             # Secrets/other finding field here must fail, never be skipped.
-            inventory_types = {"os-pkgs": {"none", "alpine"}, "lang-pkgs": {"python-pkg"}}
+            inventory_types = {"os-pkgs": {"none", "alpine", "debian"}, "lang-pkgs": {"python-pkg"}}
             packages = result.get("Packages")
             if (artifact_type != "container_image" or result.get("Class") not in inventory_types
                     or result.get("Type") not in inventory_types[result["Class"]]

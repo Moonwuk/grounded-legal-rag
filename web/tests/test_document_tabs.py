@@ -16,7 +16,7 @@ class DocumentTabsTests(unittest.TestCase):
                                      CHAT_PROXY_TOKEN="fixture-token"))
         self.client = self.enterContext(TestClient(app))
         self.headers = {"X-Chat-User": "alice", "X-Chat-Token": "fixture-token"}
-        self.ids = [doc["id"] for doc in self.client.get("/api/documents").json()]
+        self.ids = [doc["id"] for doc in self.client.get("/api/documents", headers=self.headers).json()]
 
     def create(self, **changes):
         payload = dict(title="Сделка", document_ids=self.ids[:2])
@@ -38,7 +38,7 @@ class DocumentTabsTests(unittest.TestCase):
         self.assertEqual(stale.status_code, 409)
         self.assertEqual(self.client.delete("/api/document-tabs/" + tab["id"], headers=self.headers).status_code, 204)
         self.assertEqual(self.client.get("/api/document-tabs", headers=self.headers).json(), [])
-        self.assertEqual([doc["id"] for doc in self.client.get("/api/documents").json()], self.ids)
+        self.assertEqual([doc["id"] for doc in self.client.get("/api/documents", headers=self.headers).json()], self.ids)
 
     def test_identity_isolation_and_private_cache(self):
         tab = self.create().json()

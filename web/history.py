@@ -1,6 +1,7 @@
 """Persistent chat history, isolated by the authenticated reverse-proxy identity."""
 from contextlib import contextmanager
 import json
+import os
 import re
 import secrets
 import sqlite3
@@ -48,6 +49,26 @@ class History:
                 worker TEXT NOT NULL DEFAULT '', lease_until REAL NOT NULL DEFAULT 0,
                 chat_lease REAL NOT NULL DEFAULT 0)""")
             db.execute("CREATE INDEX IF NOT EXISTS chat_jobs_order ON chat_jobs(chat_id, status, created)")
+            db.execute("""CREATE TABLE IF NOT EXISTS request_budgets (
+                owner TEXT NOT NULL, period INTEGER NOT NULL, window INTEGER NOT NULL,
+                used INTEGER NOT NULL, PRIMARY KEY(owner, period))""")
+
+    def charge_generation(self, db, owner):
+        """Durable per-login budgets shared by all chats and both generation APIs."""
+        now = int(time.time())
+        for period, setting, default in [(60, "WEB_REQUESTS_PER_MINUTE", 30), (86400, "WEB_REQUESTS_PER_DAY", 300)]:
+            limit = max(1, int(os.getenv(setting) or default))
+            window = now // period
+            row = db.execute("SELECT window,used FROM request_budgets WHERE owner=? AND period=?", (owner, period)).fetchone()
+            used = row["used"] if row and row["window"] == window else 0
+            if used >= limit:
+                raise HTTPException(429, "Достигнут лимит запросов. Попробуйте позже.", headers={"Retry-After": str(period - now % period)})
+            db.execute("INSERT OR REPLACE INTO request_budgets VALUES (?,?,?,?)", (owner, period, window, used + 1))
+
+    def reserve_generation(self, owner):
+        with self.connect() as db:
+            db.execute("BEGIN IMMEDIATE")
+            self.charge_generation(db, owner)
 
     @contextmanager
     def connect(self):

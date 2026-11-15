@@ -52,6 +52,7 @@ def enqueue(request, chat_id, data):
             raise HTTPException(413, "Диалог слишком длинный. Начните новый.")
         if chat["busy_until"] > time.time() and not any(row["status"] in ("running", "cancelling") for row in jobs):
             raise HTTPException(409, "Дождитесь завершения текущего ответа.")
+        history.charge_generation(db, owner)
         db.execute("INSERT OR IGNORE INTO chat_queue(chat_id) VALUES (?)", (chat_id,))
         created = time.time()
         if retry:
