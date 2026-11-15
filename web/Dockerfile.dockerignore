@@ -3,6 +3,11 @@
 !prototype/*.py
 !web/
 !web/app.py
+!web/history.py
+!web/document_tabs.py
+!web/chat_folders.py
+!web/queue.py
+!web/generation.py
 !web/__init__.py
 !web/requirements.txt
 !web/static/

@@ -8,12 +8,17 @@ import sys
 from threading import BoundedSemaphore, Thread
 import time
 from typing import Literal
+from urllib.parse import urlsplit
 
 from fastapi import FastAPI, HTTPException, Request
-from fastapi.responses import FileResponse
+from fastapi.responses import FileResponse, JSONResponse
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel, Field, ValidationError
 from starlette.concurrency import run_in_threadpool
+from web.history import History, identity, router as history_router
+from web.document_tabs import router as document_tabs_router
+from web.chat_folders import router as chat_folders_router
+from web.queue import QueueManager, router as queue_router
 
 ROOT = Path(__file__).resolve().parents[1]
 STATIC = Path(__file__).with_name("static")
@@ -41,11 +46,22 @@ async def lifespan(app):
     app.state.documents = {doc.sha256: doc for doc in documents}
     app.state.slots = BoundedSemaphore(integer("WEB_WORKERS", 2, 1, 8))
     app.state.dense = "off"
+    history_path = os.getenv("CHAT_HISTORY_PATH", "")
+    proxy_token = os.getenv("CHAT_PROXY_TOKEN", "")
+    app.state.history = History(history_path, proxy_token) if history_path and proxy_token else None
+    manager = QueueManager(app.state.history, app.state, integer("WEB_WORKERS", 2, 1, 8)) if app.state.history else None
+    app.state.queue = manager
+    if manager:
+        manager.start()
     if os.getenv("EMB_MODEL", "").strip():
         # Dense candidates are indexed after start-up; until then search is BM25 only.
         app.state.dense = "indexing"
         Thread(target=index_dense, args=(app.state,), daemon=True).start()
-    yield
+    try:
+        yield
+    finally:
+        if manager:
+            await run_in_threadpool(manager.close)
 
 
 def index_dense(state):
@@ -60,6 +76,43 @@ def index_dense(state):
 
 app = FastAPI(title="Юридический ассистент", lifespan=lifespan,
               docs_url=None, redoc_url=None, openapi_url=None)
+app.include_router(history_router)
+app.include_router(document_tabs_router)
+app.include_router(chat_folders_router)
+app.include_router(queue_router)
+
+
+@app.middleware("http")
+async def private_chat_responses(request: Request, call_next):
+    response = None
+    if request.url.path.startswith("/api/"):
+        try:
+            if request.app.state.history is not None:
+                identity(request)
+            if request.method not in {"GET", "HEAD", "OPTIONS"}:
+                origin = request.headers.get("origin")
+                parsed = urlsplit(origin) if origin else None
+                if (request.headers.get("sec-fetch-site") == "cross-site" or
+                    (parsed and (parsed.scheme not in {"http", "https"} or parsed.netloc.lower() != request.headers.get("host", "").lower() or parsed.path or parsed.query or parsed.fragment))):
+                    raise HTTPException(403, "Запрос с другого сайта запрещён.")
+        except HTTPException as error:
+            response = JSONResponse({"detail": error.detail}, status_code=error.status_code, headers=error.headers)
+        except ValueError:
+            response = JSONResponse({"detail": "Некорректный Origin."}, status_code=403)
+    if response is None:
+        response = await call_next(request)
+    response.headers["Content-Security-Policy"] = "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self'; connect-src 'self'; object-src 'none'; base-uri 'none'; form-action 'self'; frame-ancestors 'none'"
+    response.headers["X-Frame-Options"] = "DENY"
+    response.headers["X-Content-Type-Options"] = "nosniff"
+    response.headers["Referrer-Policy"] = "no-referrer"
+    response.headers["Permissions-Policy"] = "camera=(), microphone=(), geolocation=()"
+    if request.url.path.startswith("/api/"):
+        response.headers["Cache-Control"] = "private, no-store"
+        if response.status_code in {401, 403, 429}:
+            print(json.dumps({"event": "web_request_rejected", "status": response.status_code}), file=sys.stderr)
+    return response
+
+
 # UI-only signal for explicit, standalone forged system-role delimiters.
 FORGED_ROLE = re.compile(r"(?im)^\s*(?:\[SYSTEM\]|<\|im_start\|>system|<\|system\|>)\s*\S")
 
@@ -71,6 +124,7 @@ class Message(BaseModel):
 
 class ChatRequest(BaseModel):
     messages: list[Message] = Field(min_length=1, max_length=41)
+    chat_id: str | None = Field(default=None, pattern=r"^[0-9a-f-]{36}$")
 
 
 def describe(doc):
@@ -159,10 +213,41 @@ async def chat(request: Request):
         request_data = ChatRequest.model_validate(payload)
     except (ValidationError, ValueError, RecursionError):
         raise HTTPException(422, "Проверьте формат сообщений и длину вопроса.") from None
+    if request.app.state.history is not None:
+        history, owner = identity(request)
+        await run_in_threadpool(history.reserve_generation, owner)
+    if request_data.chat_id is not None:
+        history, owner = identity(request)
+        if len(request_data.messages) != 1 or request_data.messages[0].role != "user":
+            raise HTTPException(400, "Для сохранённого диалога передайте только новый вопрос.")
+        return await run_in_threadpool(answer_saved, history, owner, request_data.chat_id,
+                                       request_data.messages[0], request.app.state)
     question = to_question(request_data.messages)
     if len(question) > 30000:
         raise HTTPException(413, TOO_LONG)
     return await run_in_threadpool(answer, question, request.app.state, request_data.messages[-1].text)
+
+
+def answer_saved(history, owner, chat_id, message, state):
+    turns, lease = history.begin(owner, chat_id, message.text)
+    try:
+        previous = []
+        for turn in turns:
+            if turn["answer"]["status"] not in {"technical_error", "cancelled"}:
+                previous.extend([Message(role="user", text=turn["question"]),
+                                 Message(role="assistant", text=turn["answer"]["text"])])
+        question = to_question([*previous, message])
+        if len(question) > 30000:
+            raise HTTPException(413, TOO_LONG)
+        result = answer(question, state, message.text)
+        # A retry replaces the failed attempt, while technical errors never become model context.
+        if turns and turns[-1]["answer"]["status"] == "technical_error" and turns[-1]["question"] == message.text:
+            turns.pop()
+        turns.append(dict(question=message.text, answer=result))
+        history.finish(owner, chat_id, lease, turns)
+        return result
+    finally:
+        history.finish(owner, chat_id, lease)
 
 
 @app.get("/healthz")

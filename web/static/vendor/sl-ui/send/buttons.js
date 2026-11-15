@@ -6,12 +6,13 @@
     root.dispatchEvent(new view.Event('sl:buttons-remount'));
     const life = new view.AbortController();
     const button = root.querySelector('[data-action]'), label = root.querySelector('[data-label]'), status = root.querySelector('[data-status]');
+    let completeLabel = 'Получен ответ';
     let phase = 'idle', request = null, revision = 0, destroyed = false, resetTimer = 0;
     const listen = (target, type, fn) => target.addEventListener(type, fn, { signal: life.signal });
     const activeElement = () => root.getRootNode().activeElement;
     function render() {
-      const labels = ["Отправить","Ждём ответ","Получен ответ","Отправить"];
-      const names = ["Отправить","Ждём ответ","Получен ответ","Отправить"];
+      const labels = ["Отправить","Ждём ответ",completeLabel,"Отправить"];
+      const names = ["Отправить","Ждём ответ",completeLabel,"Отправить"];
       const index = phase === 'pending' ? 1 : phase === 'complete' ? 2 : phase === 'error' ? 3 : 0;
       root.dataset.phase = phase; root.setAttribute('aria-busy', String(phase === 'pending'));
       button.setAttribute('aria-busy', String(phase === 'pending')); button.setAttribute('aria-disabled', String(phase === 'pending'));
@@ -26,7 +27,8 @@
       try {
         const result = await options.onSend({ signal: request.signal });
         if (destroyed || token !== revision || request.signal.aborted) return false;
-        request = null; phase = 'complete'; render(); status.textContent = options.preview ? "Demo finished locally. No message was sent." : "Ответ получен.";
+        completeLabel = result?.queued ? 'В очереди' : 'Получен ответ';
+        request = null; phase = 'complete'; render(); status.textContent = result?.queued ? 'Вопрос добавлен в очередь.' : options.preview ? "Demo finished locally. No message was sent." : "Ответ получен.";
         root.dispatchEvent(new view.CustomEvent('sl:action', { bubbles: true, composed: true, detail: { kind: root.dataset.kind, phase, result } }));
         if (destroyed || token !== revision || phase !== 'complete') return true;
         resetTimer = view.setTimeout(() => { if (!destroyed && token === revision && phase === 'complete') { phase = 'idle'; render(); status.textContent = "Можно отправить вопрос."; } }, 1800);

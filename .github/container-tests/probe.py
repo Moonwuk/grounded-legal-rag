@@ -140,7 +140,7 @@ def serve_application(command: list[str], environment: dict[str, str], output: P
     child_env.update({
         "LLM_BASE_URL": "https://127.0.0.1:" + str(server.server_port) + "/v1",
         "LLM_MODEL": "fixture-model", "SSL_CERT_FILE": str(certificate),
-        "MAX_WORKERS": "1", "PSB_RUN_SECONDS": "30",
+        "MAX_WORKERS": "1", "PSB_RUN_SECONDS": "30", "PSB_VERIFY": "1",
     })
     try:
         # The caller provides an explicit Python executable and repository-controlled arguments.

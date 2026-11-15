@@ -59,7 +59,7 @@ const ArchiveScene = (() => {
     searching: {src: blue, frames: [...range(0, 24), ...range(1, 23).reverse()], loop: true},
     success: {src: found, frames: range(15, 24)},
     partial: {src: found, frames: [20]},
-    clarify: {src: blue, frames: [7]},
+    clarify: {images: ["/static/media/archive-clarify.webp"]},
     search_error: {src: outcomes, frames: range(18, 29)},
     role_protection: {src: blue, frames: [7, 8, 9, 7]},
     out_of_scope: {src: outcomes, frames: [18, 19, 20]},

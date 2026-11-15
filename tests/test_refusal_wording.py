@@ -13,6 +13,7 @@ import unittest
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / 'prototype'))
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 from test_prose_answers import run  # noqa: E402
+from psb_policy import render
 
 
 def refuse(codes):
@@ -46,6 +47,28 @@ class RefusalWordingTests(unittest.TestCase):
         self.assertIn('Уточните или предоставьте: дата события.', text)
         self.assertIn('По памяти отвечать не буду', text)
         self.assertNotIn('обратитесь к юристу', text)
+
+    def test_unsourced_reference_request_does_not_invent_found_provisions(self):
+        for codes in [['referenced_documents'], ['document', 'referenced_documents']]:
+            with self.subTest(codes=codes):
+                text, status, _, _ = run('Какие документы нужны для возмещения расходов на переезд?',
+                                          [refuse(codes)] * 2 + [VERDICT])
+                self.assertEqual(status, 'insufficient')
+                self.assertNotIn('ссылаются найденные положения', text)
+                self.assertNotIn('Уточните или предоставьте', text)
+                self.assertIn('обратитесь к юристу', text)
+
+    def test_specific_date_survives_removal_of_unsourced_reference_request(self):
+        text, _, _, _ = run('Какой срок оплаты по договору?',
+                            [refuse(['referenced_documents', 'event_date'])] * 2 + [VERDICT])
+        self.assertIn('Уточните или предоставьте: дата события.', text)
+        self.assertNotIn('ссылаются найденные положения', text)
+
+    def test_verified_missing_articles_are_named(self):
+        candidate = dict(status='insufficient', claims=[], requested_facts=['referenced_documents'], issue='')
+        text = render(candidate, [], source_gaps=[dict(articles=['18', '24'])], question='Какие условия применяются?')
+        self.assertIn('отсылочных статей 18, 24', text)
+        self.assertIn('Предоставьте эти статьи', text)
 
     def test_value_kept_in_another_document_opens_with_the_conclusion(self):
         files = {'Договор Л-3-2034.txt': 'Договор № Л-3/2034\n8.1. Срок поверки устанавливается изготовителем и указывается в паспорте прибора.\n'}
