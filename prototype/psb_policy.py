@@ -6,7 +6,7 @@ import sys
 from decimal import Decimal, localcontext
 from psb_corpus import Fragment, norm
 from psb_llm import ProviderError, QUESTION_CALL_LIMIT
-from psb_retrieval import user_turns, tokens, STOP, event_interval, identifiers
+from psb_retrieval import user_turns, tokens, STOP, event_interval, identifiers, POINT_OF_ARTICLE
 
 FOLLOWUPS = {
     "contract": "номер договора или его текст",
@@ -2426,13 +2426,25 @@ def _restore_id(value, by_id):
     return near[0] if len(near) == 1 else value
 
 
-def _search_terms(value) -> list[str]:
-    """Model-named legal terms for the expanded search: words only, bounded."""
+def _search_terms(value, retriever=None) -> list[str]:
+    """Bounded retrieval hints from a refusal; never facts or published text."""
     terms = value.get("search_terms") if isinstance(value, dict) else None
-    if not isinstance(terms, list):
-        return []
-    return [t.strip() for t in terms[:6] if isinstance(t, str) and 2 < len(t.strip()) <= 80
-            and re.fullmatch(r"[А-Яа-яЁёA-Za-z0-9 ,.\-–]+", t.strip())]
+    terms = ([t.strip() for t in terms[:6] if isinstance(t, str) and 2 < len(t.strip()) <= 80
+              and re.fullmatch(r"[А-Яа-яЁёA-Za-z0-9 ,.\-–]+", t.strip())]
+             if isinstance(terms, list) else [])
+    if not isinstance(value, dict) or value.get("status") != "insufficient" or retriever is None:
+        return terms
+    draft = prose_of(value)
+    if len(draft) > PROSE_LIMIT:
+        return terms
+    known = {article for articles in getattr(retriever, "article_catalog", {}).values() for article in articles}
+    # A refusal may identify the missing point precisely while its search_terms
+    # repeat only broad topic words. The article must exist in the actual corpus.
+    # Only canonical numeric coordinates leave this untrusted draft channel.
+    addresses = list(dict.fromkeys(
+        f"пункт {m[1]} статьи {m[2]}" for m in POINT_OF_ARTICLE.finditer(draft)
+        if m[2] in known and len(m[1]) <= 16))[:2]
+    return terms + [address for address in addresses if address not in terms]
 
 
 def expand_selection(value, evidence):
@@ -2799,7 +2811,7 @@ def answer_steps(question: str, retriever, client, top_k: int = 6, verify: bool 
             if candidate["status"] == "insufficient" and not expanded:
                 # Everyday wording finds no provision; the expanded search also
                 # uses the legal terms the model names (never shown to the user).
-                search_terms = _search_terms(generated)
+                search_terms = _search_terms(generated, retriever)
                 continue
             # Source structure, not the model, determines mandatory list context.
             if hasattr(retriever, "complete_sources"):

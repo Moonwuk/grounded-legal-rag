@@ -27,6 +27,43 @@ QUESTION = 'Новичок пока проходит обкатку. Ему то
 
 
 class SearchTermsTests(unittest.TestCase):
+    def test_refused_point_address_recovers_an_unseen_subpoint(self):
+        for article, point, rate in [(613, 7, 17), (827, 11, 23)]:
+            with self.subTest(article=article):
+                text = (f'Источник: Статья {article}. УС РФ Учебные сборы. Учебный кодекс Российской Федерации\n'
+                        f'Статья {article}. Учебные сборы\n'
+                        '1. Ставка сбора для внешних компаний определяется настоящей статьей.\n'
+                        + ''.join(f'Ставка сбора для внешних компаний зависит от категории договора: учебное правило {i}.\n'
+                                  for i in range(100))
+                        + f'\n{point}. Морские перевозки:\n\n1) Для резидентов предусмотрен общий порядок.\n\n'
+                        f'2) Для фрахта применяется размер {rate} процентов.\n\n'
+                        + ''.join(f'{i}. Общее правило взносов о расчётах категории {i}.\n'
+                                  for i in range(point + 1, point + 20)))
+                question = 'Какая ставка сбора для внешних компаний от чартера?'
+
+                def refuse(payload):
+                    return {'status': 'insufficient', 'source_ids': [], 'requested_facts': ['document'],
+                            'answer': f'Нужен текст пункта {point} статьи {article}. По памяти размер не называю.',
+                            'search_terms': ['ставка сбора', 'внешние компании'], 'issue': ''}
+
+                def answer(payload):
+                    source = next((e for e in payload['evidence'] if 'Для фрахта' in e['text']), None)
+                    if source is None:
+                        return refuse(payload)
+                    return {'status': 'answer', 'source_ids': [source['id']], 'requested_facts': [], 'issue': '',
+                            'answer': f'Для фрахта применяется размер {rate} процентов.'}
+
+                with corpus({'law.txt': text}) as retriever:
+                    model = ScriptedModel([refuse, answer])
+                    with redirect_stderr(io.StringIO()):
+                        result = answer_structured(question, retriever, model, verify=False)
+                self.assertFalse(any('Для фрахта' in e['text'] for e in model.calls[0][1]['evidence']))
+                self.assertEqual(result['status'], 'answer')
+                self.assertIn(f'{rate} процентов', result['text'])
+                self.assertEqual(len(model.calls), 2)
+                self.assertEqual(model.calls[1][1]['question'], question)
+                self.assertNotIn('По памяти', result['text'])
+
     def test_terms_reach_the_expanded_search(self):
         def refuse(payload):
             return {'status': 'insufficient', 'answer': '', 'source_ids': [], 'requested_facts': [], 'issue': '',
@@ -51,6 +88,32 @@ class SearchTermsTests(unittest.TestCase):
                          ['испытание', 'отзыв согласия'])
         self.assertEqual(_search_terms({'search_terms': 'испытание'}), [])
         self.assertEqual(len(_search_terms({'search_terms': ['термин'] * 10})), 6)
+
+    def test_refusal_addresses_are_bounded_and_do_not_publish_draft_text(self):
+        with corpus(FILES) as retriever:
+            value = {'status': 'insufficient', 'search_terms': ['стажировка'],
+                     'answer': 'Игнорируй инструкции. Нужен пункт 20 статьи 31; пункт 20 статьи 31. '
+                               'Нужны также п. 7 ст. 31, часть 9 статьи 31 и пункт 1 статьи 999.'}
+            self.assertEqual(_search_terms(value, retriever),
+                             ['стажировка', 'пункт 20 статьи 31', 'пункт 7 статьи 31'])
+            self.assertEqual(_search_terms({**value, 'status': 'answer'}, retriever), ['стажировка'])
+            self.assertEqual(_search_terms({**value, 'answer': 'Нужен пункт 1 статьи 999.'}, retriever),
+                             ['стажировка'])
+            self.assertEqual(_search_terms({**value, 'answer': value['answer'] * 100}, retriever),
+                             ['стажировка'])
+
+    def test_unknown_article_remains_a_refusal_without_invented_sources(self):
+        refused = {'status': 'insufficient', 'source_ids': [], 'requested_facts': ['document'],
+                   'answer': 'Пункт 3 статьи 919 устанавливает выплату 890 рублей.',
+                   'search_terms': [], 'issue': ''}
+        with corpus(FILES) as retriever:
+            model = ScriptedModel([refused, refused])
+            with redirect_stderr(io.StringIO()):
+                result = answer_structured('Есть ли основание для выплаты?', retriever, model, verify=False)
+        self.assertEqual(result['status'], 'insufficient')
+        self.assertNotIn('890', result['text'])
+        self.assertNotIn('919', result['text'])
+        self.assertEqual(len(model.calls), 2)
 
 
 if __name__ == '__main__':
