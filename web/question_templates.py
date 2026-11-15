@@ -15,12 +15,16 @@ LIMIT = 50
 
 # Application-owned placeholders. Keys match the matter card, so the browser can fill them
 # from the card on an explicit user action. "details" has no card counterpart.
+# The public API calls a placeholder marker "token"; these are not credentials.
 FIELDS = [
-    dict(key="contract", token="договор", label="Договор", max_length=300, kind="text"),
-    dict(key="counterparty", token="контрагент", label="Контрагент", max_length=300, kind="text"),
-    dict(key="event_date", token="дата", label="Дата события", max_length=10, kind="date"),
-    dict(key="amount", token="сумма", label="Сумма", max_length=100, kind="text"),
-    dict(key="details", token="уточнение", label="Уточнение задачи", max_length=1000, kind="text"),
+    dict(key=key, token=marker, label=label, max_length=limit, kind=kind)
+    for key, marker, label, limit, kind in (
+        ("contract", "договор", "Договор", 300, "text"),
+        ("counterparty", "контрагент", "Контрагент", 300, "text"),
+        ("event_date", "дата", "Дата события", 10, "date"),
+        ("amount", "сумма", "Сумма", 100, "text"),
+        ("details", "уточнение", "Уточнение задачи", 1000, "text"),
+    )
 ]
 TOKENS = {field["token"]: field["key"] for field in FIELDS}
 PLACEHOLDER = re.compile(r"\{([^{}\n]{0,40})\}")
