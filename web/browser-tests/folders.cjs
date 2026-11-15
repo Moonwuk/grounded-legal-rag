@@ -48,16 +48,18 @@ const fs = require('node:fs');
     assert.equal(await desktop.locator('#chat-list li').count(), 1);
     assert.equal(await desktop.locator('[data-folder-id="' + folderId + '"]').getAttribute('title'), name + ' — сделки');
     await desktop.screenshot({path: '/tmp/legal-rag-chat-folders-desktop.png'});
-    await page.locator('#new-folder-chat').click();
+    await page.locator('#reset').click();
     await page.waitForFunction(() => !document.querySelector('#mobile-panel').open);
-    await page.route('**/api/chat', route => route.fulfill({json: {status: 'insufficient', text: 'Тестовый ответ.', sources: []}}));
+    // The folder scenario checks placement; generation/queue is covered separately.
+    await page.route('**/jobs', route => route.request().method() === 'POST'
+      ? route.fulfill({status: 202, json: {id: route.request().postDataJSON().id, status: 'queued'}}) : route.continue());
     const newChat = page.waitForResponse(r => r.url().includes('/api/chats?folder_id=') && r.request().method() === 'POST');
     await page.locator('#question').fill('Проверка создания диалога в папке');
     await page.locator('#send').click();
     const newData = await (await newChat).json();
     chats.push(newData.id);
     assert.equal(newData.folder_id, folderId);
-    await page.waitForFunction(() => document.querySelector('#conversation').textContent.includes('Тестовый ответ.'));
+    await page.waitForFunction(() => document.querySelector('#question').value === '');
     await page.locator('#open-history').click();
     assert.equal(await page.locator('#chat-list li').count(), 2);
     await page.locator('#edit-chat-folder').click();

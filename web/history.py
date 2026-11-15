@@ -35,6 +35,15 @@ class History:
             db.execute("""CREATE TABLE IF NOT EXISTS chat_trash (
                 chat_id TEXT PRIMARY KEY REFERENCES chats(id) ON DELETE CASCADE,
                 deleted REAL NOT NULL)""")
+            db.execute("""CREATE TABLE IF NOT EXISTS chat_queue (
+                chat_id TEXT PRIMARY KEY REFERENCES chats(id) ON DELETE CASCADE,
+                paused INTEGER NOT NULL DEFAULT 0)""")
+            db.execute("""CREATE TABLE IF NOT EXISTS chat_jobs (
+                id TEXT PRIMARY KEY, chat_id TEXT NOT NULL REFERENCES chats(id) ON DELETE CASCADE,
+                question TEXT NOT NULL, status TEXT NOT NULL, created REAL NOT NULL,
+                worker TEXT NOT NULL DEFAULT '', lease_until REAL NOT NULL DEFAULT 0,
+                chat_lease REAL NOT NULL DEFAULT 0)""")
+            db.execute("CREATE INDEX IF NOT EXISTS chat_jobs_order ON chat_jobs(chat_id, status, created)")
 
     @contextmanager
     def connect(self):
@@ -60,6 +69,8 @@ class History:
             # Serialize the claim across threads/processes before reading the transcript.
             db.execute("BEGIN IMMEDIATE")
             row = self.get(db, owner, chat_id)
+            if db.execute("SELECT 1 FROM chat_jobs WHERE chat_id=? AND status IN ('queued','running','cancelling')", (chat_id,)).fetchone():
+                raise HTTPException(409, "В диалоге есть очередь вопросов. Используйте её или дождитесь завершения.")
             if row["busy_until"] > time.time():
                 raise HTTPException(409, "В этом диалоге ещё готовится ответ. Откройте его чуть позже.")
             turns = json.loads(row["turns"])
@@ -147,6 +158,8 @@ def delete_chat(chat_id: str, request: Request):
         row = history.get(db, owner, chat_id)
         if row["busy_until"] > time.time():
             raise HTTPException(409, "Дождитесь завершения ответа перед удалением диалога.")
+        if db.execute("SELECT 1 FROM chat_jobs WHERE chat_id=? AND status IN ('queued','running','cancelling')", (chat_id,)).fetchone():
+            raise HTTPException(409, "Остановите ответ и уберите ожидающие вопросы из очереди перед удалением диалога.")
         if db.execute("""SELECT count(*) FROM chat_trash t JOIN chats c ON c.id=t.chat_id
                          WHERE c.owner=?""", (owner,)).fetchone()[0] >= 100:
             raise HTTPException(429, "В корзине 100 чатов. Удалите из неё ненужные навсегда, чтобы освободить место.")

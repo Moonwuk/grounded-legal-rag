@@ -17,6 +17,7 @@ from starlette.concurrency import run_in_threadpool
 from web.history import History, identity, router as history_router
 from web.document_tabs import router as document_tabs_router
 from web.chat_folders import router as chat_folders_router
+from web.queue import QueueManager, router as queue_router
 
 ROOT = Path(__file__).resolve().parents[1]
 STATIC = Path(__file__).with_name("static")
@@ -47,11 +48,19 @@ async def lifespan(app):
     history_path = os.getenv("CHAT_HISTORY_PATH", "")
     proxy_token = os.getenv("CHAT_PROXY_TOKEN", "")
     app.state.history = History(history_path, proxy_token) if history_path and proxy_token else None
+    manager = QueueManager(app.state.history, app.state, integer("WEB_WORKERS", 2, 1, 8)) if app.state.history else None
+    app.state.queue = manager
+    if manager:
+        manager.start()
     if os.getenv("EMB_MODEL", "").strip():
         # Dense candidates are indexed after start-up; until then search is BM25 only.
         app.state.dense = "indexing"
         Thread(target=index_dense, args=(app.state,), daemon=True).start()
-    yield
+    try:
+        yield
+    finally:
+        if manager:
+            await run_in_threadpool(manager.close)
 
 
 def index_dense(state):
@@ -69,6 +78,7 @@ app = FastAPI(title="Юридический ассистент", lifespan=lifesp
 app.include_router(history_router)
 app.include_router(document_tabs_router)
 app.include_router(chat_folders_router)
+app.include_router(queue_router)
 
 
 @app.middleware("http")
@@ -196,7 +206,7 @@ def answer_saved(history, owner, chat_id, message, state):
     try:
         previous = []
         for turn in turns:
-            if turn["answer"]["status"] != "technical_error":
+            if turn["answer"]["status"] not in {"technical_error", "cancelled"}:
                 previous.extend([Message(role="user", text=turn["question"]),
                                  Message(role="assistant", text=turn["answer"]["text"])])
         question = to_question([*previous, message])

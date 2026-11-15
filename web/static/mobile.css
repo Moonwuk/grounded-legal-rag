@@ -92,3 +92,8 @@
   #mobile-panel .chat-history #folder-list { max-height: 9rem; }
   #mobile-panel .chat-history #chat-list { overflow: visible; }
 }
+@media (max-width: 900px) {
+  #history-panel #reset { display: block; width: calc(100% - 2rem); }
+  #question-queue { max-height: min(10rem, 25dvh); margin-inline: .75rem; }
+  #question-queue button { min-height: 44px; }
+}

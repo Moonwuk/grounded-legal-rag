@@ -334,3 +334,14 @@ select:focus-visible { outline: 3px solid #3868df; outline-offset: 2px; }
 #chat-list li[data-trashed="true"] .chat-select { opacity: 1; }
 #chat-list li[data-trashed="true"] .chat-move { margin: .3rem .5rem; background: var(--blue); color: white; }
 #chat-list li[data-trashed="true"] .chat-delete { margin-block: .3rem; color: #962c29; }
+
+#history-panel #reset { flex: none; width: auto; height: auto; margin: .8rem 1rem .25rem; padding: .65rem .8rem; min-height: 44px; background: var(--blue); color: white; border: 0; border-radius: 10px; font-size: .85rem; }
+#question-queue { flex: none; margin: 0 1rem; padding: .55rem .7rem; border: 1px solid var(--line); border-radius: 12px; background: #f5f8ff; max-height: 12rem; overflow: auto; }
+.queue-heading { display: flex; align-items: center; justify-content: space-between; gap: .5rem; flex-wrap: wrap; }
+#queue-status, #queue-error { font-size: .8rem; margin: 0; }
+#queue-error { color: #962c29; }
+#question-queue button { min-height: 40px; font-size: .78rem; padding: .3rem .55rem; }
+#queue-list { margin: .3rem 0 0; padding: 0; list-style: none; }
+#queue-list li { display: flex; align-items: center; gap: .5rem; border-top: 1px solid var(--line); padding-top: .3rem; margin-top: .3rem; }
+#queue-list span { flex: 1; min-width: 0; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; overflow-wrap: anywhere; font-size: .8rem; }
+#queue-list button { flex: none; }

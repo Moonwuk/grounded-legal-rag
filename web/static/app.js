@@ -27,6 +27,7 @@ const labels = {
   out_of_scope: "Вопрос вне юридической тематики",
   disallowed: "Ограничение правовой помощи",
   unverified: "Ответ не прошёл проверку",
+  cancelled: "Ответ остановлен",
   technical_error: "Техническая ошибка"
 };
 
@@ -261,10 +262,8 @@ function renderFolders() {
   }
   byId("create-chat-folder").disabled = !foldersEnabled || folderSaving;
   byId("edit-chat-folder").hidden = ["all", "unfiled", "trash"].includes(selectedFolder);
-  byId("new-folder-chat").hidden = selectedFolder === "trash";
   byId("trash-hint").hidden = selectedFolder !== "trash";
-  byId("new-folder-chat").disabled = !historyEnabled || busy || navigating;
-  byId("new-folder-chat").textContent = ["all", "unfiled", "trash"].includes(selectedFolder) ? "+ Новый диалог" : "+ Диалог в этой папке";
+  reset.textContent = ["all", "unfiled", "trash"].includes(selectedFolder) ? "+ Новый диалог" : "+ Диалог в этой папке";
 }
 function editFolder(folder = null) {
   editingFolder = folder;
@@ -345,7 +344,6 @@ async function saveChatMove() {
     }
   }
 }
-byId("new-folder-chat").addEventListener("click", () => reset.click());
 byId("create-chat-folder").addEventListener("click", () => editFolder());
 byId("edit-chat-folder").addEventListener("click", () => editFolder(chatFolders.find(f => f.id === selectedFolder)));
 byId("folder-form").addEventListener("submit", event => { event.preventDefault(); saveFolder(); });
@@ -466,6 +464,7 @@ async function navigateHistory(action) {
 }
 
 function clearChat() {
+  globalThis.ChatQueue?.detach();
   if (currentScene) ArchiveScene.stop(currentScene);
   currentScene = null;
   sendController.reset();
@@ -482,29 +481,44 @@ function clearChat() {
   showList();
 }
 
-async function selectChat(id) {
-  const chat = await historyRequest("/" + encodeURIComponent(id));
-  clearChat();
-  currentChat = chat.id;
-  rememberChat();
-  for (const turn of chat.turns) {
+function renderSavedTurns(turns) {
+  if (currentScene) ArchiveScene.stop(currentScene);
+  currentScene = null;
+  messages = [];
+  log.replaceChildren(welcome);
+  welcome.hidden = false;
+  for (const turn of turns) {
     const userNode = bubble("user", turn.question).item;
     const node = bubble("assistant", "");
     if (turn.answer.status === "clarify") {
       node.body.before(ArchiveScene.create("clarify"));
       node.item.classList.add("with-scene");
     }
-    if (turn.answer.status !== "technical_error") messages.push(
+    if (!["technical_error", "cancelled"].includes(turn.answer.status)) messages.push(
       {role: "user", text: turn.question}, {role: "assistant", text: turn.answer.text});
     const contextLength = messages.length;
     renderAnswer(node, turn.answer, () => {
       if (busy || navigating) return;
-      if (turn !== chat.turns.at(-1) || messages.length !== contextLength) { input.value = turn.question; input.focus(); return; }
+      if (historyEnabled && globalThis.ChatQueue) {
+        input.value = turn.question;
+        globalThis.ChatQueue.submit(turn.question, true).then(() => { if (input.value.trim() === turn.question) input.value = ""; globalThis.MobileLayout?.resizeInput(); }).catch(error => { byId("input-error").textContent = error.message; });
+        return;
+      }
+      if (turn !== turns.at(-1) || messages.length !== contextLength) { input.value = turn.question; input.focus(); return; }
       retryRequest = {question: turn.question, userNode};
       node.item.remove();
       sendController.start();
     });
   }
+}
+
+async function selectChat(id) {
+  const chat = await historyRequest("/" + encodeURIComponent(id));
+  clearChat();
+  currentChat = chat.id;
+  rememberChat();
+  renderSavedTurns(chat.turns);
+  globalThis.ChatQueue?.attach(chat);
   globalThis.MobileLayout?.close("history");
   if (chat.busy) byId("history-status").textContent = "Ответ ещё готовится. Обновите список через несколько секунд.";
   if (!globalThis.MobileLayout?.isMobile()) input.focus();
@@ -834,6 +848,12 @@ const sendController = SLComponent.mount(send.closest(".sl-component"), {
         reset.disabled = false;
         renderHistory();
       }
+    }
+    if (historyEnabled && globalThis.ChatQueue) {
+      await globalThis.ChatQueue.submit(question);
+      if (!retry && input.value.trim() === question) input.value = "";
+      globalThis.MobileLayout?.resizeInput();
+      return {queued: true};
     }
     if (!retry) input.value = "";
     globalThis.MobileLayout?.resizeInput();

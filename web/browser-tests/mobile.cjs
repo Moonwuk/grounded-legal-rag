@@ -26,9 +26,22 @@ const fs = require('node:fs');
   });
   const chat = {id: 'fixture-chat', title: 'Сохранённый вопрос', updated: 1700000000,
     turns: [{question: 'Сохранённый вопрос', answer: {status: 'clarify', text: 'Уточните дату договора.', sources: []}}]};
-  await page.route('**/api/chats**', route => route.fulfill({json: route.request().url().includes('?trash=true') ? [] : route.request().url().endsWith('/api/chats') ? [chat] : chat}));
+  let queuedAnswer;
+  await page.route('**/api/chats**', route => {
+    const url = route.request().url();
+    if (url.endsWith('/jobs')) {
+      if (route.request().method() === 'POST') {
+        const data = route.request().postDataJSON();
+        chat.turns.push({question: data.question, answer: queuedAnswer});
+        return route.fulfill({status: 202, json: {id: data.id, status: 'done'}});
+      }
+      return route.fulfill({json: {jobs: [], paused: false, turns: chat.turns, title: chat.title}});
+    }
+    return route.fulfill({json: url.includes('?trash=true') ? [] : url.endsWith('/api/chats') ? [chat] : chat});
+  });
   await page.goto(base);
   await page.waitForFunction(() => !document.querySelector('#send').disabled);
+  await page.locator('#open-history').click();
   await page.locator('#reset').click();
   await page.locator('#question').blur();
   const fits = async () => {
@@ -88,7 +101,7 @@ const fs = require('node:fs');
   const document = await (await context.request.get(base + '/api/documents/' + documents[0].id)).json();
   const source = {...documents[0], n: 1, document_id: documents[0].id, start: 0, end: 20,
     quote: Array.from(document.text).slice(0, 20).join('')};
-  await page.route('**/api/chat', route => route.fulfill({json: {status: 'answer', text: 'Ответ по документу [1]', sources: [source]}}));
+  queuedAnswer = {status: 'answer', text: 'Ответ по документу [1]', sources: [source]};
   await page.locator('#question').fill('Тестовый вопрос');
   await page.locator('#send').click();
   await page.locator('.inline-citation').waitFor();

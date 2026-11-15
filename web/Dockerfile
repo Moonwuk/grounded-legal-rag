@@ -4,7 +4,7 @@ WORKDIR /srv
 COPY web/requirements.txt web/requirements.txt
 RUN pip install --no-cache-dir -r web/requirements.txt
 COPY prototype/*.py prototype/
-COPY web/app.py web/history.py web/document_tabs.py web/chat_folders.py web/__init__.py web/
+COPY web/app.py web/history.py web/document_tabs.py web/chat_folders.py web/queue.py web/generation.py web/__init__.py web/
 COPY web/static/ web/static/
 RUN mkdir -m 0700 /history && chown 10001:10001 /history
 USER 10001:10001
