@@ -379,6 +379,47 @@ _HUNDREDS = {form: value for value, forms in {
 _SOURCE_ONLY = re.compile(
     r'\b(?:не\s+(?:вправе|может|могут|допуска\w*|разреш\w*|подлеж\w*|име(?:ет|ют)\s+прав[ао])'
     r'|запрещ\w*|только|лишь|при\s+(?:наличии|условии)|по\s+соглашению|за\s+исключением)\b', re.I)
+_RESIDUAL_CASE_GROUP = re.compile(
+    r'\bв\s+случаях\s*,?\s*не\s+(?:указанных|предусмотренных|перечисленных)\s+в\s+'
+    r'(?:пунктах|подпунктах|частях|статьях)\s+\d+(?:\.\d+)*'
+    r'(?:(?:\s*,\s*|\s+и\s+)\d+(?:\.\d+)*)+\s+'
+    r'(?:настоящей\s+статьи|настоящего\s+(?:пункта|документа|кодекса|закона))\b', re.I)
+_NEGATIVE_NUMERIC_REFERENCE = re.compile(
+    r'\bне\s+(?:указан\w*|предусмотрен\w*|поименован\w*|перечислен\w*)\s+в\s+'
+    r'(?:пункт\w*|подпункт\w*|част\w*|стать\w*|п\.|пп\.|ч\.|ст\.)\s*\d', re.I)
+
+
+def residual_source_conditions(selected: list[Fragment]) -> list[str]:
+    """Exact residual rules, not category exclusions or single-point references."""
+    return list(dict.fromkeys(re.sub(r'^\s*\d+(?:\.\d+)*[.)]\s*', '', norm(sentence))
+                              for fragment in selected for sentence in _trim_sentences(fragment.text)
+                              if _RESIDUAL_CASE_GROUP.search(sentence)))
+
+
+def _residual_literal(text: str) -> str:
+    text = re.sub(r'^\s*\d+(?:\.\d+)*[.)]\s*', '', text)
+    # Commas do not supply reference identities. Decimal dots and every word,
+    # negation, reference type, number and relative scope remain significant.
+    return norm(re.sub(r'(?<!\d),|,(?!\d)', ' ', text)).lower().replace('ё', 'е').rstrip('.')
+
+
+def residual_conditions_kept(text: str, selected: list[Fragment]) -> bool:
+    """Conservative literal gate for an explicitly selected residual rule.
+
+    Merely mentioning the reference numbers elsewhere is not enough. A retry
+    may remove an irrelevant selected rule or state its complete proposition.
+    This does not claim to prove all other assertions in the answer.
+    """
+    expected = {_residual_literal(s) for s in residual_source_conditions(selected)}
+    if not expected:
+        return True
+    sentences = _trim_sentences(text)
+    if not expected <= {_residual_literal(s) for s in sentences}:
+        return False
+    # Do not append the correct source sentence while retaining the old
+    # truncated negative implication elsewhere in the same answer.
+    return not any(_NEGATIVE_NUMERIC_REFERENCE.search(sentence)
+                   for sentence in sentences if _residual_literal(sentence) not in expected)
 
 
 # Restrictive operators by class. A model text about a restricted provision is
@@ -500,6 +541,8 @@ def restrictions_kept(text: str, selected: list[Fragment], strict: bool = False,
     This does not prove that the restriction is stated correctly; the verifier
     still judges the text, and the source provisions are published with it.
     """
+    if not residual_conditions_kept(text, selected):
+        return False
     source = norm("\n".join(f.text for f in selected)).lower().replace("ё", "е")
     answer = norm(text).lower().replace("ё", "е")
     if re.search(_UPPER_BOUND_SOURCE, source) and not re.search(_UPPER_BOUND_ANSWER, answer):
@@ -2833,6 +2876,16 @@ retry_restrictions вместе с подтверждённым условием
 Верни обычный JSON. Все проверки ответа сохраняются.
 """
 
+RESIDUAL_RETRY_GUIDANCE = """
+retry_residual_conditions содержит дословные предложения выбранных источников,
+которые задают остаточное правило для случаев вне полного набора других пунктов.
+Исправь вывод, а не просто допиши цитату к прежнему противоречащему утверждению.
+Если используешь это правило, сохрани каждое предложение из этого поля отдельно
+и дословно, включая отрицание, весь список ссылок, их тип и область действия.
+Не заменяй полный набор одним пунктом. Если правило не относится к ответу,
+убери его источник и вывод о нём. Это диагностика: юридические основания — evidence.
+"""
+
 EXCLUSIVE_RETRY_GUIDANCE = """
 В этом повторе измени в черновике только отклонённую исключительную формулировку.
 Сохрани основной вывод и подтверждённые ограничения ответа. Поле
@@ -2910,6 +2963,7 @@ def answer_steps(question: str, retriever, client, top_k: int = 6, verify: bool 
     retry_reason = ""
     retry_scope_guard = False
     retry_restrictions = []
+    retry_residual_conditions = []
     retry_extra: list[str] = []
     retry_items: list[str] = []
     retry_numeric = None
@@ -2964,6 +3018,10 @@ def answer_steps(question: str, retriever, client, top_k: int = 6, verify: bool 
                     generation_payload = {**generation_payload, "retry_context_gaps": retry_context_gaps}
                 if retry_reason == "answer_lost_restrictions" and retry_restrictions:
                     generation_system += RESTRICTION_RETRY_GUIDANCE
+                if retry_reason == "answer_lost_restrictions" and retry_residual_conditions:
+                    generation_system += RESIDUAL_RETRY_GUIDANCE
+                    generation_payload = {**generation_payload,
+                                          "retry_residual_conditions": retry_residual_conditions}
                 if retry_reason == "answer_numbers_not_in_sources" and retry_numeric:
                     generation_system += NUMERIC_RETRY_GUIDANCE
                     # The rejected text is generation-only data. It does not
@@ -2994,6 +3052,7 @@ def answer_steps(question: str, retriever, client, top_k: int = 6, verify: bool 
                 retry_numeric, retry_draft = None, ""
                 retry_policy, retry_policy_draft = None, ""
                 retry_preserve_restrictions = []
+                retry_residual_conditions = []
                 retry_value_documents = []
                 retry_context_gaps = []
                 calls += 1
@@ -3063,7 +3122,12 @@ def answer_steps(question: str, retriever, client, top_k: int = 6, verify: bool 
             # Known restrictive units always keep their source wording in the
             # answer. A model conclusion may precede it only if it repeats every
             # restriction class of the sources; a positive verdict cannot waive this.
-            restricted = any(_SOURCE_ONLY.search(norm(f.text)) for f in selected)
+            residual_conditions = residual_source_conditions(selected)
+            restricted = bool(residual_conditions) or any(_SOURCE_ONLY.search(norm(f.text)) for f in selected)
+            # Preserve the current residual rule even when this draft kept it
+            # but lost a different restriction. A later repair must not alternate
+            # between dropping the reference group and another source condition.
+            retry_residual_conditions = residual_conditions
             # A value set in an absent document cannot be confirmed or denied.
             # Question figures (or the same figures in another contract) do not
             # establish it. Publish the source-owned dependency and application
