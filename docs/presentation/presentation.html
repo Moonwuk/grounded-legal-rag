@@ -65,6 +65,9 @@ tr:last-child td{border-bottom:none}
 .a{font-size:14px;background:#f5f8fd;border-left:4px solid var(--blue);border-radius:6px;padding:8px 10px}
 .a.refuse{border-left-color:var(--no)}
 .src{font-size:12px;color:var(--muted);margin-top:6px}
+.perks .card{padding:22px 20px!important;min-height:230px}
+.perks h3{font-size:20px;margin-bottom:12px}
+.perks p.small{font-size:16px;line-height:1.45}
 .plan-card{border:1px dashed #d9a24a;background:#fffaf0}
 </style>
 </head>
@@ -141,7 +144,7 @@ tr:last-child td{border-bottom:none}
 <section class="slide"><div class="top"></div>
   <div class="kicker">Фишки и преимущества</div>
   <h2>Почему этому ассистенту можно доверять</h2>
-  <div class="grid4" style="gap:14px">
+  <div class="grid4 perks" style="gap:18px;margin-top:14px">
     <div class="card" style="padding:14px 16px"><h3><span class="num">1</span>Цитаты не выдумываются</h3><p class="small">Модель выбирает только ID положений, дословный текст подставляет приложение из корпуса.</p></div>
     <div class="card" style="padding:14px 16px"><h3><span class="num">2</span>Проверка перед ответом</h3><p class="small">Числа, даты, пункты, ограничения и редакция сверяются с источником; при сомнении — отказ, а не догадка.</p></div>
     <div class="card" style="padding:14px 16px"><h3><span class="num">3</span>Учёт даты и редакции</h3><p class="small">По дате события выбирается действовавшая редакция регламента и допсоглашения к договору.</p></div>
@@ -151,12 +154,7 @@ tr:last-child td{border-bottom:none}
     <div class="card" style="padding:14px 16px"><h3><span class="num">7</span>Рабочее место юриста</h3><p class="small">История на сервере, ветки диалога, карточка дела, шаблоны, справка из ответов в PDF, очередь вопросов.</p></div>
     <div class="card" style="padding:14px 16px"><h3><span class="num">8</span>Быстро и воспроизводимо</h3><p class="small">Один вызов модели на вопрос в пакетном режиме, запуск одной командой Docker, ядро без внешних зависимостей.</p></div>
   </div>
-  <div class="grid3" style="margin-top:18px">
-    <div class="card" style="padding:12px 16px;text-align:center"><div style="font-size:28px;font-weight:800;color:var(--blue)">21 / 1113</div><div class="xs muted">документов / фрагментов в базе кейса</div></div>
-    <div class="card" style="padding:12px 16px;text-align:center"><div style="font-size:28px;font-weight:800;color:var(--blue)">18 за 38,5 с</div><div class="xs muted">демо-вопросов в живом прогоне 14.11.2026, публичный API DeepSeek</div></div>
-    <div class="card" style="padding:12px 16px;text-align:center"><div style="font-size:28px;font-weight:800;color:var(--blue)">633</div><div class="xs muted">регрессионных теста ядра проходят на 15.11.2026</div></div>
-  </div>
-  <div class="foot"><span>Цифры — внутренние замеры, не официальный Score</span><span>3</span></div>
+  <div class="foot"><span>grounded-legal-rag</span><span>3</span></div>
 </section>
 
 <!-- 3 -->
