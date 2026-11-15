@@ -1,3 +1,4 @@
+from contextlib import closing
 import json
 import os
 from pathlib import Path
@@ -105,7 +106,7 @@ class ChatFolderTests(unittest.TestCase):
     def test_old_database_is_upgraded_without_altering_chats(self):
         legacy = str(Path(self.path).with_name("legacy.sqlite3"))
         turns = json.dumps([{"question": "legacy", "answer": {"text": "saved"}}])
-        with sqlite3.connect(legacy) as db:
+        with closing(sqlite3.connect(legacy)) as db, db:
             db.execute("CREATE TABLE chats(id TEXT PRIMARY KEY, owner TEXT, title TEXT, updated REAL, turns TEXT, busy_until REAL)")
             db.execute("INSERT INTO chats VALUES ('old', 'alice', 'Old', 1, ?, 0)", (turns,))
         history = History(legacy, "fixture-token")

@@ -3,6 +3,7 @@ from datetime import date
 from hashlib import sha256
 import json
 import time
+from typing import Literal
 
 from fastapi import APIRouter, HTTPException, Request
 from pydantic import BaseModel, ConfigDict, Field, ValidationError, field_validator
@@ -36,6 +37,15 @@ def initialize(db):
         turn_index INTEGER NOT NULL, turn_key TEXT NOT NULL,
         saved INTEGER NOT NULL DEFAULT 0, note TEXT NOT NULL DEFAULT '', revision INTEGER NOT NULL,
         PRIMARY KEY(chat_id, turn_index))""")
+
+    db.execute("""CREATE TABLE IF NOT EXISTS workspace_searches (
+        owner TEXT PRIMARY KEY, items TEXT NOT NULL, revision INTEGER NOT NULL)""")
+    db.execute("""CREATE TABLE IF NOT EXISTS workspace_recent_documents (
+        owner TEXT NOT NULL, document_id TEXT NOT NULL, title TEXT NOT NULL,
+        opened REAL NOT NULL, PRIMARY KEY(owner, document_id))""")
+    db.execute("""CREATE TABLE IF NOT EXISTS workspace_checklists (
+        chat_id TEXT PRIMARY KEY REFERENCES chats(id) ON DELETE CASCADE,
+        items TEXT NOT NULL, revision INTEGER NOT NULL)""")
 
 
 def turn_key(turn):
@@ -104,6 +114,7 @@ class BranchInput(Input):
     turn_key: str = Field(pattern=HASH)
     include_answer: bool
     draft: str = Field(max_length=10000)
+    copy_checklist: bool = False
 
 
 class ReadInput(Input):
@@ -113,6 +124,54 @@ class ReadInput(Input):
 class QueueEditInput(Input):
     expected_question: str = Field(min_length=1, max_length=10000)
     question: str = Field(min_length=1, max_length=10000)
+
+
+class SavedSearch(Input):
+    id: str = Field(pattern=UUID)
+    title: str = Field(min_length=1, max_length=80)
+    scope: Literal["catalog", "picker"]
+    query: str = Field(max_length=200)
+    tab: str = Field(default="", max_length=40)
+    kind: Literal["", "laws", "contracts", "addenda", "policies", "other"] = ""
+    edition: Literal["", "current", "expired", "unspecified"] = ""
+    selected: bool = False
+
+    @field_validator("title")
+    @classmethod
+    def nonempty_title(cls, value):
+        if not value.strip():
+            raise ValueError("Empty title")
+        return value.strip()
+
+
+class SearchesInput(Input):
+    revision: int = Field(ge=0)
+    items: list[SavedSearch] = Field(max_length=30)
+
+
+class RecentInput(Input):
+    document_id: str = Field(pattern=HASH)
+
+
+class ChecklistItem(Input):
+    id: str = Field(pattern=UUID)
+    title: str = Field(min_length=1, max_length=160)
+    comment: str = Field(default="", max_length=500)
+    done: bool = False
+    document_id: str | None = Field(default=None, pattern=HASH)
+    answer_key: str | None = Field(default=None, pattern=HASH)
+
+    @field_validator("title")
+    @classmethod
+    def nonempty_title(cls, value):
+        if not value.strip():
+            raise ValueError("Empty title")
+        return value.strip()
+
+
+class ChecklistInput(Input):
+    revision: int = Field(ge=0)
+    items: list[ChecklistItem] = Field(max_length=40)
 
 
 async def read_input(request, model):
@@ -132,6 +191,133 @@ async def read_input(request, model):
 
 def conflict():
     raise HTTPException(409, "Данные изменены на другом устройстве. Обновите их перед сохранением.")
+
+
+def listed(row):
+    return dict(items=json.loads(row["items"]), revision=row["revision"]) if row else dict(items=[], revision=0)
+
+
+def serialize_items(items):
+    if len({item.id for item in items}) != len(items):
+        raise HTTPException(422, "Идентификаторы записей должны быть уникальны.")
+    return [item.model_dump() for item in items]
+
+
+@router.get("/searches")
+def get_searches(request: Request):
+    history, owner = identity(request)
+    with history.connect() as db:
+        return listed(db.execute("SELECT items,revision FROM workspace_searches WHERE owner=?", (owner,)).fetchone())
+
+
+def save_searches(request, data):
+    history, owner = identity(request)
+    items = serialize_items(data.items)
+    with history.connect() as db:
+        db.execute("BEGIN IMMEDIATE")
+        current = listed(db.execute("SELECT items,revision FROM workspace_searches WHERE owner=?", (owner,)).fetchone())
+        if current["revision"] != data.revision:
+            conflict()
+        revision = data.revision + 1
+        db.execute("""INSERT INTO workspace_searches VALUES (?,?,?)
+            ON CONFLICT(owner) DO UPDATE SET items=excluded.items,revision=excluded.revision""",
+                   (owner, json.dumps(items, ensure_ascii=False), revision))
+    return dict(items=items, revision=revision)
+
+
+@router.put("/searches")
+async def update_searches(request: Request):
+    return await run_in_threadpool(save_searches, request, await read_input(request, SearchesInput))
+
+
+@router.get("/recent-documents")
+def get_recent_documents(request: Request):
+    history, owner = identity(request)
+    with history.connect() as db:
+        return [dict(row, available=row["document_id"] in request.app.state.documents) for row in db.execute(
+            """SELECT document_id,title,opened FROM workspace_recent_documents WHERE owner=?
+               ORDER BY opened DESC,document_id LIMIT 20""", (owner,))]
+
+
+def remember_recent_document(request, data):
+    history, owner = identity(request)
+    document = request.app.state.documents.get(data.document_id)
+    if document is None:
+        raise HTTPException(404, "Документ недоступен.")
+    from psb_policy import display_name
+    with history.connect() as db:
+        db.execute("BEGIN IMMEDIATE")
+        db.execute("""INSERT INTO workspace_recent_documents VALUES (?,?,?,?)
+            ON CONFLICT(owner,document_id) DO UPDATE SET opened=excluded.opened,title=excluded.title""",
+                   (owner, data.document_id, display_name(document.name), time.time()))
+        db.execute("""DELETE FROM workspace_recent_documents WHERE owner=? AND document_id IN (
+            SELECT document_id FROM workspace_recent_documents WHERE owner=?
+            ORDER BY opened DESC,document_id LIMIT -1 OFFSET 20)""", (owner, owner))
+
+
+@router.put("/recent-documents", status_code=204)
+async def update_recent_document(request: Request):
+    await run_in_threadpool(remember_recent_document, request, await read_input(request, RecentInput))
+
+
+@router.delete("/recent-documents", status_code=204)
+def clear_recent_documents(request: Request):
+    history, owner = identity(request)
+    with history.connect() as db:
+        db.execute("DELETE FROM workspace_recent_documents WHERE owner=?", (owner,))
+
+
+def load_checklist(db, chat_id):
+    return listed(db.execute("SELECT items,revision FROM workspace_checklists WHERE chat_id=?", (chat_id,)).fetchone())
+
+
+@router.get("/chats/{chat_id}/checklist")
+def get_checklist(chat_id: str, request: Request):
+    history, owner = identity(request)
+    with history.connect() as db:
+        db.execute("BEGIN")
+        chat = history.get(db, owner, chat_id)
+        record = load_checklist(db, chat_id)
+        turns = json.loads(chat["turns"])
+        options = []
+        for row in db.execute("SELECT turn_index,turn_key FROM answer_annotations WHERE chat_id=? AND saved=1", (chat_id,)):
+            index, key = row["turn_index"], row["turn_key"]
+            if index < len(turns) and key == turn_key(turns[index]):
+                options.append(dict(key=key, index=index, title=turns[index]["question"][:160]))
+        return dict(**record, answers=options)
+
+
+def save_checklist(chat_id, request, data):
+    history, owner = identity(request)
+    items = serialize_items(data.items)
+    with history.connect() as db:
+        db.execute("BEGIN IMMEDIATE")
+        chat = history.get(db, owner, chat_id)
+        record = load_checklist(db, chat_id)
+        if record["revision"] != data.revision:
+            conflict()
+        previous = {item["id"]: item for item in record["items"]}
+        turns = json.loads(chat["turns"])
+        saved_keys = {row["turn_key"] for row in db.execute(
+            "SELECT turn_index,turn_key FROM answer_annotations WHERE chat_id=? AND saved=1", (chat_id,))
+            if row["turn_index"] < len(turns) and row["turn_key"] == turn_key(turns[row["turn_index"]])}
+        for item in items:
+            old = previous.get(item["id"], {})
+            answer, document = item["answer_key"], item["document_id"]
+            invalid_answer = answer and answer != old.get("answer_key") and answer not in saved_keys
+            invalid_document = document and document != old.get("document_id") and document not in request.app.state.documents
+            if invalid_answer or invalid_document:
+                raise HTTPException(422, "Выберите доступный документ или сохранённый ответ этого диалога.")
+        revision = data.revision + 1
+        db.execute("""INSERT INTO workspace_checklists VALUES (?,?,?)
+            ON CONFLICT(chat_id) DO UPDATE SET items=excluded.items,revision=excluded.revision""",
+                   (chat_id, json.dumps(items, ensure_ascii=False), revision))
+    return dict(items=items, revision=revision)
+
+
+@router.put("/chats/{chat_id}/checklist")
+async def update_checklist(chat_id: str, request: Request):
+    return await run_in_threadpool(save_checklist, chat_id, request, await read_input(request, ChecklistInput))
 
 
 @router.get("/chats/{chat_id}")
@@ -324,7 +510,7 @@ def saved_answers(request: Request):
 
 def create_branch(chat_id, request, data):
     history, owner = identity(request)
-    payload = json.dumps(data.model_dump(), sort_keys=True, ensure_ascii=False)
+    payload = json.dumps(data.model_dump(exclude={"copy_checklist"} if not data.copy_checklist else None), sort_keys=True, ensure_ascii=False)
     with history.connect() as db:
         db.execute("BEGIN IMMEDIATE")
         parent = history.get(db, owner, chat_id)
@@ -351,6 +537,11 @@ def create_branch(chat_id, request, data):
         matter = db.execute("SELECT matter FROM chat_workspace WHERE chat_id=?", (chat_id,)).fetchone()
         db.execute("""INSERT INTO chat_workspace(chat_id,matter,draft,draft_revision,parent_id,parent_turn,branch_request)
             VALUES (?,?,?,1,?,?,?)""", (data.id, matter["matter"] if matter else "{}", data.draft, chat_id, data.index, payload))
+        if data.copy_checklist:
+            items = [{**item, "done": False, "answer_key": None} for item in load_checklist(db, chat_id)["items"]]
+            if items:
+                db.execute("INSERT INTO workspace_checklists VALUES (?,?,1)",
+                           (data.id, json.dumps(items, ensure_ascii=False)))
         folder = db.execute("SELECT folder_id FROM chat_folder_items WHERE chat_id=?", (chat_id,)).fetchone()
         if folder:
             db.execute("INSERT INTO chat_folder_items VALUES (?,?)", (data.id, folder["folder_id"]))

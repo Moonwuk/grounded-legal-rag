@@ -29,6 +29,7 @@
   <script defer src="/static/mobile-layout.js"></script>
   <script defer src="/static/queue-ui.js"></script>
   <script defer src="/static/icons.js"></script>
+  <script defer src="/static/workspace-tools.js"></script>
   <script defer src="/static/workspace.js"></script>
   <script defer src="/static/app.js"></script>
 </head>
@@ -130,9 +131,18 @@
       <div id="doc-filter" class="catalog-filter" hidden>
         <label for="doc-query">Поиск по названиям</label>
         <div class="filter-fields">
-          <input id="doc-query" type="search" autocomplete="off" placeholder="Договор, статья, регламент">
+          <input id="doc-query" type="search" maxlength="200" autocomplete="off" placeholder="Договор, статья, регламент">
           <button id="clear-doc-query" type="button" hidden disabled>Очистить</button>
         </div>
+      </div>
+      <div id="catalog-tools" class="catalog-tools" hidden>
+        <button id="open-catalog-searches" type="button" aria-haspopup="dialog">Сохранённые поиски</button>
+        <details id="recent-documents">
+          <summary>Недавние</summary>
+          <p id="recent-documents-status" role="status"></p>
+          <ul id="recent-documents-list"></ul>
+          <button id="clear-recent-documents" type="button" hidden>Очистить историю</button>
+        </details>
       </div>
       <p id="doc-status" role="status"></p>
       <div id="quote-tools" hidden><button class="sl-copy" id="copy-button" type="button" aria-label="Копировать цитату" data-state="idle" disabled>
@@ -201,7 +211,7 @@
       <label for="tab-name">Название</label>
       <input id="tab-name" required maxlength="60" autocomplete="off" placeholder="Например, Сделка с Альфой">
       <p>Выберите документы из базы. Состав вкладки можно изменить позже.</p>
-      <label class="tab-search" for="tab-doc-query">Поиск документов<input id="tab-doc-query" type="search" placeholder="Название документа" autocomplete="off"></label>
+      <label class="tab-search" for="tab-doc-query">Поиск документов<input id="tab-doc-query" type="search" maxlength="200" placeholder="Название документа" autocomplete="off"></label>
       <details id="tab-filter-options"><summary>Фильтры документов</summary><div class="tab-filters">
         <label for="tab-doc-type">Тип<select id="tab-doc-type"><option value="">Все типы</option><option value="laws">Законы</option><option value="contracts">Договоры</option><option value="addenda">Допсоглашения</option><option value="policies">Регламенты</option><option value="other">Прочее</option></select></label>
         <label for="tab-doc-status">Редакция<select id="tab-doc-status"><option value="">Все редакции</option><option value="current">Действующая</option><option value="expired">Утратил силу</option><option value="unspecified">Без отметки</option></select></label>
@@ -209,6 +219,7 @@
         <button id="reset-tab-filters" type="button">Сбросить фильтры</button>
       </div>
       </details>
+      <button id="open-picker-searches" type="button" aria-haspopup="dialog" hidden>Сохранённые поиски</button>
       <p id="tab-selection-status" role="status"></p>
       <div id="tab-choice-scroll"><fieldset id="tab-choices"><legend>Документы во вкладке</legend></fieldset></div>
       </div>
@@ -231,9 +242,49 @@
         <label>Контрагент<input name="counterparty" maxlength="300" autocomplete="off"></label>
         <div class="workspace-field-pair"><label>Дата события<input name="event_date" type="date"></label><label>Сумма и валюта<input name="amount" maxlength="100" placeholder="Например, 500 000 ₽"></label></div>
         <label>Обстоятельства и рабочие заметки<textarea name="situation" rows="5" maxlength="3000"></textarea></label>
+        <details class="matter-tasks">
+          <summary>Задачи <span id="checklist-count" role="status"></span></summary>
+          <label>Показать
+            <select id="checklist-filter"><option value="all">Все</option><option value="open">Осталось</option><option value="done">Выполнено</option></select>
+          </label>
+          <ol id="checklist-items"></ol>
+          <p id="checklist-status" role="status"></p>
+          <div class="workspace-tool-actions">
+            <button id="add-checklist-item" type="button" disabled>Добавить задачу</button>
+            <button id="reload-checklist" type="button">Обновить задачи</button>
+          </div>
+        </details>
         <p id="matter-error" role="alert"></p>
       </div>
       <footer><button type="submit" id="save-matter">Сохранить</button><button type="button" id="insert-matter">Добавить в вопрос</button></footer>
+    </form>
+  </dialog>
+  <dialog id="searches-dialog" class="workspace-dialog" aria-labelledby="searches-title">
+    <header><h2 id="searches-title">Сохранённые поиски</h2><button type="button" data-close="searches-dialog">Закрыть</button></header>
+    <div class="workspace-dialog-body">
+      <p class="workspace-help">Поиск применяет сохранённые фильтры к текущей базе документов.</p>
+      <form id="saved-search-form">
+        <label>Название поиска <input id="saved-search-title" required maxlength="80" autocomplete="off"></label>
+        <div class="workspace-tool-actions">
+          <button id="save-search" type="submit" disabled>Сохранить текущий поиск</button>
+          <button id="cancel-search-rename" type="button" hidden>Отменить переименование</button>
+        </div>
+      </form>
+      <p id="searches-status" role="status"></p>
+      <ul id="searches-list" class="workspace-tool-list"></ul>
+    </div>
+  </dialog>
+  <dialog id="task-dialog" class="workspace-dialog" aria-labelledby="task-title">
+    <header><h2 id="task-title">Задача</h2><button type="button" data-close="task-dialog">Закрыть</button></header>
+    <form id="task-form">
+      <div class="workspace-dialog-body">
+        <label>Название <input name="title" required maxlength="160" autocomplete="off"></label>
+        <label>Комментарий <textarea name="comment" rows="3" maxlength="500"></textarea></label>
+        <label>Документ <select name="document_id"></select></label>
+        <label>Сохранённый ответ этого диалога <select name="answer_key"></select></label>
+        <p id="task-error" role="alert"></p>
+      </div>
+      <footer><button type="submit">Сохранить задачу</button></footer>
     </form>
   </dialog>
   <dialog id="note-dialog" class="workspace-dialog" aria-labelledby="note-title">
@@ -247,7 +298,7 @@
   </dialog>
   <dialog id="question-dialog" class="workspace-dialog" aria-labelledby="question-dialog-title">
     <header><h2 id="question-dialog-title">Изменить вопрос</h2><button type="button" data-close="question-dialog">Закрыть</button></header>
-    <form id="question-edit-form"><div class="workspace-dialog-body"><p id="question-edit-help"></p><label for="question-edit-text">Вопрос</label><textarea id="question-edit-text" rows="8" maxlength="10000"></textarea><p id="question-edit-error" role="alert"></p></div><footer><button id="save-question-edit" type="submit">Создать ветку</button></footer></form>
+    <form id="question-edit-form"><div class="workspace-dialog-body"><p id="question-edit-help"></p><label for="question-edit-text">Вопрос</label><textarea id="question-edit-text" rows="8" maxlength="10000"></textarea><label id="copy-branch-checklist-label" class="workspace-check-option"><input id="copy-branch-checklist" type="checkbox"> Скопировать задачи без отметок выполнения и ссылок на ответы</label><p id="question-edit-error" role="alert"></p></div><footer><button id="save-question-edit" type="submit">Создать ветку</button></footer></form>
   </dialog>
   <dialog id="passage-dialog" class="workspace-dialog" aria-labelledby="passage-title">
     <header><h2 id="passage-title">Вопрос по фрагменту</h2><button type="button" data-close="passage-dialog">Закрыть</button></header>
