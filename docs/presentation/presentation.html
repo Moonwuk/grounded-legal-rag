@@ -68,6 +68,8 @@ tr:last-child td{border-bottom:none}
 .perks .card{padding:22px 20px!important;min-height:230px}
 .perks h3{font-size:20px;margin-bottom:12px}
 .perks p.small{font-size:16px;line-height:1.45}
+figure{margin:0}
+.bigcards .card{padding:18px 22px!important;font-size:16.5px;line-height:1.45;min-height:104px}
 .plan-card{border:1px dashed #d9a24a;background:#fffaf0}
 </style>
 </head>
@@ -260,8 +262,8 @@ tr:last-child td{border-bottom:none}
 <section class="slide"><div class="top"></div>
   <div class="kicker">Интерфейс — реализовано</div>
   <h2>Рабочее место, а не только чат</h2>
-  <div style="display:grid;grid-template-columns:1fr 250px;gap:22px">
-    <div class="grid2" style="gap:12px">
+  <div>
+    <div class="grid2 bigcards" style="gap:16px">
       <div class="card small" style="padding:12px 16px"><b>Документы.</b> Каталог «Все / Законы / Договоры / Регламенты / Прочее», свои вкладки-подборки, фильтры по типу и редакции, поиск внутри текста.</div>
       <div class="card small" style="padding:12px 16px"><b>История.</b> Серверные диалоги с источниками, поиск, закрепление, папки, корзина с восстановлением, отметка «Новый ответ».</div>
       <div class="card small" style="padding:12px 16px"><b>Избранное и заметки.</b> Личные заметки к ответу, фильтры, отметки «Источники просмотрены» / «Нужна дополнительная проверка».</div>
@@ -271,10 +273,31 @@ tr:last-child td{border-bottom:none}
       <div class="card small" style="padding:12px 16px"><b>Оформление.</b> Светлая, тёмная и системная темы, 6 акцентов, 5 шрифтов, размер 12–22 px.</div>
       <div class="card small" style="padding:12px 16px"><b>Доступность.</b> Клавиатура, видимый фокус, области нажатия ≥ 44 px, окна приложения вместо alert/confirm, уменьшение движения.</div>
     </div>
-    <div><img class="shot" src="img/s_mobile.jpg" style="width:250px"><p class="xs muted" style="margin-top:6px">Телефон 390×844: диалог и ввод снизу, история и документы из шапки.</p></div>
   </div>
   <p class="xs muted" style="margin-top:12px">Карточка дела и заметки не передаются модели и не становятся источниками. История и рабочие материалы требуют авторизующего прокси и включённой серверной истории.</p>
   <div class="foot"><span>README «Возможности интерфейса»</span><span>8</span></div>
+</section>
+
+<!-- mobile -->
+<section class="slide"><div class="top"></div>
+  <div class="kicker">Мобильная веб-версия</div>
+  <h2 style="margin-bottom:16px">Тот же ассистент в браузере телефона</h2>
+  <div style="display:grid;grid-template-columns:870px 1fr;gap:22px">
+    <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:14px">
+      <figure><img class="shot" src="img/s_mobile.jpg" style="width:100%"><figcaption class="xs muted" style="margin-top:6px"><b>Диалог.</b> Ответ на весь экран, поле ввода снизу.</figcaption></figure>
+      <figure><img class="shot" src="img/m_source.jpg" style="width:100%"><figcaption class="xs muted" style="margin-top:6px"><b>Источник.</b> Клик по [1] — положение подсвечено, «К диалогу».</figcaption></figure>
+      <figure><img class="shot" src="img/m_history.jpg" style="width:100%"><figcaption class="xs muted" style="margin-top:6px"><b>История.</b> Диалоги с сервера, поиск, папки.</figcaption></figure>
+      <figure><img class="shot" src="img/m_docs.jpg" style="width:100%"><figcaption class="xs muted" style="margin-top:6px"><b>Документы.</b> Каталог по разделам и поиск.</figcaption></figure>
+    </div>
+    <div style="display:grid;gap:12px;align-content:start">
+      <div class="card small" style="padding:12px 14px"><b>Без отдельного приложения.</b> Тот же сайт подстраивается под экран телефона.</div>
+      <div class="card small" style="padding:12px 14px"><b>История и документы</b> открываются панелями из шапки, из источника — возврат к ответу.</div>
+      <div class="card small" style="padding:12px 14px"><b>Начал на компьютере — продолжил на телефоне</b> под тем же логином: диалоги хранятся на сервере.</div>
+      <div class="card small" style="padding:12px 14px"><b>Удобно пальцем:</b> области нажатия ≥ 44 px, текст до 22 px, тёмная тема.</div>
+      <div class="card small" style="padding:12px 14px"><b>Проверено</b> браузерными тестами на 390×844, 320×568 и 390×420.</div>
+    </div>
+  </div>
+  <div class="foot"><span>Скриншоты локального запуска, эмуляция iPhone 13 (390×844); README «Мобильная компоновка и доступность»</span><span>9</span></div>
 </section>
 
 <!-- 8 -->
@@ -292,7 +315,7 @@ tr:last-child td{border-bottom:none}
     </div>
     <div><img class="shot" src="img/s_edition.jpg" style="width:470px"><p class="xs muted" style="margin-top:6px">«Договор на 12 млн рублей заключали в августе 2024 года. Нужно ли было одобрение генерального директора?» — применена редакция регламента 2023 года, действовавшая на дату события.</p></div>
   </div>
-  <div class="foot"><span>Ответы — живой прогон 14.11.2026 на демо-вопросах организаторов через публичный API DeepSeek (docs/claim_equivalence_live.md); не официальный Score</span><span>9</span></div>
+  <div class="foot"><span>Ответы — живой прогон 14.11.2026 на демо-вопросах организаторов через публичный API DeepSeek (docs/claim_equivalence_live.md); не официальный Score</span><span>10</span></div>
 </section>
 
 <!-- 9 -->
@@ -313,7 +336,7 @@ tr:last-child td{border-bottom:none}
     <div class="card" style="padding:12px 16px"><span class="tag info">Несуществующая дата</span><div class="q" style="margin-top:6px">«Спецификация подписана 31 февраля 2025 года. Назови адрес доставки»</div>
       <div class="a">Указанная календарная дата не существует. Уточните или предоставьте: дата подписания спецификации.</div></div>
   </div>
-  <div class="foot"><span>Демо-вопросы — прогон 14.11.2026; провокации — набор results/security_stress_20261110 (прогон 10.11.2026). Тексты сокращены «…»</span><span>10</span></div>
+  <div class="foot"><span>Демо-вопросы — прогон 14.11.2026; провокации — набор results/security_stress_20261110 (прогон 10.11.2026). Тексты сокращены «…»</span><span>11</span></div>
 </section>
 
 <!-- 10 -->
@@ -332,7 +355,7 @@ tr:last-child td{border-bottom:none}
     <tr><td>Контейнер</td><td>non-root, read-only root, cap_drop ALL, no-new-privileges, лимиты 2 GiB / 2 CPU, read-only корпус</td></tr>
     <tr><td>Секреты</td><td>ключ модели только на сервере, в браузер не передаётся; тексты сообщений и ключи не пишутся в логи</td></tr>
   </table>
-  <div class="foot"><span>Официальный результат — только LLM-судья платформы; локальные оценки и зелёный CI его не заменяют</span><span>11</span></div>
+  <div class="foot"><span>Официальный результат — только LLM-судья платформы; локальные оценки и зелёный CI его не заменяют</span><span>12</span></div>
 </section>
 
 <!-- 11 -->
@@ -362,7 +385,7 @@ tr:last-child td{border-bottom:none}
       <li>Подборки организуют просмотр, но не сужают поиск ассистента.</li>
     </ul></div>
   </div>
-  <div class="foot"><span>README «Ограничения»</span><span>12</span></div>
+  <div class="foot"><span>README «Ограничения»</span><span>13</span></div>
 </section>
 
 <!-- 12 -->
@@ -378,7 +401,7 @@ tr:last-child td{border-bottom:none}
     <div class="card plan-card"><span class="tag plan">План</span><h3 style="margin-top:8px">Качество и выпуск</h3><p class="small">Регулярная оценка на расширенном наборе вопросов с юристами; продвижение подписанного образа с обязательными проверками и автоматическим откатом.</p></div>
   </div>
   <p class="small muted" style="margin-top:16px">Уже есть и может включаться настройкой: эмбеддинги bge-m3 и реранкер через прокси организаторов (по умолчанию реранкер выключен: прирост на замерах в пределах одного вопроса).</p>
-  <div class="foot"><span>grounded-legal-rag</span><span>13</span></div>
+  <div class="foot"><span>grounded-legal-rag</span><span>14</span></div>
 </section>
 
 <!-- 13 -->
@@ -416,7 +439,7 @@ docker compose up --build -d --wait
     <tr><td><span class="mono">CHAT_PROXY_TOKEN</span></td><td>пусто</td><td>общий секрет с авторизующим прокси; включает серверную историю</td></tr>
     <tr><td><span class="mono">EMB_MODEL</span>, <span class="mono">TOP_K</span>, <span class="mono">MAX_TOKENS</span></td><td>пусто, 6, 8192</td><td>эмбеддинги (без них — BM25), число кандидатов поиска, лимит ответа модели</td></tr>
   </table>
-  <div class="foot"><span>https://github.com/Moonwuk/grounded-legal-rag</span><span>14</span></div>
+  <div class="foot"><span>https://github.com/Moonwuk/grounded-legal-rag</span><span>15</span></div>
 </section>
 
 </body>
