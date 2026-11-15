@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, interactive-widget=resizes-content">
   <meta name="color-scheme" content="light dark">
   <title>Юридический ассистент</title>
+  <link rel="icon" type="image/svg+xml" href="/static/favicon.svg">
   <script src="/static/appearance.js"></script>
   <link rel="stylesheet" href="/static/vendor/appearance-fonts/fonts.css">
   <link rel="stylesheet" href="/static/appearance.css">
@@ -16,6 +17,7 @@
   <link rel="stylesheet" href="/static/archive-scene.css">
   <link rel="stylesheet" href="/static/mobile.css">
   <link rel="stylesheet" href="/static/usability.css">
+  <link rel="stylesheet" href="/static/workspace.css">
   <link rel="preload" as="image" href="/static/media/archive-blue.webp">
   <link rel="preload" as="image" href="/static/media/archive-outcomes.webp">
   <link rel="preload" as="image" href="/static/media/archive-found.webp">
@@ -23,6 +25,8 @@
   <script defer src="/static/archive-scene.js"></script>
   <script defer src="/static/mobile-layout.js"></script>
   <script defer src="/static/queue-ui.js"></script>
+  <script defer src="/static/icons.js"></script>
+  <script defer src="/static/workspace.js"></script>
   <script defer src="/static/app.js"></script>
 </head>
 <body>
@@ -44,7 +48,8 @@
   <main id="workspace" class="workspace">
     <aside id="history-panel" class="chat-history" aria-labelledby="history-title">
       <div class="panel-heading"><h2 id="history-title">Ваши диалоги</h2></div>
-      <button type="button" id="reset" aria-label="Новый диалог" disabled>+ Новый диалог</button>
+      <div class="history-primary-actions"><button type="button" id="reset" aria-label="Новый диалог" disabled>+ Новый диалог</button>
+      <button type="button" id="open-saved" disabled>☆ Избранное и заметки</button></div>
       <label class="history-search" for="history-query">Поиск диалогов<input id="history-query" type="search" maxlength="200" placeholder="Название или сообщение" autocomplete="off"></label>
       <p id="history-search-status" role="status"></p>
       <details id="history-folders"><summary>Папки и корзина</summary>
@@ -62,13 +67,14 @@
     <section class="chat" aria-labelledby="chat-title">
       <header class="panel-heading">
         <h2 id="chat-title">Диалог</h2>
-        <span class="corpus-label">По базе ПСБ</span>
+        <span class="corpus-label">Поиск по всей базе</span>
       </header>
+      <div class="chat-tools"><button id="open-matter" type="button" disabled>Карточка дела</button><button id="parent-dialogue" type="button" hidden>← Исходный диалог</button><span id="matter-summary"></span></div>
       <div class="conversation" id="conversation" role="log" aria-label="Сообщения диалога">
         <div id="welcome">
           <div class="welcome-copy">
             <h3>Найдите нужное положение</h3>
-            <p>Укажите договор, контрагента или дату события. Откройте источник рядом с ответом, чтобы сверить формулировку.</p>
+            <p>Укажите договор, контрагента или дату события. Откройте источник ответа, чтобы сверить формулировку.</p>
           </div>
           <p class="example-heading">Примеры вопросов</p>
           <button type="button" class="example" disabled>Какова арендная плата по договору с ООО «Северный Склад»?</button>
@@ -94,6 +100,7 @@
         </div>
         <span id="input-hint">Enter — отправить, Shift+Enter — новая строка.</span>
         <span id="input-error" role="status"></span>
+        <div class="draft-feedback"><span id="draft-status" role="status"></span><button id="resolve-draft" type="button" hidden>Разобраться</button></div>
       </form>
     </section>
     <aside id="documents-panel" data-view="list" class="documents" aria-labelledby="doc-title">
@@ -135,8 +142,10 @@
           </span>
         </button><p class="copy-feedback" role="status" aria-live="polite" aria-atomic="true"></p></div>
       <ul id="doc-list" role="tabpanel" tabindex="0" aria-label="Документы вкладки"></ul>
+      <p class="search-scope">Поиск ассистента — по всей базе, независимо от вкладки.</p>
       <div id="document-search" hidden><label for="document-query">Найти в документе</label><input id="document-query" type="search" maxlength="200" autocomplete="off"><div class="document-search-actions"><span id="document-search-status" role="status"></span><button id="document-prev" type="button" aria-label="Предыдущее совпадение">↑</button><button id="document-next" type="button" aria-label="Следующее совпадение">↓</button><button id="document-citation" type="button" hidden>К цитате</button><button id="print-document" type="button" aria-label="Печать документа или сохранение в PDF" title="Печать всего документа" disabled>Печать / PDF</button></div></div>
       <div id="doc-text" tabindex="0" aria-label="Текст документа" hidden></div>
+      <div id="document-workspace-actions" hidden><button id="ask-selection" type="button" disabled>Спросить о выделенном</button><span id="selection-status" role="status">Выделите фрагмент текста.</span></div>
     </aside>
   </main>
   <dialog id="confirm-dialog" class="history-dialog confirmation-dialog" aria-labelledby="confirm-title" aria-describedby="confirm-message">
@@ -209,6 +218,42 @@
   </dialog>
 <dialog id="copy-dialog" class="history-dialog" aria-labelledby="copy-title"><h2 id="copy-title">Ответ с источниками</h2><p id="copy-note">Выделите текст и скопируйте его.</p><textarea id="copy-text" aria-label="Ответ с источниками" readonly rows="12"></textarea><p id="copy-dialog-status" role="status"></p><div class="history-dialog-actions"><button id="copy-dialog-button" type="button">Копировать</button><button id="close-copy" type="button">Закрыть</button></div></dialog>
   <section id="print-view" aria-hidden="true"></section>
+  <dialog id="matter-dialog" class="workspace-dialog" aria-labelledby="matter-title">
+    <header><h2 id="matter-title">Карточка дела</h2><button type="button" data-close="matter-dialog">Закрыть</button></header>
+    <form id="matter-form">
+      <div class="workspace-dialog-body">
+        <p class="workspace-help">Ваши рабочие сведения. Чтобы учесть их в ответе, добавьте нужные данные в вопрос.</p>
+        <label>Договор<input name="contract" maxlength="300" autocomplete="off"></label>
+        <label>Контрагент<input name="counterparty" maxlength="300" autocomplete="off"></label>
+        <div class="workspace-field-pair"><label>Дата события<input name="event_date" type="date"></label><label>Сумма и валюта<input name="amount" maxlength="100" placeholder="Например, 500 000 ₽"></label></div>
+        <label>Обстоятельства и рабочие заметки<textarea name="situation" rows="5" maxlength="3000"></textarea></label>
+        <p id="matter-error" role="alert"></p>
+      </div>
+      <footer><button type="submit" id="save-matter">Сохранить</button><button type="button" id="insert-matter">Добавить в вопрос</button></footer>
+    </form>
+  </dialog>
+  <dialog id="note-dialog" class="workspace-dialog" aria-labelledby="note-title">
+    <header><h2 id="note-title">Заметка к ответу</h2><button type="button" data-close="note-dialog">Закрыть</button></header>
+    <form id="note-form"><div class="workspace-dialog-body"><p id="note-question"></p><p class="workspace-help">Личная заметка сохраняется отдельно от ответа и его источников.</p><label for="answer-note">Ваш текст</label><textarea id="answer-note" rows="8" maxlength="4000"></textarea><p id="note-error" role="alert"></p></div><footer><button id="save-note" type="submit">Сохранить заметку</button></footer></form>
+  </dialog>
+  <dialog id="saved-dialog" class="workspace-dialog" aria-labelledby="saved-title">
+    <header><h2 id="saved-title">Избранное и заметки</h2><button type="button" data-close="saved-dialog">Закрыть</button></header>
+    <div class="saved-filters"><label for="saved-search">Поиск<input id="saved-search" type="search" maxlength="200" placeholder="Вопрос, ответ или заметка"></label><label for="saved-filter">Показать<select id="saved-filter"><option value="all">Всё сохранённое</option><option value="saved">Избранные ответы</option><option value="notes">С заметками</option></select></label></div>
+    <div class="workspace-dialog-body"><p id="saved-status" role="status"></p><div id="saved-answers"></div></div>
+  </dialog>
+  <dialog id="question-dialog" class="workspace-dialog" aria-labelledby="question-dialog-title">
+    <header><h2 id="question-dialog-title">Изменить вопрос</h2><button type="button" data-close="question-dialog">Закрыть</button></header>
+    <form id="question-edit-form"><div class="workspace-dialog-body"><p id="question-edit-help"></p><label for="question-edit-text">Вопрос</label><textarea id="question-edit-text" rows="8" maxlength="10000"></textarea><p id="question-edit-error" role="alert"></p></div><footer><button id="save-question-edit" type="submit">Создать ветку</button></footer></form>
+  </dialog>
+  <dialog id="passage-dialog" class="workspace-dialog" aria-labelledby="passage-title">
+    <header><h2 id="passage-title">Вопрос по фрагменту</h2><button type="button" data-close="passage-dialog">Закрыть</button></header>
+    <form id="passage-form"><div class="workspace-dialog-body"><p id="passage-document"></p><blockquote id="passage-quote"></blockquote><div class="passage-presets"><button type="button" data-passage="Объясните смысл этого пункта и укажите связанные условия.">Объяснить пункт</button><button type="button" data-passage="Какие условия, ограничения и исключения нужно учесть для этого пункта?">Условия и исключения</button></div><label for="passage-question">Ваш вопрос</label><textarea id="passage-question" rows="3" maxlength="3000" required></textarea><p id="passage-error" role="alert"></p></div><footer><button type="submit">Добавить в поле вопроса</button></footer></form>
+  </dialog>
+  <dialog id="draft-conflict-dialog" class="workspace-dialog" aria-labelledby="draft-conflict-title">
+    <header><h2 id="draft-conflict-title">Черновик на другом устройстве</h2><button type="button" data-close="draft-conflict-dialog">Закрыть</button></header>
+    <div class="workspace-dialog-body"><p>На сервере сохранён другой текст. Выберите версию или скопируйте нужные части перед заменой.</p><label for="draft-local">На этом устройстве</label><textarea id="draft-local" rows="5" readonly></textarea><label for="draft-remote">На сервере</label><textarea id="draft-remote" rows="5" readonly></textarea><p id="draft-conflict-error" role="alert"></p></div>
+    <footer><button id="draft-keep-local" type="button">Сохранить мой</button><button id="draft-use-remote" type="button">Взять серверный</button></footer>
+  </dialog>
   <dialog id="appearance-dialog" aria-labelledby="appearance-title">
     <header class="appearance-header">
       <h2 id="appearance-title">Настройки</h2>

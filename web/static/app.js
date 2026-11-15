@@ -419,6 +419,7 @@ byId("rename-form").addEventListener("submit", async event => {
     const result = await folderRequest("/chats/" + renamingChat + "/title", "PUT", {title: byId("chat-name").value.trim()});
     const chat = savedChats.find(item => item.id === result.id);
     if (chat) chat.title = result.title;
+    if (currentChat === result.id) byId("chat-title").textContent = result.title;
     if (byId("history-query").value.trim()) await searchHistory();
     byId("rename-dialog").close();
     byId("history-status").textContent = "Название сохранено";
@@ -531,7 +532,10 @@ function renderHistory() {
         inTrash ? "Удалить навсегда" : "В корзину")) return;
       navigateHistory(async () => {
         await historyRequest("/" + encodeURIComponent(chat.id) + (inTrash ? "/permanent" : ""), "DELETE");
-        if (currentChat === chat.id) clearChat();
+        if (currentChat === chat.id) {
+          clearChat();
+          if (globalThis.WebWorkspace) await globalThis.WebWorkspace.open(null);
+        }
         await loadChatLists();
       });
     });
@@ -566,6 +570,7 @@ function renderHistory() {
       rename.setAttribute("aria-label", "Переименовать диалог: " + chat.title);
       rename.disabled = navigating || renameSaving;
       rename.addEventListener("click", () => editChatTitle(chat));
+      globalThis.WebIcons?.set(rename, "edit", undefined, false);
       const pin = document.createElement("button");
       pin.type = "button";
       pin.textContent = chat.pinned ? "Открепить" : "Закрепить";
@@ -574,23 +579,30 @@ function renderHistory() {
         await historyRequest("/" + encodeURIComponent(chat.id) + "/pin?pinned=" + !chat.pinned, "PUT");
         await loadChatLists();
       }));
+      globalThis.WebIcons?.set(pin, "pin", undefined, false);
       menu.append(pin, rename, move, remove);
     }
+    globalThis.WebIcons?.set(move, inTrash ? "restore" : "folder", undefined, false);
+    globalThis.WebIcons?.set(remove, "trash", undefined, false);
     row.append(button, menu);
     chatList.append(row);
   }
+  globalThis.WebWorkspace?.decorateHistory();
 }
 
 async function navigateHistory(action) {
-  if (busy || navigating) return;
+  if (busy || navigating) return false;
   navigating = true;
   send.disabled = byId("new-dialogue").disabled = reset.disabled = true;
   renderHistory();
   try {
+    if (globalThis.WebWorkspace) await globalThis.WebWorkspace.leave();
     await action();
-    byId("history-status").textContent = savedChats.length ? "Сохранено на сервере" : trashedChats.length ? "Чаты находятся в корзине" : "Пока нет сохранённых диалогов";
+    byId("history-status").textContent = savedChats.length ? "Сохранено на сервере" : trashedChats.length ? "Удалённые диалоги — в корзине" : "Пока нет сохранённых диалогов";
+    return true;
   } catch (error) {
     byId("history-status").textContent = error.message;
+    return false;
   } finally {
     navigating = false;
     send.disabled = byId("new-dialogue").disabled = reset.disabled = false;
@@ -599,12 +611,14 @@ async function navigateHistory(action) {
 }
 
 function clearChat() {
+  globalThis.WebWorkspace?.detach();
   globalThis.ChatQueue?.detach();
   if (currentScene) ArchiveScene.stop(currentScene);
   currentScene = null;
   sendController.reset();
   retryRequest = null;
   currentChat = null;
+  byId("chat-title").textContent = "Диалог";
   rememberChat();
   messages = [];
   log.replaceChildren(welcome);
@@ -616,19 +630,20 @@ function clearChat() {
   showList();
 }
 
-function renderSavedTurns(turns) {
+function renderSavedTurns(turns, animateIndex = -1) {
+  globalThis.WebWorkspace?.beginTurns();
   if (currentScene) ArchiveScene.stop(currentScene);
   currentScene = null;
   messages = [];
   log.replaceChildren(welcome);
   welcome.hidden = false;
-  for (const turn of turns) {
+  for (const [turnIndex, turn] of turns.entries()) {
     const userNode = bubble("user", turn.question).item;
     const node = bubble("assistant", "");
-    if (turn.answer.status === "clarify") {
-      node.body.before(ArchiveScene.create("clarify"));
-      node.item.classList.add("with-scene");
-    }
+    const restoredScene = ArchiveScene.create(ArchiveScene.stateFor(turn.answer), {animate: turnIndex === animateIndex});
+    node.body.before(restoredScene);
+    node.item.classList.add("with-scene");
+    if (turnIndex === animateIndex) currentScene = restoredScene;
     if (!["technical_error", "cancelled"].includes(turn.answer.status)) messages.push(
       {role: "user", text: turn.question}, {role: "assistant", text: turn.answer.text});
     const contextLength = messages.length;
@@ -636,7 +651,7 @@ function renderSavedTurns(turns) {
       if (busy || navigating) return;
       if (historyEnabled && globalThis.ChatQueue) {
         input.value = turn.question;
-        globalThis.ChatQueue.submit(turn.question, true).then(() => { if (input.value.trim() === turn.question) input.value = ""; globalThis.MobileLayout?.resizeInput(); }).catch(error => { byId("input-error").textContent = error.message; });
+        globalThis.ChatQueue.submit(turn.question, true).then(() => { if (input.value.trim() === turn.question) input.value = ""; globalThis.MobileLayout?.resizeInput(); globalThis.WebWorkspace?.captureDraft(); }).catch(error => { byId("input-error").textContent = error.message; });
         return;
       }
       if (turn !== turns.at(-1) || messages.length !== contextLength) { input.value = turn.question; input.focus(); return; }
@@ -644,14 +659,19 @@ function renderSavedTurns(turns) {
       node.item.remove();
       sendController.start();
     });
+    globalThis.WebWorkspace?.addTurn(node, userNode, turn, turnIndex);
   }
+  globalThis.WebWorkspace?.refresh();
 }
 
 async function selectChat(id) {
+  if (globalThis.WebWorkspace) await globalThis.WebWorkspace.leave();
   const chat = await historyRequest("/" + encodeURIComponent(id));
   clearChat();
   currentChat = chat.id;
+  byId("chat-title").textContent = chat.title;
   rememberChat();
+  if (globalThis.WebWorkspace) await globalThis.WebWorkspace.open(chat.id);
   renderSavedTurns(chat.turns);
   globalThis.ChatQueue?.attach(chat);
   globalThis.MobileLayout?.close("history");
@@ -660,18 +680,22 @@ async function selectChat(id) {
 }
 
 async function loadHistory() {
+  try { if (historyReady && globalThis.WebWorkspace) await globalThis.WebWorkspace.leave(); }
+  catch (error) { byId("input-error").textContent = error.message; return; }
   send.disabled = byId("new-dialogue").disabled = reset.disabled = true;
   navigating = true;
   historyReady = false;
   try {
     await loadChatLists();
     historyEnabled = true;
+    globalThis.WebWorkspace?.setEnabled(true);
     await loadFolders();
     if (!historyInitialized) {
       let selected;
       try { selected = localStorage.getItem("psb-current-chat"); } catch { /* Optional selection only. */ }
       const chat = savedChats.find(item => item.id === selected) || savedChats[0];
       if (chat) await selectChat(chat.id);
+      else if (globalThis.WebWorkspace) await globalThis.WebWorkspace.open(null);
     } else if (currentChat && !savedChats.some(item => item.id === currentChat)) {
       // The selected chat was removed on another device. Keep the draft, but
       // never move it silently into a different saved conversation.
@@ -679,15 +703,17 @@ async function loadHistory() {
       clearChat();
       input.value = draft;
       globalThis.MobileLayout?.resizeInput();
-    }
+      if (globalThis.WebWorkspace) await globalThis.WebWorkspace.open(null, draft);
+    } else if (globalThis.WebWorkspace) await globalThis.WebWorkspace.open(currentChat);
     historyReady = historyInitialized = true;
-    byId("history-status").textContent = savedChats.length ? "Сохранено на сервере" : trashedChats.length ? "Чаты находятся в корзине" : "Пока нет сохранённых диалогов";
+    byId("history-status").textContent = savedChats.length ? "Сохранено на сервере" : trashedChats.length ? "Удалённые диалоги — в корзине" : "Пока нет сохранённых диалогов";
     send.disabled = byId("new-dialogue").disabled = reset.disabled = false;
   } catch (error) {
     const unconfigured = !historyEnabled && error.status === 503 && error.message === "История на сервере не настроена.";
     byId("history-status").textContent = unconfigured
       ? "История на сервере не настроена. Диалог сохранится только до закрытия страницы." : error.message;
     if (unconfigured) {
+      globalThis.WebWorkspace?.setEnabled(false);
       historyReady = historyInitialized = true;
       send.disabled = byId("new-dialogue").disabled = reset.disabled = false;
     }
@@ -715,6 +741,7 @@ function bubble(role, text) {
 }
 
 function showList() {
+  globalThis.WebWorkspace?.beforeDocument();
   activeDocument?.abort();
   activeDocument = null;
   clearQuote();
@@ -740,6 +767,7 @@ function clearQuote() {
 }
 
 async function openDocument(id, source, focus = true) {
+  globalThis.WebWorkspace?.beforeDocument();
   setDocumentsVisible(true);
   globalThis.MobileLayout?.open("documents");
   activeDocument?.abort();
@@ -787,6 +815,7 @@ async function openDocument(id, source, focus = true) {
     renderDocumentSearch();
     if (documentSource) scrollDocumentTo(".source-highlight");
     else docText.scrollTop = 0;
+    globalThis.WebWorkspace?.documentOpened(id, doc, !!documentSource);
   } catch {
     if (activeDocument === request) docStatus.textContent = "Документ недоступен. Откройте его повторно.";
   } finally {
@@ -869,6 +898,11 @@ function renderAnswer(node, answer, retry) {
     node.content.before(status);
   }
   const groups = new Map();
+  if (sources.length) {
+    const heading = document.createElement("h3"); heading.className = "answer-source-heading";
+    heading.textContent = "Основания · " + new Set(sources.map(source => source.document_id)).size + " док.";
+    node.body.append(heading);
+  }
   for (const source of sources) {
     let group = groups.get(source.document_id);
     if (!group) {
@@ -900,7 +934,7 @@ function renderAnswer(node, answer, retry) {
   const copy = document.createElement("button");
   copy.type = "button"; copy.className = "copy-answer"; copy.textContent = "Копировать с источниками";
   copy.addEventListener("click", async () => {
-    try { await navigator.clipboard.writeText(answerText(answer)); copy.textContent = "Скопировано"; }
+    try { await navigator.clipboard.writeText(answerText(answer)); copy.textContent = "Скопировано"; globalThis.WebIcons?.set(copy, "check"); }
     catch { openCopyDialog(answerText(answer)); }
   });
   const share = document.createElement("button");
@@ -917,6 +951,8 @@ function renderAnswer(node, answer, retry) {
     } finally { share.disabled = false; }
   });
   node.body.append(copy, share);
+  globalThis.WebIcons?.set(copy, "copy");
+  globalThis.WebIcons?.set(share, "share");
   if (answer.status === "clarify") renderClarification(node, answer);
   if ((answer.status === "technical_error" && !missingModel) || answer.status === "cancelled") {
     const button = document.createElement("button");
@@ -1156,6 +1192,29 @@ async function ask(question, existing, signal) {
 }
 
 let retryRequest;
+let creatingChat;
+async function ensureCurrentChat() {
+  if (currentChat) return currentChat;
+  if (!historyEnabled || !historyReady) throw new Error("Дождитесь загрузки серверной истории.");
+  if (creatingChat) return creatingChat;
+  creatingChat = (async () => {
+    if (globalThis.WebWorkspace) await globalThis.WebWorkspace.leave();
+    const previousNavigation = navigating;
+    navigating = true;
+    byId("new-dialogue").disabled = reset.disabled = true;
+    try {
+      const folderPath = ["all", "unfiled", "trash"].includes(selectedFolder) ? "" : "?folder_id=" + encodeURIComponent(selectedFolder);
+      const chat = await historyRequest(folderPath, "POST");
+      currentChat = chat.id; rememberChat(); savedChats.unshift(chat);
+      await globalThis.WebWorkspace?.open(chat.id, input.value);
+      await globalThis.WebWorkspace?.clearNewDraft().catch(() => {});
+      return chat.id;
+    } finally {
+      navigating = previousNavigation; byId("new-dialogue").disabled = reset.disabled = navigating; renderHistory();
+    }
+  })();
+  try { return await creatingChat; } finally { creatingChat = null; }
+}
 const sendController = SLComponent.mount(send.closest(".sl-component"), {
   async onSend({signal}) {
     if (navigating || !historyReady) {
@@ -1176,29 +1235,23 @@ const sendController = SLComponent.mount(send.closest(".sl-component"), {
       throw new Error("empty_question");
     }
     input.removeAttribute("aria-invalid");
-    if (historyEnabled && !currentChat) {
-      navigating = true;
-      byId("new-dialogue").disabled = reset.disabled = true;
-      try {
-        const folderPath = ["all", "unfiled", "trash"].includes(selectedFolder) ? "" : "?folder_id=" + encodeURIComponent(selectedFolder);
-        const chat = await historyRequest(folderPath, "POST");
-        currentChat = chat.id;
-        rememberChat();
-        savedChats.unshift(chat);
-      } catch (error) {
-        byId("input-error").textContent = error.message;
-        throw error;
-      } finally {
-        navigating = false;
-        byId("new-dialogue").disabled = reset.disabled = false;
-        renderHistory();
-      }
-    }
     if (historyEnabled && globalThis.ChatQueue) {
-      await globalThis.ChatQueue.submit(question);
-      if (!retry && input.value.trim() === question) input.value = "";
-      globalThis.MobileLayout?.resizeInput();
-      return {queued: true};
+      navigating = true;
+      byId("new-dialogue").disabled = reset.disabled = true; renderHistory();
+      try {
+        if (globalThis.WebWorkspace) await globalThis.WebWorkspace.leave();
+        if (!currentChat) await ensureCurrentChat();
+        await globalThis.ChatQueue.submit(question);
+        if (!retry && input.value.trim() === question) input.value = "";
+        globalThis.WebWorkspace?.captureDraft();
+        await globalThis.WebWorkspace?.flushDraft().catch(() => {});
+        globalThis.MobileLayout?.resizeInput();
+        return {queued: true};
+      } catch (error) {
+        byId("input-error").textContent = error.message; throw error;
+      } finally {
+        navigating = false; byId("new-dialogue").disabled = reset.disabled = false; renderHistory();
+      }
     }
     if (!retry) input.value = "";
     globalThis.MobileLayout?.resizeInput();
@@ -1218,11 +1271,14 @@ input.addEventListener("keydown", event => {
     sendController.start();
   }
 });
-reset.addEventListener("click", () => {
+reset.addEventListener("click", async () => {
   if (busy || navigating) return;
+  try { if (globalThis.WebWorkspace) await globalThis.WebWorkspace.leave(); }
+  catch (error) { byId("input-error").textContent = error.message; return; }
   globalThis.MobileLayout?.close();
   if (selectedFolder === "trash") selectedFolder = "all";
   clearChat();
+  if (globalThis.WebWorkspace) await globalThis.WebWorkspace.open(null);
   renderHistory();
   input.focus();
 });
@@ -1236,10 +1292,16 @@ clearDocQuery.addEventListener("click", () => {
 });
 clearDocQuery.disabled = false;
 for (const example of document.querySelectorAll(".example")) {
-  example.addEventListener("click", () => { input.value = example.textContent; globalThis.MobileLayout?.resizeInput(); input.focus(); });
+  example.addEventListener("click", () => { input.value = example.textContent; globalThis.WebWorkspace?.captureDraft(); globalThis.MobileLayout?.resizeInput(); input.focus(); });
   example.disabled = false;
 }
 byId("new-dialogue").disabled = reset.disabled = false;
 allDocs.disabled = false;
+globalThis.WebWorkspace?.init({ensureChat: ensureCurrentChat, answerText, copy: openCopyDialog,
+  openChat: async id => {
+    if (!await navigateHistory(async () => { await selectChat(id); await loadChatLists(); })) {
+      throw new Error("Не удалось открыть диалог. Завершите текущее действие или обновите список.");
+    }
+  }});
 loadDocuments();
 loadHistory();

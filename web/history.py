@@ -54,6 +54,8 @@ class History:
             db.execute("""CREATE TABLE IF NOT EXISTS request_budgets (
                 owner TEXT NOT NULL, period INTEGER NOT NULL, window INTEGER NOT NULL,
                 used INTEGER NOT NULL, PRIMARY KEY(owner, period))""")
+            from web.workspace import initialize
+            initialize(db)
 
     def charge_generation(self, db, owner):
         """Durable per-login budgets shared by all chats and both generation APIs."""
