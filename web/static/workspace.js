@@ -344,10 +344,6 @@
     for (const node of document.querySelectorAll("[data-comparison-side]")) node.setAttribute("aria-pressed", String(node.dataset.comparisonSide === "0"));
     get("comparison-dialog").showModal(); loadComparison("left"); loadComparison("right");
   }
-  function answerSources(node, answer) {
-    const ids = [...new Set((answer.sources || []).map(source => source.document_id))];
-    if (ids.length >= 2) node.body.append(button("Документы ответа рядом", () => compare(ids), "compare-answer-documents"));
-  }
   function init(api) {
     bridge = api;
     for (const node of document.querySelectorAll("[data-close]")) node.addEventListener("click", () => {
@@ -458,5 +454,5 @@
     window.addEventListener("pagehide", () => { captureDraft(); flushDraft().catch(() => {}); rememberPosition(); });
   }
   window.WebWorkspace = {init, open, detach, leave, clearNewDraft, captureDraft, flushDraft, refresh, beginTurns,
-    addTurn, answerSources, setEnabled, decorateHistory, editQueued, beforeDocument, documentOpened};
+    addTurn, setEnabled, decorateHistory, editQueued, beforeDocument, documentOpened};
 })();
