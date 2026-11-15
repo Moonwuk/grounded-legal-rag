@@ -273,12 +273,23 @@ mark { background: var(--mark); color: var(--ink); box-decoration-break: clone; 
 }
 
 #doc-navigation { flex: none; padding: .65rem 1rem 0; }
-#doc-tabs { display: flex; gap: .35rem; overflow-x: auto; padding: .2rem .1rem .5rem; scrollbar-width: thin; }
-#doc-tabs button { flex: none; max-width: 14rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: .82rem; }
+#doc-tabs { display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: .35rem; padding: .2rem 0 .65rem; }
+#doc-tabs button { grid-column: span 2; min-width: 0; min-height: 44px; padding: .45rem .35rem; white-space: normal; overflow-wrap: anywhere; font-size: .82rem; }
+#doc-tabs button:nth-last-child(-n+2) { grid-column: span 3; }
+@media (max-width: 350px) { #doc-tabs button { grid-column: span 3; } #doc-tabs button:first-child { grid-column: span 6; } }
 #doc-tabs button[aria-selected="true"] { color: white; background: var(--blue); border-color: var(--blue); }
 .tab-actions { display: flex; flex-wrap: wrap; gap: .35rem; }
 .tab-actions button { font-size: .78rem; padding-inline: .5rem; }
+.collection-heading { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: .35rem; padding-top: .5rem; border-top: 1px solid var(--line); }
+.collection-heading label { font-size: .8rem; font-weight: 650; }
+.collection-heading button { min-height: 44px; }
+#refresh-doc-tabs { min-width: 44px; font-size: 1.15rem; }
+.collection-picker { display: flex; gap: .4rem; margin-top: .35rem; min-width: 0; }
+#custom-doc-tabs { flex: 1; min-width: 0; width: 100%; min-height: 44px; border: 1px solid #b8c9e3; border-radius: 8px; padding: .4rem .55rem; background: white; color: var(--ink); font: inherit; font-size: .82rem; text-overflow: ellipsis; }
+#custom-doc-tabs:disabled { color: var(--muted); background: #f7f9fc; }
+#edit-doc-tab { flex: none; font-size: .78rem; padding-inline: .5rem; }
 #tabs-status { margin: .35rem 0 0; color: var(--muted); font-size: .75rem; }
+#tabs-status:empty { display: none; }
 #tab-dialog { width: min(38rem, calc(100% - 1.5rem)); max-height: calc(100dvh - 2rem); padding: 0; color: var(--ink); background: var(--paper); border: 1px solid var(--line); border-radius: 15px; }
 #tab-dialog::backdrop { background: #10275b88; }
 #tab-form { display: flex; flex-direction: column; gap: .7rem; padding: 1.2rem; max-height: calc(100dvh - 3rem); }

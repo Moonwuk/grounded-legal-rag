@@ -59,7 +59,7 @@ function renderTabs() {
   if (!tabs.some(tab => tab.id === selectedTab)) selectedTab = "all";
   const host = byId("doc-tabs");
   host.replaceChildren();
-  for (const [index, tab] of tabs.entries()) {
+  for (const [index, tab] of builtInTabs.entries()) {
     const button = document.createElement("button");
     button.type = "button";
     button.id = "doc-tab-" + tab.id;
@@ -68,7 +68,7 @@ function renderTabs() {
     button.setAttribute("role", "tab");
     button.setAttribute("aria-selected", String(tab.id === selectedTab));
     button.setAttribute("aria-controls", "doc-list");
-    button.tabIndex = tab.id === selectedTab ? 0 : -1;
+    button.tabIndex = tab.id === selectedTab || (!builtInTabs.some(item => item.id === selectedTab) && index === 0) ? 0 : -1;
     button.addEventListener("click", () => {
       selectedTab = tab.id;
       docQuery.value = "";
@@ -76,16 +76,41 @@ function renderTabs() {
       byId("doc-tab-" + tab.id).focus();
     });
     button.addEventListener("keydown", event => {
-      const offset = {ArrowRight: 1, ArrowLeft: -1, Home: -index, End: tabs.length - index - 1}[event.key];
+      const offset = {ArrowRight: 1, ArrowLeft: -1, Home: -index, End: builtInTabs.length - index - 1}[event.key];
       if (offset === undefined) return;
       event.preventDefault();
-      byId("doc-tab-" + tabs[(index + offset + tabs.length) % tabs.length].id).click();
+      byId("doc-tab-" + builtInTabs[(index + offset + builtInTabs.length) % builtInTabs.length].id).click();
     });
     host.append(button);
   }
-  list.setAttribute("aria-labelledby", "doc-tab-" + selectedTab);
-  byId("edit-doc-tab").hidden = !customTabs.some(tab => tab.id === selectedTab);
+  const select = byId("custom-doc-tabs");
+  select.replaceChildren();
+  const placeholder = document.createElement("option");
+  placeholder.value = "";
+  placeholder.textContent = customTabs.length ? "Выберите свою вкладку" : "Пока нет своих вкладок";
+  placeholder.disabled = true;
+  select.append(placeholder);
+  for (const tab of customTabs) {
+    const option = document.createElement("option");
+    option.value = tab.id;
+    option.textContent = tab.title + " · " + documentsInTab(tab).length;
+    select.append(option);
+  }
+  const custom = customTabs.find(tab => tab.id === selectedTab);
+  select.value = custom ? selectedTab : "";
+  select.disabled = !customTabs.length;
+  select.title = custom?.title || "Свои вкладки";
+  list.setAttribute("aria-labelledby", custom ? "custom-tabs-label" : "doc-tab-" + selectedTab);
+  byId("edit-doc-tab").hidden = !custom;
 }
+byId("custom-doc-tabs").addEventListener("change", () => {
+  const id = byId("custom-doc-tabs").value;
+  if (!customTabs.some(tab => tab.id === id)) return;
+  selectedTab = id;
+  docQuery.value = "";
+  showList();
+  byId("custom-doc-tabs").focus();
+});
 async function tabRequest(path = "", options = {}) {
   const response = await fetch("/api/document-tabs" + path, {
     ...options, headers: {"Content-Type": "application/json"}, signal: AbortSignal.timeout(10000)
@@ -102,7 +127,7 @@ async function loadTabs() {
   try {
     customTabs = await tabRequest();
     byId("create-doc-tab").disabled = false;
-    byId("tabs-status").textContent = "Свои вкладки сохраняются под вашим логином.";
+    byId("tabs-status").textContent = "";
     renderTabs();
     if (docText.hidden) renderCatalog();
   } catch (error) {
@@ -189,7 +214,7 @@ async function saveTab(remove = false) {
     docQuery.value = "";
     byId("tab-dialog").close();
     showList();
-    byId("doc-tab-" + selectedTab).focus();
+    (customTabs.some(tab => tab.id === selectedTab) ? byId("custom-doc-tabs") : byId("doc-tab-" + selectedTab)).focus();
   } catch (error) {
     byId("tab-error").textContent = error.message;
   } finally {

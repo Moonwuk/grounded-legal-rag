@@ -92,10 +92,16 @@
       </div>
       <div id="doc-navigation" hidden>
         <div id="doc-tabs" role="tablist" aria-label="Разделы документов"></div>
-        <div class="tab-actions">
-          <button type="button" id="create-doc-tab" disabled>+ Создать вкладку</button>
+        <div class="collection-heading">
+          <label id="custom-tabs-label" for="custom-doc-tabs">Свои вкладки</label>
+          <div class="tab-actions">
+            <button type="button" id="create-doc-tab" disabled>+ Создать</button>
+            <button type="button" id="refresh-doc-tabs" aria-label="Обновить свои вкладки" title="Обновить свои вкладки">↻</button>
+          </div>
+        </div>
+        <div class="collection-picker">
+          <select id="custom-doc-tabs" aria-label="Свои вкладки"></select>
           <button type="button" id="edit-doc-tab" hidden>Изменить</button>
-          <button type="button" id="refresh-doc-tabs">Обновить</button>
         </div>
         <p id="tabs-status" role="status"></p>
       </div>

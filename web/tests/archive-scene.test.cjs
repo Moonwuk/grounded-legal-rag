@@ -128,12 +128,13 @@ test("document tabs partition the corpus, include addenda, and scope search to a
   await h.ready;
   const titles = () => h.get("doc-list").children.map(row => row.children[0].children[0].textContent);
   assert.deepEqual(titles(), docs.map(doc => doc.title));
-  assert.equal(h.get("doc-tabs").children.length, 6);
+  assert.equal(h.get("doc-tabs").children.length, 5);
   h.get("doc-tabs").children[1].events.click();
   assert.deepEqual(titles(), ["НК ст1"]);
   h.get("doc-tabs").children[2].events.click();
   assert.deepEqual(titles(), ["Договор поставки", "Доп соглашение 1"]);
-  h.get("doc-tabs").children[5].events.click();
+  h.get("custom-doc-tabs").value = "mine";
+  h.get("custom-doc-tabs").events.change();
   assert.deepEqual(titles(), ["Договор поставки", "Письмо"]);
   assert.equal(h.get("edit-doc-tab").hidden, false);
   h.get("doc-query").value = "НК";
