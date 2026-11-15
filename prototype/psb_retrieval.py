@@ -315,6 +315,9 @@ class Retriever:
             for j, point in enumerate(points):
                 check_deadline(self.deadline)
                 end = points[j + 1].start() if j + 1 < len(points) else article_end
+                if j + 1 < len(points):
+                    end = self._before_next_point_notes(doc, point.start(), end,
+                                                        article[1], points[j + 1][1])
                 children = trusted_headings(_SUBPOINT_HEADING.finditer(doc.text, point.end(), end))
                 intro_end = children[0].start() if children else end
                 intro = (point.start(), intro_end)
@@ -347,6 +350,40 @@ class Retriever:
                     targets[(article[1], point[1], child[1])].append(node)
         self._provision_nodes[doc.name] = sorted(nodes, key=lambda n: n['start'])
         self._provision_targets[doc.name] = dict(targets)
+
+    def _before_next_point_notes(self, doc, start, end, article, next_point):
+        """Exclude only a trailing editorial notice owned by the next point.
+
+        The corpus and retrieved quotations are untouched. These two complete
+        notice forms establish their owner explicitly; unknown, mixed, current-
+        point or quarantined paragraphs remain part of the required context.
+        """
+        day = r'\d{1,2}\s+[а-яё]+\s+\d{4}\s*г\.?'
+        law = r'(?:N|№)\s*\d+\s*[-–]\s*ФЗ'
+        point = re.escape(next_point)
+        direct = (r'Пункт\s+' + point + r'\s+измен[её]н\s+с\s+' + day +
+                  r'\s*[-–]\s*Федеральный\s+закон\s+от\s+' + day + r'\s+' + law + r'\.?')
+        amended = (r'Федеральным\s+законом\s+от\s+' + day + r'\s+' + law +
+                   r'\s+в\s+пункт\s+' + point + r'\s+статьи\s+' + re.escape(article) +
+                   r'\s+настоящего\s+Кодекса\s+внесены\s+изменения,\s*вступающие\s+в\s+силу\s+с\s+' + day +
+                   r'(?:,\s*но\s+не\s+ранее\s+чем\s+по\s+истечении\s+одного\s+месяца\s+со\s+дня\s+'
+                   r'официального\s+опубликования\s+названного\s+Федерального\s+закона'
+                   r'(?:\s+и\s+не\s+ранее\s+1-го\s+числа\s+очередного\s+налогового\s+периода\s+по\s+'
+                   r'налогу\s+на\s+добавленную\s+стоимость)?)?\.?')
+        bounds = self.paragraph_boundaries[doc.name]
+        blocks = [(a, b) for a, b in zip(bounds, bounds[1:]) if start <= a < b <= end]
+        required_end = end
+        for a, b in reversed(blocks):
+            check_deadline(self.deadline)
+            value = doc.text[a:b].strip()
+            if not value:
+                continue
+            if any(qstart < b and qend > a for qstart, qend in doc.quarantined):
+                break
+            if not (re.fullmatch(direct, value, re.I) or re.fullmatch(amended, value, re.I)):
+                break
+            required_end = a
+        return required_end
 
     def _fragment_provisions(self, fragment):
         return [node for node in self._provision_nodes.get(fragment.document, ())

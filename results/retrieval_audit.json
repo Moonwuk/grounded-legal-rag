@@ -3,14 +3,14 @@
   "documents": 21,
   "fragments": 1113,
   "quarantined_lines": 1,
-  "index_seconds": 0.15178066899534315,
+  "index_seconds": 0.2632545320011559,
   "cases_total": 37,
   "cases_with_evidence": 32,
   "all_evidence_cases": 32,
   "span_recall": 1.0,
   "median_context_characters": 7714,
-  "max_context_characters": 37776,
-  "median_retrieval_ms": 3.0815379941486754,
+  "max_context_characters": 37601,
+  "median_retrieval_ms": 3.268903004936874,
   "median_evidence_json_characters": 12423,
   "rows": [
     {
@@ -24,7 +24,7 @@
         "документы компании__Договор аренды А-08-2024 Северный Склад.txt"
       ],
       "context_characters": 2838,
-      "retrieval_seconds": 0.0051910170004703104,
+      "retrieval_seconds": 0.004171632004727144,
       "evidence_json_characters": 5944
     },
     {
@@ -41,7 +41,7 @@
         "документы компании__Письмо комплаенс-службы К-12 от 15.04.2025.txt"
       ],
       "context_characters": 7714,
-      "retrieval_seconds": 0.002811740996548906,
+      "retrieval_seconds": 0.003299479001725558,
       "evidence_json_characters": 14420
     },
     {
@@ -58,7 +58,7 @@
         "документы компании__Договор поставки ПТ-05-2023 Альфа-Трейдинг.txt"
       ],
       "context_characters": 9557,
-      "retrieval_seconds": 0.002818471002683509,
+      "retrieval_seconds": 0.002526714997657109,
       "evidence_json_characters": 16522
     },
     {
@@ -72,7 +72,7 @@
         "документы компании__Договор аренды А-08-2024 Северный Склад.txt"
       ],
       "context_characters": 2838,
-      "retrieval_seconds": 0.0022950390048208646,
+      "retrieval_seconds": 0.0022136129991849884,
       "evidence_json_characters": 5944
     },
     {
@@ -90,7 +90,7 @@
         "документы компании__Письмо комплаенс-службы К-12 от 15.04.2025.txt"
       ],
       "context_characters": 9970,
-      "retrieval_seconds": 0.0037475749995792285,
+      "retrieval_seconds": 0.004904906003503129,
       "evidence_json_characters": 19321
     },
     {
@@ -105,7 +105,7 @@
         "документы компании__Доп соглашение 1 к договору П-17-2024.txt"
       ],
       "context_characters": 5008,
-      "retrieval_seconds": 0.002833021993865259,
+      "retrieval_seconds": 0.0027507619961397722,
       "evidence_json_characters": 9328
     },
     {
@@ -121,9 +121,9 @@
         "документы компании__Договор поставки П-17-2024 Альфа-Трейд.txt",
         "документы компании__Доп соглашение 1 к договору П-17-2024.txt"
       ],
-      "context_characters": 23703,
-      "retrieval_seconds": 0.00717889099905733,
-      "evidence_json_characters": 36306
+      "context_characters": 23107,
+      "retrieval_seconds": 0.006166166000184603,
+      "evidence_json_characters": 35334
     },
     {
       "id": "demo_8",
@@ -137,7 +137,7 @@
         "документы компании__Доп соглашение 1 к договору П-17-2024.txt"
       ],
       "context_characters": 5008,
-      "retrieval_seconds": 0.0024025419988902286,
+      "retrieval_seconds": 0.002101855003274977,
       "evidence_json_characters": 9328
     },
     {
@@ -151,7 +151,7 @@
         "документы компании__Договор поставки ПТ-05-2023 Альфа-Трейдинг.txt"
       ],
       "context_characters": 3041,
-      "retrieval_seconds": 0.0023295210048672743,
+      "retrieval_seconds": 0.0021473730012075976,
       "evidence_json_characters": 6351
     },
     {
@@ -168,7 +168,7 @@
         "документы компании__Служебная записка об архиве договоров.txt"
       ],
       "context_characters": 5622,
-      "retrieval_seconds": 0.0026381780044175684,
+      "retrieval_seconds": 0.0025598850043024868,
       "evidence_json_characters": 10905
     },
     {
@@ -185,7 +185,7 @@
         "документы компании__Письмо комплаенс-службы К-12 от 15.04.2025.txt"
       ],
       "context_characters": 5622,
-      "retrieval_seconds": 0.002795605003484525,
+      "retrieval_seconds": 0.002753095999651123,
       "evidence_json_characters": 10905
     },
     {
@@ -200,7 +200,7 @@
         "законы__ТК_ст59_действующая.txt"
       ],
       "context_characters": 7862,
-      "retrieval_seconds": 0.0025306559982709587,
+      "retrieval_seconds": 0.002581707994977478,
       "evidence_json_characters": 12423
     },
     {
@@ -214,7 +214,7 @@
         "законы__152ФЗ_ст9_действующая.txt"
       ],
       "context_characters": 5517,
-      "retrieval_seconds": 0.0027181690020370297,
+      "retrieval_seconds": 0.0025756489994819276,
       "evidence_json_characters": 7705
     },
     {
@@ -229,7 +229,7 @@
         "законы__ТК_ст70_действующая.txt"
       ],
       "context_characters": 7862,
-      "retrieval_seconds": 0.0028211449971422553,
+      "retrieval_seconds": 0.00322710900218226,
       "evidence_json_characters": 12423
     },
     {
@@ -246,9 +246,9 @@
         "документы компании__Письмо комплаенс-службы К-12 от 15.04.2025.txt",
         "документы компании__Регламент согласования договоров ред 2023 (утратил силу).txt"
       ],
-      "context_characters": 21056,
-      "retrieval_seconds": 0.005182743996556383,
-      "evidence_json_characters": 33242
+      "context_characters": 20460,
+      "retrieval_seconds": 0.005071876999863889,
+      "evidence_json_characters": 32270
     },
     {
       "id": "demo_16",
@@ -263,7 +263,7 @@
         "документы компании__Доп соглашение 1 к договору П-17-2024.txt"
       ],
       "context_characters": 7846,
-      "retrieval_seconds": 0.0030815379941486754,
+      "retrieval_seconds": 0.003094088999205269,
       "evidence_json_characters": 15272
     },
     {
@@ -279,7 +279,7 @@
         "документы компании__Доп соглашение 1 к договору П-17-2024.txt"
       ],
       "context_characters": 8049,
-      "retrieval_seconds": 0.003085434000240639,
+      "retrieval_seconds": 0.003268903004936874,
       "evidence_json_characters": 15679
     },
     {
@@ -297,9 +297,9 @@
         "законы__НК_ст284_действующая.txt",
         "документы компании__Письмо комплаенс-службы К-12 от 15.04.2025.txt"
       ],
-      "context_characters": 37776,
-      "retrieval_seconds": 0.008690406997629907,
-      "evidence_json_characters": 54628
+      "context_characters": 37601,
+      "retrieval_seconds": 0.008132617003866471,
+      "evidence_json_characters": 54265
     },
     {
       "id": "delivery_30",
@@ -313,7 +313,7 @@
         "документы компании__Договор поставки П-17-2024 Альфа-Трейд.txt"
       ],
       "context_characters": 5008,
-      "retrieval_seconds": 0.0030980230003478937,
+      "retrieval_seconds": 0.0035038459973293357,
       "evidence_json_characters": 9328
     },
     {
@@ -328,7 +328,7 @@
         "документы компании__Договор поставки П-17-2024 Альфа-Трейд.txt"
       ],
       "context_characters": 5008,
-      "retrieval_seconds": 0.003542493999702856,
+      "retrieval_seconds": 0.003392489001271315,
       "evidence_json_characters": 9328
     },
     {
@@ -343,7 +343,7 @@
         "документы компании__Договор поставки П-17-2024 Альфа-Трейд.txt"
       ],
       "context_characters": 5008,
-      "retrieval_seconds": 0.005317697999998927,
+      "retrieval_seconds": 0.0032771650003269315,
       "evidence_json_characters": 9328
     },
     {
@@ -358,7 +358,7 @@
         "документы компании__Договор поставки П-17-2024 Альфа-Трейд.txt"
       ],
       "context_characters": 5008,
-      "retrieval_seconds": 0.0032293219992425293,
+      "retrieval_seconds": 0.003557237003406044,
       "evidence_json_characters": 9328
     },
     {
@@ -375,7 +375,7 @@
         "документы компании__Договор поставки П-17-2024 Альфа-Трейд.txt"
       ],
       "context_characters": 10107,
-      "retrieval_seconds": 0.0037067640005261637,
+      "retrieval_seconds": 0.0037917600056971423,
       "evidence_json_characters": 18586
     },
     {
@@ -395,7 +395,7 @@
         "документы компании__Письмо комплаенс-службы К-12 от 15.04.2025.txt"
       ],
       "context_characters": 12688,
-      "retrieval_seconds": 0.009125603995926213,
+      "retrieval_seconds": 0.0038229970014072023,
       "evidence_json_characters": 23140
     },
     {
@@ -410,7 +410,7 @@
         "документы компании__Договор поставки П-17-2024 Альфа-Трейд.txt"
       ],
       "context_characters": 5008,
-      "retrieval_seconds": 0.0027051389988628216,
+      "retrieval_seconds": 0.0025053830031538382,
       "evidence_json_characters": 9328
     },
     {
@@ -427,7 +427,7 @@
         "документы компании__Договор поставки ПТ-05-2023 Альфа-Трейдинг.txt"
       ],
       "context_characters": 9557,
-      "retrieval_seconds": 0.0031916940060909837,
+      "retrieval_seconds": 0.0024548660003347322,
       "evidence_json_characters": 16522
     },
     {
@@ -443,7 +443,7 @@
         "документы компании__Доп соглашение 1 к договору П-17-2024.txt"
       ],
       "context_characters": 8049,
-      "retrieval_seconds": 0.0028184600014355965,
+      "retrieval_seconds": 0.0028748490003636107,
       "evidence_json_characters": 15679
     },
     {
@@ -460,7 +460,7 @@
         "документы компании__Письмо комплаенс-службы К-12 от 15.04.2025.txt"
       ],
       "context_characters": 7714,
-      "retrieval_seconds": 0.002547239993873518,
+      "retrieval_seconds": 0.003896939000696875,
       "evidence_json_characters": 14420
     },
     {
@@ -478,7 +478,7 @@
         "документы компании__Письмо комплаенс-службы К-12 от 15.04.2025.txt"
       ],
       "context_characters": 9970,
-      "retrieval_seconds": 0.0038773409978603013,
+      "retrieval_seconds": 0.0037629169964930043,
       "evidence_json_characters": 19321
     },
     {
@@ -496,7 +496,7 @@
         "документы компании__Письмо комплаенс-службы К-12 от 15.04.2025.txt"
       ],
       "context_characters": 9970,
-      "retrieval_seconds": 0.0036098259952268563,
+      "retrieval_seconds": 0.0036334010001155548,
       "evidence_json_characters": 19321
     },
     {
@@ -512,9 +512,9 @@
         "законы__НК_ст284_действующая.txt",
         "документы компании__Регламент согласования договоров ред 2023 (утратил силу).txt"
       ],
-      "context_characters": 29209,
-      "retrieval_seconds": 0.008098311001958791,
-      "evidence_json_characters": 43290
+      "context_characters": 29034,
+      "retrieval_seconds": 0.008459639000648167,
+      "evidence_json_characters": 42927
     },
     {
       "id": "compliance_21",
@@ -529,9 +529,9 @@
         "законы__НК_ст284_действующая.txt",
         "документы компании__Регламент согласования договоров ред 2023 (утратил силу).txt"
       ],
-      "context_characters": 29209,
-      "retrieval_seconds": 0.008257200999651104,
-      "evidence_json_characters": 43290
+      "context_characters": 29034,
+      "retrieval_seconds": 0.008296093001263216,
+      "evidence_json_characters": 42927
     },
     {
       "id": "guarantee_exception",
@@ -546,7 +546,7 @@
         "документы компании__Письмо комплаенс-службы К-12 от 15.04.2025.txt"
       ],
       "context_characters": 4962,
-      "retrieval_seconds": 0.0025303749935119413,
+      "retrieval_seconds": 0.0027589840028667822,
       "evidence_json_characters": 9993
     },
     {
@@ -565,7 +565,7 @@
         "документы компании__Письмо комплаенс-службы К-12 от 15.04.2025.txt"
       ],
       "context_characters": 12808,
-      "retrieval_seconds": 0.003766232999623753,
+      "retrieval_seconds": 0.004342299005656969,
       "evidence_json_characters": 25265
     },
     {
@@ -577,7 +577,7 @@
       "missing": [],
       "selected_documents": [],
       "context_characters": 0,
-      "retrieval_seconds": 0.0010412740011815913,
+      "retrieval_seconds": 0.0012112839976907708,
       "evidence_json_characters": 2
     },
     {
@@ -591,7 +591,7 @@
         "законы__152ФЗ_ст9_действующая.txt"
       ],
       "context_characters": 5517,
-      "retrieval_seconds": 0.0022791549999965355,
+      "retrieval_seconds": 0.0024159579988918267,
       "evidence_json_characters": 7705
     },
     {
@@ -605,7 +605,7 @@
         "законы__152ФЗ_ст9_действующая.txt"
       ],
       "context_characters": 5517,
-      "retrieval_seconds": 0.00241752399597317,
+      "retrieval_seconds": 0.0022690370024065487,
       "evidence_json_characters": 7705
     }
   ]

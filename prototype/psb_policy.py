@@ -403,7 +403,49 @@ def _residual_literal(text: str) -> str:
     return norm(re.sub(r'(?<!\d),|,(?!\d)', ' ', text)).lower().replace('ё', 'е').rstrip('.')
 
 
-def residual_conditions_kept(text: str, selected: list[Fragment]) -> bool:
+def _residual_citation_forms(selected: list[Fragment], documents: dict) -> list[tuple[str, str, str]]:
+    """Closed citation wrappers grounded in the selected point and official header."""
+    forms = []
+    for fragment in selected:
+        document = documents.get(fragment.document)
+        point = re.match(r'^\s*(\d+(?:\.\d+)*)[.)]\s+', fragment.text)
+        if not document or not point or document.quarantined:
+            continue
+        law = _LAW_CODE.match(document.text[:600])
+        if not law or document.text[fragment.start:fragment.end] != fragment.text:
+            continue
+        article, code = law.groups()
+        headings = set(re.findall(r'^\s*Статья\s+(\d+(?:\.\d+)*)\.', document.text, re.M | re.I))
+        if headings - {article}:
+            continue
+        sentences = _trim_sentences(fragment.text[point.end():])
+        # A later provision in a composite fragment must not inherit its first number.
+        if not sentences or not _RESIDUAL_CASE_GROUP.search(sentences[0]):
+            continue
+        literal = _residual_literal(sentences[0])
+        p, a, c = map(re.escape, (point.group(1), article, code))
+        address = rf'пункту\s+{p}\s+статьи\s+{a}\s+{c}\s+РФ'
+        forms.extend((literal, pattern, literal) for pattern in (
+            rf'(?P<body>.+?)\s+\(п\.\s*{p}\s+ст\.\s*{a}(?:\s+{c}\s+РФ)?\)\.?',
+            rf'По\s+{address}\s+(?P<body>.+)',
+            rf'Пункт\s+{p}\s+статьи\s+{a}\s+{c}\s+РФ\s+устанавливает:\s*«(?P<body>[^«»]+)»\.?',
+        ))
+        condition = _RESIDUAL_CASE_GROUP.search(sentences[0])
+        simple_rate = re.fullmatch(
+            r'Налогообложение производится по налоговой ставке \d+(?:[.,]\d+)? процент(?:а|ов)?',
+            norm(sentences[0][:condition.start()]), re.I)
+        if simple_rate and norm(sentences[0][condition.end():]) in {'', '.'}:
+            # A closed statement of this same provision's applicability keeps
+            # the entire condition of a simple rate rule. Other predicates or
+            # qualifiers before/after the group still require the full literal.
+            scope = re.sub(r'^в\s+случаях', 'к случаям', condition.group(0), flags=re.I)
+            scope = re.sub(r'\b(указанны|предусмотренны|перечисленны)х\b', r'\1м', scope, flags=re.I)
+            forms.append((literal, rf'Пункт\s+{p}\s+статьи\s+{a}\s+{c}\s+РФ\s+'
+                          rf'применяется\s+(?P<body>.+)', _residual_literal(scope)))
+    return forms
+
+
+def residual_conditions_kept(text: str, selected: list[Fragment], documents: dict | None = None) -> bool:
     """Conservative literal gate for an explicitly selected residual rule.
 
     Merely mentioning the reference numbers elsewhere is not enough. A retry
@@ -413,13 +455,23 @@ def residual_conditions_kept(text: str, selected: list[Fragment]) -> bool:
     expected = {_residual_literal(s) for s in residual_source_conditions(selected)}
     if not expected:
         return True
+    forms = _residual_citation_forms(selected, documents or {})
+    def sentence_key(sentence):
+        key = _residual_literal(sentence)
+        if key in expected:
+            return key
+        for literal, pattern, body in forms:
+            match = re.fullmatch(pattern, norm(sentence), re.I)
+            if match and _residual_literal(match.group('body')) == body:
+                return literal
+        return key
     sentences = _trim_sentences(text)
-    if not expected <= {_residual_literal(s) for s in sentences}:
+    if not expected <= {sentence_key(s) for s in sentences}:
         return False
     # Do not append the correct source sentence while retaining the old
     # truncated negative implication elsewhere in the same answer.
     return not any(_NEGATIVE_NUMERIC_REFERENCE.search(sentence)
-                   for sentence in sentences if _residual_literal(sentence) not in expected)
+                   for sentence in sentences if sentence_key(sentence) not in expected)
 
 
 # Restrictive operators by class. A model text about a restricted provision is
@@ -535,13 +587,14 @@ def remember_lost_restrictions(previous, text: str, selected: list[Fragment], qu
     return [wording for wording in available if restriction_class(wording) in wanted & required]
 
 
-def restrictions_kept(text: str, selected: list[Fragment], strict: bool = False, question: str = "") -> bool:
+def restrictions_kept(text: str, selected: list[Fragment], strict: bool = False, question: str = "",
+                      documents: dict | None = None) -> bool:
     """Lexical barrier: the text must not drop a restriction class of its sources.
 
     This does not prove that the restriction is stated correctly; the verifier
     still judges the text, and the source provisions are published with it.
     """
-    if not residual_conditions_kept(text, selected):
+    if not residual_conditions_kept(text, selected, documents):
         return False
     source = norm("\n".join(f.text for f in selected)).lower().replace("ё", "е")
     answer = norm(text).lower().replace("ё", "е")
@@ -2882,6 +2935,12 @@ retry_residual_conditions содержит дословные предложен
 Исправь вывод, а не просто допиши цитату к прежнему противоречащему утверждению.
 Если используешь это правило, сохрани каждое предложение из этого поля отдельно
 и дословно, включая отрицание, весь список ссылок, их тип и область действия.
+Не добавляй к этому предложению вводные слова, ссылки в скобках или кавычки.
+Нельзя выводить применимость остаточной нормы из исключения лишь одного случая.
+Если выполнение всех условий не установлено, назови норму условно, без утверждения,
+что она уже применима.
+Сохраняй уточняющие слова в перечнях условий и исключений; не заменяй конкретные
+виды или категории общим родовым названием.
 Не заменяй полный набор одним пунктом. Если правило не относится к ответу,
 убери его источник и вывод о нём. Это диагностика: юридические основания — evidence.
 """
@@ -2900,6 +2959,10 @@ CONTEXT_RETRY_GUIDANCE = """
 retry_context_gaps перечисляет положения, полнота которых не была обеспечена
 в предыдущем evidence. Это не отсутствие документа в базе. Проверь расширенные
 источники и связанные условия и исключения, прежде чем давать окончательный вывод.
+Если узкий вопрос полностью решает другое доступное полное положение, выбери его.
+Не выводи ответ из неполного источника и не добавляй ненужные смежные случаи.
+Если достаточно установить логическую границу полного правила, не раскрывай
+содержание отсылочных положений и не выбирай их как основания без необходимости.
 Если полного основания по-прежнему нет в evidence, сохрани partial; не утверждай,
 что документов нет в базе, и не проси пользователя повторно предоставить их.
 Диагностика не является источником правовых условий. Верни обычный JSON.
@@ -3132,7 +3195,8 @@ def answer_steps(question: str, retriever, client, top_k: int = 6, verify: bool 
             # Question figures (or the same figures in another contract) do not
             # establish it. Publish the source-owned dependency and application
             # explanation; an expanded search can still resolve the gap.
-            source_only = ((restricted and not (draft and restrictions_kept(draft, selected, question=question)))
+            source_only = ((restricted and not (draft and restrictions_kept(
+                draft, selected, question=question, documents=getattr(retriever, "documents", {}))))
                            or bool(value_gaps) or bool(context_gaps))
             scope_guard = (scope_block_reason(draft, selected, retriever, question)
                            if draft and selected and not source_only else "")
@@ -3165,7 +3229,8 @@ def answer_steps(question: str, retriever, client, top_k: int = 6, verify: bool 
             # The recommended answer is short (regulation, section 3). A restricted
             # provision is quoted after a verified text only when the text does not
             # itself repeat every restriction class of the sources.
-            quote_restricted = restricted and not (prose and restrictions_kept(prose, selected, strict=True, question=question))
+            quote_restricted = restricted and not (prose and restrictions_kept(
+                prose, selected, strict=True, question=question, documents=getattr(retriever, "documents", {})))
             # A catalog gap is not necessarily a dependency of this question.
             # Default to partial. A direct answer may propose independence only
             # with grounded prose; its exact scope needs an explicit second verdict.
