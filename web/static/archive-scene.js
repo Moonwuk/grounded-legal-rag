@@ -9,7 +9,7 @@ const SpriteAnimation = (() => {
     running.delete(frame);
   }
 
-  function play(frame, {src, images, columns = 1, rows = 1, frames, fps = 30, loop = false}) {
+  function play(frame, {src, images, columns = 1, rows = 1, frames, fps = 24, loop = false}) {
     stop(frame);
     const count = images ? images.length : columns * rows;
     const sequence = frames ?? Array.from({length: count}, (_, index) => index);
@@ -27,7 +27,8 @@ const SpriteAnimation = (() => {
     if (!images) frame.style.backgroundImage = cssUrl(src);
     Object.assign(frame.style, finalPose);
     const finish = () => frame.dispatchEvent(new CustomEvent("spriteend", {bubbles: true}));
-    if (matchMedia("(prefers-reduced-motion: reduce)").matches || sequence.length === 1) {
+    if (document.documentElement?.dataset.motion === "reduced" ||
+        matchMedia("(prefers-reduced-motion: reduce)").matches || sequence.length === 1) {
       if (!loop) finish();
       return;
     }

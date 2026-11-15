@@ -266,7 +266,7 @@ test("server history restores citations and never falls back to synchronous send
   const answer = h.get("conversation").children.find(n => n.dataset.status === "answer");
   assert.ok(answer);
   const body = answer.children.find(n => n.className === "message-body");
-  assert.ok(body.children.find(n => n.className === "source"));
+  assert.ok(body.children.find(n => n.className === "source-group").children.find(n => n.className === "source"));
   h.get("question").value = "Уточнение";
   await assert.rejects(h.send(), /queue_unavailable/);
   assert.equal(h.requests.length, 0);
@@ -324,20 +324,20 @@ test("trash keeps deleted chats out of active folders, restores sources, and exp
   ]}];
   const h = harness(saved); await h.ready;
   const settle = () => new Promise(resolve => setImmediate(resolve));
-  h.get("chat-list").children[0].children.find(n => n.className === "chat-delete").events.click(); h.get("confirm-accept").events.click(); await settle();
+  h.get("chat-list").children[0].children[1].children.find(n => n.className === "chat-delete").events.click(); h.get("confirm-accept").events.click(); await settle();
   assert.equal(saved.length, 0);
   h.get("folder-list").children.at(-1).events.click();
   let row = h.get("chat-list").children[0];
   assert.equal(row.children[0].disabled, true);
-  assert.equal(row.children[1].textContent, "Восстановить");
-  assert.equal(row.children[2].textContent, "Удалить навсегда");
-  row.children[1].events.click(); await settle();
+  assert.equal(row.children[1].children[1].textContent, "Восстановить");
+  assert.equal(row.children[1].children[2].textContent, "Удалить навсегда");
+  row.children[1].children[1].events.click(); await settle();
   assert.equal(saved.length, 1);
   assert.ok(h.get("conversation").children.find(n => n.dataset.status === "answer"));
-  h.get("chat-list").children[0].children.find(n => n.className === "chat-delete").events.click(); h.get("confirm-accept").events.click(); await settle();
+  h.get("chat-list").children[0].children[1].children.find(n => n.className === "chat-delete").events.click(); h.get("confirm-accept").events.click(); await settle();
   h.get("folder-list").children.at(-1).events.click();
   row = h.get("chat-list").children[0];
-  row.children[2].events.click(); h.get("confirm-accept").events.click(); await settle();
+  row.children[1].children[2].events.click(); h.get("confirm-accept").events.click(); await settle();
   assert.equal(h.get("chat-list").children.length, 0);
   assert.equal(h.get("folder-empty").textContent, "Корзина пуста.");
 });
@@ -346,7 +346,7 @@ test("trash keeps deleted chats out of active folders, restores sources, and exp
 test("site confirmation waits for explicit acceptance and cancellation preserves the dialogue", async () => {
   const saved = [{id: "kept", title: "Мой договор", updated: 1, turns: []}];
   const h = harness(saved); await h.ready;
-  const remove = () => h.get("chat-list").children[0].children.find(n => n.className === "chat-delete").events.click();
+  const remove = () => h.get("chat-list").children[0].children[1].children.find(n => n.className === "chat-delete").events.click();
   const pending = remove();
   assert.equal(h.get("confirm-dialog").open, true);
   assert.equal(saved.length, 1);

@@ -52,7 +52,7 @@ const assert = require('node:assert/strict');
     await desktop.locator('#resume-queue').waitFor({state: 'visible'});
     assert.equal(await desktop.locator('#queue-list li').count(), 1);
     const reset = await desktop.locator('#reset').boundingBox();
-    const folders = await desktop.locator('#folder-list').boundingBox();
+    const folders = await desktop.locator('#history-folders').boundingBox();
     assert.ok(reset.y < folders.y);
     await desktop.locator('#resume-queue').click();
     await page.locator('#question').fill('Набираю следующий вопрос');

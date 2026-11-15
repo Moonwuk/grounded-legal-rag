@@ -74,6 +74,7 @@ const fs = require('node:fs');
   assert.equal(await page.locator('#doc-list li').count(), 13);
   await page.locator('#create-doc-tab').click();
   await page.locator('#tab-name').fill('Договор и закон');
+  await page.locator('#tab-filter-options summary').click();
   await page.locator('#tab-doc-type').selectOption('contracts');
   assert.equal(await page.locator('#tab-choices label:visible').count(), 3);
   await page.locator('#tab-choices label:visible input').first().check();

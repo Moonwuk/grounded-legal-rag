@@ -35,6 +35,33 @@ class HistoryTests(unittest.TestCase):
                 "chat_id": chat_id, "messages": [dict(role="user", text=text)]})
         return response, core
 
+    def test_search_matches_messages_and_isolates_owner_and_trash(self):
+        chat_id = self.create()
+        self.ask(chat_id, "Первый вопрос", dict(status="answer", text="Редкая неустойка по договору", sources=[]))
+        response = self.client.get("/api/chats?q=НЕУСТОЙКА", headers=self.headers)
+        self.assertEqual([row["id"] for row in response.json()], [chat_id])
+        self.assertIn("неустойка", response.json()[0]["preview"])
+        self.assertNotIn("turns", response.json()[0])
+        self.assertEqual(self.client.get("/api/chats?q=неустойка", headers={**self.headers, "X-Chat-User": "bob"}).json(), [])
+        self.assertEqual(self.client.get("/api/chats?q=" + "x" * 201, headers=self.headers).status_code, 422)
+        self.client.delete("/api/chats/" + chat_id, headers=self.headers)
+        self.assertEqual(self.client.get("/api/chats?q=неустойка", headers=self.headers).json(), [])
+        self.assertEqual(len(self.client.get("/api/chats?trash=true&q=неустойка", headers=self.headers).json()), 1)
+
+    def test_pin_persists_and_cannot_change_another_owners_chat(self):
+        first = self.create()
+        second = self.create()
+        path = "/api/chats/" + first + "/pin?pinned=true"
+        self.assertEqual(self.client.put(path, headers={**self.headers, "X-Chat-User": "bob"}).status_code, 404)
+        self.assertEqual(self.client.put(path, headers={k: v for k, v in self.headers.items() if k != "Content-Type"}).status_code, 415)
+        self.assertEqual(self.client.put(path, headers=self.headers).status_code, 200)
+        History(self.path, "test-proxy-token")  # Additive migration remains idempotent.
+        rows = self.client.get("/api/chats", headers=self.headers).json()
+        self.assertEqual([row["id"] for row in rows], [first, second])
+        self.assertEqual(rows[0]["pinned"], 1)
+        self.client.put(path.replace("true", "false"), headers=self.headers)
+        self.assertEqual(self.client.get("/api/chats", headers=self.headers).json()[0]["id"], second)
+
     def test_identity_is_required_and_cannot_be_forged(self):
         chat_id = self.create()
         for headers in ({}, {"X-Chat-User": "alice"}, {"X-Chat-User": "alice", "X-Chat-Token": "wrong"}):

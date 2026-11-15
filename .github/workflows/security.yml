@@ -3,6 +3,11 @@ name: Security scans
 on:
   workflow_dispatch:
     inputs:
+      publish_code_scanning:
+        description: Upload the checked SARIF to GitHub Code Scanning (requires the feature enabled)
+        type: boolean
+        required: false
+        default: false
       publish_container:
         description: Publish the checked image to GHCR after every security gate passes (main only)
         type: boolean
@@ -102,7 +107,7 @@ jobs:
   secrets:
     needs: cadence
     if: needs.cadence.outputs.scan == 'true'
-    uses: ./.github/workflows/secrets.yml
+    uses: Moonwuk/grounded-legal-rag/.github/workflows/secrets.yml@d9a1e19cbfd19c2e21bdef35c26405a977ff884f
 
   bandit:
     needs: cadence
@@ -238,7 +243,7 @@ jobs:
       - name: Fail on high or critical findings and incomplete analysis
         run: python .github/scripts/check_codeql.py reports/codeql
       - name: Publish SARIF to GitHub code scanning
-        if: ${{ !cancelled() && steps.analyze.outcome == 'success' }}
+        if: ${{ !cancelled() && steps.analyze.outcome == 'success' && inputs.publish_code_scanning }}
         uses: github/codeql-action/upload-sarif@33d7b85da1a04171e211befe2c739303b9a4c066 # v4.39.3
         with:
           sarif_file: reports/codeql
@@ -255,7 +260,7 @@ jobs:
   regression:
     needs: cadence
     if: needs.cadence.outputs.scan == 'true'
-    uses: ./.github/workflows/regression.yml
+    uses: Moonwuk/grounded-legal-rag/.github/workflows/regression.yml@d9a1e19cbfd19c2e21bdef35c26405a977ff884f
   iac:
     needs: cadence
     if: needs.cadence.outputs.scan == 'true'
@@ -436,7 +441,7 @@ jobs:
   web-image:
     needs: cadence
     if: needs.cadence.outputs.scan == 'true'
-    uses: ./.github/workflows/web-image.yml
+    uses: Moonwuk/grounded-legal-rag/.github/workflows/web-image.yml@d9a1e19cbfd19c2e21bdef35c26405a977ff884f
     with:
       image_scan: true
 

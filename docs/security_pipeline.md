@@ -29,7 +29,7 @@ Jobs выполняются параллельно. `Security gate` требуе
 | Container smoke | Реальный запуск образа с локальным HTTPS LLM stub | Ошибка изоляции, секретов, исходников или конкретного цитируемого CSV-ответа |
 | unittest / упаковка | Python 3.11, 3.12, 3.13; локальный HTTP stub | Любой провал теста, аудит поиска с ошибкой или неверный состав/содержимое ZIP |
 
-CodeQL Medium/Low не ломают gate, но остаются в SARIF и GitHub Security. Штатный успешный шаг `analyze` не означает отсутствия находок: отдельный `check_codeql.py` проверяет содержимое отчёта. SARIF `suppressions` и `baselineState` сами по себе не являются исключениями. SARIF сохраняется как artifact и загружается в Security исходного репозитория.
+CodeQL Medium/Low не ломают gate, но остаются в SARIF. Штатный успешный шаг `analyze` не означает отсутствия находок: отдельный `check_codeql.py` проверяет содержимое отчёта. SARIF `suppressions` и `baselineState` сами по себе не являются исключениями. SARIF обязательно сохраняется как artifact `security-codeql`. Публикация копии в панель GitHub Security включается отдельно параметром `publish_code_scanning` ручного запуска, только если Code Scanning доступен в настройках репозитория. Для приватного репозитория без этой функции API возвращает 403; это отказ публикации, а не результат анализа. Обязательные analyze, `check_codeql.py`, сохранение отчёта и требования итогового gate не зависят от параметра. Если публикация явно запрошена, её ошибка также остаётся ошибкой job.
 
 Аудит поиска запускает имеющийся `audit_retrieval.py`. Сейчас это отчёт на наборе разработки, а не порог юридической точности: workflow не объявляет качество ответов доказанным по факту запуска этого скрипта.
 
@@ -145,3 +145,17 @@ HIGH/CRITICAL (`--ignore-unfixed`, образ на Debian) и поиск сек�
 Полный периодический SAST также включает `web/` без тестовых фикстур.
 Результаты точечного аудита и ограничения полного Security gate —
 [аудит веба](web_security_audit_2026_11_15.md).
+
+### Совместимость ссылок на собственные workflow
+
+`security.yml` и `web-ci.yml` закрепляют определения reusable workflow полным SHA
+`d9a1e19cbfd19c2e21bdef35c26405a977ff884f`. Это совместимый с actionlint 1.7.12
+и zizmor 1.32 вариант вместо workspace-relative `./` и ещё не поддерживаемого
+данной версией actionlint `$/`. Правила и пороги сканеров не отключены.
+`actions/checkout` внутри вызываемых workflow по-прежнему проверяет commit
+вызывающего запуска; закреплены определения jobs, а не проверяемый код.
+При изменении `regression.yml`, `secrets.yml` или `web-image.yml` необходимо
+обновить ссылки на коммит с проверенными новыми определениями.
+
+Основания: [GitHub — reusable workflows](https://docs.github.com/en/actions/how-tos/reuse-automations/reuse-workflows),
+[zizmor — self-repository](https://docs.zizmor.sh/audits/#self-repository).
