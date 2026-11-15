@@ -756,6 +756,7 @@ function showList() {
   docFilter.hidden = catalog.length === 0;
   byId("doc-navigation").hidden = catalog.length === 0;
   renderTabs();
+  globalThis.WorkspaceTools?.catalogVisible(true);
   allDocs.hidden = true;
   renderCatalog();
 }
@@ -792,6 +793,7 @@ async function openDocument(id, source, focus = true) {
     docFilter.hidden = true;
     docText.hidden = false;
     byId("doc-navigation").hidden = true;
+    globalThis.WorkspaceTools?.catalogVisible(false);
     allDocs.hidden = false;
     if (focus) docTitle.focus();
     documentBody = doc.text;
@@ -815,7 +817,7 @@ async function openDocument(id, source, focus = true) {
     renderDocumentSearch();
     if (documentSource) scrollDocumentTo(".source-highlight");
     else docText.scrollTop = 0;
-    globalThis.WebWorkspace?.documentOpened(id, doc, !!documentSource);
+    globalThis.WebWorkspace?.documentOpened(id, doc, !!documentSource, focus);
   } catch {
     if (activeDocument === request) docStatus.textContent = "Документ недоступен. Откройте его повторно.";
   } finally {
@@ -1297,7 +1299,29 @@ for (const example of document.querySelectorAll(".example")) {
 }
 byId("new-dialogue").disabled = reset.disabled = false;
 allDocs.disabled = false;
-globalThis.WebWorkspace?.init({ensureChat: ensureCurrentChat, answerText, copy: openCopyDialog,
+globalThis.WebWorkspace?.init({ensureChat: ensureCurrentChat, answerText, copy: openCopyDialog, openDocument, confirm: confirmAction,
+  catalog: () => catalog,
+  captureSearch(scope) {
+    return scope === "catalog" ? {query: docQuery.value, tab: selectedTab} : {
+      query: byId("tab-doc-query").value, kind: byId("tab-doc-type").value,
+      edition: byId("tab-doc-status").value, selected: byId("tab-doc-selected").checked
+    };
+  },
+  restoreSearch(item) {
+    if (item.scope === "catalog") {
+      if (![...builtInTabs, ...customTabs].some(tab => tab.id === item.tab))
+        throw new Error("Вкладка этого поиска недоступна.");
+      selectedTab = item.tab;
+      docQuery.value = item.query;
+      showList();
+    } else {
+      byId("tab-doc-query").value = item.query;
+      byId("tab-doc-type").value = item.kind;
+      byId("tab-doc-status").value = item.edition;
+      byId("tab-doc-selected").checked = item.selected;
+      filterTabChoices();
+    }
+  },
   openChat: async id => {
     if (!await navigateHistory(async () => { await selectChat(id); await loadChatLists(); })) {
       throw new Error("Не удалось открыть диалог. Завершите текущее действие или обновите список.");

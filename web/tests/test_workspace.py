@@ -1,3 +1,4 @@
+from contextlib import closing
 import json
 import os
 from pathlib import Path
@@ -200,7 +201,7 @@ class WorkspaceTests(unittest.TestCase):
     def test_existing_database_migration_preserves_answers_and_is_repeatable(self):
         path = str(Path(self.path).with_name("old.sqlite3"))
         original = json.dumps(self.turns, ensure_ascii=False)
-        with sqlite3.connect(path) as db:
+        with closing(sqlite3.connect(path)) as db, db:
             db.execute("CREATE TABLE chats(id TEXT PRIMARY KEY, owner TEXT, title TEXT, updated REAL, turns TEXT, busy_until REAL)")
             db.execute("INSERT INTO chats VALUES ('old','alice','Old',1,?,0)", (original,))
         History(path, "fixture-token")
@@ -208,3 +209,58 @@ class WorkspaceTests(unittest.TestCase):
         with history.connect() as db:
             self.assertEqual(history.get(db, "alice", "old")["turns"], original)
             self.assertEqual(db.execute("SELECT count(*) FROM chat_workspace").fetchone()[0], 0)
+
+    def test_searches_and_recents_are_private_and_survive_new_requests(self):
+        searches = "/api/workspace/searches"
+        recents = "/api/workspace/recent-documents"
+        search = dict(id=str(uuid4()), title="Договоры", scope="picker", query="поставка",
+                      kind="contracts", edition="current", selected=True)
+        self.assertEqual(self.call("PUT", searches, dict(revision=0, items=[search])).status_code, 200)
+        result = self.call("GET", searches).json()
+        self.assertEqual(result["revision"], 1)
+        self.assertEqual(result["items"][0]["query"], "поставка")
+        self.assertTrue(result["items"][0]["selected"])
+        self.assertEqual(self.call("GET", searches, headers=self.bob).json()["items"], [])
+        self.assertEqual(self.call("GET", searches, headers={}).status_code, 401)
+        self.assertEqual(self.call("PUT", searches, dict(revision=0, items=[])).status_code, 409)
+
+        first, second = list(app.state.documents)[:2]
+        for document_id in [first, second, first]:
+            self.assertEqual(self.call("PUT", recents, dict(document_id=document_id)).status_code, 204)
+        self.assertEqual([entry["document_id"] for entry in self.call("GET", recents).json()], [first, second])
+        self.assertEqual(self.call("GET", recents, headers=self.bob).json(), [])
+        self.assertEqual(self.call("DELETE", recents, headers=self.bob).status_code, 204)
+        self.assertEqual(len(self.call("GET", recents).json()), 2)
+        self.assertEqual(self.call("DELETE", recents).status_code, 204)
+        self.assertEqual(self.call("GET", recents).json(), [])
+
+    def test_checklist_links_branch_and_trash(self):
+        path = self.prefix + "/checklist"
+        task = dict(id=str(uuid4()), title="Сверить редакцию", done=True,
+                    answer_key=turn_key(self.turns[0]), document_id=next(iter(app.state.documents)))
+        self.assertEqual(self.call("PUT", path, dict(revision=0, items=[task])).status_code, 422)
+        self.assertEqual(self.call("PUT", self.prefix + "/answers/0", self.annotation()).status_code, 200)
+        self.assertEqual(self.call("PUT", path, dict(revision=0, items=[task])).status_code, 200)
+        self.assertEqual(self.call("PUT", path, dict(revision=0, items=[])).status_code, 409)
+        self.assertEqual(self.call("GET", path, headers=self.bob).status_code, 404)
+        self.assertEqual(self.call("GET", path).json()["answers"][0]["key"], task["answer_key"])
+        for copy in [False, True]:
+            branch = self.branch_data()
+            response = self.call("POST", self.prefix + "/branch", {**branch, "copy_checklist": copy})
+            self.assertEqual(response.status_code, 201, response.text)
+            items = self.call("GET", "/api/workspace/chats/" + branch["id"] + "/checklist").json()["items"]
+            if copy:
+                self.assertEqual(items[0]["document_id"], task["document_id"])
+                self.assertFalse(items[0]["done"])
+                self.assertIsNone(items[0]["answer_key"])
+            else:
+                self.assertEqual(items, [])
+        chat = "/api/chats/" + self.chat
+        self.assertEqual(self.call("DELETE", chat).status_code, 204)
+        self.assertEqual(self.call("GET", path).status_code, 404)
+        self.assertEqual(self.call("POST", chat + "/restore").status_code, 204)
+        self.assertTrue(self.call("GET", path).json()["items"][0]["done"])
+        self.assertEqual(self.call("DELETE", chat).status_code, 204)
+        self.assertEqual(self.call("DELETE", chat + "/permanent").status_code, 204)
+        with self.history.connect() as db:
+            self.assertIsNone(db.execute("SELECT 1 FROM workspace_checklists WHERE chat_id=?", (self.chat,)).fetchone())

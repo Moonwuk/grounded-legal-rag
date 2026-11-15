@@ -10,7 +10,7 @@
 
   async function request(path, method = "GET", body) {
     const response = await fetch("/api/workspace" + path, {method, headers: {"Content-Type": "application/json"},
-      ...(body === undefined ? {} : {body: JSON.stringify(body)}), signal: AbortSignal.timeout(10000), keepalive: method === "PUT"});
+      ...(body === undefined ? {} : {body: JSON.stringify(body)}), signal: AbortSignal.timeout(10000), keepalive: method === "PUT" && !path.endsWith("/checklist") && path !== "/searches"});
     if (!response.ok) {
       const result = await response.json().catch(() => ({}));
       const error = new Error(typeof result.detail === "string" ? result.detail : "Не удалось сохранить изменения. Попробуйте ещё раз.");
@@ -195,6 +195,8 @@
     if (!target.info) return;
     questionTarget = {type: "branch", chat: target.chat, index: target.index, key: target.info.turn_key,
       includeAnswer, id: crypto.randomUUID()};
+    get("copy-branch-checklist-label").hidden = false;
+    get("copy-branch-checklist").checked = false;
     get("question-dialog-title").textContent = includeAnswer ? "Продолжить в новой ветке" : "Изменить вопрос в новой ветке";
     get("question-edit-help").textContent = includeAnswer ? "Ветка сохранит историю до этого ответа. Следующий вопрос можно отправить после её создания." :
       "В новой ветке останутся предыдущие сообщения и ваш исправленный вопрос в поле ввода. Исходный диалог сохранится целиком.";
@@ -205,6 +207,7 @@
   }
   function editQueued(chat, job) {
     questionTarget = {type: "queue", chat, job: job.id, expected: job.question};
+    get("copy-branch-checklist-label").hidden = true;
     get("question-dialog-title").textContent = "Изменить вопрос в очереди";
     get("question-edit-help").textContent = "Изменение доступно, пока вопрос ожидает обработки. Его место в очереди сохранится.";
     get("question-edit-text").value = job.question; get("save-question-edit").textContent = "Сохранить вопрос";
@@ -270,6 +273,7 @@
   }
   function setEnabled(value) {
     enabled = value; get("open-saved").disabled = !value;
+    globalThis.WorkspaceTools?.setEnabled(value);
     if (value) pollActivity(); else clearTimeout(activityTimer);
   }
   function readingPositions() {
@@ -288,7 +292,8 @@
     rememberPosition(); displayedDocument = null; passage = null;
     get("document-workspace-actions").hidden = true; get("ask-selection").disabled = true;
   }
-  function documentOpened(id, doc, hasSource) {
+  function documentOpened(id, doc, hasSource, manual) {
+    if (manual) globalThis.WorkspaceTools?.rememberDocument(id);
     displayedDocument = {id, ...doc}; passage = null;
     get("document-workspace-actions").hidden = false;
     get("selection-status").textContent = "Выделите фрагмент текста.";
@@ -317,6 +322,12 @@
   }
   function init(api) {
     bridge = api;
+    globalThis.WorkspaceTools?.init(api, request, button, key => {
+      const info = data?.answers.find(answer => answer.turn_key === key && answer.saved);
+      const binding = info && bindings.find(item => item.index === info.turn_index);
+      if (!binding) throw new Error("Связанный ответ недоступен. Обновите диалог.");
+      return binding.node.item;
+    });
     for (const node of document.querySelectorAll("[data-close]")) node.addEventListener("click", () => {
       const dialog = get(node.dataset.close); if (dialog.dataset.saving !== "true") dialog.close();
     });
@@ -336,6 +347,7 @@
         for (const name of Object.keys(fieldNames)) form.elements[name].value = data.matter[name] || "";
         form.dataset.revision = data.matter_revision; form.dataset.chat = activeId;
         get("matter-error").textContent = ""; get("matter-dialog").showModal(); form.elements.contract.focus();
+        globalThis.WorkspaceTools?.openChecklist(activeId);
       } catch (error) { get("input-error").textContent = error.message; }
     });
     get("matter-form").addEventListener("submit", async event => {
@@ -372,9 +384,12 @@
           await globalThis.ChatQueue?.refresh(); dialog.close();
         } else {
           await leave();
-          if (target.submittedText !== undefined && target.submittedText !== text) target.id = crypto.randomUUID();
+          const copyChecklist = get("copy-branch-checklist").checked;
+          if (target.submittedText !== undefined && (target.submittedText !== text || target.copyChecklist !== copyChecklist))
+            target.id = crypto.randomUUID();
+          target.copyChecklist = copyChecklist;
           target.submittedText = text;
-          const result = await request(pathFor(target.chat) + "/branch", "POST", {id: target.id, index: target.index, turn_key: target.key, include_answer: target.includeAnswer, draft: text});
+          const result = await request(pathFor(target.chat) + "/branch", "POST", {id: target.id, index: target.index, turn_key: target.key, include_answer: target.includeAnswer, draft: text, ...(copyChecklist ? {copy_checklist: true} : {})});
           await bridge.openChat(result.id); dialog.close(); get("question").focus();
         }
       } catch (error) { get("question-edit-error").textContent = error.message; }
