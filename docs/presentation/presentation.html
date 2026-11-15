@@ -404,6 +404,41 @@ figure{margin:0}
   <div class="foot"><span>grounded-legal-rag</span><span>14</span></div>
 </section>
 
+<!-- team -->
+<section class="slide"><div class="top"></div>
+  <div class="kicker">Команда</div>
+  <h2>Кто делал решение</h2>
+  <div style="display:grid;grid-template-columns:1.6fr 1fr;gap:18px;margin-top:20px">
+    <div class="card" style="padding:30px 32px;border-left:6px solid var(--blue)">
+      <div class="tag info" style="margin-bottom:10px">Ведущая роль</div>
+      <h3 style="font-size:26px;margin-bottom:8px">Максим Захаров</h3>
+      <p style="font-size:19px;margin-bottom:16px">Инженер и архитектор решения. Основной объём проекта — от идеи до сдачи.</p>
+      <ul style="columns:2;column-gap:28px;font-size:16.5px;line-height:1.45">
+        <li>архитектура и ядро RAG: корпус, поиск, политика ответа;</li>
+        <li>контроль достоверности и защита от инъекций;</li>
+        <li>пакетный сабмит для платформы и его оптимизация;</li>
+        <li>веб-приложение, серверная история, очередь;</li>
+        <li>Docker, развёртывание демо, CI и сканеры безопасности;</li>
+        <li>тесты, живые прогоны, документация и презентация.</li>
+      </ul>
+    </div>
+    <div style="display:grid;gap:14px;align-content:start">
+      <div class="card" style="padding:18px 20px">
+        <div class="tag ok" style="margin-bottom:8px">Разработка</div>
+        <h3 style="font-size:20px;margin-bottom:4px">Максим Яворский</h3>
+        <p style="font-size:16px">Участие в разработке веб-интерфейса.</p>
+      </div>
+      <div class="card" style="padding:18px 20px">
+        <div class="tag plan" style="margin-bottom:8px">Поддержка команды</div>
+        <h3 style="font-size:20px;margin-bottom:4px">Тимофей Шушлебин</h3>
+        <h3 style="font-size:20px;margin-bottom:4px">Арыстан Агедилов</h3>
+        <p style="font-size:16px">Поддержка команды на протяжении хакатона.</p>
+      </div>
+    </div>
+  </div>
+  <div class="foot"><span>grounded-legal-rag</span><span>15</span></div>
+</section>
+
 <!-- 13 -->
 <section class="slide"><div class="top"></div>
   <div class="kicker">Запуск и комплект</div>
@@ -439,7 +474,7 @@ docker compose up --build -d --wait
     <tr><td><span class="mono">CHAT_PROXY_TOKEN</span></td><td>пусто</td><td>общий секрет с авторизующим прокси; включает серверную историю</td></tr>
     <tr><td><span class="mono">EMB_MODEL</span>, <span class="mono">TOP_K</span>, <span class="mono">MAX_TOKENS</span></td><td>пусто, 6, 8192</td><td>эмбеддинги (без них — BM25), число кандидатов поиска, лимит ответа модели</td></tr>
   </table>
-  <div class="foot"><span>https://github.com/Moonwuk/grounded-legal-rag</span><span>15</span></div>
+  <div class="foot"><span>https://github.com/Moonwuk/grounded-legal-rag</span><span>16</span></div>
 </section>
 
 </body>
