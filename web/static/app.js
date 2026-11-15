@@ -953,7 +953,6 @@ function renderAnswer(node, answer, retry) {
   node.body.append(copy, share);
   globalThis.WebIcons?.set(copy, "copy");
   globalThis.WebIcons?.set(share, "share");
-  globalThis.WebWorkspace?.answerSources(node, answer);
   if (answer.status === "clarify") renderClarification(node, answer);
   if ((answer.status === "technical_error" && !missingModel) || answer.status === "cancelled") {
     const button = document.createElement("button");
