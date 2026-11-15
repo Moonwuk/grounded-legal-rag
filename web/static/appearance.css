@@ -137,6 +137,9 @@
 #appearance-preview-source { margin-top: .55rem; }
 .appearance-citation { display: inline-block; margin: .45rem .25rem; color: var(--link); font-size: .86rem; font-weight: 700; }
 .appearance-citation:focus-visible { outline: 3px solid var(--focus); outline-offset: 2px; }
+:root[data-animations="off"] .archive-scene { display: none; }
+:root[data-animations="off"] .message.with-scene { display: block; }
+
 :root[data-motion="reduced"] *, :root[data-motion="reduced"] *::before, :root[data-motion="reduced"] *::after {
   scroll-behavior: auto !important;
   animation: none !important;

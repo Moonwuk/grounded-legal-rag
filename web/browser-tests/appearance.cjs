@@ -78,7 +78,11 @@ function contrast(rgb, other) {
     assert.equal(await animations.inputValue(), 'on');
     const searching = await page.evaluateHandle(() => {
       const scene = ArchiveScene.create('searching');
-      document.body.append(scene);
+      const message = document.createElement('article');
+      message.className = 'message with-scene';
+      message.dataset.status = 'searching';
+      message.append(scene);
+      document.body.append(message);
       return scene;
     });
     const animationCount = () => searching.evaluate(scene => scene.firstElementChild.getAnimations().length);
@@ -86,9 +90,13 @@ function contrast(rgb, other) {
     await animations.selectOption('off');
     assert.equal(await page.locator('html').getAttribute('data-motion'), 'reduced');
     assert.equal(await animationCount(), 0);
+    assert.deepEqual(await searching.evaluate(scene => [
+      getComputedStyle(scene).display, getComputedStyle(scene.parentElement).display
+    ]), ['none', 'block']);
     await animations.selectOption('on');
     assert.equal(await animationCount(), 1);
-    await searching.evaluate(scene => { ArchiveScene.stop(scene); scene.remove(); });
+    assert.notEqual(await searching.evaluate(scene => getComputedStyle(scene).display), 'none');
+    await searching.evaluate(scene => { ArchiveScene.stop(scene); scene.parentElement.remove(); });
     await animations.selectOption('off');
     if (output) await page.screenshot({path: path.join(output, 'appearance-dark.png')});
     await page.keyboard.press('Escape');
@@ -97,6 +105,7 @@ function contrast(rgb, other) {
 
     await page.reload();
     assert.equal(await theme(), 'dark');
+    assert.equal(await page.locator('html').getAttribute('data-animations'), 'off');
     assert.equal(await page.locator('html').getAttribute('data-motion'), 'reduced');
     assert.equal(await page.locator('html').evaluate(el => getComputedStyle(el).fontSize), '22px');
     for (const width of [1440, 1024, 390, 320]) {

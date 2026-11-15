@@ -29,6 +29,7 @@
     const fallback = ["Georgia", "Times New Roman"].includes(settings.font) ? "serif" : "sans-serif";
     root.style.setProperty("--interface-font", `"${settings.font}", ${fallback}`);
     root.style.setProperty("--interface-size", `${settings.size}px`);
+    root.dataset.animations = settings.animations ? "on" : "off";
     const reduced = !settings.animations || motion.matches;
     if (root.dataset.motion !== (reduced ? "reduced" : "")) {
       root.dataset.motion = reduced ? "reduced" : "";
