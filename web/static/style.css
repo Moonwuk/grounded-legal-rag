@@ -334,7 +334,8 @@ select:focus-visible { outline: 3px solid #3868df; outline-offset: 2px; }
 [data-folder-id="trash"] { border-top: 1px solid var(--line); margin-top: .3rem; border-radius: 0 0 8px 8px; }
 #chat-list li[data-trashed="true"] .chat-select { opacity: 1; }
 #chat-list li[data-trashed="true"] .chat-move { margin: .3rem .5rem; background: var(--blue); color: white; }
-#chat-list li[data-trashed="true"] .chat-delete { margin-block: .3rem; color: #962c29; }
+#chat-list li[data-trashed="true"] .chat-delete { display: block; width: calc(100% - 1rem); margin: .3rem .5rem; min-height: 44px; color: #962c29; background: #fff1f0; border-color: #dca4a1; }
+#chat-list li[data-trashed="true"] .chat-delete:hover:not(:disabled) { background: #ffe1df; border-color: #962c29; }
 
 #history-panel #reset { flex: none; width: auto; height: auto; margin: .8rem 1rem .25rem; padding: .65rem .8rem; min-height: 44px; background: var(--blue); color: white; border: 0; border-radius: 10px; font-size: .85rem; }
 #question-queue { flex: none; margin: 0 1rem; padding: .55rem .7rem; border: 1px solid var(--line); border-radius: 12px; background: #f5f8ff; max-height: 12rem; overflow: auto; }
