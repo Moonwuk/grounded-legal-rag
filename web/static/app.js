@@ -114,6 +114,7 @@ function renderTabs() {
   const custom = customTabs.find(tab => tab.id === selectedTab);
   select.value = custom ? selectedTab : "";
   select.disabled = !customTabs.length;
+  select.closest(".collection-picker").hidden = !customTabs.length;
   select.title = custom?.title || "Свои вкладки";
   list.setAttribute("aria-labelledby", custom ? "custom-tabs-label" : "doc-tab-" + selectedTab);
   byId("edit-doc-tab").hidden = !custom;
@@ -180,6 +181,7 @@ function editTab(tab = null) {
     choices.append(label);
   }
   filterTabChoices();
+  byId("tab-filter-options").open = !globalThis.MobileLayout?.isMobile();
   byId("tab-dialog").showModal();
   byId("tab-name").focus();
 }
@@ -280,7 +282,7 @@ function renderFolders() {
   if (!["all", "unfiled", "trash"].includes(selectedFolder) && !chatFolders.some(f => f.id === selectedFolder)) selectedFolder = "all";
   const host = byId("folder-list");
   host.replaceChildren();
-  const folders = [{id: "all", title: "Все чаты"}, {id: "unfiled", title: "Без папки"}, ...chatFolders, {id: "trash", title: "Корзина"}];
+  const folders = [{id: "all", title: "Все диалоги"}, {id: "unfiled", title: "Без папки"}, ...chatFolders, {id: "trash", title: "Корзина"}];
   for (const folder of folders) {
     const button = document.createElement("button");
     button.type = "button";
@@ -300,6 +302,7 @@ function renderFolders() {
     });
     host.append(button);
   }
+  byId("history-folders").querySelector("summary").textContent = "Папки и корзина · " + (folders.find(folder => folder.id === selectedFolder)?.title || "Все диалоги");
   byId("create-chat-folder").disabled = !foldersEnabled || folderSaving;
   byId("edit-chat-folder").hidden = ["all", "unfiled", "trash"].includes(selectedFolder);
   byId("trash-hint").hidden = selectedFolder !== "trash";
@@ -416,6 +419,7 @@ byId("rename-form").addEventListener("submit", async event => {
     const result = await folderRequest("/chats/" + renamingChat + "/title", "PUT", {title: byId("chat-name").value.trim()});
     const chat = savedChats.find(item => item.id === result.id);
     if (chat) chat.title = result.title;
+    if (byId("history-query").value.trim()) await searchHistory();
     byId("rename-dialog").close();
     byId("history-status").textContent = "Название сохранено";
   } catch (error) {
@@ -425,7 +429,7 @@ byId("rename-form").addEventListener("submit", async event => {
     for (const id of ["chat-name", "save-chat-name", "cancel-chat-name"]) byId(id).disabled = false;
     if (!byId("rename-dialog").open) {
       renderHistory();
-      byId("chat-list").querySelector('[data-chat-id="' + renamingChat + '"] .chat-rename')?.focus();
+      byId("chat-list").querySelector('[data-chat-id="' + renamingChat + '"] .chat-actions summary')?.focus();
     }
   }
 });
@@ -456,13 +460,34 @@ async function loadChatLists() {
   const [active, trash] = await Promise.all([historyRequest(), historyRequest("?trash=true")]);
   savedChats = active;
   trashedChats = trash;
+  if (byId("history-query").value.trim()) await searchHistory();
 }
+
+let searchMatches = null, searchVersion = 0, searchTimer;
+async function searchHistory() {
+  const version = ++searchVersion;
+  const query = byId("history-query").value.trim();
+  if (!query) { searchMatches = null; byId("history-search-status").textContent = ""; renderHistory(); return; }
+  byId("history-search-status").textContent = "Поиск…";
+  try {
+    const encoded = encodeURIComponent(query);
+    const results = await Promise.all([historyRequest("?q=" + encoded), historyRequest("?trash=true&q=" + encoded)]);
+    if (version !== searchVersion) return;
+    searchMatches = new Map(results.flat().map(chat => [chat.id, chat]));
+    byId("history-search-status").textContent = "Найдено: " + searchMatches.size + " · с учётом папок и корзины";
+    renderHistory();
+  } catch { if (version === searchVersion) byId("history-search-status").textContent = "Поиск недоступен. Повторите запрос."; }
+}
+byId("history-query").addEventListener("input", () => {
+  ++searchVersion; clearTimeout(searchTimer);
+  searchTimer = setTimeout(searchHistory, 250);
+});
 
 function renderHistory() {
   renderFolders();
   const chatList = byId("chat-list");
   chatList.replaceChildren();
-  const visibleChats = chatsInFolder(selectedFolder);
+  const visibleChats = chatsInFolder(selectedFolder).filter(chat => !searchMatches || searchMatches.has(chat.id));
   byId("folder-empty").hidden = !historyEnabled || !!visibleChats.length;
   byId("folder-empty").textContent = selectedFolder === "trash" ? "Корзина пуста." :
     "Здесь пока нет чатов. Перенесите сюда диалог кнопкой «В папку» или начните новый.";
@@ -478,12 +503,18 @@ function renderHistory() {
     button.setAttribute("aria-label", chat.title);
     const title = document.createElement("span");
     title.className = "chat-select-title";
-    title.textContent = chat.title;
+    title.textContent = (chat.pinned ? "★ " : "") + chat.title;
     button.append(title);
     button.disabled = busy || navigating || selectedFolder === "trash";
     const date = document.createElement("small");
     date.textContent = (chat.deleted_at ? "Удалён: " : "") + new Date((chat.deleted_at || chat.updated) * 1000).toLocaleString("ru-RU", {dateStyle: "short", timeStyle: "short"});
     button.append(date);
+    if (searchMatches?.get(chat.id)?.preview) {
+      const preview = document.createElement("small");
+      preview.className = "chat-preview";
+      preview.textContent = searchMatches.get(chat.id).preview;
+      button.append(preview);
+    }
     button.addEventListener("click", () => navigateHistory(() => selectChat(chat.id)));
     const remove = document.createElement("button");
     remove.type = "button";
@@ -519,7 +550,14 @@ function renderHistory() {
         await selectChat(chat.id);
       });
     });
-    if (inTrash) row.append(button, move, remove);
+    const menu = document.createElement("details");
+    menu.className = "chat-actions";
+    const summary = document.createElement("summary");
+    summary.textContent = "⋯";
+    summary.setAttribute("aria-label", "Действия: " + chat.title);
+    menu.append(summary);
+    menu.addEventListener("keydown", event => { if (event.key === "Escape") { menu.open = false; summary.focus(); } });
+    if (inTrash) menu.append(move, remove);
     else {
       const rename = document.createElement("button");
       rename.type = "button";
@@ -528,8 +566,17 @@ function renderHistory() {
       rename.setAttribute("aria-label", "Переименовать диалог: " + chat.title);
       rename.disabled = navigating || renameSaving;
       rename.addEventListener("click", () => editChatTitle(chat));
-      row.append(button, rename, move, remove);
+      const pin = document.createElement("button");
+      pin.type = "button";
+      pin.textContent = chat.pinned ? "Открепить" : "Закрепить";
+      pin.disabled = navigating;
+      pin.addEventListener("click", () => navigateHistory(async () => {
+        await historyRequest("/" + encodeURIComponent(chat.id) + "/pin?pinned=" + !chat.pinned, "PUT");
+        await loadChatLists();
+      }));
+      menu.append(pin, rename, move, remove);
     }
+    row.append(button, menu);
     chatList.append(row);
   }
 }
@@ -537,7 +584,7 @@ function renderHistory() {
 async function navigateHistory(action) {
   if (busy || navigating) return;
   navigating = true;
-  send.disabled = reset.disabled = true;
+  send.disabled = byId("new-dialogue").disabled = reset.disabled = true;
   renderHistory();
   try {
     await action();
@@ -546,7 +593,7 @@ async function navigateHistory(action) {
     byId("history-status").textContent = error.message;
   } finally {
     navigating = false;
-    send.disabled = reset.disabled = false;
+    send.disabled = byId("new-dialogue").disabled = reset.disabled = false;
     renderHistory();
   }
 }
@@ -613,7 +660,7 @@ async function selectChat(id) {
 }
 
 async function loadHistory() {
-  send.disabled = reset.disabled = true;
+  send.disabled = byId("new-dialogue").disabled = reset.disabled = true;
   navigating = true;
   historyReady = false;
   try {
@@ -635,14 +682,14 @@ async function loadHistory() {
     }
     historyReady = historyInitialized = true;
     byId("history-status").textContent = savedChats.length ? "Сохранено на сервере" : trashedChats.length ? "Чаты находятся в корзине" : "Пока нет сохранённых диалогов";
-    send.disabled = reset.disabled = false;
+    send.disabled = byId("new-dialogue").disabled = reset.disabled = false;
   } catch (error) {
     const unconfigured = !historyEnabled && error.status === 503 && error.message === "История на сервере не настроена.";
     byId("history-status").textContent = unconfigured
       ? "История на сервере не настроена. Диалог сохранится только до закрытия страницы." : error.message;
     if (unconfigured) {
       historyReady = historyInitialized = true;
-      send.disabled = reset.disabled = false;
+      send.disabled = byId("new-dialogue").disabled = reset.disabled = false;
     }
   } finally {
     navigating = false;
@@ -671,6 +718,8 @@ function showList() {
   activeDocument?.abort();
   activeDocument = null;
   clearQuote();
+  byId("documents-panel").dataset.view = "list";
+  byId("document-search").hidden = true;
   docTitle.textContent = "Документы";
   docStatus.textContent = "";
   docText.hidden = true;
@@ -689,6 +738,7 @@ function clearQuote() {
 }
 
 async function openDocument(id, source, focus = true) {
+  setDocumentsVisible(true);
   globalThis.MobileLayout?.open("documents");
   activeDocument?.abort();
   clearQuote();
@@ -701,7 +751,9 @@ async function openDocument(id, source, focus = true) {
     if (!response.ok) throw new Error();
     const doc = await response.json();
     if (activeDocument !== request) return;
+    byId("documents-panel").dataset.view = "document";
     docTitle.textContent = doc.title;
+    docTitle.title = doc.title;
     docStatus.textContent = [doc.status, source?.heading].filter(Boolean).join(" · ");
     docText.textContent = doc.text;
     list.hidden = true;
@@ -710,23 +762,25 @@ async function openDocument(id, source, focus = true) {
     byId("doc-navigation").hidden = true;
     allDocs.hidden = false;
     if (focus) docTitle.focus();
+    documentBody = doc.text;
+    documentSource = null;
+    byId("document-query").value = "";
     if (source) {
       const characters = Array.from(doc.text);
       const quote = characters.slice(source.start, source.end).join("");
-      if (quote !== source.quote) {
-        docStatus.textContent = "Диапазон источника изменился. Показан полный документ.";
-        return;
-      }
-      const mark = document.createElement("mark");
-      mark.textContent = quote;
-      selectedQuote = quote;
-      quoteTools.hidden = false;
-      docText.replaceChildren(characters.slice(0, source.start).join(""), mark, characters.slice(source.end).join(""));
-      docText.scrollTop += mark.getBoundingClientRect().top - docText.getBoundingClientRect().top
-        - docText.clientHeight / 2 + mark.offsetHeight / 2;
-    } else {
-      docText.scrollTop = 0;
+      if (quote === source.quote && Number.isInteger(source.start) && Number.isInteger(source.end) &&
+          source.start >= 0 && source.end <= characters.length && source.end > source.start) {
+        documentSource = {start: characters.slice(0, source.start).join("").length,
+          end: characters.slice(0, source.end).join("").length};
+        selectedQuote = quote;
+        quoteTools.hidden = false;
+      } else docStatus.textContent = "Диапазон источника изменился. Показан полный документ.";
     }
+    byId("document-search").hidden = false;
+    byId("document-citation").hidden = !documentSource;
+    renderDocumentSearch();
+    if (documentSource) scrollDocumentTo(".source-highlight");
+    else docText.scrollTop = 0;
   } catch {
     if (activeDocument === request) docStatus.textContent = "Документ недоступен. Откройте его повторно.";
   } finally {
@@ -774,6 +828,7 @@ async function loadDocuments() {
 
 function renderAnswer(node, answer, retry) {
   node.item.dataset.status = answer.status;
+  node.item.answerData = answer;
   const missingModel = answer.error_code === "model_not_configured";
   const sources = answer.sources || [];
   const sourcesByNumber = new Map(sources.map(source => [String(source.n), source]));
@@ -807,14 +862,43 @@ function renderAnswer(node, answer, retry) {
       : labels[answer.status] || "Найдены источники";
     node.content.before(status);
   }
+  const groups = new Map();
   for (const source of sources) {
+    let group = groups.get(source.document_id);
+    if (!group) {
+      group = document.createElement("section");
+      group.className = "source-group";
+      const title = document.createElement("h4");
+      title.textContent = source.title;
+      group.append(title);
+      if (source.status && !source.title.toLocaleLowerCase("ru").includes(source.status.toLocaleLowerCase("ru"))) {
+        const meta = document.createElement("small"); meta.textContent = source.status; group.append(meta);
+      }
+      node.body.append(group); groups.set(source.document_id, group);
+    }
+    const excerpt = document.createElement("details");
+    excerpt.className = "source-excerpt";
+    const preview = document.createElement("summary");
+    const quote = document.createElement("span"); quote.className = "quote-preview";
+    quote.textContent = source.quote;
+    preview.append(quote);
+    preview.setAttribute("aria-label", "Развернуть цитату [" + source.n + "]");
+    const full = document.createElement("blockquote"); full.textContent = source.quote;
+    excerpt.append(preview, full);
     const button = document.createElement("button");
-    button.type = "button";
-    button.className = "source";
-    button.textContent = ["[" + source.n + "] " + source.title, source.heading, source.status].filter(Boolean).join(" · ");
+    button.type = "button"; button.className = "source";
+    button.textContent = "[" + source.n + "] " + (source.heading || "Открыть в документе");
     button.addEventListener("click", () => openDocument(source.document_id, source));
-    node.body.append(button);
+    group.append(excerpt, button);
   }
+  const copy = document.createElement("button");
+  copy.type = "button"; copy.className = "copy-answer"; copy.textContent = "Копировать с источниками";
+  copy.addEventListener("click", async () => {
+    try { await navigator.clipboard.writeText(answerText(answer)); copy.textContent = "Скопировано"; }
+    catch { byId("copy-text").value = answerText(answer); byId("copy-dialog").showModal(); byId("copy-text").select(); }
+  });
+  node.body.append(copy);
+  if (answer.status === "clarify") renderClarification(node, answer);
   if ((answer.status === "technical_error" && !missingModel) || answer.status === "cancelled") {
     const button = document.createElement("button");
     button.type = "button";
@@ -828,10 +912,113 @@ function renderAnswer(node, answer, retry) {
   }
 }
 
+function answerText(answer) {
+  return answer.text + (answer.sources?.length ? "\n\nИсточники:\n" + answer.sources.map(source =>
+    "[" + source.n + "] " + [source.title, source.heading, source.status].filter(Boolean).join(" · ") +
+    "\n«" + source.quote + "»").join("\n\n") : "");
+}
+byId("close-copy").addEventListener("click", () => byId("copy-dialog").close());
+byId("print-dialogue").addEventListener("click", () => {
+  const host = byId("print-view"); host.replaceChildren();
+  const title = document.createElement("h1");
+  title.textContent = savedChats.find(chat => chat.id === currentChat)?.title || "Юридический диалог";
+  const date = document.createElement("p"); date.textContent = "Экспорт: " + new Date().toLocaleString("ru-RU");
+  host.append(title, date);
+  for (const item of log.querySelectorAll(".message")) {
+    const article = document.createElement("article");
+    const author = document.createElement("h2");
+    const content = document.createElement("p");
+    author.textContent = item.classList.contains("user") ? "Вы" : "Ассистент";
+    content.textContent = item.answerData ? answerText(item.answerData) : item.querySelector(".message-body p")?.textContent || "";
+    article.append(author, content); host.append(article);
+  }
+  if (!log.querySelector(".message")) { const empty = document.createElement("p"); empty.textContent = "В диалоге пока нет сообщений."; host.append(empty); }
+  window.print();
+});
+function setDocumentsVisible(visible) {
+  byId("workspace").classList[visible ? "remove" : "add"]("documents-collapsed");
+  byId("toggle-documents").setAttribute("aria-expanded", String(visible));
+  byId("toggle-documents").textContent = visible ? "Скрыть документы" : "Показать документы";
+}
+byId("toggle-documents").addEventListener("click", () => setDocumentsVisible(
+  byId("toggle-documents").getAttribute("aria-expanded") !== "true"));
+byId("new-dialogue").addEventListener("click", () => { if (!reset.disabled) reset.click(); });
+
+function renderClarification(node, answer) {
+  const form = document.createElement("form"); form.className = "clarification-form";
+  const hint = document.createElement("p"); hint.textContent = "Дополните сведения для продолжения диалога:"; form.append(hint);
+  const fields = answer.clarification_fields?.length ? answer.clarification_fields : [{code: "facts", label: "Уточнение"}];
+  const inputs = [];
+  for (const field of fields) {
+    const label = document.createElement("label"); label.textContent = field.label;
+    const value = document.createElement("input"); value.type = "text"; value.maxLength = 1000; value.autocomplete = "off";
+    label.append(value); form.append(label); inputs.push({value, label: field.label});
+  }
+  const error = document.createElement("p"); error.setAttribute("role", "status");
+  const submit = document.createElement("button"); submit.type = "submit"; submit.textContent = "Продолжить";
+  form.append(error, submit);
+  form.addEventListener("submit", async event => {
+    event.preventDefault();
+    const text = inputs.filter(field => field.value.value.trim()).map(field => field.label + ": " + field.value.value.trim()).join("\n");
+    if (!text) { error.textContent = "Заполните хотя бы одно поле."; inputs[0].value.focus(); return; }
+    if (send.disabled || busy || navigating || !historyReady) { error.textContent = "Дождитесь готовности диалога."; return; }
+    if (input.value.trim() && !await confirmAction("Заменить черновик?", "В поле вопроса есть текст. Заменить его уточнением и отправить?", "Отправить уточнение")) return;
+    input.value = text; globalThis.MobileLayout?.resizeInput();
+    sendController.start();
+  });
+  node.body.append(form);
+}
+
+let documentBody = "", documentSource = null, documentHits = [], documentHit = 0;
+function scrollDocumentTo(selector) {
+  const target = docText.querySelector(selector);
+  if (target) docText.scrollTop += target.getBoundingClientRect().top - docText.getBoundingClientRect().top - 40;
+}
+function renderDocumentSearch(resetHit = true) {
+  const query = byId("document-query").value.trim();
+  documentHits = [];
+  if (query) {
+    const regex = new RegExp(query.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"), "giu");
+    for (const match of documentBody.matchAll(regex)) {
+      documentHits.push({start: match.index, end: match.index + match[0].length});
+      if (documentHits.length === 500) break;
+    }
+  }
+  if (resetHit) documentHit = 0;
+  const edges = new Set([0, documentBody.length]);
+  for (const range of [...documentHits, ...(documentSource ? [documentSource] : [])]) { edges.add(range.start); edges.add(range.end); }
+  const sorted = [...edges].sort((a, b) => a - b);
+  docText.replaceChildren();
+  for (let i = 0; i < sorted.length - 1; i++) {
+    const start = sorted[i], end = sorted[i + 1];
+    const hit = documentHits.findIndex(range => range.start <= start && range.end >= end);
+    const cited = documentSource && documentSource.start <= start && documentSource.end >= end;
+    const text = documentBody.slice(start, end);
+    if (hit < 0 && !cited) { docText.append(text); continue; }
+    const mark = document.createElement("mark"); mark.textContent = text;
+    if (cited) mark.classList.add("source-highlight");
+    if (hit >= 0) { mark.classList.add("document-hit"); if (hit === documentHit) mark.classList.add("current-hit"); }
+    docText.append(mark);
+  }
+  byId("document-search-status").textContent = query ? documentHits.length ?
+    (documentHit + 1) + " / " + documentHits.length + (documentHits.length === 500 ? "+" : "") : "Не найдено" : "";
+  byId("document-prev").disabled = byId("document-next").disabled = !documentHits.length;
+}
+byId("document-query").addEventListener("input", () => { renderDocumentSearch(); scrollDocumentTo(".current-hit"); });
+for (const [id, step] of [["document-prev", -1], ["document-next", 1]]) byId(id).addEventListener("click", () => {
+  if (!documentHits.length) return;
+  documentHit = (documentHit + step + documentHits.length) % documentHits.length;
+  renderDocumentSearch(false); scrollDocumentTo(".current-hit");
+});
+byId("document-query").addEventListener("keydown", event => {
+  if (event.key === "Enter") { event.preventDefault(); byId(event.shiftKey ? "document-prev" : "document-next").click(); }
+});
+byId("document-citation").addEventListener("click", () => scrollDocumentTo(".source-highlight"));
+
 async function ask(question, existing, signal) {
   busy = true;
   const chatAtStart = currentChat;
-  reset.disabled = true;
+  byId("new-dialogue").disabled = reset.disabled = true;
   renderHistory();
   const pending = {role: "user", text: question};
   const userNode = existing || bubble("user", question).item;
@@ -881,7 +1068,7 @@ async function ask(question, existing, signal) {
   } finally {
     clearInterval(timer);
     busy = false;
-    reset.disabled = false;
+    byId("new-dialogue").disabled = reset.disabled = false;
     renderHistory();
   }
   ArchiveScene.setState(scene, ArchiveScene.stateFor(answer));
@@ -942,7 +1129,7 @@ const sendController = SLComponent.mount(send.closest(".sl-component"), {
     input.removeAttribute("aria-invalid");
     if (historyEnabled && !currentChat) {
       navigating = true;
-      reset.disabled = true;
+      byId("new-dialogue").disabled = reset.disabled = true;
       try {
         const folderPath = ["all", "unfiled", "trash"].includes(selectedFolder) ? "" : "?folder_id=" + encodeURIComponent(selectedFolder);
         const chat = await historyRequest(folderPath, "POST");
@@ -954,7 +1141,7 @@ const sendController = SLComponent.mount(send.closest(".sl-component"), {
         throw error;
       } finally {
         navigating = false;
-        reset.disabled = false;
+        byId("new-dialogue").disabled = reset.disabled = false;
         renderHistory();
       }
     }
@@ -1003,7 +1190,7 @@ for (const example of document.querySelectorAll(".example")) {
   example.addEventListener("click", () => { input.value = example.textContent; globalThis.MobileLayout?.resizeInput(); input.focus(); });
   example.disabled = false;
 }
-reset.disabled = false;
+byId("new-dialogue").disabled = reset.disabled = false;
 allDocs.disabled = false;
 loadDocuments();
 loadHistory();

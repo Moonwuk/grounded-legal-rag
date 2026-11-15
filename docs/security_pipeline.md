@@ -145,3 +145,17 @@ HIGH/CRITICAL (`--ignore-unfixed`, образ на Debian) и поиск сек�
 Полный периодический SAST также включает `web/` без тестовых фикстур.
 Результаты точечного аудита и ограничения полного Security gate —
 [аудит веба](web_security_audit_2026_11_15.md).
+
+### Совместимость ссылок на собственные workflow
+
+`security.yml` и `web-ci.yml` закрепляют определения reusable workflow полным SHA
+`d9a1e19cbfd19c2e21bdef35c26405a977ff884f`. Это совместимый с actionlint 1.7.12
+и zizmor 1.32 вариант вместо workspace-relative `./` и ещё не поддерживаемого
+данной версией actionlint `$/`. Правила и пороги сканеров не отключены.
+`actions/checkout` внутри вызываемых workflow по-прежнему проверяет commit
+вызывающего запуска; закреплены определения jobs, а не проверяемый код.
+При изменении `regression.yml`, `secrets.yml` или `web-image.yml` необходимо
+обновить ссылки на коммит с проверенными новыми определениями.
+
+Основания: [GitHub — reusable workflows](https://docs.github.com/en/actions/how-tos/reuse-automations/reuse-workflows),
+[zizmor — self-repository](https://docs.zizmor.sh/audits/#self-repository).

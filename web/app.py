@@ -26,7 +26,7 @@ sys.path.insert(0, str(ROOT / "prototype"))
 
 from psb_corpus import load_corpus
 from psb_llm import EmbeddingClient, ProviderError, ProxyClient, integer
-from psb_policy import TECHNICAL, answer_structured, display_name
+from psb_policy import FOLLOWUPS, TECHNICAL, answer_structured, display_name
 from psb_retrieval import Retriever
 
 LABELS = {"user": "Пользователь", "assistant": "Ассистент"}
@@ -186,6 +186,10 @@ def answer(question, state, latest_user_text=""):
                                 start=fragment.start, end=fragment.end, quote=fragment.text))
         response = dict(status=result["status"], text=result["text"], sources=sources,
                         elapsed_seconds=round(time.monotonic() - started, 1))
+        if result["status"] == "clarify":
+            # Only labels from the application-owned follow-up vocabulary.
+            response["clarification_fields"] = [dict(code=code, label=label)
+                for code, label in FOLLOWUPS.items() if label in result["text"]]
         if result["status"] in {"out_of_scope", "disallowed"} and FORGED_ROLE.search(latest_user_text):
             response["ui_state"] = "role_protection"
         return response
