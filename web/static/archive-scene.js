@@ -27,7 +27,8 @@ const SpriteAnimation = (() => {
     if (!images) frame.style.backgroundImage = cssUrl(src);
     Object.assign(frame.style, finalPose);
     const finish = () => frame.dispatchEvent(new CustomEvent("spriteend", {bubbles: true}));
-    if (matchMedia("(prefers-reduced-motion: reduce)").matches || sequence.length === 1) {
+    if (document.documentElement?.dataset.motion === "reduced" ||
+        matchMedia("(prefers-reduced-motion: reduce)").matches || sequence.length === 1) {
       if (!loop) finish();
       return;
     }

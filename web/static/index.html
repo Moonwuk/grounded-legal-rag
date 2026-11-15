@@ -3,8 +3,11 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, interactive-widget=resizes-content">
-  <meta name="color-scheme" content="light">
+  <meta name="color-scheme" content="light dark">
   <title>Юридический ассистент</title>
+  <script src="/static/appearance.js"></script>
+  <link rel="stylesheet" href="/static/vendor/appearance-fonts/fonts.css">
+  <link rel="stylesheet" href="/static/appearance.css">
   <link rel="stylesheet" href="/static/vendor/sl-ui/send/buttons.css">
   <link rel="stylesheet" href="/static/vendor/sl-ui/copy/buttons.css">
   <link rel="stylesheet" href="/static/style.css">
@@ -32,6 +35,9 @@
         <h1>Юридический ассистент</h1>
       </div>
       <button class="mobile-only mobile-icon" id="open-documents" type="button" aria-label="Открыть документы" aria-haspopup="dialog"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 3h8l4 4v14H6zM14 3v5h4M9 12h6M9 16h6"/></svg></button>
+      <button id="open-appearance" type="button" title="Настройки" aria-label="Настройки" aria-haspopup="dialog">
+        <svg aria-hidden="true" viewBox="0 0 24 24"><path d="M10 3h4l.7 2.5 2 .9L19 5.2l2 3.5-1.7 1.9v2.8l1.7 1.9-2 3.5-2.3-1.2-2 .9L14 21h-4l-.7-2.5-2-.9L5 18.8l-2-3.5 1.7-1.9v-2.8L3 8.7l2-3.5 2.3 1.2 2-.9z"/><circle cx="12" cy="12" r="3"/></svg>
+      </button>
     </div>
     <div class="workspace-actions"><button id="new-dialogue" type="button">+ Новый диалог</button><button id="print-dialogue" type="button">Печать / PDF</button><button id="toggle-documents" type="button" aria-expanded="true" aria-controls="documents-panel">Скрыть документы</button></div>
   </header>
@@ -203,5 +209,63 @@
   </dialog>
 <dialog id="copy-dialog" class="history-dialog" aria-labelledby="copy-title"><h2 id="copy-title">Ответ с источниками</h2><p>Выделите текст и скопируйте его.</p><textarea id="copy-text" readonly rows="12"></textarea><button id="close-copy" type="button">Закрыть</button></dialog>
   <section id="print-view" aria-hidden="true"></section>
+  <dialog id="appearance-dialog" aria-labelledby="appearance-title">
+    <header class="appearance-header">
+      <h2 id="appearance-title">Настройки</h2>
+      <button id="close-appearance" type="button" aria-label="Закрыть настройки" autofocus>Закрыть</button>
+    </header>
+    <div class="appearance-content">
+      <form id="appearance-controls">
+        <fieldset>
+          <legend>Внешний вид</legend>
+          <label for="appearance-theme">Режим оформления</label>
+          <select name="theme" id="appearance-theme">
+            <option value="system">Системная</option><option value="light">Светлая</option><option value="dark">Тёмная</option>
+          </select>
+        </fieldset>
+        <fieldset>
+          <legend>Цветовая тема</legend>
+          <label for="appearance-accent">Акцент</label>
+          <select name="accent" id="appearance-accent">
+            <option value="psb">ПСБ · синий</option><option value="violet">Фиолетовый</option>
+            <option value="emerald">Изумрудный</option><option value="orange">Оранжевый</option>
+            <option value="pink">Розовый</option><option value="graphite">Графитовый</option>
+          </select>
+        </fieldset>
+        <fieldset>
+          <legend>Типографика</legend>
+          <label for="appearance-font">Шрифт</label>
+          <select name="font" id="appearance-font">
+            <option>Georgia</option><option>Arial</option><option>Inter</option><option>Roboto</option><option>Times New Roman</option>
+          </select>
+          <label for="appearance-size" class="appearance-size-label">Размер текста <output id="appearance-size-value" for="appearance-size">16 px</output></label>
+          <input name="size" id="appearance-size" type="range" min="12" max="22" step="1" value="16">
+          <div class="appearance-presets">
+            <button type="button" data-font-size="14" aria-pressed="false">Компактный</button>
+            <button type="button" data-font-size="16" aria-pressed="true">Стандартный</button>
+            <button type="button" data-font-size="20" aria-pressed="false">Крупный</button>
+          </div>
+        </fieldset>
+        <fieldset>
+          <legend>Доступность</legend>
+          <label class="appearance-motion"><input name="reduced" type="checkbox"> Уменьшить анимацию</label>
+          <p>Системная настройка уменьшения движения также учитывается.</p>
+        </fieldset>
+      </form>
+      <section class="appearance-preview" aria-labelledby="appearance-preview-title">
+        <h3 id="appearance-preview-title">Предпросмотр</h3>
+        <h4>Условия субаренды</h4>
+        <p>Для передачи помещения в субаренду требуется письменное согласие арендодателя.</p>
+        <blockquote id="appearance-quote">«Арендатор не вправе сдавать Помещение в субаренду без письменного согласия Арендодателя.»</blockquote>
+        <button id="appearance-preview-button" type="button" aria-controls="appearance-preview-source" aria-expanded="false">Основание</button>
+        <p id="appearance-preview-source" hidden>Договор аренды № А-08/2024, п. 4.2.</p>
+        <a class="appearance-citation" href="#appearance-quote" aria-label="Перейти к цитате в предпросмотре">[1] Цитата</a>
+      </section>
+    </div>
+    <footer class="appearance-footer">
+      <button id="reset-appearance" type="button">Сбросить настройки</button>
+      <span id="appearance-status" role="status"></span>
+    </footer>
+  </dialog>
 </body>
 </html>
