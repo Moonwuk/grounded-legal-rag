@@ -918,7 +918,7 @@ function answerText(answer) {
     "\n«" + source.quote + "»").join("\n\n") : "");
 }
 byId("close-copy").addEventListener("click", () => byId("copy-dialog").close());
-byId("print-dialogue").addEventListener("click", () => {
+function preparePrint() {
   const host = byId("print-view"); host.replaceChildren();
   const title = document.createElement("h1");
   title.textContent = savedChats.find(chat => chat.id === currentChat)?.title || "Юридический диалог";
@@ -933,8 +933,9 @@ byId("print-dialogue").addEventListener("click", () => {
     article.append(author, content); host.append(article);
   }
   if (!log.querySelector(".message")) { const empty = document.createElement("p"); empty.textContent = "В диалоге пока нет сообщений."; host.append(empty); }
-  window.print();
-});
+}
+globalThis.addEventListener?.("beforeprint", preparePrint);
+byId("print-dialogue").addEventListener("click", () => { preparePrint(); window.print(); });
 function setDocumentsVisible(visible) {
   byId("workspace").classList[visible ? "remove" : "add"]("documents-collapsed");
   byId("toggle-documents").setAttribute("aria-expanded", String(visible));
@@ -972,7 +973,7 @@ function renderClarification(node, answer) {
 let documentBody = "", documentSource = null, documentHits = [], documentHit = 0;
 function scrollDocumentTo(selector) {
   const target = docText.querySelector(selector);
-  if (target) docText.scrollTop += target.getBoundingClientRect().top - docText.getBoundingClientRect().top - 40;
+  target?.scrollIntoView({block: "center", inline: "nearest"});
 }
 function renderDocumentSearch(resetHit = true) {
   const query = byId("document-query").value.trim();
