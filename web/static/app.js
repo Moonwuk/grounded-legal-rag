@@ -69,7 +69,12 @@ function renderHistory() {
     const button = document.createElement("button");
     button.type = "button";
     button.className = "chat-select";
-    button.textContent = chat.title;
+    button.title = chat.title;
+    button.setAttribute("aria-label", chat.title);
+    const title = document.createElement("span");
+    title.className = "chat-select-title";
+    title.textContent = chat.title;
+    button.append(title);
     button.disabled = busy || navigating;
     const date = document.createElement("small");
     date.textContent = new Date(chat.updated * 1000).toLocaleString("ru-RU", {dateStyle: "short", timeStyle: "short"});

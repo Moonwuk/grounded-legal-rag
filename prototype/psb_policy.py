@@ -1592,9 +1592,17 @@ def render(candidate: dict, evidence: list[Fragment], source_gaps=(), prose: str
                 + ", поэтому ответить по документам я не могу.")
         requested = set(candidate.get("requested_facts", []))
         known = contract_known(question, evidence)
+        # Without a verified reference gap this code does not identify any
+        # missing document. Do not imply that the user has seen such a reference.
+        concrete = dict(candidate)
+        concrete["requested_facts"] = [code for code in candidate.get("requested_facts", [])
+                                       if code != "referenced_documents" or source_gaps]
+        requested = set(concrete["requested_facts"])
         # A specific fact (a date, an unknown contract's number) is still asked for.
-        specific = (followup(candidate, known)
+        specific = (followup(concrete, known)
                     if requested - {"document", "contract"} or ("contract" in requested and not known) else "")
+        if source_gaps:
+            specific = " ".join(gap_lines(source_gaps)) + (" " + specific if specific else "")
         return lead + " " + INSUFFICIENT_TAIL + " " + (specific or INSUFFICIENT_REFER)
     by_id = {f.id: f for f in evidence}
     references, numbers, lines = {}, {}, [clarification_line] if clarification_line else []
