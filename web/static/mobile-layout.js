@@ -20,14 +20,15 @@
   }
   function close(kind) {
     if (typeof kind === "string" && dialog.dataset.panel !== kind) return;
-    if (!dialog.open) return;
-    dialog.close();
+    if (dialog.open) dialog.close();
+    // Escape can close the native dialog before its queued close event runs.
+    // Restore the previous panel before another one takes its placeholder.
     restore();
   }
   function open(kind) {
     if (!mobile.matches) return;
     const panel = get(kind === "history" ? "history-panel" : "documents-panel");
-    if (active === panel) return;
+    if (active === panel && dialog.open) return;
     close();
     opener = document.activeElement;
     input.blur();

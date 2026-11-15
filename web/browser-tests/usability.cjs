@@ -36,6 +36,9 @@ const fs = require('node:fs');
     assert.equal(await page.locator('.source-group').count(), 1);
     assert.equal(await page.locator('.source-group .source').count(), 2);
     assert.equal(await page.locator('.quote-preview').first().textContent(), source.quote);
+    // Native Ctrl+P / browser menu must prepare the current transcript too.
+    await page.evaluate(() => window.dispatchEvent(new Event('beforeprint')));
+    assert.ok((await page.locator('#print-view').textContent()).includes(second.quote));
     await page.locator('.copy-answer').first().click();
     assert.ok((await page.evaluate(() => navigator.clipboard.readText())).includes(second.quote));
     await page.evaluate(() => { window.print = () => { window.printCalled = true; }; });
@@ -98,6 +101,25 @@ const fs = require('node:fs');
     assert.equal(await page.locator('#doc-text').textContent(), unicode);
     assert.equal(await page.locator('#document-search-status').textContent(), '1 / 2');
     await page.locator('#document-citation').click();
+    // Short mobile document navigation keeps controls visible and scrolls the hit.
+    const longText = 'Искомый фрагмент\nНачало\n' + 'Строка документа\n'.repeat(350) + 'Искомый фрагмент\nКонец';
+    await page.route('**/api/documents/long-fixture', r => r.fulfill({json: {title: 'Длинный документ', text: longText, status: ''}}));
+    for (const viewport of [{width:320,height:568},{width:390,height:420}]) {
+      await page.setViewportSize(viewport);
+      await page.evaluate(() => openDocument('long-fixture'));
+      await page.locator('#document-query').fill('Искомый фрагмент');
+      assert.equal(await page.locator('#mobile-panel-content > aside').count(), 1);
+      await page.locator('#document-next').click();
+      const hit = await page.locator('.current-hit').boundingBox();
+      assert.ok(hit.y >= 0 && hit.y + hit.height <= viewport.height, JSON.stringify({hit,viewport}));
+      const controls = await page.locator('#document-next').boundingBox();
+      assert.ok(controls.y >= 0 && controls.y + controls.height <= viewport.height);
+    }
+    await page.keyboard.press('Escape');
+    await page.locator('#new-dialogue').click();
+    await page.evaluate(() => window.dispatchEvent(new Event('beforeprint')));
+    assert.equal((await page.locator('#print-view').textContent()).includes(second.quote), false);
+    assert.ok((await page.locator('#print-view').textContent()).includes('пока нет сообщений'));
     assert.deepEqual(errors, []);
     console.log('PASS: grouped exact quotes, clipboard/PDF, clarification submission, document search/citation, pin/search, compact catalog/history and fixed collection actions at 4 viewports.');
   } finally { await browser.close(); }

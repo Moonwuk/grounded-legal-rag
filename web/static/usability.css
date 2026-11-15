@@ -114,3 +114,8 @@ summary:focus-visible { outline: 3px solid #3868df; outline-offset: 2px; }
 .source-excerpt summary::-webkit-details-marker { display: none; }
 
 @media (max-width: 900px) and (max-height: 600px) { #history-panel #reset { position: sticky; top: 0; z-index: 2; } }
+
+@media (max-width: 900px) and (max-height: 600px) {
+  #mobile-panel-content > .documents[data-view="document"] { display: flex; overflow: hidden; }
+  #mobile-panel .documents[data-view="document"] #doc-text { overflow: auto; min-height: 0; }
+}

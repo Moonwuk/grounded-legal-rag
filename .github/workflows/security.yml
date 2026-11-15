@@ -3,6 +3,11 @@ name: Security scans
 on:
   workflow_dispatch:
     inputs:
+      publish_code_scanning:
+        description: Upload the checked SARIF to GitHub Code Scanning (requires the feature enabled)
+        type: boolean
+        required: false
+        default: false
       publish_container:
         description: Publish the checked image to GHCR after every security gate passes (main only)
         type: boolean
@@ -238,7 +243,7 @@ jobs:
       - name: Fail on high or critical findings and incomplete analysis
         run: python .github/scripts/check_codeql.py reports/codeql
       - name: Publish SARIF to GitHub code scanning
-        if: ${{ !cancelled() && steps.analyze.outcome == 'success' }}
+        if: ${{ !cancelled() && steps.analyze.outcome == 'success' && inputs.publish_code_scanning }}
         uses: github/codeql-action/upload-sarif@33d7b85da1a04171e211befe2c739303b9a4c066 # v4.39.3
         with:
           sarif_file: reports/codeql
