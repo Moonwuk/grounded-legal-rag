@@ -14,6 +14,7 @@ from fastapi.responses import FileResponse
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel, Field, ValidationError
 from starlette.concurrency import run_in_threadpool
+from web.history import History, identity, router as history_router
 
 ROOT = Path(__file__).resolve().parents[1]
 STATIC = Path(__file__).with_name("static")
@@ -41,6 +42,9 @@ async def lifespan(app):
     app.state.documents = {doc.sha256: doc for doc in documents}
     app.state.slots = BoundedSemaphore(integer("WEB_WORKERS", 2, 1, 8))
     app.state.dense = "off"
+    history_path = os.getenv("CHAT_HISTORY_PATH", "")
+    proxy_token = os.getenv("CHAT_PROXY_TOKEN", "")
+    app.state.history = History(history_path, proxy_token) if history_path and proxy_token else None
     if os.getenv("EMB_MODEL", "").strip():
         # Dense candidates are indexed after start-up; until then search is BM25 only.
         app.state.dense = "indexing"
@@ -60,6 +64,17 @@ def index_dense(state):
 
 app = FastAPI(title="Юридический ассистент", lifespan=lifespan,
               docs_url=None, redoc_url=None, openapi_url=None)
+app.include_router(history_router)
+
+
+@app.middleware("http")
+async def private_chat_responses(request: Request, call_next):
+    response = await call_next(request)
+    if request.url.path == "/api/chat" or request.url.path.startswith("/api/chats"):
+        response.headers["Cache-Control"] = "private, no-store"
+    return response
+
+
 # UI-only signal for explicit, standalone forged system-role delimiters.
 FORGED_ROLE = re.compile(r"(?im)^\s*(?:\[SYSTEM\]|<\|im_start\|>system|<\|system\|>)\s*\S")
 
@@ -71,6 +86,7 @@ class Message(BaseModel):
 
 class ChatRequest(BaseModel):
     messages: list[Message] = Field(min_length=1, max_length=41)
+    chat_id: str | None = Field(default=None, pattern=r"^[0-9a-f-]{36}$")
 
 
 def describe(doc):
@@ -159,10 +175,38 @@ async def chat(request: Request):
         request_data = ChatRequest.model_validate(payload)
     except (ValidationError, ValueError, RecursionError):
         raise HTTPException(422, "Проверьте формат сообщений и длину вопроса.") from None
+    if request_data.chat_id is not None:
+        history, owner = identity(request)
+        if len(request_data.messages) != 1 or request_data.messages[0].role != "user":
+            raise HTTPException(400, "Для сохранённого диалога передайте только новый вопрос.")
+        return await run_in_threadpool(answer_saved, history, owner, request_data.chat_id,
+                                       request_data.messages[0], request.app.state)
     question = to_question(request_data.messages)
     if len(question) > 30000:
         raise HTTPException(413, TOO_LONG)
     return await run_in_threadpool(answer, question, request.app.state, request_data.messages[-1].text)
+
+
+def answer_saved(history, owner, chat_id, message, state):
+    turns, lease = history.begin(owner, chat_id, message.text)
+    try:
+        previous = []
+        for turn in turns:
+            if turn["answer"]["status"] != "technical_error":
+                previous.extend([Message(role="user", text=turn["question"]),
+                                 Message(role="assistant", text=turn["answer"]["text"])])
+        question = to_question([*previous, message])
+        if len(question) > 30000:
+            raise HTTPException(413, TOO_LONG)
+        result = answer(question, state, message.text)
+        # A retry replaces the failed attempt, while technical errors never become model context.
+        if turns and turns[-1]["answer"]["status"] == "technical_error" and turns[-1]["question"] == message.text:
+            turns.pop()
+        turns.append(dict(question=message.text, answer=result))
+        history.finish(owner, chat_id, lease, turns)
+        return result
+    finally:
+        history.finish(owner, chat_id, lease)
 
 
 @app.get("/healthz")

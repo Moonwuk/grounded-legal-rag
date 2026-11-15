@@ -35,6 +35,143 @@ let currentScene;
 let busy = false;
 let activeDocument;
 let catalog = [];
+let currentChat = null;
+let savedChats = [];
+let historyEnabled = false;
+let navigating = false;
+
+function rememberChat() {
+  try {
+    if (currentChat) localStorage.setItem("psb-current-chat", currentChat);
+    else localStorage.removeItem("psb-current-chat");
+  } catch { /* Chat contents stay on the server even if browser storage is unavailable. */ }
+}
+
+async function historyRequest(path = "", method = "GET") {
+  const response = await fetch("/api/chats" + path, {
+    method, headers: {"Content-Type": "application/json"}, signal: AbortSignal.timeout(10000)
+  });
+  if (!response.ok) {
+    const error = new Error("История недоступна. Повторите загрузку.");
+    error.status = response.status;
+    try { error.message = (await response.json()).detail || error.message; } catch { /* Use safe fallback. */ }
+    throw error;
+  }
+  return response.status === 204 ? null : response.json();
+}
+
+function renderHistory() {
+  const chatList = byId("chat-list");
+  chatList.replaceChildren();
+  for (const chat of savedChats) {
+    const row = document.createElement("li");
+    if (chat.id === currentChat) row.setAttribute("aria-current", "true");
+    const button = document.createElement("button");
+    button.type = "button";
+    button.className = "chat-select";
+    button.textContent = chat.title;
+    button.disabled = busy || navigating;
+    const date = document.createElement("small");
+    date.textContent = new Date(chat.updated * 1000).toLocaleString("ru-RU", {dateStyle: "short", timeStyle: "short"});
+    button.append(date);
+    button.addEventListener("click", () => navigateHistory(() => selectChat(chat.id)));
+    const remove = document.createElement("button");
+    remove.type = "button";
+    remove.className = "chat-delete";
+    remove.textContent = "Удалить";
+    remove.setAttribute("aria-label", "Удалить диалог: " + chat.title);
+    remove.disabled = busy || navigating;
+    remove.addEventListener("click", () => {
+      if (busy || navigating || !confirm("Удалить этот диалог и все его сообщения?")) return;
+      navigateHistory(async () => {
+        await historyRequest("/" + encodeURIComponent(chat.id), "DELETE");
+        if (currentChat === chat.id) clearChat();
+        savedChats = await historyRequest();
+      });
+    });
+    row.append(button, remove);
+    chatList.append(row);
+  }
+}
+
+async function navigateHistory(action) {
+  if (busy || navigating) return;
+  navigating = true;
+  send.disabled = reset.disabled = true;
+  renderHistory();
+  try {
+    await action();
+    byId("history-status").textContent = savedChats.length ? "Сохранено на сервере" : "Пока нет сохранённых диалогов";
+  } catch (error) {
+    byId("history-status").textContent = error.message;
+  } finally {
+    navigating = false;
+    send.disabled = reset.disabled = false;
+    renderHistory();
+  }
+}
+
+function clearChat() {
+  if (currentScene) ArchiveScene.stop(currentScene);
+  currentScene = null;
+  sendController.reset();
+  retryRequest = null;
+  currentChat = null;
+  rememberChat();
+  messages = [];
+  log.replaceChildren(welcome);
+  welcome.hidden = false;
+  input.value = "";
+  input.removeAttribute("aria-invalid");
+  byId("input-error").textContent = "";
+  showList();
+}
+
+async function selectChat(id) {
+  const chat = await historyRequest("/" + encodeURIComponent(id));
+  clearChat();
+  currentChat = chat.id;
+  rememberChat();
+  for (const turn of chat.turns) {
+    const userNode = bubble("user", turn.question).item;
+    const node = bubble("assistant", "");
+    if (turn.answer.status !== "technical_error") messages.push(
+      {role: "user", text: turn.question}, {role: "assistant", text: turn.answer.text});
+    const contextLength = messages.length;
+    renderAnswer(node, turn.answer, () => {
+      if (busy || navigating) return;
+      if (turn !== chat.turns.at(-1) || messages.length !== contextLength) { input.value = turn.question; input.focus(); return; }
+      retryRequest = {question: turn.question, userNode};
+      node.item.remove();
+      sendController.start();
+    });
+  }
+  if (chat.busy) byId("history-status").textContent = "Ответ ещё готовится. Обновите список через несколько секунд.";
+  input.focus();
+}
+
+async function loadHistory() {
+  send.disabled = reset.disabled = true;
+  navigating = true;
+  try {
+    savedChats = await historyRequest();
+    historyEnabled = true;
+    let selected;
+    try { selected = localStorage.getItem("psb-current-chat"); } catch { /* Optional selection only. */ }
+    const chat = savedChats.find(item => item.id === (currentChat || selected)) || savedChats[0];
+    if (chat) await selectChat(chat.id);
+    else clearChat();
+    byId("history-status").textContent = savedChats.length ? "Сохранено на сервере" : "Пока нет сохранённых диалогов";
+    send.disabled = reset.disabled = false;
+  } catch (error) {
+    byId("history-status").textContent = error.status === 503
+      ? "История на сервере не настроена. Диалог сохранится только до закрытия страницы." : error.message;
+    if (error.status === 503) send.disabled = reset.disabled = false;
+  } finally {
+    navigating = false;
+    renderHistory();
+  }
+}
 
 function bubble(role, text) {
   welcome.hidden = true;
@@ -209,7 +346,9 @@ function renderAnswer(node, answer, retry) {
 
 async function ask(question, existing, signal) {
   busy = true;
+  const chatAtStart = currentChat;
   reset.disabled = true;
+  renderHistory();
   const pending = {role: "user", text: question};
   const userNode = existing || bubble("user", question).item;
   const node = bubble("assistant", "Ищем в документах…");
@@ -233,11 +372,12 @@ async function ask(question, existing, signal) {
   try {
     const response = await fetch("/api/chat", {
       method: "POST", headers: {"Content-Type": "application/json"},
-      body: JSON.stringify({messages: [...messages, pending]}),
+      body: JSON.stringify(currentChat ? {chat_id: currentChat, messages: [pending]} : {messages: [...messages, pending]}),
       signal: AbortSignal.any([signal, AbortSignal.timeout(180000)])
     });
     if (!response.ok) {
-      const detail = response.status === 413 ? "Диалог слишком длинный. Начните новый." : "Сервис не ответил. Попробуйте снова.";
+      let detail = response.status === 413 ? "Диалог слишком длинный. Начните новый." : "Сервис не ответил. Попробуйте снова.";
+      if (response.status === 409) detail = "В этом диалоге уже готовится ответ. Обновите список через несколько секунд.";
       answer = {status: "technical_error", text: detail};
     } else {
       answer = await response.json();
@@ -258,6 +398,7 @@ async function ask(question, existing, signal) {
     clearInterval(timer);
     busy = false;
     reset.disabled = false;
+    renderHistory();
   }
   ArchiveScene.setState(scene, ArchiveScene.stateFor(answer));
   progress.remove();
@@ -272,7 +413,7 @@ async function ask(question, existing, signal) {
   }
   const historyLength = messages.length;
   renderAnswer(node, answer, () => {
-    if (busy) return;
+    if (busy || navigating || currentChat !== chatAtStart) return;
     if (messages.length !== historyLength) {
       input.value = question;
       input.focus();
@@ -284,12 +425,20 @@ async function ask(question, existing, signal) {
   });
   input.focus();
   log.scrollTop = log.scrollHeight;
+  if (historyEnabled) {
+    try {
+      savedChats = await historyRequest();
+      byId("history-status").textContent = "Сохранено на сервере";
+      renderHistory();
+    } catch { byId("history-status").textContent = "Не удалось обновить список. Нажмите «Обновить список»."; }
+  }
   if (answer.status === "technical_error") throw new Error("chat_request_failed");
 }
 
 let retryRequest;
 const sendController = SLComponent.mount(send.closest(".sl-component"), {
   async onSend({signal}) {
+    if (navigating) throw new Error("history_loading");
     const retry = retryRequest;
     retryRequest = null;
     const question = retry?.question || input.value.trim();
@@ -300,6 +449,23 @@ const sendController = SLComponent.mount(send.closest(".sl-component"), {
       throw new Error("empty_question");
     }
     input.removeAttribute("aria-invalid");
+    if (historyEnabled && !currentChat) {
+      navigating = true;
+      reset.disabled = true;
+      try {
+        const chat = await historyRequest("", "POST");
+        currentChat = chat.id;
+        rememberChat();
+        savedChats.unshift(chat);
+      } catch (error) {
+        byId("input-error").textContent = error.message;
+        throw error;
+      } finally {
+        navigating = false;
+        reset.disabled = false;
+        renderHistory();
+      }
+    }
     if (!retry) input.value = "";
     await ask(question, retry?.userNode, signal);
   }
@@ -317,18 +483,12 @@ input.addEventListener("keydown", event => {
   }
 });
 reset.addEventListener("click", () => {
-  if (currentScene) ArchiveScene.stop(currentScene);
-  currentScene = null;
-  sendController.reset();
-  messages = [];
-  log.replaceChildren(welcome);
-  welcome.hidden = false;
-  input.value = "";
-  input.removeAttribute("aria-invalid");
-  byId("input-error").textContent = "";
-  showList();
+  if (busy || navigating) return;
+  clearChat();
+  renderHistory();
   input.focus();
 });
+byId("refresh-history").addEventListener("click", () => { if (!busy && !navigating) loadHistory(); });
 allDocs.addEventListener("click", () => { showList(); docTitle.focus(); });
 docQuery.addEventListener("input", renderCatalog);
 clearDocQuery.addEventListener("click", () => {
@@ -344,3 +504,4 @@ for (const example of document.querySelectorAll(".example")) {
 reset.disabled = false;
 allDocs.disabled = false;
 loadDocuments();
+loadHistory();

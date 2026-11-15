@@ -22,7 +22,10 @@ services:
       EMB_MODEL: "${EMB_MODEL:-}"
       PSB_DENSE_SECONDS: "${PSB_DENSE_SECONDS:-}"
       KB_PATH: /data/knowledge-base.zip
+      CHAT_HISTORY_PATH: /history/chats.sqlite3
+      CHAT_PROXY_TOKEN: "${CHAT_PROXY_TOKEN:-}"
     volumes:
+      - chat-history:/history
       - type: bind
         source: ./organizer/knowledge-base.zip
         target: /data/knowledge-base.zip
@@ -41,3 +44,6 @@ services:
       interval: 10s
       timeout: 3s
       retries: 5
+
+volumes:
+  chat-history:

@@ -3,6 +3,7 @@
 !prototype/*.py
 !web/
 !web/app.py
+!web/history.py
 !web/__init__.py
 !web/requirements.txt
 !web/static/

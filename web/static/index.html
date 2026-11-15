@@ -29,6 +29,13 @@
     </div>
   </header>
   <main class="workspace">
+    <aside class="chat-history" aria-labelledby="history-title">
+      <div class="panel-heading"><h2 id="history-title">Ваши чаты</h2></div>
+      <p class="history-hint">Диалоги доступны с разных устройств под вашим логином.</p>
+      <p id="history-status" role="status">Загружаем историю…</p>
+      <button type="button" id="refresh-history">Обновить список</button>
+      <ul id="chat-list" aria-label="Сохранённые диалоги"></ul>
+    </aside>
     <section class="chat" aria-labelledby="chat-title">
       <header class="panel-heading">
         <h2 id="chat-title">Диалог</h2>
