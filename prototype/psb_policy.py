@@ -984,6 +984,52 @@ def unasked_items(text: str, selected: list[Fragment], question: str) -> list[st
     return found[:4]
 
 
+def _role_phrase(text: str) -> tuple[str, ...]:
+    """Inflected noun/adjective phrases in the narrow approval-role template."""
+    return tuple(re.sub(r"(?:ыми|ими|ого|его|ому|ему|ами|ями|ий|ый|ой|ая|яя|ое|ее|ые|ие|ым|им|ую|юю|ых|их|ом|ем|а|я|у|ю|ы|и|е|о)$",
+                        "", word) if len(word) > 3 else word
+                 for word in re.findall(r"[а-яё]+", text.lower().replace("ё", "е")))
+
+
+def _positive_approval_role(sentence: str, selected: list[Fragment]) -> str:
+    """Keep «X ... а согласует B» only for the same sourced approval relation.
+
+    This is not a general clause/negation parser. A single cited selected clause
+    must say «B согласуется с X [и Y]», with exactly the same object and actors.
+    Conditions, other verbs, absent/ambiguous citations retain the old fallback.
+    """
+    if len({f.document for f in selected}) != 1 or not _role_negation(sentence):
+        return ""
+    citation = re.search(r"\s*\(п\.\s*(\d+(?:\.\d+)+)\)\.?\s*$", sentence)
+    if not citation:
+        return ""
+    body = sentence[:citation.start()].strip()
+    split = re.fullmatch(r"(?P<actor>[а-яё -]{2,90})\s+не\s+[^,.;:!?()]{2,90},\s+а\s+"
+                         r"согласует\s+(?P<positive>[^,.;:!?()]{2,180})", body, re.I)
+    if not split:
+        return ""
+    pieces = re.split(r"\s+вместе\s+с\s+", split['positive'], maxsplit=1, flags=re.I)
+    actors = [split['actor']] + (re.split(r"\s+и\s+", pieces[1], flags=re.I) if len(pieces) == 2 else [])
+    cited = []
+    for fragment in {f.id: f for f in selected}.values():
+        source = norm(fragment.text)
+        clause = re.match(r"(\d+(?:\.\d+)+)[.)]?\s+", source)
+        if clause and clause[1] == citation[1]:
+            cited.append(source[clause.end():].rstrip('. '))
+    if len(cited) != 1:
+        return ""
+    source = cited[0]
+    if re.search(r"[,.;:!?]|\b(?:не|нет|только|лишь|при|если|кроме|без|но|за\s+исключением)\b", source, re.I):
+        return ""
+    relation = re.fullmatch(r"(?P<object>[а-яё -]+?)\s+согласуется\s+с\s+(?P<actors>[а-яё -]+)", source, re.I)
+    if not relation or _role_phrase(pieces[0]) != _role_phrase(relation['object']):
+        return ""
+    source_actors = re.split(r"\s+и\s+", relation['actors'], flags=re.I)
+    if sorted(map(_role_phrase, actors)) != sorted(map(_role_phrase, source_actors)):
+        return ""
+    return f"{split['actor']} согласует {split['positive']} (п. {citation[1]})."
+
+
 def without_blocked_sentence(text: str, selected: list[Fragment], retriever, question: str = "", *, preserved_sources=None) -> str:
     """The text without the one later sentence that the scope barriers reject.
 
@@ -995,11 +1041,17 @@ def without_blocked_sentence(text: str, selected: list[Fragment], retriever, que
     every other check then runs on it as usual. Otherwise the text is returned
     unchanged and rejected as before. A uniquely addressed selected provision
     cited only in the removed sentence can be kept as a source-owned quotation;
-    the rejected assertion itself is never transferred."""
+    the rejected assertion itself is never transferred. Before dropping a whole
+    sentence, the narrowly matched positive approval role may be retained."""
     if not scope_block_reason(text, selected, retriever, question):
         return text
     sentences = [x for x in re.split(r"(?<=[.!?])\s+(?=[А-ЯЁA-Z«(])", text.strip()) if x]
     for i in range(1, len(sentences)):
+        positive = _positive_approval_role(sentences[i], selected)
+        if positive:
+            repaired = " ".join(sentences[:i] + [positive] + sentences[i + 1:])
+            if len(repaired.split()) >= 10 and not scope_block_reason(repaired, selected, retriever, question):
+                return repaired
         shorter = " ".join(sentences[:i] + sentences[i + 1:])
         if len(shorter.split()) >= 10 and not scope_block_reason(shorter, selected, retriever, question):
             if preserved_sources is not None and len({f.document for f in selected}) == 1:
