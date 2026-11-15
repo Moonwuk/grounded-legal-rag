@@ -1,14 +1,14 @@
 /* Workspace improvements: keep content visible and actions reachable. */
 .workspace-actions { display: flex; gap: .4rem; padding: 0 1rem .6rem; justify-content: flex-end; }
 .workspace-actions button { font-size: .8rem; }
-#new-dialogue { color: white; background: var(--blue); }
+#new-dialogue { color: var(--on-accent); background: var(--blue); }
 .history-search { display: grid; gap: .25rem; margin: .5rem .75rem; font-size: .8rem; }
-.history-search input, #document-query, .clarification-form input, .tab-search input { width: 100%; min-width: 0; min-height: 44px; padding: .5rem .6rem; border: 1px solid #9eb4d7; border-radius: 8px; color: var(--ink); background: white; font: inherit; }
+.history-search input, #document-query, .clarification-form input, .tab-search input { width: 100%; min-width: 0; min-height: 44px; padding: .5rem .6rem; border: 1px solid var(--control-line); border-radius: 8px; color: var(--ink); background: var(--paper); font: inherit; }
 #history-search-status { font-size: .75rem; margin: 0 .75rem; }
 #history-search-status:empty { display: none; }
 #history-folders { flex: none; margin: 0 .65rem; }
 summary { cursor: pointer; border-radius: 6px; }
-summary:focus-visible { outline: 3px solid #3868df; outline-offset: 2px; }
+summary:focus-visible { outline: 3px solid var(--focus); outline-offset: 2px; }
 #history-folders > summary, #tab-filter-options > summary { padding: .6rem .25rem; min-height: 44px; font-size: .85rem; font-weight: 650; }
 #history-folders #folder-list { max-height: 9rem; padding-inline: 0; }
 #history-status { margin: .3rem .75rem; }
@@ -20,29 +20,29 @@ summary:focus-visible { outline: 3px solid #3868df; outline-offset: 2px; }
 .chat-actions > button { grid-column: 1 / -1; margin: .15rem .25rem; min-height: 44px; width: auto; text-align: left; font-size: .8rem; }
 .chat-actions:not([open]) > button { display: none; }
 .chat-preview { display: -webkit-box !important; -webkit-box-orient: vertical; -webkit-line-clamp: 2; overflow: hidden; }
-.source-group { padding: .7rem .8rem; border: 1px solid var(--line); border-left: 3px solid #d5a035; border-radius: 9px; margin: .7rem 0; background: #fff; }
+.source-group { padding: .7rem .8rem; border: 1px solid var(--line); border-left: 3px solid #d5a035; border-radius: 9px; margin: .7rem 0; background: var(--paper); }
 .source-group h4 { margin: 0; font-size: .88rem; line-height: 1.4; }
-.source-group .source { border: 0; background: #eef3ff; font-size: .8rem; margin-bottom: 0; }
+.source-group .source { border: 0; background: var(--accent-soft); font-size: .8rem; margin-bottom: 0; }
 .source-excerpt { margin-top: .5rem; font-size: .85rem; }
 .source-excerpt summary { color: var(--muted); padding: .3rem 0; }
 .quote-preview { display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 3; overflow: hidden; white-space: pre-wrap; }
-.source-excerpt summary::after { content: 'Развернуть цитату'; display: block; font-size: .75rem; color: var(--blue); }
+.source-excerpt summary::after { content: 'Развернуть цитату'; display: block; font-size: .75rem; color: var(--link); }
 .source-excerpt[open] summary::after { content: 'Свернуть цитату'; }
 .source-excerpt[open] .quote-preview { display: none; }
 .source-excerpt blockquote { margin: .4rem 0; white-space: pre-wrap; }
 .copy-answer, .share-answer { margin: .3rem .6rem .3rem 0; min-height: 44px; font-size: .75rem; }
 .clarification-form { display: grid; gap: .6rem; margin-top: .8rem; border-top: 1px solid var(--line); padding-top: .7rem; }
 .clarification-form label { display: grid; gap: .25rem; font-size: .85rem; }
-.clarification-form button { justify-self: start; color: white; background: var(--blue); }
+.clarification-form button { justify-self: start; color: var(--on-accent); background: var(--blue); }
 #document-search { flex: none; padding: .4rem 1rem; border-bottom: 1px solid var(--line); }
 #document-search label { font-size: .8rem; }
 .document-search-actions { display: flex; align-items: center; gap: .4rem; flex-wrap: wrap; margin-top: .3rem; }
 .document-search-actions button { min-width: 44px; font-size: .75rem; }
 #document-search-status { flex: 1; font-size: .8rem; }
-.document-hit { background: #cdeedd; }
-.current-hit { background: #80dab7; outline: 2px solid #237954; }
-.source-highlight { text-decoration: underline; text-decoration-color: #a56c08; text-underline-offset: .2em; }
-#documents-panel[data-view="document"] .doc-header h2 { font: 650 1rem/1.4 "Segoe UI", system-ui, sans-serif; }
+.document-hit { background: var(--search-hit); color: var(--ink); }
+.current-hit { background: var(--search-current); outline: 2px solid #237954; }
+.source-highlight { text-decoration: underline; text-decoration-color: var(--warning); text-underline-offset: .2em; }
+#documents-panel[data-view="document"] .doc-header h2 { font: 650 1rem/1.4 var(--interface-font); }
 #documents-panel[data-view="document"] .doc-header .brand { display: none; }
 #doc-status { max-height: 4.5em; overflow-y: auto; }
 #tab-dialog { overflow: hidden; }
@@ -52,7 +52,7 @@ summary:focus-visible { outline: 3px solid #3868df; outline-offset: 2px; }
 .tab-dialog-body > * { flex-shrink: 0; }
 .tab-search { display: grid; gap: .25rem; font-size: .85rem; }
 #tab-form #tab-choice-scroll { flex: none; min-height: 0; max-height: none; overflow: visible; }
-#tab-form > .tab-dialog-actions { flex: none; padding: .75rem 1rem; border-top: 1px solid var(--line); background: white; margin: 0; }
+#tab-form > .tab-dialog-actions { flex: none; padding: .75rem 1rem; border-top: 1px solid var(--line); background: var(--paper); margin: 0; }
 #tab-error:not(:empty) { padding: .4rem 1rem; max-height: 4em; overflow-y: auto; }
 #tab-error:empty { display: none; }
 #print-view { display: none; }
@@ -92,7 +92,7 @@ summary:focus-visible { outline: 3px solid #3868df; outline-offset: 2px; }
   #mobile-panel #doc-status { margin-block: .25rem; font-size: .78rem; }
   #mobile-panel #documents-panel[data-view="document"] .doc-header { padding: .6rem 1rem; }
   #mobile-panel #documents-panel[data-view="document"] h2 { font-size: .9rem; }
-  .clarification-form input, .history-search input, #document-query { font-size: 16px; }
+  .clarification-form input, .history-search input, #document-query { font-size: max(16px, 1rem); }
   .message.with-scene:not([data-status="searching"]) .archive-scene { width: 48px; }
   #tab-form { height: min(760px, calc(var(--mobile-height, 100dvh) - 1rem)); }
   .tab-dialog-body > p:not([id]) { display: none; }
