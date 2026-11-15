@@ -33,11 +33,10 @@ class PolicyRetryFeedbackTests(unittest.TestCase):
         self.assertTrue(second['retry_policy_feedback']['previous_source_ids'])
         self.assertTrue(result['text'].startswith(GOOD))
 
-    def test_a_plain_missing_condition_gets_only_restriction_guidance(self):
+    def test_a_plain_missing_condition_keeps_the_existing_retry(self):
         _, model, _ = one_call('Можно передать пропуск другому лицу?',
                               [answer('4.2.', BAD), answer('4.2.', GOOD)], FILES)
-        self.assertEqual(model.calls[1][0], policy.SYSTEM + policy.RESTRICTION_RETRY_GUIDANCE)
-        self.assertEqual(model.calls[1][1]['retry_restrictions'], ['не вправе'])
+        self.assertEqual(model.calls[1][0], policy.SYSTEM)
         self.assertNotIn('retry_policy_feedback', model.calls[1][1])
         self.assertNotIn('retry_policy_draft', model.calls[1][1])
 

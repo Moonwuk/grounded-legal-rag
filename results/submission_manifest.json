@@ -1,7 +1,7 @@
 {
   "file": "PSB_baseline_submission.zip",
-  "bytes": 108720,
-  "sha256": "8f7abb8c3c7496399db782c6b9a309492daa699b636e5db3cea294e3323806da",
+  "bytes": 87528,
+  "sha256": "f69119a7df291553ab90e784aea265e3cb2d3e448a0b65cbb2e72e77d4077890",
   "entries": [
     "solution.py",
     "psb_corpus.py",

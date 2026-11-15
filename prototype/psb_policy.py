@@ -379,670 +379,6 @@ _HUNDREDS = {form: value for value, forms in {
 _SOURCE_ONLY = re.compile(
     r'\b(?:не\s+(?:вправе|может|могут|допуска\w*|разреш\w*|подлеж\w*|име(?:ет|ют)\s+прав[ао])'
     r'|запрещ\w*|только|лишь|при\s+(?:наличии|условии)|по\s+соглашению|за\s+исключением)\b', re.I)
-_RESIDUAL_CASE_GROUP = re.compile(
-    r'\bв\s+случаях\s*,?\s*не\s+(?:указанных|предусмотренных|перечисленных)\s+в\s+'
-    r'(?:пунктах|подпунктах|частях|статьях)\s+\d+(?:\.\d+)*'
-    r'(?:(?:\s*,\s*|\s+и\s+)\d+(?:\.\d+)*)+\s+'
-    r'(?:настоящей\s+статьи|настоящего\s+(?:пункта|документа|кодекса|закона))\b', re.I)
-_NEGATIVE_NUMERIC_REFERENCE = re.compile(
-    r'\bне\s+(?:указан\w*|предусмотрен\w*|поименован\w*|перечислен\w*)\s+в\s+'
-    r'(?:пункт\w*|подпункт\w*|част\w*|стать\w*|п\.|пп\.|ч\.|ст\.)\s*\d', re.I)
-
-
-
-_QUALIFIED_EXCLUSION_PAIR = re.compile(
-    r'\b([а-яё]{3,}[ая])\s+([а-яё]{3,}(?:ого|его))\s+и\s+([а-яё]{3,}(?:ого|его))\b', re.I)
-_EXCLUSION_LIST_OPEN = re.compile(r'\(\s*за\s+исключением\b[^:()]{0,120}:', re.I)
-_POSITIVE_EXCLUSION = re.compile(
-    r'\b(?:за\s+исключением|кроме)\b|\bисключени(?:е|я|ем)\s*(?:[:—–-]|составля\w*\b|явля\w*\b)'
-    r'|\bв\s+(?:перечень|список)\s+исключений\s+вход(?:ит|ят)\b', re.I)
-_QUALIFIER_CASE = r'(?:ый|ий|ой|ого|его|ому|ему|ым|им|ом|ем|ые|ие|ых|их|ыми|ими|ая|яя|ую|юю|ое|ее|ей)'
-_ANY_QUALIFIER = r'[а-яё]{3,}' + _QUALIFIER_CASE
-
-
-def _qualified_exclusion_phrases(selected):
-    """Pairs come only from complete, selected parenthesized exclusion lists."""
-    result, seen = [], set()
-    for fragment in selected:
-        source = fragment.text
-        for opening in _EXCLUSION_LIST_OPEN.finditer(source):
-            depth, end = 1, opening.end()
-            while end < len(source) and depth:
-                if source[end] == '(':
-                    depth += 1
-                elif source[end] == ')':
-                    depth -= 1
-                end += 1
-            if depth:
-                continue
-            for match in _QUALIFIED_EXCLUSION_PAIR.finditer(source, opening.end(), end - 1):
-                phrase = match.group()
-                key = phrase.casefold().replace('ё', 'е')
-                if key not in seen:
-                    result.append((phrase, match[1], match[2], match[3]))
-                    seen.add(key)
-    return result
-
-
-def _qualified_head_pattern(head):
-    head = head.casefold().replace('ё', 'е')
-    base = head[:-1]
-    endings = ('', 'а', 'у', 'ом', 'е', 'ы', 'ов', 'ам', 'ами', 'ах') if head.endswith('а') else (
-        '', 'ь', 'й', 'я', 'ю', 'ем', 'е', 'и', 'ей', 'ям', 'ями', 'ях')
-    if head.endswith('а') and base.endswith(('г', 'к', 'х', 'ж', 'ч', 'ш', 'щ')):
-        endings += ('и',)
-    return r'\b(?:' + '|'.join(re.escape(base + ending) for ending in endings) + r')\b'
-
-
-def _head_keeps_qualifiers(text, occurrence, adjective, other_heads=()):
-    start = max(text.rfind(mark, 0, occurrence.start()) for mark in ',;.!?\n') + 1
-    end = min([p for mark in ',;.!?\n' if (p := text.find(mark, occurrence.end())) >= 0] or [len(text)])
-    # A coordinated phrase may introduce a different, source-owned head:
-    # "HEAD1 its-adjective and other-adjective HEAD2".  Its confirmed
-    # modifier belongs to HEAD2, not to the preceding head (and conversely).
-    for other_head, other_adjective in other_heads:
-        origin = start
-        for other in re.finditer(other_head, text[origin:end]):
-            other_start, other_end = origin + other.start(), origin + other.end()
-            qualified = other_adjective + r'(?:\s+(?:и|или)\s+' + other_adjective + r')*'
-            if other_end <= occurrence.start():
-                boundary = re.match(r'\s+' + qualified + r'\s+(?:и|или)\s+',
-                                    text[other_end:occurrence.start()])
-                if boundary:
-                    start = max(start, other_end + boundary.end())
-            elif other_start >= occurrence.end():
-                boundary = re.search(r'\s+(?:и|или)\s+' + qualified + r'\s*$',
-                                     text[occurrence.end():other_start])
-                if boundary:
-                    end = min(end, occurrence.end() + boundary.start())
-    sequence = r'(' + _ANY_QUALIFIER + r'(?:\s+(?:и|или)\s+' + _ANY_QUALIFIER + r')*)'
-    before = re.search(r'\b' + sequence + r'\s*$', text[start:occurrence.start()])
-    after = re.match(r'\s*(?:\(\s*)?(?:[—–-]\s*)?(?:только\s+)?' + sequence + r'\b', text[occurrence.end():end])
-    def case(word):
-        for key, endings in enumerate(('ого его', 'ому ему', 'ыми ими', 'ый ий ой', 'ым им', 'ом ем',
-                                       'ые ие', 'ых их', 'ая яя', 'ую юю', 'ое ее', 'ей')):
-            if any(word.endswith(ending) for ending in endings.split()):
-                return key
-        return None
-    for found, nearest_first in ((before, False), (after, True)):
-        if not found:
-            continue
-        words = re.split(r'\s+(?:и|или)\s+', found[1])
-        nearest = words[0] if nearest_first else words[-1]
-        if re.fullmatch(adjective, nearest) and all(re.fullmatch(adjective, word)
-                                                   for word in words if case(word) == case(nearest)):
-            return True
-    return False
-
-
-def _explicit_qualifier_correction(text, occurrence, head_pattern, adjective):
-    # Closed correction form: "not any/all HEAD, but [qualified] HEAD".
-    before = text[max(0, occurrence.start() - 40):occurrence.start()]
-    if re.search(r'\bне\s+(?:любой|весь|любого|всего|любые|все|любых|всех)\s*$', before):
-        tail = text[occurrence.end():occurrence.end() + 180]
-        following = re.search(head_pattern, tail)
-        if following and re.fullmatch(r'\s*,\s*а\s*(?:' + _ANY_QUALIFIER +
-                                      r'(?:\s+(?:и|или)\s+' + _ANY_QUALIFIER + r')*\s*)?', tail[:following.start()]):
-            return _head_keeps_qualifiers(tail, following, adjective)
-    # A quoted erroneous user formulation is harmless only with an explicit
-    # error label followed by the same head carrying its source qualifier.
-    for quoted in re.finditer(r'«[^»]*»|“[^”]*”|"[^"]*"', text):
-        if not quoted.start() < occurrence.start() < quoted.end():
-            continue
-        attribution = text[max(0, quoted.start() - 50):quoted.start()]
-        tail = text[quoted.end():quoted.end() + 220]
-        if (re.search(r'\b(?:фраза|формулировка|утверждение|тезис)(?:\s+пользователя)?\s*$', attribution)
-                and re.match(r'\s*(?:неточн[ао]|неверн[ао]|ошибочн[ао])\s*:', tail)):
-            following = re.search(head_pattern, tail)
-            if following and _head_keeps_qualifiers(tail, following, adjective):
-                return True
-    return False
-
-
-def lost_exclusion_qualifiers(text, selected):
-    """Exact source phrases broadened by a bare head in an asserted exclusion.
-
-    Ordinary subject mentions and absent list items are outside this check.
-    One directly attached source qualifier is enough for a narrower example;
-    completeness of the full list is a separate question.
-    """
-    lowered = text.casefold().replace('ё', 'е')
-    lost = []
-    owned = []
-    for phrase, head, first, second in _qualified_exclusion_phrases(selected):
-        roots = {word.casefold().replace('ё', 'е')[:-3] for word in (first, second)}
-        adjective = r'(?:' + '|'.join(re.escape(root) for root in sorted(roots)) + r')' + _QUALIFIER_CASE
-        head_pattern = _qualified_head_pattern(head)
-        owned.append((phrase, head_pattern, adjective))
-    for phrase, head_pattern, adjective in owned:
-        others = [(pattern, qualifier) for _, pattern, qualifier in owned if pattern != head_pattern]
-        for occurrence in re.finditer(head_pattern, lowered):
-            start = max(lowered.rfind(mark, 0, occurrence.start()) for mark in '.!?\n') + 1
-            prefix = lowered[start:occurrence.start()]
-            markers = list(_POSITIVE_EXCLUSION.finditer(prefix))
-            if not markers:
-                continue
-            marker = markers[-1]
-            before_marker = prefix[:marker.start()]
-            if re.search(r'\bне\s+(?:(?:явля\w*|счита\w*|составля\w*)\s*)?$', before_marker):
-                continue
-            if not (_head_keeps_qualifiers(lowered, occurrence, adjective, others)
-                    or _explicit_qualifier_correction(lowered, occurrence, head_pattern, adjective)):
-                lost.append(phrase)
-                break
-    return lost
-
-
-
-_BOUND_PERCENT = re.compile(r'\b(не\s+менее|не\s+более|более|менее|свыше)\s+(\d{1,3}(?:[.,]\d+)?)\s*(?:процент\w*|%)', re.I)
-_BOUND_EXCEPT = re.compile(r'\b(?:за\s+исключением|кроме)\b', re.I)
-_BOUND_BAN = re.compile(r'\b(?:не\s+подлеж\w*\s+применен\w*|не\s+применя\w*|неприменим\w*|не\s+мог\w*\s+применя\w*|запрещ\w*|недоступ\w*)\b', re.I)
-_BOUND_FUNCTION_STEMS = {'орган', 'компа', 'котор', 'таког', 'таких', 'соста', 'проце', 'менее', 'более',
-                         'разме', 'велич', 'значе', 'пункт', 'стать', 'насто', 'исключ', 'услов', 'случа',
-                         'соотв', 'устан', 'являю', 'следу', 'имеющ', 'преду'}
-
-
-def _bound_stems(text):
-    return {w[:5] for w in re.findall(r'[а-яё]{5,}', text.casefold().replace('ё', 'е'))
-            if w[:5] not in _BOUND_FUNCTION_STEMS}
-
-
-def _percent_identity(match):
-    return (' '.join(match[1].casefold().split()), Decimal(match[2].replace(',', '.')))
-
-
-def _asserted_bound_bans(text):
-    return [ban for ban in _BOUND_BAN.finditer(text)
-            if not (ban.group().casefold().startswith('запрещ')
-                    and re.search(r'\bне\s*$', text[:ban.start()], re.I))]
-
-
-def _bound_numeric_exception_requirements(selected):
-    for fragment in selected:
-        source = fragment.text
-        for exception in _BOUND_EXCEPT.finditer(source):
-            start = max(source.rfind(';', 0, exception.start()), source.rfind('\n\n', 0, exception.start())) + 1
-            prefix = source[start:exception.start()]
-            thresholds = list(_BOUND_PERCENT.finditer(prefix))
-            if len(thresholds) != 1:
-                continue
-            end = source.find(';', exception.end())
-            if end < 0:
-                end = len(source)
-            clause = source[exception.start():end].strip().rstrip('.,')
-            parent_stems = _bound_stems(prefix)
-            exception_stems = _bound_stems(source[exception.end():end]) - parent_stems
-            if len(parent_stems) < 2 or not 2 <= len(exception_stems) <= 5:
-                continue
-            yield clause, _percent_identity(thresholds[0]), parent_stems, exception_stems
-
-
-def all_bound_numeric_exception_phrases(selected):
-    """Source-only conditional retry constraints, independent of draft wording."""
-    return list(dict.fromkeys(clause for clause, *_ in _bound_numeric_exception_requirements(selected)))
-
-
-def lost_bound_numeric_exceptions(text, selected):
-    """Return exact exception clauses lost from a repeated, locally bound ban.
-
-    The model must repeat the source threshold and two content stems in one
-    semicolon item. The prohibition may own the coordinated sentence's list,
-    but the exception must belong to the same item. Shorter answers which do
-    not assert that parent ban are not required to enumerate every exception.
-    """
-    lost = []
-    for clause, identity, parent_stems, exception_stems in _bound_numeric_exception_requirements(selected):
-        for candidate in _BOUND_PERCENT.finditer(text):
-            if _percent_identity(candidate) != identity:
-                continue
-            sentence_start = max(text.rfind(mark, 0, candidate.start()) for mark in '.!?\n') + 1
-            sentence_end = min([p for mark in '.!?\n' if (p := text.find(mark, candidate.end())) >= 0] or [len(text)])
-            sentence = text[sentence_start:sentence_end]
-            bans = _asserted_bound_bans(sentence)
-            if not bans:
-                continue
-            item_start = max(text.rfind(';', sentence_start, candidate.start()), sentence_start - 1) + 1
-            semi = text.find(';', candidate.end(), sentence_end)
-            item_end = semi if semi >= 0 else sentence_end
-            item = text[item_start:item_end]
-            if len(parent_stems & _bound_stems(item)) < 2:
-                continue
-            kept = False
-            for candidate_exception in _BOUND_EXCEPT.finditer(item):
-                tail = item[candidate_exception.end():]
-                if (exception_stems <= _bound_stems(tail)
-                        and bool(re.search(r'\bне\b', tail, re.I)) == bool(re.search(r'\bне\b', clause, re.I))):
-                    kept = True
-                    break
-            if (not kept and ';' not in sentence and len(_asserted_bound_bans(text)) == 1
-                    and sum(_percent_identity(m) == identity for m in _BOUND_PERCENT.finditer(text)) == 1):
-                # A standalone "Exception — ..." can unambiguously continue
-                # one preceding ban, but cannot serve another owner in a list.
-                for separate in re.finditer(
-                        r'(?:^|[.!?\n])\s*Исключение\s*(?:[:—–-]|составля\w*\b|явля\w*\b)\s*([^.!?\n;]+)',
-                        text[sentence_end:], re.I):
-                    between = text[sentence_end:sentence_end + separate.start()].strip(' .!?\n\r\t')
-                    if between:
-                        # One explicit application sentence can still refer to
-                        # "this ban". Arbitrary intervening topics cannot.
-                        bridge = re.fullmatch(r'([^!?;\n]+)\s+подпадает\s+под\s+этот\s+запрет', between, re.I)
-                        if (not bridge or len(parent_stems & _bound_stems(bridge[1])) < 2
-                                or re.search(r'(?<!\d)\.|\.(?!\d)', bridge[1])):
-                            continue
-                        if (_BOUND_PERCENT.search(bridge[1])
-                                or re.search(r'\d\s*[-–—]\s*\d|\b(?:до|около|примерно)\s+[+\-−]?\d|[<>≤≥≈~≲≳]\s*=?\s*[+\-−]?\d', bridge[1], re.I)):
-                            continue
-                        percentages = list(re.finditer(r'([+\-−]?\d+(?:[.,]\d+)?)\s*(?:%|процент\w*)', bridge[1], re.I))
-                        if len(percentages) != 1:
-                            continue
-                        value = Decimal(percentages[0][1].replace(',', '.').replace('−', '-'))
-                        operator, threshold = identity
-                        satisfied = {'не менее': value >= threshold, 'не более': value <= threshold,
-                                     'более': value > threshold, 'менее': value < threshold,
-                                     'свыше': value > threshold}[operator]
-                        if not satisfied:
-                            continue
-                    tail = separate[1]
-                    if (exception_stems <= _bound_stems(tail)
-                            and bool(re.search(r'\bне\b', tail, re.I)) == bool(re.search(r'\bне\b', clause, re.I))):
-                        kept = True
-                        break
-            if not kept and clause not in lost:
-                lost.append(clause)
-    return lost
-
-
-def residual_source_conditions(selected: list[Fragment]) -> list[str]:
-    """Exact residual rules, not category exclusions or single-point references."""
-    return list(dict.fromkeys(re.sub(r'^\s*\d+(?:\.\d+)*[.)]\s*', '', norm(sentence))
-                              for fragment in selected for sentence in _trim_sentences(fragment.text)
-                              if _RESIDUAL_CASE_GROUP.search(sentence)))
-
-
-def _residual_literal(text: str) -> str:
-    text = re.sub(r'^\s*\d+(?:\.\d+)*[.)]\s*', '', text)
-    # Commas do not supply reference identities. Decimal dots and every word,
-    # negation, reference type, number and relative scope remain significant.
-    return norm(re.sub(r'(?<!\d),|,(?!\d)', ' ', text)).lower().replace('ё', 'е').rstrip('.')
-
-
-def _simple_residual_rate(sentence: str) -> Decimal | None:
-    condition = _RESIDUAL_CASE_GROUP.search(sentence)
-    if not condition or norm(sentence[condition.end():]) not in {'', '.'}:
-        return None
-    rate = re.fullmatch(
-        r'Налогообложение производится по налоговой ставке (\d+(?:[.,]\d+)?) процент(?:а|ов)?',
-        norm(sentence[:condition.start()]), re.I)
-    return _value(rate.group(1)) if rate else None
-
-
-def _residual_rate_mentions(text: str) -> list[tuple[int, int, Decimal]]:
-    """Percentage spans, with the existing numeric and whole-word parsers."""
-    percentages = re.compile(
-        rf'(?<![\w.,−-])\+?(?P<rate>\d{{1,{MAX_FIGURE_DIGITS}}}'
-        rf'(?:[.,]\d{{1,{MAX_FIGURE_DIGITS}}})?)(?![\d.,])'
-        r'(?:\s*(?:%|процент(?:а|ов)?\b)|\s*[-‑–]?\s*процентн[а-яё]*\b)', re.I)
-    found = [(m.start(), m.end(), _value(m['rate'])) for m in percentages.finditer(text)]
-    low = text.lower().replace('ё', 'е')
-    for unit in re.finditer(r'%|\bпроцент(?:а|ов)?\b', low):
-        start = unit.start()
-        for _ in range(6):
-            word = re.search(r'([а-я]+)\s*$', low[:start])
-            if not word or _word_value(word.group(1)) is None:
-                break
-            start = word.start()
-        if start != unit.start():
-            values = _word_numbers(low[start:unit.start()] + ' процентов')
-            if len(values) == 1:
-                found.append((start, unit.end(), Decimal(next(iter(values)))))
-    return found
-
-
-def _residual_addressed_rules(selected: list[Fragment], documents: dict) -> list[tuple[str, str, str, str]]:
-    """Residual propositions with an unambiguous source-owned legal address."""
-    rules = []
-    for fragment in selected:
-        document = documents.get(fragment.document)
-        point = re.match(r'^\s*(\d+(?:\.\d+)*)[.)]\s+', fragment.text)
-        if not document or not point or document.quarantined:
-            continue
-        law = _LAW_CODE.match(document.text[:600])
-        if not law or document.text[fragment.start:fragment.end] != fragment.text:
-            continue
-        article, code = law.groups()
-        headings = set(re.findall(r'^\s*Статья\s+(\d+(?:\.\d+)*)\.', document.text, re.M | re.I))
-        if headings - {article}:
-            continue
-        sentences = _trim_sentences(fragment.text[point.end():])
-        # A later provision in a composite fragment must not inherit its first number.
-        if not sentences or not _RESIDUAL_CASE_GROUP.search(sentences[0]):
-            continue
-        rules.append((point.group(1), article, code, sentences[0]))
-    return rules
-
-
-def _residual_citation_forms(selected: list[Fragment], documents: dict) -> list[tuple[str, str, str]]:
-    """Closed citation wrappers grounded in the selected point and official header."""
-    forms = []
-    for point, article, code, sentence in _residual_addressed_rules(selected, documents):
-        literal = _residual_literal(sentence)
-        p, a, c = map(re.escape, (point, article, code))
-        address = rf'пункту\s+{p}\s+статьи\s+{a}\s+{c}\s+РФ'
-        forms.extend((literal, pattern, literal) for pattern in (
-            rf'(?P<body>.+?)\s+\(п\.\s*{p}\s+ст\.\s*{a}(?:\s+{c}\s+РФ)?\)\.?',
-            rf'По\s+{address}\s+(?P<body>.+)',
-            rf'Пункт\s+{p}\s+статьи\s+{a}\s+{c}\s+РФ\s+устанавливает:\s*«(?P<body>[^«»]+)»\.?',
-        ))
-        condition = _RESIDUAL_CASE_GROUP.search(sentence)
-        if _simple_residual_rate(sentence) is not None:
-            # A closed statement of this same provision's applicability keeps
-            # the entire condition of a simple rate rule. Other predicates or
-            # qualifiers before/after the group still require the full literal.
-            scope = re.sub(r'^в\s+случаях', 'к случаям', condition.group(0), flags=re.I)
-            scope = re.sub(r'\b(указанны|предусмотренны|перечисленны)х\b', r'\1м', scope, flags=re.I)
-            forms.append((literal, rf'Пункт\s+{p}\s+статьи\s+{a}\s+{c}\s+РФ\s+'
-                          rf'применяется\s+(?P<body>.+)', _residual_literal(scope)))
-    return forms
-
-
-_RESIDUAL_POINT_LIST = r'\d+(?:\.\d+)*(?:(?:\s*,\s*|\s+и\s+)\d+(?:\.\d+)*)*'
-
-
-def _residual_logic_context(selected: list[Fragment], documents: dict):
-    # The short secondary forms do not name an article: require one selected
-    # document and one complete residual rule, never infer an owner from a query.
-    if len({f.document for f in selected}) != 1 or len(residual_source_conditions(selected)) != 1:
-        return None
-    rules = set(_residual_addressed_rules(selected, documents))
-    if len(rules) != 1:
-        return None
-    point, _, _, sentence = next(iter(rules))
-    rate = _simple_residual_rate(sentence)
-    group = _RESIDUAL_CASE_GROUP.search(sentence)
-    references = re.fullmatch(
-        r'в\s+случаях\s*,?\s*не\s+(?:указанных|предусмотренных|перечисленных)\s+в\s+'
-        rf'пунктах\s+(?P<refs>{_RESIDUAL_POINT_LIST})\s+настоящей\s+статьи',
-        norm(group.group(0)), re.I)
-    if rate is None or not references:
-        return None
-    ids = re.findall(r'\d+(?:\.\d+)*', references['refs'])
-    return (point, rate, set(ids)) if len(ids) == len(set(ids)) else None
-
-
-def _residual_rate_logic(sentence: str, context) -> bool:
-    """Two closed deductions about this exact rule, not category applications."""
-    if context is None:
-        return False
-    point, rate, required = context
-    mentions = _residual_rate_mentions(sentence)
-    if len(mentions) != 1 or mentions[0][2] != rate:
-        return False
-    start, end, _ = mentions[0]
-    text = norm(sentence[:start] + '<RATE>' + sentence[end:])
-    scope = r'(?:\s+настоящей\s+статьи)?'
-    owner = rf'по\s+пункту\s+{re.escape(point)}'
-    insufficient = re.fullmatch(
-        rf'(?:Нет,\s*)?проверки\s+неприменимости\s+(?P<kind>пункта|пунктов)\s+'
-        rf'(?P<refs>{_RESIDUAL_POINT_LIST}){scope}\s+недостаточно\s+для\s+обоснования\s+'
-        rf'ставки\s+<RATE>\s+{owner}\.?', text, re.I)
-    conditional = re.fullmatch(
-        rf'Если\s+ни\s+один\s+из\s+пунктов\s+(?P<refs>{_RESIDUAL_POINT_LIST}){scope}\s+'
-        rf'не\s+применяется,\s*ставка\s+<RATE>\s+{owner}\s+(?:обоснована|применяется)\.?', text, re.I)
-    match = insufficient or conditional
-    if not match:
-        return False
-    ids = re.findall(r'\d+(?:\.\d+)*', match['refs'])
-    if len(ids) != len(set(ids)):
-        return False
-    if insufficient:
-        return (bool(ids) and set(ids) < required
-                and insufficient['kind'].lower() == ('пункта' if len(ids) == 1 else 'пунктов'))
-    return set(ids) == required
-
-
-def _residual_assumed_context(question: str, selected: list[Fragment], documents: dict, context):
-    """An explicit last-turn hypothesis, with the same complete legal address."""
-    if not question or context is None:
-        return None
-    turn = user_turns(question)[-1]
-    # A quoted paragraph can contain an apparently standalone middle sentence.
-    if re.search('[\"\'«»“”„‟‘’`]', turn):
-        return None
-    _, article, code, _ = next(iter(set(_residual_addressed_rules(selected, documents))))
-    cue = (r'(?:(?:Дано|По\s+условию)\s*[:,]?\s*'
-           r'|(?:Предположим|Допустим)\s*(?:,\s*что\s+|:\s*|\s+)'
-           r'|Примем(?:\s+как\s+(?:проверенные\s+)?исходные\s+данные)?\s*,?\s+что\s+)')
-    subject = (r'(?:она|он|оно|(?:(?:эта|данная|указанная|рассматриваемая|условная)\s+)?'
-               r'(?:реализация(?:\s+товара)?|операция|сделка|поставка))')
-    premise = re.compile(
-        cue + subject + r'\s+не\s+относится\s+ни\s+к\s+одному\s+из\s+случаев\s+пунктов\s+'
-        rf'(?P<refs>{_RESIDUAL_POINT_LIST})\s+статьи\s+{re.escape(article)}\s+'
-        rf'{re.escape(code)}\s+РФ\.?', re.I)
-    sentences = _trim_sentences(turn)
-    matched = [(i, premise.fullmatch(norm(s))) for i, s in enumerate(sentences)]
-    matched = [(i, m) for i, m in matched if m]
-    if len(matched) != 1:
-        return None
-    index, match = matched[0]
-    ids = re.findall(r'\d+(?:\.\d+)*', match['refs'])
-    if len(ids) != len(set(ids)) or set(ids) != context[2]:
-        return None
-    # Unknown attribution before the hypothesis or later prose can change its
-    # force. Keep this allowance closed instead of enumerating cancellation words.
-    framing = (r'(?:Рассматриваем|Рассмотрим)\s+(?:(?:условную|гипотетическую)\s+)?'
-               r'(?:реализацию(?:\s+товара)?|операцию|сделку|поставку)\.')
-    if index > 1 or any(not re.fullmatch(framing, norm(s), re.I) for s in sentences[:index]):
-        return None
-    consequence = (rf'(?:Какая|Какова)\s+(?:налоговая\s+)?ставка'
-                   rf'(?:\s+(?:следует(?:\s+из\s+пункта\s+{re.escape(context[0])})?|применяется))?'
-                   r'(?:\s+при\s+(?:этих|указанных|данных)\s+предпосылках)?\?')
-    classification = (r'Не\s+(?:нужно|требуется)\s+(?:повторно\s+)?'
-                      r'(?:определять|проверять|перепроверять|уточнять)\s+(?:вид|тип|категорию)\s+'
-                      r'(?:товара|товаров|услуги|услуг)\.')
-    seen = set()
-    for sentence in sentences[index + 1:]:
-        kind = next((i for i, pattern in enumerate((consequence, classification))
-                     if re.fullmatch(pattern, norm(sentence), re.I)), None)
-        if kind is None or kind in seen:
-            return None
-        seen.add(kind)
-    return context
-
-
-def _residual_assumed_rate(sentence: str, context, address=None) -> bool:
-    if context is None:
-        return False
-    point, rate, _ = context
-    mentions = _residual_rate_mentions(sentence)
-    if len(mentions) != 1 or mentions[0][2] != rate:
-        return False
-    start, end, _ = mentions[0]
-    text = norm(sentence[:start] + '<RATE>' + sentence[end:])
-    direct = re.fullmatch(
-        rf'(?:Да,\s+при\s+указанных\s+предпосылках\s+применяется\s+налоговая\s+ставка'
-        rf'|Из\s+пункта\s+{re.escape(point)}\s+при\s+указанных\s+предпосылках\s+следует\s+'
-        rf'налоговая\s+ставка)\s+<RATE>\.?', text, re.I)
-    if direct or not address:
-        return bool(direct)
-    article, code = map(re.escape, address)
-    return bool(re.fullmatch(
-        rf'По\s+пункту\s+{re.escape(point)}\s+статьи\s+{article}\s+{code}\s+РФ\s+'
-        r'ставка\s+[—–-]\s+<RATE>\.?', text, re.I))
-
-
-def _residual_case_groups(sentence: str, context, address):
-    """Replace only complete negative case groups of the same source article."""
-    references = list(_NEGATIVE_NUMERIC_REFERENCE.finditer(sentence))
-    if not references or context is None or not address:
-        return None
-    _, _, required = context
-    article, code = map(re.escape, address)
-    pattern = re.compile(
-        r'\bслуча(?:и|ях|ям|ями|ев)\s*,?\s*не\s+'
-        r'(?:указанн|предусмотренн|перечисленн)(?:ые|ых|ым|ыми)\s+в\s+пунктах\s+'
-        rf'(?P<refs>{_RESIDUAL_POINT_LIST})'
-        rf'(?:\s+(?:(?:настоящей|этой)\s+статьи|статьи\s+{article}(?:\s+{code}\s+РФ)?))?'
-        r'(?=[,.;!?]|$)', re.I)
-    groups = list(pattern.finditer(sentence))
-    if len(groups) != len(references) or any(
-            not any(g.start() <= r.start() < g.end() for g in groups) for r in references):
-        return None
-    for group in groups:
-        ids = re.findall(r'\d+(?:\.\d+)*', group['refs'])
-        if len(ids) != len(set(ids)) or set(ids) != required:
-            return None
-    result = sentence
-    for group in reversed(groups):
-        result = result[:group.start()] + '<CASES>' + result[group.end():]
-    return norm(result)
-
-
-def _residual_normative_rate(sentence: str, context, address) -> bool:
-    text = _residual_case_groups(sentence, context, address)
-    if text is None or text.count('<CASES>') != 1:
-        return False
-    point, rate, _ = context
-    mentions = _residual_rate_mentions(text)
-    if len(mentions) != 1 or mentions[0][2] != rate:
-        return False
-    start, end, _ = mentions[0]
-    text = text[:start] + '<RATE>' + text[end:]
-    article, code = map(re.escape, address)
-    return bool(re.fullmatch(
-        rf'По\s+(?:п\.|пункту)\s*{re.escape(point)}\s+(?:ст\.|статьи)\s*{article}\s+{code}\s+РФ\s+'
-        r'(?:налоговая\s+)?ставка\s+<RATE>\s+применяется\s+в\s+<CASES>\.?', text, re.I))
-
-
-def _residual_question_members(question: str, context, address) -> set[str]:
-    if not question or context is None or not address:
-        return set()
-    turn = user_turns(question)[-1]
-    if re.search('[\"\'«»“”„‟‘’`]', turn):
-        return set()
-    sentences = _trim_sentences(turn)
-    if not sentences:
-        return set()
-    article, code = map(re.escape, address)
-    pattern = (r'^(?:(?:условная|заданная|данная|указанная)\s+)?'
-               r'(?:реализация(?:\s+товара)?|операция|сделка)\s+(?:точно\s+)?относится\s+к\s+пункту\s+'
-               rf'(?P<point>\d+(?:\.\d+)*)\s+статьи\s+{article}\s+{code}\s+РФ'
-               rf'(?:,\s+а\s+случаи\s+пунктов\s+(?P<others>{_RESIDUAL_POINT_LIST})\s+к\s+ней\s+не\s+относятся)?\.')
-    match = re.fullmatch(pattern, norm(sentences[0]), re.I)
-    if not match or match['point'] not in context[2]:
-        return set()
-    if match['others']:
-        ids = re.findall(r'\d+(?:\.\d+)*', match['others'])
-        if len(ids) != len(set(ids)) or not set(ids) <= context[2] - {match['point']}:
-            return set()
-    proposal = (rf'Контрагент\s+предлагает\s+применить\s+пункт\s+{re.escape(context[0])}\s+'
-                rf'(?:только\s+)?потому,\s+что\s+исключены\s+пункты\s+(?P<refs>{_RESIDUAL_POINT_LIST})\.')
-    rate_question = (r'(?:Какая|Какова)\s+(?:налоговая\s+)?ставка'
-                     r'(?:\s+(?:предусмотрена|применяется)(?:\s+для\s+(?:заданной|данной|указанной)\s+'
-                     r'(?:реализации|операции|сделки))?)?\?')
-    seen_proposal, seen_question = False, False
-    for sentence in sentences[1:]:
-        sentence = norm(sentence)
-        suggested = re.fullmatch(proposal, sentence, re.I)
-        if suggested and not seen_proposal and not seen_question:
-            ids = re.findall(r'\d+(?:\.\d+)*', suggested['refs'])
-            if len(ids) != len(set(ids)) or not set(ids) <= context[2]:
-                return set()
-            seen_proposal = True
-        elif not seen_question and (re.fullmatch(rate_question, sentence, re.I)
-                                   or seen_proposal and re.fullmatch(r'Верно\s+ли\s+это\s+и\s+' + rate_question,
-                                                                    sentence, re.I)):
-            seen_question = True
-        else:
-            return set()
-    return {match['point']}
-
-
-def _residual_case_logic(sentence: str, question: str, context, address) -> bool:
-    """Compose source scope and a stated excluded case without reversing either."""
-    text = _residual_case_groups(sentence, context, address)
-    if text is None or text.count('<CASES>') != 1 or text.endswith('?'):
-        return False
-    point, _, _ = context
-    owner = re.escape(point)
-    members = _residual_question_members(question, context, address)
-    atoms = re.split(r'\s*:\s*|\s*,\s*(?:а|поэтому)\s+', text.rstrip('.'), flags=re.I)
-    owns_rule, uses_pronoun = False, False
-    for atom in atoms:
-        if re.fullmatch(rf'Пункт\s+{owner}\s+охватывает\s+<CASES>', atom, re.I):
-            owns_rule = True
-        elif re.fullmatch(r'он\s+охватывает\s+<CASES>', atom, re.I):
-            uses_pronoun = True
-        elif members and re.fullmatch(
-                rf'(?:Применение\s+пункта\s+{owner}\s+неверно|Пункт\s+{owner}\s+не\s+применяется)', atom, re.I):
-            owns_rule = True
-        elif members and re.fullmatch(r'она\s+не\s+подпадает\s+под\s+<CASES>', atom, re.I):
-            uses_pronoun = True
-        else:
-            member = re.fullmatch(r'(?:заданная|данная|указанная|условная)\s+'
-                                  r'(?:реализация(?:\s+товара)?|операция|сделка)\s+относится\s+к\s+'
-                                  r'пункту\s+(\d+(?:\.\d+)*)', atom, re.I)
-            if not member or member[1] not in members:
-                return False
-    return owns_rule or not uses_pronoun
-
-
-def residual_conditions_kept(text: str, selected: list[Fragment], documents: dict | None = None,
-                             question: str = '') -> bool:
-    """Conservative literal gate for an explicitly selected residual rule.
-
-    Merely mentioning the reference numbers elsewhere is not enough. A retry
-    may remove an irrelevant selected rule or state its complete proposition.
-    This does not claim to prove all other assertions in the answer.
-    """
-    conditions = residual_source_conditions(selected)
-    expected = {_residual_literal(s) for s in conditions}
-    if not expected:
-        return True
-    forms = _residual_citation_forms(selected, documents or {})
-    def sentence_key(sentence):
-        key = _residual_literal(sentence)
-        if key in expected:
-            return key
-        for literal, pattern, body in forms:
-            match = re.fullmatch(pattern, norm(sentence), re.I)
-            if match and _residual_literal(match.group('body')) == body:
-                return literal
-        return key
-    sentences = _trim_sentences(text)
-    if not expected <= {sentence_key(s) for s in sentences}:
-        return False
-    rates = {rate: condition for condition in conditions
-             if (rate := _simple_residual_rate(condition)) is not None}
-    logical_context = _residual_logic_context(selected, documents or {})
-    assumed_context = _residual_assumed_context(question, selected, documents or {}, logical_context)
-    address = (next(iter(set(_residual_addressed_rules(selected, documents or {}))))[1:3]
-               if logical_context is not None else None)
-    for index, sentence in enumerate(sentences):
-        if sentence_key(sentence) in expected:
-            continue
-        if _residual_rate_logic(sentence, logical_context):
-            continue
-        if (_residual_assumed_rate(sentence, assumed_context, address)
-                or _residual_normative_rate(sentence, logical_context, address)):
-            continue
-        for start, end, rate in _residual_rate_mentions(sentence):
-            if rate not in rates:
-                continue
-            # Bare short answers and an explicit contrast are not an additional
-            # categorical application. A suffix may only be a trusted citation.
-            suffix = sentence[end:]
-            suffix_kept = sentence_key(rates[rate].rstrip('.') + suffix) in expected
-            bare_first = (index == 0 and not sentence[:start].strip()
-                          and not re.search('процентн', sentence[start:end], re.I))
-            contrast = re.search(r'\bа\s+не\s*$', sentence[:start], re.I)
-            if not suffix_kept or not (bare_first or contrast):
-                return False
-    # Do not append the correct source sentence while retaining the old
-    # truncated negative implication elsewhere in the same answer.
-    return all(not _NEGATIVE_NUMERIC_REFERENCE.search(sentence)
-               or _residual_normative_rate(sentence, logical_context, address)
-               or _residual_case_logic(sentence, question, logical_context, address)
-               for sentence in sentences if sentence_key(sentence) not in expected)
 
 
 # Restrictive operators by class. A model text about a restricted provision is
@@ -1139,36 +475,12 @@ def lost_restrictions(text: str, selected: list[Fragment], question: str = "") -
     return list(dict.fromkeys(lost))[:6]
 
 
-def remember_lost_restrictions(previous, text: str, selected: list[Fragment], question: str = "") -> list[str]:
-    """Keep alternating omissions in retry feedback, grounded in current sources.
-
-    Memory contains classes, not old legal conditions: a changed selection
-    removes absent classes and supplies its own operator wording. Publication
-    still uses the unchanged restrictions_kept guard and the same call budget.
-    """
-    current = lost_restrictions(text, selected, question)
-    if not previous:
-        return current
-    patterns = [("upper_bound", _UPPER_BOUND_SOURCE), *_RESTRICTIONS.items()]
-    def restriction_class(wording):
-        return next((name for name, pattern in patterns if re.fullmatch(pattern, wording)), None)
-    wanted = {restriction_class(wording) for wording in [*previous, *current]} - {None}
-    required = _required_classes(norm(text).lower().replace("ё", "е")) | {"upper_bound"}
-    available = lost_restrictions("", selected, question)
-    return [wording for wording in available if restriction_class(wording) in wanted & required]
-
-
-def restrictions_kept(text: str, selected: list[Fragment], strict: bool = False, question: str = "",
-                      documents: dict | None = None) -> bool:
+def restrictions_kept(text: str, selected: list[Fragment], strict: bool = False, question: str = "") -> bool:
     """Lexical barrier: the text must not drop a restriction class of its sources.
 
     This does not prove that the restriction is stated correctly; the verifier
     still judges the text, and the source provisions are published with it.
     """
-    if (not residual_conditions_kept(text, selected, documents, question)
-            or lost_exclusion_qualifiers(text, selected)
-            or lost_bound_numeric_exceptions(text, selected)):
-        return False
     source = norm("\n".join(f.text for f in selected)).lower().replace("ё", "е")
     answer = norm(text).lower().replace("ё", "е")
     if re.search(_UPPER_BOUND_SOURCE, source) and not re.search(_UPPER_BOUND_ANSWER, answer):
@@ -1611,7 +923,6 @@ def prose_scope_safe(text: str, selected: list[Fragment], question: str = "") ->
                 or _CONTENT_ONLY.search(text[max(0, m.start() - 80):m.end()]) or _quoted_from(question, text, m)
                 or _restates_bound(text, m, source) or _restates_exception_list(text, m, source)
                 or _restates_permission_condition(text, m, source)
-                or _restates_list_membership(text, m, selected)
                 for m in _EXCLUSIVE.finditer(text))
             and not (_role_negation(text) and not _role_negation(source))
             and added_assertions_safe(text, selected))
@@ -1677,67 +988,6 @@ def _restates_permission_condition(text: str, m, source: str) -> bool:
     return any(_PERMIT_VERB.search(sentence) and re.search(r"(?<![а-яё])" + phrase, sentence)
                and subject & {w[:4] for w in re.findall(r"[а-яё]{4,}", sentence)}
                for sentence in _sentences(source))
-
-
-def _restates_list_membership(text: str, operator, selected: list[Fragment]) -> bool:
-    """Only «X — лишь один из них»: membership, never a count of permitted actors.
-
-    X must occur in one item of an explicit positive numbered source list.
-    The entire statement is a copula; no action, condition or qualification
-    can trail it. Other uses of exclusive words keep their existing barriers.
-    """
-    if operator.group().lower() != "лишь":
-        return False
-    cursor, membership = 0, None
-    for sentence in _trim_sentences(text):
-        start = text.find(sentence, cursor)
-        cursor = start + len(sentence)
-        if start <= operator.start() < cursor:
-            membership = re.fullmatch(
-                r'(?P<subject>[а-яё][а-яё -]{1,100}?)\s+(?P<copula>[—–-]|является)\s+'
-                r'(?P<operator>лишь)\s+(?P<form>один|одна|одним|одной)\s+из\s+них\.?',
-                sentence, re.I)
-            if not membership or start + membership.start('operator') != operator.start():
-                return False
-            break
-    if membership is None:
-        return False
-    if ((membership['copula'].lower() == 'является')
-            != (membership['form'].lower() in {'одним', 'одной'})):
-        return False
-    uncertain = re.compile(r'\b(?:не|ни|нет|если|когда|бы|ли|при|возмож\w*|'
-                           r'якобы|допустим|предполож\w*|мож\w*|мог\w*)\b', re.I)
-    subject = membership['subject'].lower().replace('ё', 'е')
-    words = re.findall(r'[а-я]{3,}', subject)
-    if len(words) < 2 or uncertain.search(subject):
-        return False
-    def contains_subject(item):
-        if uncertain.search(item):
-            return False
-        item_words = set(re.findall(r'[а-я]+', item.lower().replace('ё', 'е')))
-        # Exact words or a noun's explicit case suffix: «банк» in «банка».
-        # Four-letter stems would confuse «контрагента» and «контрабанды».
-        return all(any(re.fullmatch(re.escape(word) + r'(?:а|у|ом|е|и|ов|ам|ами|ах)?', source_word)
-                       for source_word in item_words) for word in words)
-    for fragment in selected:
-        for intro in re.finditer(r':\s*(?=1[.)]\s+)', fragment.text):
-            heading = re.split(r'[.!?\n]', fragment.text[:intro.start()])[-1]
-            if uncertain.search(heading):
-                continue
-            tail = fragment.text[intro.end():]
-            marks = list(re.finditer(r'(?<![\w.])(\d{1,2})[.)]\s+', tail))
-            items = []
-            for index, mark in enumerate(marks):
-                if int(mark[1]) != index + 1:
-                    break
-                end = marks[index + 1].start() if index + 1 < len(marks) else len(tail)
-                item = re.split(r'[.!?;\n]', tail[mark.end():end], maxsplit=1)[0].strip()
-                if not item:
-                    break
-                items.append(item)
-            if len(items) >= 2 and sum(contains_subject(item) for item in items) == 1:
-                return True
-    return False
 
 
 def _quoted_from(question: str, text: str, m) -> bool:
@@ -2186,28 +1436,6 @@ def _asks_value(question: str) -> bool:
         for match in _CONFIRM_VALUE.finditer(clause):
             if not (re.search(r'\d', match['amount']) or _word_numbers(match['amount'].lower().replace('ё', 'е'))):
                 continue
-            # A confirmed proposition can ask who defines a value after an
-            # elapsed interval; that interval is not itself the requested value.
-            amount_start = match.start('amount')
-            for numeral in re.finditer(r'\d+(?:[.,]\d+)?|[а-яё]+', match['amount'], re.I):
-                if re.search(r'\d', numeral[0]) or _word_numbers(numeral[0].lower().replace('ё', 'е')):
-                    amount_start += numeral.start()
-                    break
-            after_quantity = clause[match.end():]
-            # Accept only one closed provenance clause. In particular, an
-            # expiry/value predicate followed by «как определяет ...» is not
-            # a who/where question about an incidental elapsed interval.
-            genitive = r'[а-яё]+(?:ого|его|ой|ей|ых|их|а|ы|и|ния|ия|теля)'
-            provenance_tail = (
-                r'\s*(?:[а-яё]+(?:ции|ния|ки|бы)\s+){0,2}'
-                r'(?:срок|размер|сумма|цена|стоимость)\s+'
-                r'(?:' + genitive + r'\s+){0,4}'
-                r'(?:(?:определяет(?:ся)?|устанавливает(?:ся)?)\s+[а-яё]{4,}'
-                r'(?:\s+' + genitive + r'){0,2}'
-                r'|(?:указан[аоы]?|содержится)\s+в\s+[а-яё]{4,}(?:\s+[а-яё]{4,}){0,2})\s*[.!]?')
-            if (re.search(r'\b(?:после|спустя|через)\s*$', clause[:amount_start], re.I)
-                    and re.fullmatch(provenance_tail, after_quantity, re.I)):
-                continue
             # The word branch can include a confirmation marker before its numeral.
             marker = re.search(r'\b(?:ведь|верно\s+ли|правда\s+ли|правильно\s+ли|точно|неужели|подтверди(?:те)?)\b',
                                clause[:match.end()], re.I)
@@ -2216,36 +1444,6 @@ def _asks_value(question: str) -> bool:
             if marker or (index < len(parts) - 1 and (not tail or confirmation)):
                 return True
     return False
-
-
-def missing_value_inference(question: str) -> bool:
-    """A narrow negative inference from an absent value, not its confirmation.
-
-    This only selects application-owned wording after value_dependencies has
-    established a real missing defining document. It never authorizes model
-    prose, confirms a proposed number or decides whether that number is lawful.
-    """
-    current = user_turns(question)[-1]
-    if current.count('?') != 1:
-        return False
-    sentences = _trim_sentences(current)
-    if not sentences:
-        return False
-    match = re.fullmatch(
-        r'(?:означает|доказывает|подтверждает)\s+ли\s+'
-        r'(?:(?:само\s+по\s+себе|само)\s+)?отсутствие\s+'
-        r'(?:числа|значения|срока|суммы|размера)\b'
-        r'(?P<basis>[^!?;]{0,120}?),?\s+что\s+(?P<conclusion>[^!?;]{1,240})\?',
-        sentences[-1].strip(), re.I)
-    if not match or re.search(r'\b(?:не|ни|нет|и|либо|или|вместе\s+с)\b', match['basis'], re.I):
-        return False
-    conclusion = match['conclusion']
-    if (len(re.findall(r'\bне\b', conclusion, re.I)) != 1
-            or re.search(r'\b(?:и|либо|или|вместе\s+с|но|однако|зато)\b', conclusion, re.I)):
-        return False
-    return bool(re.search(
-        r'\bне\s+(?:мог|могла|могло|могли|может|могут)\s+'
-        r'(?:установить|предусмотреть|назначить)\b', conclusion, re.I))
 
 
 def value_dependencies(question: str, selected: list[Fragment], documents) -> list[str]:
@@ -2491,25 +1689,6 @@ def money_base_binding_conflict(question: str, text: str, basis: str) -> bool:
         return kinds, entities, identifiers
 
     def conflicts(left, right):
-        # A declared amount of «аванс/сбор/часть от цены» is not the price.
-        # Only an explicit nested base relation is recognized here; arbitrary
-        # unfamiliar labels and possible synonyms retain the old behavior.
-        nested = re.fullmatch(r'(?P<outer>[а-яё][а-яё -]{0,50}?)\s+(?:от|из)\s+'
-                              r'(?P<inner>[^,.;()!?\n]{1,80})', right.strip(), re.I)
-        def nested_identity(label):
-            # Remove only the full adjective directly before a monetary noun.
-            # Entity names such as «Полюс», «полимер» and «ПОЛ» stay intact.
-            label = re.sub(
-                r'\bполн(?:ый|ая|ое|ые|ого|ой|ому|ую|ым|ыми|ых|ом)\s+'
-                r'(?=(?:(?:общ(?:ий|ая|ее|ие|его|ей|ую|ему|им|ем|их|ими)|'
-                r'ориентировочн(?:ый|ая|ое|ые|ого|ой|ую|ому|ым|ом|ых|ыми))\s+)*'
-                r'(?:цен[аыуе]|стоимост\w*|доход\w*|долг\w*|задолженност\w*|'
-                r'сумм\w*|штраф\w*|оплат[аыуе])\b)', '', label, flags=re.I)
-            return identity(label)
-        if (nested and _money_subject(left)
-                and nested_identity(left) == nested_identity(nested['inner'])
-                and nested_identity(nested['outer']) != nested_identity(nested['inner'])):
-            return True
         lkind, lentity, lid = identity(left)
         rkind, rentity, rid = identity(right)
         if not lkind & rkind:
@@ -2628,21 +1807,7 @@ def complete_money_calculation(question: str, text: str, basis: str) -> str | No
             continue
         for monetary in basis_money:
             prefix = re.split(r"[.!?;\n]", basis[max(0, monetary.start() - 180):monetary.start()])[-1]
-            declaration = re.search(
-                r'(?P<label>[^.!?;\n]{1,100}?)\s*'
-                r'(?:составляет|составляют|равна|равно|равны|—|–|:)\s*$', prefix, re.I)
-            if not declaration:
-                continue
-            # A monetary noun nested in «аванс от цены» is not the amount
-            # being declared. Require the same head in a direct declaration.
-            def monetary_head(label):
-                label = re.sub(r'^\s*(?:(?:общ\w*|ориентировоч\w*|полно\w*)\s+)*', '', label, flags=re.I)
-                head = _MONEY_SUBJECT.match(label)
-                return head[0].lower()[:3] if head else None
-            label = declaration['label']
-            source_head = monetary_head(base[1])
-            if (source_head and source_head == monetary_head(label)
-                    and source_subject <= _money_subject(label)):
+            if source_subject <= _money_subject(prefix):
                 linked = True
     if not linked:
         return None
@@ -3147,20 +2312,9 @@ def quarantined_content_absence(text: str, retriever) -> bool:
     """
     for sentence, _ in _quarantined_content_claims(text, retriever):
         assertion = re.sub(r'^\s*нет\s*[,;:—–-]\s*', '', sentence, flags=re.I)
-        for clause in assertion.split(';'):
-            if _BOUNDED_EXCERPT.search(clause):
-                continue
-            for absence in _CONTENT_ABSENCE.finditer(clause):
-                # «При отсутствии согласия ... запрещено» states a legal
-                # condition, not that text is missing from the document.
-                # Skip only this conditional noun; later absence claims still
-                # need checking, even within the same sentence.
-                if ((absence[0].lower() == 'отсутствии'
-                         and re.search(r'\bпри\s*$', clause[:absence.start()], re.I))
-                        or (absence[0].lower() == 'отсутствия'
-                            and re.search(r'\bв\s+случае\s*$', clause[:absence.start()], re.I))):
-                    continue
-                return True
+        if any(_CONTENT_ABSENCE.search(clause) and not _BOUNDED_EXCERPT.search(clause)
+               for clause in assertion.split(';')):
+            return True
     return False
 
 
@@ -3320,49 +2474,8 @@ def gap_lines(source_gaps, *, required: bool = True) -> list[str]:
     tail = ("Содержание этих оснований и их применимость по доступным материалам установить нельзя. "
             "Предоставьте эти статьи." if required else
             "Условия применения этих отсылочных оснований в данном ответе не устанавливаются.")
-    lines = []
-    for gap in source_gaps:
-        if gap.get("reason") == "incomplete_context":
-            lines.append("Полнота основания не подтверждена: не проверены все условия и исключения, "
-                         "связанные с положениями «" + "; ".join(gap["provisions"]) + "». "
-                         "По приведённым выдержкам окончательный вывод об их применимости сделать нельзя.")
-        else:
-            lines.append("В предоставленной базе не найдены тексты отсылочных статей " + ", ".join(gap["articles"]) +
-                         " того же нормативного документа. " + tail)
-    return lines
-
-
-def _bounded_context_warning(candidate, evidence, source_gaps, editions, published_sources):
-    """No legal claims or cut quotations when the incomplete view is too long.
-
-    A source name can still link to its exact first selected fragment. Every
-    displayed name is complete, and the metadata includes only displayed names.
-    This special partial result does not relax the ordinary answer-size limit.
-    """
-    if (candidate["status"] != "partial"
-            or not any(g.get("reason") == "incomplete_context" for g in source_gaps)):
-        raise ProviderError("answer_length_limit")
-    lines = ["Полнота основания не подтверждена: не проверены все связанные условия и исключения. "
-             "Окончательный вывод об их применимости сделать нельзя. "
-             "Указанные ниже источники найдены, но их положения в этом ответе не воспроизводятся."]
-    by_id = {f.id: f for f in evidence}
-    kept, documents = [], set()
-    for claim in candidate["claims"]:
-        for cite in claim["sources"]:
-            source = by_id[cite["fragment_id"]]
-            if source.document in documents:
-                continue
-            line = f"[{len(kept) + 1}] " + cite_name(source.document, editions) + "."
-            if len("\n".join([*lines, line])) <= 10000:
-                lines.append(line)
-                documents.add(source.document)
-                kept.append(source)
-    if not kept:
-        lines[0] = ("Полнота основания не подтверждена: не проверены все связанные условия и исключения. "
-                    "Окончательный вывод об их применимости сделать нельзя.")
-    if published_sources is not None:
-        published_sources[:] = kept
-    return "\n".join(lines)
+    return ["В предоставленной базе не найдены тексты отсылочных статей " + ", ".join(gap["articles"]) +
+            " того же нормативного документа. " + tail for gap in source_gaps]
 
 
 def render(candidate: dict, evidence: list[Fragment], source_gaps=(), prose: str = "", *, question: str = "", value_gaps=(), keep_sources: bool = False, context_sources=(), published_sources: list[Fragment] | None = None, editions=None) -> str:
@@ -3406,7 +2519,7 @@ def render(candidate: dict, evidence: list[Fragment], source_gaps=(), prose: str
             lines.append("Чтобы назвать конкретное значение, нужен этот документ.")
         answer = "\n".join(lines + gap_lines(source_gaps, required=reference_required))
         if len(answer) > 10000:
-            return _bounded_context_warning(candidate, evidence, source_gaps, editions, published_sources)
+            raise ProviderError("answer_length_limit")
         return answer
     if status == "out_of_scope":
         return "Я отвечаю на юридические вопросы по предоставленной базе документов. Этот запрос выходит за пределы моей задачи."
@@ -3510,15 +2623,12 @@ def render(candidate: dict, evidence: list[Fragment], source_gaps=(), prose: str
             # The answer opens with what the documents do and do not settle.
             lines.insert(0, "Конкретное значение в найденных документах не установлено: положение отсылает к "
                             "отдельному документу («" + "; ".join(value_gaps) + "»).")
-            if missing_value_inference(question):
-                lines.insert(0, "Само по себе отсутствие значения в отсылочном положении не доказывает, "
-                                "что названное в вопросе значение не могло быть установлено.")
         lines.append("Чтобы назвать значение, нужен этот документ. Предоставьте его, если он у вас есть.")
     reference_lines = [', '.join(f'[{n}]' for n in values) + ' ' + cite_name(name, editions) + '.'
                        for name, values in references.items()]
     answer = "\n".join(lines + reference_lines)
     if len(answer) > 10000:
-        return _bounded_context_warning(candidate, evidence, source_gaps, editions, published_sources)
+        raise ProviderError("answer_length_limit")
     return answer
 
 
@@ -3556,85 +2666,6 @@ retry_value_documents перечисляет положения, которые 
 что остаётся неизвестным и какой документ нужен. Не начинай с категорического
 «да» или «нет» о самом значении. Условия другого договора явно отделяй от
 условий запрошенного. Отвечай обычным JSON; сами ссылки не задают значения.
-"""
-
-RESTRICTION_RETRY_GUIDANCE = """
-В повторной формулировке сохрани буквально ограничительные операторы из
-retry_restrictions вместе с подтверждённым условием или исключением источника.
-Не заменяй эти операторы синонимами и не оставляй их без относящегося к ним
-условия. Если исправляешь одно ограничение, сохрани остальные из списка.
-Список не является самостоятельным основанием: нельзя переносить ограничение
-на другой объект или добавлять не подтверждённые выбранными источниками условия.
-Верни обычный JSON. Все проверки ответа сохраняются.
-"""
-
-RESIDUAL_RETRY_GUIDANCE = """
-retry_residual_conditions содержит дословные предложения выбранных источников,
-которые задают остаточное правило для случаев вне полного набора других пунктов.
-Исправь вывод, а не просто допиши цитату к прежнему противоречащему утверждению.
-Если используешь это правило, сохрани каждое предложение из этого поля отдельно
-и дословно, включая отрицание, весь список ссылок, их тип и область действия.
-Не добавляй к этому предложению вводные слова, ссылки в скобках или кавычки.
-Нельзя выводить применимость остаточной нормы из исключения лишь одного случая.
-Если выполнение всех условий не установлено, назови норму условно, без утверждения,
-что она уже применима.
-Сохраняй уточняющие слова в перечнях условий и исключений; не заменяй конкретные
-виды или категории общим родовым названием.
-Единственное развёрнутое утверждение об остаточной ставке — полное предложение
-источника. Не добавляй отдельно, что эта ставка действует для конкретной категории,
-если выполнение всех условий её применения не установлено.
-Не заменяй полный набор одним пунктом. Если правило не относится к ответу,
-убери его источник и вывод о нём. Это диагностика: юридические основания — evidence.
-Для каждого оставленного источника поле answer должно содержать соответствующее
-предложение из retry_residual_conditions в точности, как отдельное предложение.
-"""
-
-QUALIFIER_RETRY_GUIDANCE = """
-retry_exclusion_qualifiers содержит дословные определения из выбранных источников.
-Если называешь соответствующий вид в исключениях, сохрани его определение;
-не заменяй конкретный вид общим родовым названием. Не нужно добавлять вид в ответ,
-если он не нужен для вопроса. При исправлении других условий сохрани эти определения
-у уже названных видов. Список является диагностикой; юридические основания — evidence.
-"""
-
-BOUND_EXCEPTION_RETRY_GUIDANCE = """
-retry_bound_exceptions содержит дословные исключения из выбранных источников.
-Если повторяешь соответствующий пороговый запрет, сохрани его исключение в том же
-пункте ответа; исключение из другого запрета его не заменяет. Не нужно добавлять
-сам запрет, если он не нужен для ответа. При исправлении других условий сохрани
-исключения у уже названных запретов. Правовые основания остаются в evidence.
-"""
-
-EXCLUSIVE_RETRY_GUIDANCE = """
-В этом повторе измени в черновике только отклонённую исключительную формулировку.
-Сохрани основной вывод и подтверждённые ограничения ответа. Поле
-retry_preserve_restrictions содержит операторы из выбранных источников, включая
-уже сохранённые в черновике: передай их буквально вместе с относящимися к ним
-условиями. Удаление лишнего «только» или «лишь» не должно удалять запрет, условие
-или исключение источника. Не переноси ограничение на другой объект и не добавляй
-новых условий. Поле является диагностикой, а правовые основания остаются в evidence.
-"""
-
-CONTEXT_RETRY_GUIDANCE = """
-retry_context_gaps перечисляет положения, полнота которых не была обеспечена
-в предыдущем evidence. Это не отсутствие документа в базе. Проверь расширенные
-источники и связанные условия и исключения, прежде чем давать окончательный вывод.
-Если узкий вопрос полностью решает другое доступное полное положение, выбери его.
-Не выводи ответ из неполного источника и не добавляй ненужные смежные случаи.
-Если достаточно установить логическую границу полного правила, не раскрывай
-содержание отсылочных положений и не выбирай их как основания без необходимости.
-Если полного основания по-прежнему нет в evidence, сохрани partial; не утверждай,
-что документов нет в базе, и не проси пользователя повторно предоставить их.
-Диагностика не является источником правовых условий. Верни обычный JSON.
-"""
-
-CONTEXT_VERIFY_GUIDANCE = """
-В source_gaps запись reason=incomplete_context означает, что полнота выбранного
-основания и связанных положений не подтверждена в evidence. Она не означает
-отсутствия документов в базе. Такой ответ остаётся partial с исходными выдержками
-и пояснением границы; requested_facts=referenced_documents обозначает недостающую
-проверку основания, а не просьбу пользователю снова прислать имеющийся документ.
-reference_scope=local не отменяет эту неполноту выбранного основания.
 """
 
 MONEY_RETRY_GUIDANCE = """
@@ -3686,17 +2717,12 @@ def answer_steps(question: str, retriever, client, top_k: int = 6, verify: bool 
     retry_reason = ""
     retry_scope_guard = False
     retry_restrictions = []
-    retry_residual_conditions = []
-    retry_exclusion_qualifiers = []
-    retry_bound_exceptions = []
     retry_extra: list[str] = []
     retry_items: list[str] = []
     retry_numeric = None
     retry_draft = ""
     retry_policy, retry_policy_draft = None, ""
-    retry_preserve_restrictions = []
     retry_value_documents = []
-    retry_context_gaps = []
     final_repair = False
     verified_once = False
     provisional = None
@@ -3738,20 +2764,6 @@ def answer_steps(question: str, retriever, client, top_k: int = 6, verify: bool 
                     generation_system += VALUE_RETRY_GUIDANCE
                     generation_payload = {**generation_payload,
                                           "retry_value_documents": retry_value_documents}
-                if retry_reason == "incomplete_source_context" and retry_context_gaps:
-                    generation_system += CONTEXT_RETRY_GUIDANCE
-                    generation_payload = {**generation_payload, "retry_context_gaps": retry_context_gaps}
-                if retry_reason == "answer_lost_restrictions" and retry_restrictions:
-                    generation_system += RESTRICTION_RETRY_GUIDANCE
-                if retry_reason == "answer_lost_restrictions" and retry_residual_conditions:
-                    generation_payload = {**generation_payload,
-                                          "retry_residual_conditions": retry_residual_conditions}
-                if retry_reason == "answer_lost_restrictions" and retry_exclusion_qualifiers:
-                    generation_payload = {**generation_payload,
-                                          "retry_exclusion_qualifiers": retry_exclusion_qualifiers}
-                if retry_reason == "answer_lost_restrictions" and retry_bound_exceptions:
-                    generation_payload = {**generation_payload,
-                                          "retry_bound_exceptions": retry_bound_exceptions}
                 if retry_reason == "answer_numbers_not_in_sources" and retry_numeric:
                     generation_system += NUMERIC_RETRY_GUIDANCE
                     # The rejected text is generation-only data. It does not
@@ -3768,10 +2780,6 @@ def answer_steps(question: str, retriever, client, top_k: int = 6, verify: bool 
                                           else POLICY_RETRY_GUIDANCE)
                     generation_payload = {**generation_payload, "retry_policy_feedback": retry_policy,
                                           "retry_policy_draft": retry_policy_draft}
-                    if retry_policy["scope_barrier"] == "exclusive_word" and retry_preserve_restrictions:
-                        generation_system += EXCLUSIVE_RETRY_GUIDANCE
-                        generation_payload = {**generation_payload,
-                                              "retry_preserve_restrictions": retry_preserve_restrictions}
                 if final_repair:
                     if retry_policy and "retry_policy_feedback" not in generation_payload:
                         generation_system += POLICY_RETRY_GUIDANCE
@@ -3779,22 +2787,9 @@ def answer_steps(question: str, retriever, client, top_k: int = 6, verify: bool 
                                               "retry_policy_draft": retry_policy_draft}
                     generation_system += FINAL_REPAIR_GUIDANCE
                     generation_payload = {**generation_payload, "final_text_repair": True}
-                if retry_reason == "answer_lost_restrictions" and retry_exclusion_qualifiers:
-                    generation_system += QUALIFIER_RETRY_GUIDANCE
-                if retry_reason == "answer_lost_restrictions" and retry_bound_exceptions:
-                    generation_system += BOUND_EXCEPTION_RETRY_GUIDANCE
-                if retry_reason == "answer_lost_restrictions" and retry_residual_conditions:
-                    # Keep the source-owned exact-copy requirement after the
-                    # general reformulation advice, including the final repair.
-                    generation_system += RESIDUAL_RETRY_GUIDANCE
                 retry_numeric, retry_draft = None, ""
                 retry_policy, retry_policy_draft = None, ""
-                retry_preserve_restrictions = []
-                retry_residual_conditions = []
-                retry_exclusion_qualifiers = []
-                retry_bound_exceptions = []
                 retry_value_documents = []
-                retry_context_gaps = []
                 calls += 1
                 generated = client.complete(generation_system, generation_payload)
                 candidate = expand_selection(generated, evidence)
@@ -3823,9 +2818,6 @@ def answer_steps(question: str, retriever, client, top_k: int = 6, verify: bool 
                                     for f in retriever.publication_context(source)
                                     if not bound_elsewhere(f, source, retriever, question)}.values()) if hasattr(retriever, 'publication_context') else []
             source_gaps = retriever.reference_gaps(selected) if hasattr(retriever, "reference_gaps") else []
-            context_gaps = (retriever.context_gaps(selected, evidence)
-                            if hasattr(retriever, "context_gaps") else [])
-            source_gaps = list(source_gaps) + list(context_gaps)
             value_gaps = value_dependencies(question, selected, getattr(retriever, "documents", {}))
             # Keep the missing-value explanation even when a numerical or
             # semantic rejection also drives the next generation. This is
@@ -3862,23 +2854,13 @@ def answer_steps(question: str, retriever, client, top_k: int = 6, verify: bool 
             # Known restrictive units always keep their source wording in the
             # answer. A model conclusion may precede it only if it repeats every
             # restriction class of the sources; a positive verdict cannot waive this.
-            residual_conditions = residual_source_conditions(selected)
-            restricted = bool(residual_conditions) or any(_SOURCE_ONLY.search(norm(f.text)) for f in selected)
-            # Preserve the current residual rule even when this draft kept it
-            # but lost a different restriction. A later repair must not alternate
-            # between dropping the reference group and another source condition.
-            retry_residual_conditions = residual_conditions
-            # Reground even already-kept definitions in the current selection,
-            # so repairing a residual condition cannot drop a qualifier next.
-            retry_exclusion_qualifiers = [p[0] for p in _qualified_exclusion_phrases(selected)]
-            retry_bound_exceptions = all_bound_numeric_exception_phrases(selected)
+            restricted = any(_SOURCE_ONLY.search(norm(f.text)) for f in selected)
             # A value set in an absent document cannot be confirmed or denied.
             # Question figures (or the same figures in another contract) do not
             # establish it. Publish the source-owned dependency and application
             # explanation; an expanded search can still resolve the gap.
-            source_only = ((restricted and not (draft and restrictions_kept(
-                draft, selected, question=question, documents=getattr(retriever, "documents", {}))))
-                           or bool(value_gaps) or bool(context_gaps))
+            source_only = ((restricted and not (draft and restrictions_kept(draft, selected, question=question)))
+                           or bool(value_gaps))
             scope_guard = (scope_block_reason(draft, selected, retriever, question)
                            if draft and selected and not source_only else "")
             if (draft and selected and not source_only and not scope_guard
@@ -3902,20 +2884,16 @@ def answer_steps(question: str, retriever, client, top_k: int = 6, verify: bool 
             if retry_policy is not None and scope_guard == "money_base_mismatch":
                 retry_policy = {**retry_policy, "scope_barrier": scope_guard}
             retry_policy_draft = raw_draft if retry_policy else ""
-            retry_preserve_restrictions = (lost_restrictions("", selected, question)
-                                           if retry_policy and retry_policy["scope_barrier"] == "exclusive_word"
-                                           else [])
             if prose:
                 candidate["answer"] = prose
             # The recommended answer is short (regulation, section 3). A restricted
             # provision is quoted after a verified text only when the text does not
             # itself repeat every restriction class of the sources.
-            quote_restricted = restricted and not (prose and restrictions_kept(
-                prose, selected, strict=True, question=question, documents=getattr(retriever, "documents", {})))
+            quote_restricted = restricted and not (prose and restrictions_kept(prose, selected, strict=True, question=question))
             # A catalog gap is not necessarily a dependency of this question.
             # Default to partial. A direct answer may propose independence only
             # with grounded prose; its exact scope needs an explicit second verdict.
-            local_reference = bool(source_gaps and not context_gaps and candidate["status"] == "answer" and prose
+            local_reference = bool(source_gaps and candidate["status"] == "answer" and prose
                                    and generated.get("reference_scope") == "local"
                                    and retry_reason != "source_references_required")
             if local_reference:
@@ -3923,10 +2901,6 @@ def answer_steps(question: str, retriever, client, top_k: int = 6, verify: bool 
             elif source_gaps and not value_gaps and candidate["status"] in {"answer", "partial"}:
                 candidate = {**candidate, "status": "partial", "missing": ["source_gap"],
                              "requested_facts": ["referenced_documents"]}
-            if context_gaps and candidate["status"] in {"answer", "partial", "clarify"}:
-                candidate = {**candidate, "status": "partial", "missing": ["source_gap"],
-                             "requested_facts": candidate.get("requested_facts") or ["referenced_documents"]}
-                candidate.pop("reference_scope", None)
             published_sources: list[Fragment] = []
             rendered = render(candidate, evidence, source_gaps, prose, question=question, value_gaps=value_gaps,
                               keep_sources=quote_restricted, context_sources=context_sources, editions=editions,
@@ -3964,18 +2938,11 @@ def answer_steps(question: str, retriever, client, top_k: int = 6, verify: bool 
                                     else "answer_not_supported" if prose_state == "rejected"
                                     else "answer_lost_restrictions")
                     retry_scope_guard = scope_blocked
-                    retry_restrictions = remember_lost_restrictions(retry_restrictions, draft, selected, question)
+                    retry_restrictions = lost_restrictions(draft, selected, question)
                     retry_extra, retry_items = [], []
                     attempts.append((True, None))
                     continue
                 if not expanded:
-                    if context_gaps and candidate["status"] == "partial":
-                        # A complete provision may be available in the expanded
-                        # context. Keep this bounded, explicitly partial view.
-                        fallback = best
-                        retry_reason, retry_scope_guard = "incomplete_source_context", False
-                        retry_context_gaps = list(context_gaps)
-                        continue
                     if prose_state in {"rejected", "ungrounded"}:
                         # The checks rejected the text: the provisions are kept, the
                         # text gets one more generation told the reason.
@@ -3995,7 +2962,7 @@ def answer_steps(question: str, retriever, client, top_k: int = 6, verify: bool 
                     if prose_state == "source_only" and draft and restricted and not value_gaps:
                         fallback = result
                         retry_reason, retry_scope_guard = "answer_lost_restrictions", False
-                        retry_restrictions = remember_lost_restrictions(retry_restrictions, draft, selected, question)
+                        retry_restrictions = lost_restrictions(draft, selected, question)
                         continue
                     if (candidate["status"] == "partial" and not source_gaps and set(candidate.get("requested_facts", []))
                             & {"document", "referenced_documents", "warranty_document"}):
@@ -4019,8 +2986,7 @@ def answer_steps(question: str, retriever, client, top_k: int = 6, verify: bool 
                        "status": "provisional", "sources": [], "quote_only": True}
                 yield provisional
             calls += 1
-            verdict = client.complete(VERIFY + (CONTEXT_VERIFY_GUIDANCE if context_gaps else ""),
-                                      {**payload, "candidate": candidate,
+            verdict = client.complete(VERIFY, {**payload, "candidate": candidate,
                                                "rendered_answer": rendered,
                                                "source_gaps":source_gaps, "value_gaps":value_gaps})
             allowed = approved(candidate, verdict)
@@ -4069,7 +3035,7 @@ def answer_steps(question: str, retriever, client, top_k: int = 6, verify: bool 
                      "prose":prose_state, "scope_guard":scope_guard,
                      "verdict_status":vstatus if isinstance(vstatus,str) and vstatus in STATUSES else "invalid",
                      "check_count":len(checks) if isinstance(checks,list) else -1,
-                     "source_gap_count":sum(len(g["articles"]) + len(g.get("provisions", [])) for g in source_gaps),
+                     "source_gap_count":sum(len(g["articles"]) for g in source_gaps),
                      "reference_scope":"local" if local_reference else "required",
                      "failed_claim_positions":[i for i, c in enumerate(checks[:12])
                          if not isinstance(c,dict) or c.get("supported") is not True or c.get("applicable") is not True]
@@ -4082,13 +3048,6 @@ def answer_steps(question: str, retriever, client, top_k: int = 6, verify: bool 
                 retry_reason, retry_scope_guard = "answer_not_supported", True
             if edition_wrong:
                 retry_reason, retry_scope_guard = "inapplicable_edition", False
-                continue
-            if context_gaps and candidate["status"] == "partial" and not expanded:
-                if allowed:
-                    fallback = {"text": rendered, "status": candidate["status"],
-                                "sources": published_sources, "quote_only": True}
-                retry_reason, retry_scope_guard = "incomplete_source_context", False
-                retry_context_gaps = list(context_gaps)
                 continue
             if (not allowed and not expanded and not reduced and isinstance(checks, list)
                     and any(isinstance(c, dict) and c.get("supported") is True and c.get("applicable") is False for c in checks)):
@@ -4107,7 +3066,7 @@ def answer_steps(question: str, retriever, client, top_k: int = 6, verify: bool 
                 # The text was dropped for losing a restriction and the quotes alone
                 # did not answer: the retry is told which restrictions to keep.
                 retry_reason, retry_scope_guard = "answer_lost_restrictions", False
-                retry_restrictions = remember_lost_restrictions(retry_restrictions, draft, selected, question)
+                retry_restrictions = lost_restrictions(draft, selected, question)
             # Only within the per-question call limit: exceeding it would turn a
             # refusal into a technical error.
             dropped = [] if allowed or reduced or calls >= QUESTION_CALL_LIMIT else inapplicable_only(candidate, verdict)
@@ -4141,7 +3100,7 @@ def answer_steps(question: str, retriever, client, top_k: int = 6, verify: bool 
                     # quotation is published: one attempt is told which wordings to keep.
                     fallback = result
                     retry_reason, retry_scope_guard = "answer_lost_restrictions", False
-                    retry_restrictions = remember_lost_restrictions(retry_restrictions, draft, selected, question)
+                    retry_restrictions = lost_restrictions(draft, selected, question)
                     continue
                 extra = (unneeded(candidate, verdict) if candidate["status"] == "answer" and prose_state == "published"
                          and not expanded and not reduced and calls + 2 <= QUESTION_CALL_LIMIT else [])
