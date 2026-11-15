@@ -37,6 +37,8 @@ jobs:
         run: |
           node --check web/static/app.js
           node --check web/static/appearance.js
+          node --check web/static/workspace.js
+          node --check web/static/icons.js
           node --check web/static/queue-ui.js
           node --check web/static/vendor/sl-ui/send/buttons.js
           node --check web/static/mobile-layout.js

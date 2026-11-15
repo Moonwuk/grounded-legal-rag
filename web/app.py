@@ -19,6 +19,7 @@ from web.history import History, identity, router as history_router
 from web.document_tabs import router as document_tabs_router
 from web.chat_folders import router as chat_folders_router
 from web.queue import QueueManager, router as queue_router
+from web.workspace import router as workspace_router
 
 ROOT = Path(__file__).resolve().parents[1]
 STATIC = Path(__file__).with_name("static")
@@ -80,6 +81,7 @@ app.include_router(history_router)
 app.include_router(document_tabs_router)
 app.include_router(chat_folders_router)
 app.include_router(queue_router)
+app.include_router(workspace_router)
 
 
 @app.middleware("http")

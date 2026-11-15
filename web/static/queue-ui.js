@@ -41,7 +41,7 @@
     const previousScroll = log.scrollTop;
     if (signature !== transcript) {
       clearActivity();
-      renderSavedTurns(data.turns);
+      renderSavedTurns(data.turns, data.turns.length - 1);
       transcript = signature;
       const saved = savedChats.find(chat => chat.id === chatId);
       if (saved) saved.title = data.title;
@@ -85,6 +85,13 @@
       remove.setAttribute("aria-label", "Убрать из очереди: " + job.question);
       remove.addEventListener("click", () => action("/" + job.id, "DELETE"));
       const controls = document.createElement("div"); controls.className = "queue-item-actions";
+      if (globalThis.WebWorkspace) {
+        const edit = document.createElement("button"); edit.type = "button"; edit.textContent = "Изменить";
+        edit.setAttribute("aria-label", "Изменить вопрос в очереди: " + job.question);
+        edit.addEventListener("click", () => globalThis.WebWorkspace.editQueued(chatId, job));
+        globalThis.WebIcons?.set(edit, "edit");
+        controls.append(edit);
+      }
       for (const [direction, label, disabled] of [["up", "↑ Выше", index === 0], ["down", "↓ Ниже", index === waiting.length - 1]]) {
         const move = document.createElement("button"); move.type = "button"; move.textContent = label;
         move.disabled = disabled;
@@ -94,9 +101,11 @@
           await action("/" + job.id + "/move/" + direction, "POST");
           if (move.isConnected) move.disabled = disabled;
         });
+        globalThis.WebIcons?.set(move, direction === "up" ? "up" : "down");
         controls.append(move);
       }
       controls.append(remove);
+      globalThis.WebIcons?.set(remove, "trash");
       row.append(text, controls); list.append(row);
     }
   }
@@ -176,5 +185,5 @@
   });
   window.addEventListener("pagehide", detach);
   window.addEventListener("pageshow", event => { if (event.persisted && currentChat) attach({id: currentChat, turns: []}); });
-  window.ChatQueue = {attach, detach, submit};
+  window.ChatQueue = {attach, detach, submit, refresh};
 })();
