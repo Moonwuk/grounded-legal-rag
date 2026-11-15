@@ -18,11 +18,14 @@
   <link rel="stylesheet" href="/static/mobile.css">
   <link rel="stylesheet" href="/static/usability.css">
   <link rel="stylesheet" href="/static/workspace.css">
+  <link rel="stylesheet" href="/static/answer-tools.css">
   <link rel="preload" as="image" href="/static/media/archive-blue.webp">
   <link rel="preload" as="image" href="/static/media/archive-outcomes.webp">
   <link rel="preload" as="image" href="/static/media/archive-found.webp">
   <link rel="preload" as="image" href="/static/media/archive-clarify.webp">
   <script defer src="/static/archive-scene.js"></script>
+  <script defer src="/static/question-templates.js"></script>
+  <script defer src="/static/answer-briefs.js"></script>
   <script defer src="/static/mobile-layout.js"></script>
   <script defer src="/static/queue-ui.js"></script>
   <script defer src="/static/icons.js"></script>
@@ -69,7 +72,7 @@
         <h2 id="chat-title">Диалог</h2>
         <span class="corpus-label">Поиск по всей базе</span>
       </header>
-      <div class="chat-tools"><button id="open-matter" type="button" disabled>Карточка дела</button><button id="parent-dialogue" type="button" hidden>← Исходный диалог</button><span id="matter-summary"></span></div>
+      <div class="chat-tools"><button id="open-matter" type="button" disabled>Карточка дела</button><button id="open-brief" type="button" aria-haspopup="dialog" disabled>Собрать справку</button><button id="parent-dialogue" type="button" hidden>← Исходный диалог</button><span id="matter-summary"></span></div>
       <div class="conversation" id="conversation" role="log" aria-label="Сообщения диалога">
         <div id="welcome">
           <div class="welcome-copy">
@@ -89,6 +92,7 @@
       <form id="chat-form" novalidate>
         <label for="question">Вопрос</label>
         <div class="composer-fields">
+        <button id="open-templates" class="composer-templates" type="button" aria-haspopup="dialog" disabled>Шаблоны</button>
         <textarea id="question" class="resize-none" rows="3" maxlength="10000" aria-describedby="input-hint input-error" placeholder="Например, какой срок оплаты предусмотрен договором?"></textarea>
 
 <section class="sl-component" data-kind="buttons-send-message" data-phase="idle" aria-busy="false" aria-label="Отправить">
@@ -238,7 +242,7 @@
   </dialog>
   <dialog id="saved-dialog" class="workspace-dialog" aria-labelledby="saved-title">
     <header><h2 id="saved-title">Избранное и заметки</h2><button type="button" data-close="saved-dialog">Закрыть</button></header>
-    <div class="saved-filters"><label for="saved-search">Поиск<input id="saved-search" type="search" maxlength="200" placeholder="Вопрос, ответ или заметка"></label><label for="saved-filter">Показать<select id="saved-filter"><option value="all">Всё сохранённое</option><option value="saved">Избранные ответы</option><option value="notes">С заметками</option></select></label></div>
+    <div class="saved-filters"><label for="saved-search">Поиск<input id="saved-search" type="search" maxlength="200" placeholder="Вопрос, ответ или заметка"></label><label for="saved-filter">Показать<select id="saved-filter"><option value="all">Всё сохранённое</option><option value="saved">Избранные ответы</option><option value="notes">С заметками</option></select></label><label for="saved-review">Моя проверка<select id="saved-review"><option value="any">Любое состояние</option><option value="">Не проверено мной</option><option value="sources_viewed">Источники просмотрены</option><option value="needs_check">Нужна дополнительная проверка</option></select></label></div>
     <div class="workspace-dialog-body"><p id="saved-status" role="status"></p><div id="saved-answers"></div></div>
   </dialog>
   <dialog id="question-dialog" class="workspace-dialog" aria-labelledby="question-dialog-title">
@@ -253,6 +257,65 @@
     <header><h2 id="draft-conflict-title">Черновик на другом устройстве</h2><button type="button" data-close="draft-conflict-dialog">Закрыть</button></header>
     <div class="workspace-dialog-body"><p>На сервере сохранён другой текст. Выберите версию или скопируйте нужные части перед заменой.</p><label for="draft-local">На этом устройстве</label><textarea id="draft-local" rows="5" readonly></textarea><label for="draft-remote">На сервере</label><textarea id="draft-remote" rows="5" readonly></textarea><p id="draft-conflict-error" role="alert"></p></div>
     <footer><button id="draft-keep-local" type="button">Сохранить мой</button><button id="draft-use-remote" type="button">Взять серверный</button></footer>
+  </dialog>
+  <dialog id="templates-dialog" class="workspace-dialog templates-dialog" aria-labelledby="templates-title" data-view="library">
+    <header><h2 id="templates-title">Шаблоны вопросов</h2><button type="button" data-close="templates-dialog">Закрыть</button></header>
+    <div class="workspace-dialog-body">
+      <section id="template-library" aria-label="Библиотека шаблонов">
+        <p class="workspace-help">Шаблон собирает текст вопроса из ваших данных. Он не содержит готового вывода и ничего не отправляет: вопрос уходит только по кнопке «Отправить».</p>
+        <label for="template-search">Поиск шаблона<input id="template-search" type="search" maxlength="200" autocomplete="off" placeholder="Название, описание или текст"></label>
+        <p id="templates-status" role="status"></p>
+        <h3>Готовые</h3>
+        <ul id="builtin-templates" class="template-list"></ul>
+        <div class="template-list-heading"><h3>Мои шаблоны</h3><button id="create-template" type="button" hidden>+ Новый шаблон</button></div>
+        <p id="own-templates-status" class="workspace-help"></p>
+        <ul id="own-templates" class="template-list"></ul>
+      </section>
+      <form id="template-fill" hidden novalidate>
+        <button id="template-back" type="button">← К списку шаблонов</button>
+        <h3 id="template-fill-title"></h3>
+        <p id="template-fill-description" class="workspace-help"></p>
+        <div id="template-fields"></div>
+        <div class="template-matter"><button id="template-from-matter" type="button">Подставить из карточки дела</button><span id="template-matter-status" role="status"></span></div>
+        <label for="template-preview">Итоговый вопрос — его можно изменить<textarea id="template-preview" rows="7" maxlength="10000"></textarea></label>
+        <div class="template-preview-state"><span id="template-state" role="status"></span><button id="template-rebuild" type="button" hidden>Собрать заново</button></div>
+        <p id="template-fill-error" role="alert"></p>
+      </form>
+    </div>
+    <footer id="template-fill-actions" hidden><button id="template-insert" type="button">Добавить в вопрос</button><button id="template-replace" type="button" hidden>Заменить текст вопроса</button></footer>
+  </dialog>
+  <dialog id="template-editor" class="workspace-dialog" aria-labelledby="template-editor-title">
+    <header><h2 id="template-editor-title">Новый шаблон</h2><button type="button" data-close="template-editor">Закрыть</button></header>
+    <form id="template-editor-form" novalidate>
+      <div class="workspace-dialog-body">
+        <label for="template-name">Название<input id="template-name" maxlength="80" autocomplete="off" required></label>
+        <label for="template-description">Короткое описание (необязательно)<input id="template-description" maxlength="200" autocomplete="off"></label>
+        <label for="template-text">Текст вопроса<textarea id="template-text" rows="7" maxlength="4000" required></textarea></label>
+        <div class="template-tokens" role="group" aria-labelledby="template-tokens-label"><span id="template-tokens-label">Вставить поле:</span></div>
+        <fieldset id="template-required"><legend>Обязательные поля</legend><p class="workspace-help">В тексте пока нет полей.</p></fieldset>
+        <p class="workspace-help">Поле в фигурных скобках заполняется перед переносом в вопрос. Строка с пустым необязательным полем в вопрос не попадает. Неизвестные значения не подставляются автоматически.</p>
+        <p id="template-editor-error" role="alert"></p>
+      </div>
+      <footer><button id="save-template" type="submit">Сохранить шаблон</button></footer>
+    </form>
+  </dialog>
+  <dialog id="brief-dialog" class="workspace-dialog brief-dialog" aria-labelledby="brief-title" data-step="compose">
+    <header><h2 id="brief-title">Справка из ответов</h2><button id="close-brief" type="button">Закрыть</button></header>
+    <div class="brief-steps" role="group" aria-label="Этапы сборки"><button id="brief-step-compose" type="button" aria-pressed="true">1. Состав</button><button id="brief-step-preview" type="button" aria-pressed="false">2. Предпросмотр</button></div>
+    <div class="brief-body">
+      <form id="brief-form" class="brief-pane brief-compose" novalidate aria-label="Состав справки">
+        <div class="brief-saved"><label for="brief-saved">Сохранённые справки<select id="brief-saved"></select></label><button id="delete-brief" type="button" hidden>Удалить</button></div>
+        <label for="brief-name">Заголовок<input id="brief-name" maxlength="120" autocomplete="off" required></label>
+        <fieldset id="brief-answers"><legend>Ответы диалога</legend></fieldset>
+        <section aria-labelledby="brief-order-title"><h3 id="brief-order-title">Порядок разделов</h3><ol id="brief-sections"></ol><p id="brief-sections-empty" class="workspace-help">Отметьте ответы выше. Разделы можно переставить кнопками.</p></section>
+        <label for="brief-intro">Вступление пользователя (необязательно)<textarea id="brief-intro" rows="3" maxlength="4000"></textarea></label>
+        <fieldset id="brief-matter"><legend>Сведения карточки дела</legend></fieldset>
+        <label class="brief-check"><input id="brief-reviews" type="checkbox"> Включить мои отметки проверки</label>
+      </form>
+      <section class="brief-pane brief-preview-pane" aria-labelledby="brief-preview-title"><h3 id="brief-preview-title">Предпросмотр</h3><div id="brief-preview" class="brief-preview"></div></section>
+    </div>
+    <p id="brief-status" role="status"></p>
+    <footer><button id="save-brief" type="button">Сохранить справку</button><button id="copy-brief" type="button">Копировать</button><button id="print-brief" type="button">Печать / PDF</button></footer>
   </dialog>
   <dialog id="appearance-dialog" aria-labelledby="appearance-title">
     <header class="appearance-header">

@@ -988,6 +988,7 @@ let printableDocument = null, printRequest = null;
 byId("close-copy").addEventListener("click", () => byId("copy-dialog").close());
 function preparePrint() {
   const host = byId("print-view"); host.replaceChildren();
+  if (printRequest?.render) { printRequest.render(host); return; }
   const title = document.createElement("h1");
   if (printRequest) {
     title.textContent = printRequest.title;
@@ -1015,7 +1016,7 @@ function startPrint(doc = null) {
   preparePrint();
   try { window.print(); } catch {
     printRequest = null;
-    byId(doc ? "document-search-status" : "input-error").textContent = "Не удалось открыть печать. Повторите попытку.";
+    byId(doc?.statusId || (doc ? "document-search-status" : "input-error")).textContent = "Не удалось открыть печать. Повторите попытку.";
   }
 }
 byId("print-dialogue").addEventListener("click", () => startPrint());

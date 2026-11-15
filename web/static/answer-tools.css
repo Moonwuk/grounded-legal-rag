@@ -1,0 +1,124 @@
+/* Question templates, answer briefs and personal review marks. */
+
+/* Composer: the template library sits next to the question field. */
+.composer-templates { flex: none; align-self: flex-start; min-height: 44px; padding: .4rem .7rem; font-size: .82rem; white-space: nowrap; border-radius: 8px; }
+@media (max-width: 900px) {
+  #chat-form .composer-templates { width: 44px; min-width: 44px; height: 44px; min-height: 44px; padding: 0; align-self: flex-end; border-radius: 50%; position: relative; }
+  #chat-form .composer-templates .icon-label { position: absolute; width: 1px; height: 1px; padding: 0; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+}
+
+/* Personal review mark under an answer. It is the user's own note, never a verdict of the system, so it is not green. */
+.answer-review { display: flex; flex-wrap: wrap; align-items: center; gap: .3rem .6rem; margin-top: .55rem; padding-left: .55rem; border-left: 3px solid var(--line); }
+.answer-review[data-state="sources_viewed"] { border-left-color: var(--link); }
+.answer-review[data-state="needs_check"] { border-left-color: var(--warning); }
+.answer-review label { display: inline-flex; flex-wrap: wrap; align-items: center; gap: .4rem; margin: 0; font-size: .78rem; font-weight: 600; color: var(--muted); }
+.answer-review select { max-width: 100%; min-height: 32px; padding: .2rem .4rem; font: inherit; font-weight: 400; color: var(--ink); background: var(--paper); border: 1px solid var(--control-line); border-radius: 6px; }
+.answer-review[data-state="sources_viewed"] select { border-color: var(--link); }
+.answer-review[data-state="needs_check"] select { border-color: var(--warning); }
+.review-date { color: var(--muted); font-size: .72rem; }
+@media (pointer: coarse) { .answer-review select { min-height: 44px; } }
+.saved-review { margin: .4rem 0; padding-left: .55rem; border-left: 3px solid var(--line); font-size: .82rem; color: var(--muted); }
+.saved-review[data-state="sources_viewed"] { border-left-color: var(--link); }
+.saved-review[data-state="needs_check"] { border-left-color: var(--warning); color: var(--ink); }
+@media (min-width: 761px) { .saved-filters > label:first-child { grid-column: 1 / -1; } }
+
+/* Checkbox rows inside workspace dialogs override the stacked label and full-width input defaults. */
+.workspace-dialog label.template-check, .workspace-dialog label.brief-check { display: flex; align-items: flex-start; gap: .55rem; font-weight: 500; margin-bottom: .45rem; overflow-wrap: anywhere; }
+.workspace-dialog .template-check input, .workspace-dialog .brief-check input { flex: none; width: 1.1rem; height: 1.1rem; margin: .15rem 0 0; padding: 0; }
+.workspace-dialog .brief-check small { display: block; color: var(--muted); font-weight: 400; margin-top: .1rem; }
+#template-required, #brief-answers, #brief-matter { border: 1px solid var(--line); border-radius: 8px; padding: .6rem .75rem .25rem; margin: 0 0 .8rem; min-width: 0; }
+#template-required legend, #brief-answers legend, #brief-matter legend { font-size: .86rem; font-weight: 700; padding: 0 .3rem; }
+@media (pointer: coarse) { .workspace-dialog label.template-check, .workspace-dialog label.brief-check { min-height: 44px; align-items: center; } }
+
+/* Template library and form. */
+.templates-dialog { width: min(720px, calc(100vw - 1.5rem)); }
+.templates-dialog h3 { font: 700 .95rem/1.3 var(--interface-font); margin: 1rem 0 .5rem; }
+.template-list { list-style: none; margin: 0 0 .5rem; padding: 0; display: grid; gap: .5rem; }
+.template-item { display: flex; align-items: stretch; gap: .4rem; border: 1px solid var(--line); border-radius: 8px; padding: .35rem; min-width: 0; }
+.template-choose { flex: 1; min-width: 0; display: grid; gap: .15rem; text-align: left; border: 0; background: transparent; padding: .4rem .5rem; color: var(--ink); border-radius: 6px; }
+.template-choose:hover { background: var(--accent-soft); }
+.template-choose strong { font-size: .9rem; overflow-wrap: anywhere; }
+.template-choose small { color: var(--muted); font-size: .78rem; overflow-wrap: anywhere; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+.template-item-actions { display: flex; flex-wrap: wrap; align-items: center; justify-content: flex-end; gap: .3rem; flex: none; max-width: 50%; }
+.template-item-actions button { font-size: .76rem; padding: .25rem .5rem; }
+.template-list-heading { display: flex; align-items: center; justify-content: space-between; gap: .5rem; flex-wrap: wrap; }
+.template-list-heading h3 { margin-bottom: .5rem; }
+#template-back { margin-bottom: .5rem; }
+#template-fill h3 { margin-top: .25rem; }
+.template-matter, .template-preview-state { display: flex; flex-wrap: wrap; align-items: center; gap: .5rem; margin-bottom: .7rem; font-size: .82rem; color: var(--muted); }
+#template-preview { font: inherit; line-height: 1.45; }
+.template-tokens { display: flex; flex-wrap: wrap; align-items: center; gap: .35rem; margin-bottom: .75rem; font-size: .82rem; }
+.template-tokens button { font-size: .78rem; padding: .25rem .5rem; }
+@media (max-width: 560px) {
+  .template-item { flex-direction: column; }
+  .template-item-actions { max-width: none; justify-content: flex-start; padding: 0 .35rem .2rem; }
+}
+@media (pointer: coarse) { .template-item-actions button, .template-tokens button, .template-choose { min-height: 44px; } }
+
+/* Brief: composition beside a live preview; on narrow screens one step at a time. */
+.brief-dialog { width: min(1180px, calc(100vw - 1.5rem)); height: calc(100dvh - 1.5rem); }
+.brief-steps { display: none; gap: .4rem; padding: .5rem 1rem; border-bottom: 1px solid var(--line); flex: none; }
+.brief-steps button { flex: 1; min-height: 40px; }
+.brief-steps [aria-pressed="true"] { color: var(--link); border-color: var(--link); font-weight: 700; }
+.brief-body { flex: 1; min-height: 0; display: grid; grid-template-columns: minmax(300px, 2fr) minmax(0, 3fr); }
+.brief-pane { min-height: 0; overflow: auto; overscroll-behavior: contain; padding: 1rem; }
+.brief-compose { border-right: 1px solid var(--line); }
+.brief-preview-pane { background: var(--surface); }
+.brief-preview-pane > h3 { margin: 0 0 .6rem; font: 700 .8rem/1.3 var(--interface-font); color: var(--muted); text-transform: uppercase; letter-spacing: .04em; }
+.brief-saved { display: flex; align-items: flex-end; gap: .5rem; }
+.brief-saved label { flex: 1; min-width: 0; }
+.brief-saved button { margin-bottom: .65rem; flex: none; }
+.brief-compose h3 { font: 700 .86rem/1.3 var(--interface-font); margin: .2rem 0 .5rem; }
+#brief-sections { margin: 0 0 .6rem; padding: 0; list-style: none; display: grid; gap: .5rem; }
+.brief-order-item { border: 1px solid var(--line); border-radius: 8px; padding: .55rem .6rem .1rem; }
+.brief-order-item[data-available="false"] { border-color: var(--danger); background: var(--danger-soft); }
+.brief-order-title { margin: 0 0 .4rem; font-size: .84rem; font-weight: 600; overflow-wrap: anywhere; }
+.brief-order-actions { display: flex; flex-wrap: wrap; gap: .3rem; margin-bottom: .5rem; }
+.brief-order-actions button { font-size: .76rem; padding: .25rem .5rem; }
+.brief-order-item label { font-weight: 500; font-size: .8rem; }
+#brief-status { margin: 0; padding: .45rem 1rem; min-height: 1.4em; font-size: .85rem; color: var(--muted); border-top: 1px solid var(--line); flex: none; }
+#brief-status:empty { min-height: 0; padding: 0; border-top: 0; }
+@media (pointer: coarse) { .brief-order-actions button { min-height: 44px; } }
+@media (max-width: 900px) {
+  .brief-dialog { width: calc(100vw - 1rem); height: calc(100dvh - 1rem); }
+  .brief-steps { display: flex; }
+  .brief-body { grid-template-columns: minmax(0, 1fr); }
+  .brief-compose { border-right: 0; }
+  .brief-dialog[data-step="compose"] .brief-preview-pane, .brief-dialog[data-step="preview"] .brief-compose { display: none; }
+  .brief-pane { padding: .75rem; }
+}
+
+/* The brief document itself: preview and print share these classes. */
+.brief-document { font: .92rem/1.55 var(--interface-font); color: var(--ink); overflow-wrap: anywhere; }
+.brief-document h1 { font: 700 1.25rem/1.3 var(--interface-font); margin: 0 0 .3rem; }
+.brief-document h2 { font: 700 1rem/1.3 var(--interface-font); margin: 0 0 .5rem; }
+.brief-document h3 { font: 700 .88rem/1.3 var(--interface-font); margin: .8rem 0 .35rem; }
+.brief-document p { margin: 0 0 .5rem; white-space: pre-wrap; }
+.brief-meta { color: var(--muted); font-size: .8rem; }
+.brief-notice { font-size: .8rem; color: var(--muted); border: 1px solid var(--line); border-radius: 8px; padding: .5rem .65rem; }
+.brief-section { border-top: 1px solid var(--line); padding-top: .8rem; margin-top: .9rem; }
+.brief-user { border: 1px dashed var(--control-line); border-radius: 8px; padding: .55rem .7rem; margin: .6rem 0; }
+.brief-user > h2, .brief-user > h3 { color: var(--muted); font-size: .8rem; margin-top: 0; }
+.brief-label { font-size: .75rem; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: .04em; margin-bottom: .15rem !important; }
+.brief-status { font-size: .82rem; color: var(--link); }
+.brief-answer { border-left: 3px solid var(--line); padding-left: .65rem; }
+.brief-sources ul { list-style: none; margin: 0; padding: 0; }
+.brief-sources li { margin-bottom: .55rem; }
+.brief-source-title { font-size: .82rem; font-weight: 600; margin-bottom: .2rem !important; }
+.brief-sources blockquote { margin: 0; padding: .35rem .6rem; border-left: 3px solid var(--warning); background: var(--paper); white-space: pre-wrap; font-size: .85rem; }
+.brief-mark { font-size: .82rem; border-left: 3px dashed var(--control-line); padding-left: .55rem; color: var(--muted); }
+.brief-unavailable { color: var(--danger); font-weight: 600; }
+.brief-field strong { font-weight: 700; }
+
+@media print {
+  #print-view .brief-document { font: 11pt/1.5 sans-serif; color: black; }
+  #print-view .brief-document h1 { font: bold 18pt/1.3 sans-serif; }
+  #print-view .brief-document h2, #print-view .brief-document h3 { font-family: sans-serif; color: black; break-after: avoid; }
+  #print-view .brief-label, #print-view .brief-source-title { break-after: avoid; }
+  #print-view .brief-meta, #print-view .brief-notice, #print-view .brief-user > h2, #print-view .brief-user > h3, #print-view .brief-mark, #print-view .brief-label { color: #333; }
+  #print-view .brief-notice, #print-view .brief-user, #print-view .brief-section { border-color: #777; }
+  #print-view .brief-sources blockquote { background: none; border-left-color: #777; }
+  #print-view .brief-status { color: black; }
+  #print-view .brief-unavailable { color: black; }
+}
+@media (max-width: 760px) { .chat-tools { flex-wrap: wrap; } }
