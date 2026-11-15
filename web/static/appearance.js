@@ -7,7 +7,7 @@
   const themes = ["system", "light", "dark"];
   const accents = ["psb", "violet", "emerald", "orange", "pink", "graphite"];
   const fonts = ["Georgia", "Arial", "Inter", "Roboto", "Times New Roman"];
-  const defaults = {version: 1, theme: "system", accent: "psb", font: "Arial", size: 16, reduced: false};
+  const defaults = {version: 1, theme: "system", accent: "psb", font: "Arial", size: 16, animations: true};
   const scheme = matchMedia("(prefers-color-scheme: dark)");
   const motion = matchMedia("(prefers-reduced-motion: reduce)");
   let settings = {...defaults};
@@ -19,7 +19,7 @@
       if (accents.includes(saved.accent)) settings.accent = saved.accent;
       if (fonts.includes(saved.font)) settings.font = saved.font;
       if (Number.isInteger(saved.size) && saved.size >= 12 && saved.size <= 22) settings.size = saved.size;
-      settings.reduced = saved.reduced === true;
+      settings.animations = typeof saved.animations === "boolean" ? saved.animations : saved.reduced !== true;
     }
   } catch { /* Storage may be disabled. */ }
 
@@ -29,12 +29,16 @@
     const fallback = ["Georgia", "Times New Roman"].includes(settings.font) ? "serif" : "sans-serif";
     root.style.setProperty("--interface-font", `"${settings.font}", ${fallback}`);
     root.style.setProperty("--interface-size", `${settings.size}px`);
-    const reduced = settings.reduced || motion.matches;
+    const reduced = !settings.animations || motion.matches;
     if (root.dataset.motion !== (reduced ? "reduced" : "")) {
       root.dataset.motion = reduced ? "reduced" : "";
       if (reduced) {
         for (const frame of document.querySelectorAll(".archive-scene__frame")) {
           for (const animation of frame.getAnimations()) animation.cancel();
+        }
+      } else if (typeof ArchiveScene !== "undefined") {
+        for (const scene of document.querySelectorAll('.archive-scene[data-state="searching"]')) {
+          ArchiveScene.setState(scene, "searching");
         }
       }
     }
@@ -52,7 +56,7 @@
     const status = document.getElementById("appearance-status");
     function reflect() {
       for (const name of ["theme", "accent", "font", "size"]) controls[name].value = settings[name];
-      controls.reduced.checked = settings.reduced;
+      controls.animations.value = settings.animations ? "on" : "off";
       document.getElementById("appearance-size-value").value = `${settings.size} px`;
       document.querySelectorAll("[data-font-size]").forEach(button => {
         button.setAttribute("aria-pressed", String(Number(button.dataset.fontSize) === settings.size));
@@ -74,7 +78,7 @@
     });
     dialog.addEventListener("close", () => opener.focus());
     form.addEventListener("input", ({target}) => {
-      if (target.name === "reduced") settings.reduced = target.checked;
+      if (target.name === "animations") settings.animations = target.value === "on";
       else if (target.name === "size") settings.size = Number(target.value);
       else if (["theme", "accent", "font"].includes(target.name)) settings[target.name] = target.value;
       else return;

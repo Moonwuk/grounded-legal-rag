@@ -248,8 +248,11 @@
         </fieldset>
         <fieldset>
           <legend>Доступность</legend>
-          <label class="appearance-motion"><input name="reduced" type="checkbox"> Уменьшить анимацию</label>
-          <p>Системная настройка уменьшения движения также учитывается.</p>
+          <label for="appearance-animations">Анимации</label>
+          <select name="animations" id="appearance-animations">
+            <option value="on">Включены</option>
+            <option value="off">Отключены</option>
+          </select>
         </fieldset>
       </form>
       <section class="appearance-preview" aria-labelledby="appearance-preview-title">

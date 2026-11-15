@@ -74,8 +74,22 @@ function contrast(rgb, other) {
     assert.equal(await page.locator('#appearance-size').inputValue(), '22');
     await page.getByRole('button', {name: 'Основание', exact: true}).click();
     assert.equal(await page.locator('#appearance-preview-source').isVisible(), true);
-    await page.getByRole('checkbox', {name: 'Уменьшить анимацию'}).check();
+    const animations = page.getByLabel('Анимации', {exact: true});
+    assert.equal(await animations.inputValue(), 'on');
+    const searching = await page.evaluateHandle(() => {
+      const scene = ArchiveScene.create('searching');
+      document.body.append(scene);
+      return scene;
+    });
+    const animationCount = () => searching.evaluate(scene => scene.firstElementChild.getAnimations().length);
+    assert.equal(await animationCount(), 1);
+    await animations.selectOption('off');
     assert.equal(await page.locator('html').getAttribute('data-motion'), 'reduced');
+    assert.equal(await animationCount(), 0);
+    await animations.selectOption('on');
+    assert.equal(await animationCount(), 1);
+    await searching.evaluate(scene => { ArchiveScene.stop(scene); scene.remove(); });
+    await animations.selectOption('off');
     if (output) await page.screenshot({path: path.join(output, 'appearance-dark.png')});
     await page.keyboard.press('Escape');
     assert.equal(await dialog.getAttribute('open'), null);
@@ -83,6 +97,7 @@ function contrast(rgb, other) {
 
     await page.reload();
     assert.equal(await theme(), 'dark');
+    assert.equal(await page.locator('html').getAttribute('data-motion'), 'reduced');
     assert.equal(await page.locator('html').evaluate(el => getComputedStyle(el).fontSize), '22px');
     for (const width of [1440, 1024, 390, 320]) {
       await page.setViewportSize({width, height: 844});
@@ -106,6 +121,7 @@ function contrast(rgb, other) {
     assert.equal(await page.locator('#appearance-size').inputValue(), '16');
     assert.equal(await page.locator('#appearance-accent').inputValue(), 'psb');
     assert.equal(await page.locator('#appearance-font').inputValue(), 'Arial');
+    assert.equal(await animations.inputValue(), 'on');
     assert.equal(await theme(), 'dark');
     await page.emulateMedia({colorScheme: 'light', reducedMotion: 'reduce'});
     await page.waitForFunction(() => document.documentElement.dataset.theme === 'light');
