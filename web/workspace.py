@@ -25,6 +25,12 @@ def initialize(db):
         branch_request TEXT NOT NULL DEFAULT '')""")
     db.execute("""CREATE TABLE IF NOT EXISTS new_dialogue_drafts (
         owner TEXT PRIMARY KEY, draft TEXT NOT NULL DEFAULT '', revision INTEGER NOT NULL DEFAULT 0)""")
+    # The user's own review mark of one answer version; it never changes the core status.
+    db.execute("""CREATE TABLE IF NOT EXISTS answer_reviews (
+        chat_id TEXT NOT NULL REFERENCES chats(id) ON DELETE CASCADE,
+        turn_index INTEGER NOT NULL, turn_key TEXT NOT NULL,
+        state TEXT NOT NULL DEFAULT '', updated REAL NOT NULL, revision INTEGER NOT NULL,
+        PRIMARY KEY(chat_id, turn_index))""")
     db.execute("""CREATE TABLE IF NOT EXISTS answer_annotations (
         chat_id TEXT NOT NULL REFERENCES chats(id) ON DELETE CASCADE,
         turn_index INTEGER NOT NULL, turn_key TEXT NOT NULL,
@@ -85,6 +91,13 @@ class AnnotationInput(Input):
     note: str = Field(max_length=4000)
 
 
+class ReviewInput(Input):
+    revision: int = Field(ge=0)
+    turn_key: str = Field(pattern=HASH)
+    # "" means "not reviewed by me"; there is deliberately no "answer is correct" state.
+    state: str = Field(pattern=r"^(|sources_viewed|needs_check)$")
+
+
 class BranchInput(Input):
     id: str = Field(pattern=UUID)
     index: int = Field(ge=0, le=19)
@@ -131,12 +144,14 @@ def get_workspace(chat_id: str, request: Request):
         turns = json.loads(chat["turns"])
         annotations = {item["turn_index"]: dict(item) for item in db.execute(
             "SELECT turn_index,turn_key,saved,note,revision FROM answer_annotations WHERE chat_id=?", (chat_id,))}
+        reviews = current_reviews(db, chat_id, turns)
         answers = []
         for index, turn in enumerate(turns):
             key = turn_key(turn)
             item = annotations.get(index)
-            answers.append(item if item and item["turn_key"] == key else
-                           dict(turn_index=index, turn_key=key, saved=False, note="", revision=0))
+            answer = (item if item and item["turn_key"] == key else
+                      dict(turn_index=index, turn_key=key, saved=False, note="", revision=0))
+            answers.append({**answer, "review": reviews.get(index, NO_REVIEW)})
         parent = db.execute("""SELECT c.id,c.title FROM chats c WHERE c.id=? AND c.owner=?
             AND NOT EXISTS(SELECT 1 FROM chat_trash WHERE chat_id=c.id)""", (row["parent_id"], owner)).fetchone()
         return dict(matter=json.loads(row["matter"]), matter_revision=row["matter_revision"],
@@ -233,21 +248,77 @@ async def update_annotation(chat_id: str, index: int, request: Request):
     return await run_in_threadpool(save_annotation, chat_id, index, request, await read_input(request, AnnotationInput))
 
 
+NO_REVIEW = dict(state="", updated=None, revision=0)
+
+
+def current_reviews(db, chat_id, turns):
+    """Review marks of the answer versions still present; a replaced answer has no mark."""
+    result = {}
+    for row in db.execute("SELECT turn_index,turn_key,state,updated,revision FROM answer_reviews WHERE chat_id=?", (chat_id,)):
+        index = row["turn_index"]
+        if index < len(turns) and turn_key(turns[index]) == row["turn_key"]:
+            result[index] = dict(state=row["state"], updated=row["updated"], revision=row["revision"])
+    return result
+
+
+def save_review(chat_id, index, request, data):
+    history, owner = identity(request)
+    with history.connect() as db:
+        db.execute("BEGIN IMMEDIATE")
+        turns = json.loads(history.get(db, owner, chat_id)["turns"])
+        if index < 0 or index >= len(turns):
+            raise HTTPException(404, "Ответ не найден.")
+        turn = turns[index]
+        if turn_key(turn) != data.turn_key:
+            conflict()
+        if turn["answer"]["status"] in {"technical_error", "cancelled"}:
+            raise HTTPException(409, "Дождитесь готового ответа.")
+        if data.state == "sources_viewed" and not turn["answer"].get("sources"):
+            raise HTTPException(422, "У этого ответа нет источников. Выберите другую отметку.")
+        old = db.execute("SELECT * FROM answer_reviews WHERE chat_id=? AND turn_index=?", (chat_id, index)).fetchone()
+        current = old if old and old["turn_key"] == data.turn_key else None
+        revision = current["revision"] if current else 0
+        if revision != data.revision:
+            # Repeating the same choice after a lost response is safe; a different stale choice is not.
+            if current and current["state"] == data.state:
+                return dict(turn_index=index, turn_key=data.turn_key, state=current["state"],
+                            updated=current["updated"], revision=revision)
+            conflict()
+        now = time.time()
+        db.execute("INSERT OR REPLACE INTO answer_reviews VALUES (?,?,?,?,?,?)",
+                   (chat_id, index, data.turn_key, data.state, now, revision + 1))
+        return dict(turn_index=index, turn_key=data.turn_key, state=data.state, updated=now, revision=revision + 1)
+
+
+@router.put("/chats/{chat_id}/answers/{index}/review")
+async def update_review(chat_id: str, index: int, request: Request):
+    return await run_in_threadpool(save_review, chat_id, index, request, await read_input(request, ReviewInput))
+
+
 @router.get("/saved")
 def saved_answers(request: Request):
     history, owner = identity(request)
     with history.connect() as db:
-        rows = db.execute("""SELECT a.*,c.title,c.turns FROM answer_annotations a JOIN chats c ON c.id=a.chat_id
-            WHERE c.owner=? AND (a.saved=1 OR a.note<>'')
-            AND NOT EXISTS(SELECT 1 FROM chat_trash WHERE chat_id=c.id) ORDER BY c.updated DESC,a.turn_index""", (owner,))
+        chats = db.execute("""SELECT c.id,c.title,c.turns FROM chats c WHERE c.owner=?
+            AND NOT EXISTS(SELECT 1 FROM chat_trash WHERE chat_id=c.id)
+            AND (EXISTS(SELECT 1 FROM answer_annotations a WHERE a.chat_id=c.id AND (a.saved=1 OR a.note<>''))
+                 OR EXISTS(SELECT 1 FROM answer_reviews r WHERE r.chat_id=c.id AND r.state<>''))
+            ORDER BY c.updated DESC,c.id""", (owner,)).fetchall()
         result = []
-        for row in rows:
-            turns = json.loads(row["turns"])
-            index = row["turn_index"]
-            if index >= len(turns) or turn_key(turns[index]) != row["turn_key"]:
-                continue
-            result.append(dict(chat_id=row["chat_id"], title=row["title"], turn_index=index,
-                               saved=bool(row["saved"]), note=row["note"], **turns[index]))
+        for chat in chats:
+            turns = json.loads(chat["turns"])
+            annotations = {row["turn_index"]: row for row in db.execute(
+                "SELECT turn_index,turn_key,saved,note FROM answer_annotations WHERE chat_id=?", (chat["id"],))}
+            reviews = current_reviews(db, chat["id"], turns)
+            for index, turn in enumerate(turns):
+                annotation = annotations.get(index)
+                if annotation is not None and annotation["turn_key"] != turn_key(turn):
+                    annotation = None
+                saved, note = bool(annotation and annotation["saved"]), annotation["note"] if annotation else ""
+                review = reviews.get(index, NO_REVIEW)
+                if saved or note or review["state"]:
+                    result.append(dict(chat_id=chat["id"], title=chat["title"], turn_index=index,
+                                       saved=saved, note=note, review=review, **turn))
         return result
 
 

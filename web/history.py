@@ -55,7 +55,11 @@ class History:
                 owner TEXT NOT NULL, period INTEGER NOT NULL, window INTEGER NOT NULL,
                 used INTEGER NOT NULL, PRIMARY KEY(owner, period))""")
             from web.workspace import initialize
+            from web.answer_briefs import initialize as initialize_briefs
+            from web.question_templates import initialize as initialize_templates
             initialize(db)
+            initialize_briefs(db)
+            initialize_templates(db)
 
     def charge_generation(self, db, owner):
         """Durable per-login budgets shared by all chats and both generation APIs."""

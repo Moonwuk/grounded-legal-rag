@@ -15,6 +15,7 @@
     folder: 'M3 6h7l2 3h9v11H3z',
     branch: 'M7 4v16M7 14c7 0 10-4 10-10m-3 3 3-3 3 3',
     note: 'M5 3h14v18H5zM8 8h8M8 12h8M8 16h5',
+    template: 'M4 4h16v5H4zM4 13h7v7H4zM15 13h5M15 17h5M15 21h3',
     restore: 'M4 4v6h6M4 10a8 8 0 1 1 0 5',
     up: 'm6 14 6-6 6 6',
     down: 'm6 10 6 6 6-6'
