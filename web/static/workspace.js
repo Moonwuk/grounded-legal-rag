@@ -6,7 +6,7 @@
   let bridge, activeId = null, data = null, generation = 0, refreshVersion = 0, bindings = [], renderedCount = 0;
   let draft = null, draftTimer, typingVersion = 0, enabled = false, activityTimer, unread = new Set();
   let noteTarget = null, questionTarget = null, saved = [], displayedDocument = null, passage = null;
-  const drafts = new Map(), comparisonRequests = new Map();
+  const drafts = new Map();
 
   async function request(path, method = "GET", body) {
     const response = await fetch("/api/workspace" + path, {method, headers: {"Content-Type": "application/json"},
@@ -315,35 +315,6 @@
     get("passage-question").value = ""; get("passage-error").textContent = "";
     get("passage-dialog").showModal(); get("passage-question").focus();
   }
-  async function loadComparison(side) {
-    comparisonRequests.get(side)?.abort();
-    const controller = new AbortController(); comparisonRequests.set(side, controller);
-    const id = get("comparison-" + side).value, text = get("comparison-" + side + "-text"), status = get("comparison-" + side + "-status");
-    text.textContent = ""; status.textContent = "Загружаем…";
-    try {
-      const response = await fetch("/api/documents/" + encodeURIComponent(id), {signal: AbortSignal.any([controller.signal, AbortSignal.timeout(10000)])});
-      if (!response.ok) throw new Error();
-      const doc = await response.json();
-      if (comparisonRequests.get(side) !== controller) return;
-      text.textContent = doc.text; text.scrollTop = 0; status.textContent = doc.status || doc.category || "Документ из базы";
-    } catch (error) {
-      if (comparisonRequests.get(side) === controller && error.name !== "AbortError") status.textContent = "Не удалось загрузить. Выберите документ повторно.";
-    }
-  }
-  function compare(ids = []) {
-    const docs = bridge.documents(); if (!docs.length) return;
-    for (const [index, side] of ["left", "right"].entries()) {
-      const select = get("comparison-" + side); select.replaceChildren();
-      for (const doc of docs) { const option = document.createElement("option"); option.value = doc.id; option.textContent = doc.title; select.append(option); }
-      select.value = ids[index] && docs.some(doc => doc.id === ids[index]) ? ids[index] : docs[Math.min(index, docs.length - 1)].id;
-    }
-    if (get("comparison-left").value === get("comparison-right").value && docs.length > 1) {
-      get("comparison-right").value = docs.find(doc => doc.id !== get("comparison-left").value).id;
-    }
-    get("comparison-dialog").dataset.side = "0";
-    for (const node of document.querySelectorAll("[data-comparison-side]")) node.setAttribute("aria-pressed", String(node.dataset.comparisonSide === "0"));
-    get("comparison-dialog").showModal(); loadComparison("left"); loadComparison("right");
-  }
   function init(api) {
     bridge = api;
     for (const node of document.querySelectorAll("[data-close]")) node.addEventListener("click", () => {
@@ -419,14 +390,6 @@
         await insertText(question + "\n\nДокумент: " + get("passage-document").textContent + "\nВыделенный фрагмент:\n«" + get("passage-quote").textContent + "»");
         get("passage-dialog").close(); globalThis.MobileLayout?.close(); get("question").focus();
       } catch (error) { get("passage-error").textContent = error.message; }
-    });
-    get("compare-documents").addEventListener("click", () => compare());
-    get("compare-current").addEventListener("click", () => compare(displayedDocument ? [displayedDocument.id] : []));
-    for (const side of ["left", "right"]) get("comparison-" + side).addEventListener("change", () => loadComparison(side));
-    get("comparison-dialog").addEventListener("close", () => { for (const controller of comparisonRequests.values()) controller.abort(); });
-    for (const node of document.querySelectorAll("[data-comparison-side]")) node.addEventListener("click", () => {
-      get("comparison-dialog").dataset.side = node.dataset.comparisonSide;
-      for (const peer of document.querySelectorAll("[data-comparison-side]")) peer.setAttribute("aria-pressed", String(peer === node));
     });
     let positionTimer;
     for (const id of ["doc-text", "documents-panel"]) get(id).addEventListener("scroll", () => { clearTimeout(positionTimer); positionTimer = setTimeout(rememberPosition, 250); }, {passive: true});

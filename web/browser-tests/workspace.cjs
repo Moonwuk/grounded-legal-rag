@@ -95,14 +95,7 @@ const {randomUUID} = require('node:crypto');
 
     // Full texts and an explicitly composed question from a selected passage.
     const docs = await api('/documents');
-    await page.locator('#compare-documents').click();
-    for (const [side, index] of [['left', 0], ['right', 1]]) {
-      await page.locator('#comparison-' + side).selectOption(docs[index].id);
-      const doc = await api('/documents/' + docs[index].id);
-      await page.waitForFunction(({side, text}) => document.querySelector('#comparison-' + side + '-text').textContent === text, {side, text: doc.text});
-    }
-    await page.screenshot({path: output + '/comparison-desktop.png'});
-    await page.locator('[data-close="comparison-dialog"]').click();
+    assert.equal(await page.locator('#compare-documents, #compare-current, #comparison-dialog').count(), 0);
     await page.locator('#doc-list button').first().click();
     await page.locator('#document-workspace-actions').waitFor({state: 'visible'});
     const selection = await page.locator('#doc-text').evaluate(element => {
@@ -154,19 +147,6 @@ const {randomUUID} = require('node:crypto');
       await page.locator('#open-matter').click(); await visibleButton(page, '#save-matter');
       await page.screenshot({path: output + '/matter-' + width + '-' + height + '.png'});
       await page.locator('[data-close="matter-dialog"]').click();
-      if (width < 901) await page.locator('#open-documents').click();
-      await page.locator('#compare-current').click();
-      await visibleButton(page, '[data-close="comparison-dialog"]');
-      if (width < 761) {
-        assert.equal(await page.locator('[data-side="1"].comparison-column').isVisible(), false);
-        await page.locator('[data-comparison-side="1"]').click();
-        assert.equal(await page.locator('[data-side="1"].comparison-column').isVisible(), true);
-        assert.equal(await page.locator('[data-side="0"].comparison-column').isVisible(), false);
-        assert.ok((await page.locator('#comparison-right-text').boundingBox()).height >= 70, 'Document remains readable on a short screen');
-      }
-      await page.screenshot({path: output + '/comparison-' + width + '-' + height + '.png'});
-      await page.locator('[data-close="comparison-dialog"]').click();
-      if (width < 901) await page.locator('#close-mobile-panel').click();
       await visibleButton(page, '#send');
       await page.screenshot({path: output + '/chat-' + width + '-' + height + '.png'});
     }
