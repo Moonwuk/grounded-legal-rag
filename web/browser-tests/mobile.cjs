@@ -26,7 +26,7 @@ const fs = require('node:fs');
   });
   const chat = {id: 'fixture-chat', title: 'Сохранённый вопрос', updated: 1700000000,
     turns: [{question: 'Сохранённый вопрос', answer: {status: 'clarify', text: 'Уточните дату договора.', sources: []}}]};
-  await page.route('**/api/chats**', route => route.fulfill({json: route.request().url().endsWith('/api/chats') ? [chat] : chat}));
+  await page.route('**/api/chats**', route => route.fulfill({json: route.request().url().includes('?trash=true') ? [] : route.request().url().endsWith('/api/chats') ? [chat] : chat}));
   await page.goto(base);
   await page.waitForFunction(() => !document.querySelector('#send').disabled);
   await page.locator('#reset').click();

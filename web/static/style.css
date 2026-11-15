@@ -328,3 +328,9 @@ select:focus-visible { outline: 3px solid #3868df; outline-offset: 2px; }
 @media (min-width: 901px) and (max-width: 1150px) { .chat-history { max-height: 29rem; } #folder-list { max-height: 9rem; } }
 
 #new-folder-chat { flex: none; margin: .4rem 1rem 0; font-size: .8rem; }
+
+#trash-hint { flex: none; margin: .45rem 1rem; color: var(--muted); font-size: .8rem; }
+[data-folder-id="trash"] { border-top: 1px solid var(--line); margin-top: .3rem; border-radius: 0 0 8px 8px; }
+#chat-list li[data-trashed="true"] .chat-select { opacity: 1; }
+#chat-list li[data-trashed="true"] .chat-move { margin: .3rem .5rem; background: var(--blue); color: white; }
+#chat-list li[data-trashed="true"] .chat-delete { margin-block: .3rem; color: #962c29; }

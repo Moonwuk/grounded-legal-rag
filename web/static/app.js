@@ -205,6 +205,7 @@ byId("delete-doc-tab").addEventListener("click", () => saveTab(true));
 byId("tab-dialog").addEventListener("cancel", event => { if (savingTab) event.preventDefault(); });
 let currentChat = null;
 let savedChats = [];
+let trashedChats = [];
 let chatFolders = [];
 let selectedFolder = "all";
 let foldersEnabled = false;
@@ -231,13 +232,14 @@ async function loadFolders() {
   }
 }
 function chatsInFolder(id) {
+  if (id === "trash") return trashedChats;
   return savedChats.filter(chat => id === "all" || (id === "unfiled" ? !chat.folder_id : chat.folder_id === id));
 }
 function renderFolders() {
-  if (!["all", "unfiled"].includes(selectedFolder) && !chatFolders.some(f => f.id === selectedFolder)) selectedFolder = "all";
+  if (!["all", "unfiled", "trash"].includes(selectedFolder) && !chatFolders.some(f => f.id === selectedFolder)) selectedFolder = "all";
   const host = byId("folder-list");
   host.replaceChildren();
-  const folders = [{id: "all", title: "Все чаты"}, {id: "unfiled", title: "Без папки"}, ...chatFolders];
+  const folders = [{id: "all", title: "Все чаты"}, {id: "unfiled", title: "Без папки"}, ...chatFolders, {id: "trash", title: "Корзина"}];
   for (const folder of folders) {
     const button = document.createElement("button");
     button.type = "button";
@@ -258,9 +260,11 @@ function renderFolders() {
     host.append(button);
   }
   byId("create-chat-folder").disabled = !foldersEnabled || folderSaving;
-  byId("edit-chat-folder").hidden = ["all", "unfiled"].includes(selectedFolder);
+  byId("edit-chat-folder").hidden = ["all", "unfiled", "trash"].includes(selectedFolder);
+  byId("new-folder-chat").hidden = selectedFolder === "trash";
+  byId("trash-hint").hidden = selectedFolder !== "trash";
   byId("new-folder-chat").disabled = !historyEnabled || busy || navigating;
-  byId("new-folder-chat").textContent = ["all", "unfiled"].includes(selectedFolder) ? "+ Новый диалог" : "+ Диалог в этой папке";
+  byId("new-folder-chat").textContent = ["all", "unfiled", "trash"].includes(selectedFolder) ? "+ Новый диалог" : "+ Диалог в этой папке";
 }
 function editFolder(folder = null) {
   editingFolder = folder;
@@ -284,7 +288,7 @@ async function saveFolder(remove = false) {
     const folder = await folderRequest("/chat-folders" + (editingFolder ? "/" + editingFolder.id : ""),
       remove ? "DELETE" : editingFolder ? "PUT" : "POST", remove ? undefined : {title: byId("folder-name").value.trim()});
     if (remove) {
-      savedChats.forEach(chat => { if (chat.folder_id === editingFolder.id) chat.folder_id = null; });
+      [...savedChats, ...trashedChats].forEach(chat => { if (chat.folder_id === editingFolder.id) chat.folder_id = null; });
       chatFolders = chatFolders.filter(item => item.id !== editingFolder.id);
       selectedFolder = "unfiled";
     } else {
@@ -373,15 +377,24 @@ async function historyRequest(path = "", method = "GET") {
   return response.status === 204 ? null : response.json();
 }
 
+async function loadChatLists() {
+  const [active, trash] = await Promise.all([historyRequest(), historyRequest("?trash=true")]);
+  savedChats = active;
+  trashedChats = trash;
+}
+
 function renderHistory() {
   renderFolders();
   const chatList = byId("chat-list");
   chatList.replaceChildren();
   const visibleChats = chatsInFolder(selectedFolder);
   byId("folder-empty").hidden = !historyEnabled || !!visibleChats.length;
+  byId("folder-empty").textContent = selectedFolder === "trash" ? "Корзина пуста." :
+    "Здесь пока нет чатов. Перенесите сюда диалог кнопкой «В папку» или начните новый.";
   for (const chat of visibleChats) {
     const row = document.createElement("li");
     row.dataset.chatId = chat.id;
+    row.dataset.trashed = String(selectedFolder === "trash");
     if (chat.id === currentChat) row.setAttribute("aria-current", "true");
     const button = document.createElement("button");
     button.type = "button";
@@ -392,33 +405,45 @@ function renderHistory() {
     title.className = "chat-select-title";
     title.textContent = chat.title;
     button.append(title);
-    button.disabled = busy || navigating;
+    button.disabled = busy || navigating || selectedFolder === "trash";
     const date = document.createElement("small");
-    date.textContent = new Date(chat.updated * 1000).toLocaleString("ru-RU", {dateStyle: "short", timeStyle: "short"});
+    date.textContent = (chat.deleted_at ? "Удалён: " : "") + new Date((chat.deleted_at || chat.updated) * 1000).toLocaleString("ru-RU", {dateStyle: "short", timeStyle: "short"});
     button.append(date);
     button.addEventListener("click", () => navigateHistory(() => selectChat(chat.id)));
     const remove = document.createElement("button");
     remove.type = "button";
     remove.className = "chat-delete";
-    remove.textContent = "Удалить";
-    remove.setAttribute("aria-label", "Удалить диалог: " + chat.title);
+    const inTrash = selectedFolder === "trash";
+    remove.textContent = inTrash ? "Удалить навсегда" : "В корзину";
+    remove.setAttribute("aria-label", (inTrash ? "Удалить навсегда: " : "В корзину: ") + chat.title);
     remove.disabled = busy || navigating;
     remove.addEventListener("click", () => {
-      if (busy || navigating || !confirm("Удалить этот диалог и все его сообщения?")) return;
+      const question = inTrash ? "Удалить диалог «" + chat.title + "» навсегда? Восстановить его будет нельзя." :
+        "Переместить диалог «" + chat.title + "» в корзину? Его можно будет восстановить.";
+      if (busy || navigating || !confirm(question)) return;
       navigateHistory(async () => {
-        await historyRequest("/" + encodeURIComponent(chat.id), "DELETE");
+        await historyRequest("/" + encodeURIComponent(chat.id) + (inTrash ? "/permanent" : ""), "DELETE");
         if (currentChat === chat.id) clearChat();
-        savedChats = await historyRequest();
+        await loadChatLists();
       });
     });
     const move = document.createElement("button");
     move.type = "button";
     move.className = "chat-move";
-    move.textContent = "В папку";
-    move.setAttribute("aria-label", "Переместить диалог: " + chat.title);
-    move.disabled = !foldersEnabled || folderSaving;
-    move.addEventListener("click", () => editChatFolder(chat));
-    row.append(button, remove, move);
+    move.textContent = inTrash ? "Восстановить" : "В папку";
+    move.setAttribute("aria-label", (inTrash ? "Восстановить диалог: " : "Переместить диалог: ") + chat.title);
+    move.disabled = inTrash ? busy || navigating : !foldersEnabled || folderSaving;
+    move.addEventListener("click", () => {
+      if (!inTrash) return editChatFolder(chat);
+      navigateHistory(async () => {
+        await historyRequest("/" + encodeURIComponent(chat.id) + "/restore", "POST");
+        await loadChatLists();
+        selectedFolder = "all";
+        await selectChat(chat.id);
+      });
+    });
+    if (inTrash) row.append(button, move, remove);
+    else row.append(button, remove, move);
     chatList.append(row);
   }
 }
@@ -430,7 +455,7 @@ async function navigateHistory(action) {
   renderHistory();
   try {
     await action();
-    byId("history-status").textContent = savedChats.length ? "Сохранено на сервере" : "Пока нет сохранённых диалогов";
+    byId("history-status").textContent = savedChats.length ? "Сохранено на сервере" : trashedChats.length ? "Чаты находятся в корзине" : "Пока нет сохранённых диалогов";
   } catch (error) {
     byId("history-status").textContent = error.message;
   } finally {
@@ -489,7 +514,7 @@ async function loadHistory() {
   send.disabled = reset.disabled = true;
   navigating = true;
   try {
-    savedChats = await historyRequest();
+    await loadChatLists();
     historyEnabled = true;
     await loadFolders();
     let selected;
@@ -497,7 +522,7 @@ async function loadHistory() {
     const chat = savedChats.find(item => item.id === (currentChat || selected)) || savedChats[0];
     if (chat) await selectChat(chat.id);
     else clearChat();
-    byId("history-status").textContent = savedChats.length ? "Сохранено на сервере" : "Пока нет сохранённых диалогов";
+    byId("history-status").textContent = savedChats.length ? "Сохранено на сервере" : trashedChats.length ? "Чаты находятся в корзине" : "Пока нет сохранённых диалогов";
     send.disabled = reset.disabled = false;
   } catch (error) {
     byId("history-status").textContent = error.status === 503
@@ -770,7 +795,7 @@ async function ask(question, existing, signal) {
   log.scrollTop = log.scrollHeight;
   if (historyEnabled) {
     try {
-      savedChats = await historyRequest();
+      await loadChatLists();
       byId("history-status").textContent = "Сохранено на сервере";
       renderHistory();
     } catch { byId("history-status").textContent = "Не удалось обновить список. Нажмите «Обновить список»."; }
@@ -796,7 +821,7 @@ const sendController = SLComponent.mount(send.closest(".sl-component"), {
       navigating = true;
       reset.disabled = true;
       try {
-        const folderPath = ["all", "unfiled"].includes(selectedFolder) ? "" : "?folder_id=" + encodeURIComponent(selectedFolder);
+        const folderPath = ["all", "unfiled", "trash"].includes(selectedFolder) ? "" : "?folder_id=" + encodeURIComponent(selectedFolder);
         const chat = await historyRequest(folderPath, "POST");
         currentChat = chat.id;
         rememberChat();
@@ -831,6 +856,7 @@ input.addEventListener("keydown", event => {
 reset.addEventListener("click", () => {
   if (busy || navigating) return;
   globalThis.MobileLayout?.close();
+  if (selectedFolder === "trash") selectedFolder = "all";
   clearChat();
   renderHistory();
   input.focus();

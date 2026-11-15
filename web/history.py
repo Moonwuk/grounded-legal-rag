@@ -32,6 +32,9 @@ class History:
                 chat_id TEXT PRIMARY KEY REFERENCES chats(id) ON DELETE CASCADE,
                 folder_id TEXT NOT NULL REFERENCES chat_folders(id) ON DELETE CASCADE)""")
             db.execute("CREATE INDEX IF NOT EXISTS chat_folder_items_folder ON chat_folder_items(folder_id)")
+            db.execute("""CREATE TABLE IF NOT EXISTS chat_trash (
+                chat_id TEXT PRIMARY KEY REFERENCES chats(id) ON DELETE CASCADE,
+                deleted REAL NOT NULL)""")
 
     @contextmanager
     def connect(self):
@@ -45,7 +48,9 @@ class History:
             db.close()
 
     def get(self, db, owner, chat_id):
-        row = db.execute("SELECT * FROM chats WHERE id=? AND owner=?", (chat_id, owner)).fetchone()
+        row = db.execute("""SELECT * FROM chats WHERE id=? AND owner=?
+                            AND NOT EXISTS (SELECT 1 FROM chat_trash WHERE chat_id=chats.id)""",
+                         (chat_id, owner)).fetchone()
         if row is None:
             raise HTTPException(404, "Диалог не найден.")
         return row
@@ -68,11 +73,13 @@ class History:
     def finish(self, owner, chat_id, lease, turns=None):
         with self.connect() as db:
             if turns is None:
-                db.execute("UPDATE chats SET busy_until=0 WHERE id=? AND owner=? AND busy_until=?",
+                db.execute("""UPDATE chats SET busy_until=0 WHERE id=? AND owner=? AND busy_until=?
+                              AND NOT EXISTS (SELECT 1 FROM chat_trash WHERE chat_id=chats.id)""",
                            (chat_id, owner, lease))
             else:
                 db.execute("""UPDATE chats SET turns=?, title=?, updated=?, busy_until=0
-                              WHERE id=? AND owner=? AND busy_until=?""",
+                              WHERE id=? AND owner=? AND busy_until=?
+                              AND NOT EXISTS (SELECT 1 FROM chat_trash WHERE chat_id=chats.id)""",
                            (json.dumps(turns, ensure_ascii=False), turns[0]["question"][:80], time.time(),
                             chat_id, owner, lease))
 
@@ -89,13 +96,15 @@ def identity(request):
 
 
 @router.get("")
-def list_chats(request: Request):
+def list_chats(request: Request, trash: bool = False):
     history, owner = identity(request)
     with history.connect() as db:
         return [dict(row) for row in db.execute(
-            """SELECT c.id, c.title, c.updated, i.folder_id FROM chats c
+            """SELECT c.id, c.title, c.updated, i.folder_id, t.deleted AS deleted_at FROM chats c
                LEFT JOIN chat_folder_items i ON i.chat_id=c.id
-               WHERE c.owner=? ORDER BY c.updated DESC, c.id""", (owner,))]
+               LEFT JOIN chat_trash t ON t.chat_id=c.id
+               WHERE c.owner=? AND (t.chat_id IS NOT NULL)=?
+               ORDER BY COALESCE(t.deleted, c.updated) DESC, c.id""", (owner, trash))]
 
 
 @router.post("", status_code=201)
@@ -110,8 +119,8 @@ def create_chat(request: Request, folder_id: str | None = None):
         if folder_id is not None and not db.execute(
                 "SELECT id FROM chat_folders WHERE id=? AND owner=?", (folder_id, owner)).fetchone():
             raise HTTPException(404, "Папка не найдена. Обновите список.")
-        if db.execute("SELECT COUNT(*) FROM chats WHERE owner=?", (owner,)).fetchone()[0] >= 100:
-            raise HTTPException(429, "Сохранено 100 диалогов. Удалите ненужный, чтобы создать новый.")
+        if active_count(db, owner) >= 100:
+            raise HTTPException(429, "Сохранено 100 диалогов. Переместите ненужный в корзину, чтобы создать новый.")
         db.execute("INSERT INTO chats(id, owner, title, updated) VALUES (?, ?, ?, ?)",
                    (chat["id"], owner, chat["title"], chat["updated"]))
         if folder_id is not None:
@@ -138,4 +147,44 @@ def delete_chat(chat_id: str, request: Request):
         row = history.get(db, owner, chat_id)
         if row["busy_until"] > time.time():
             raise HTTPException(409, "Дождитесь завершения ответа перед удалением диалога.")
+        if db.execute("""SELECT count(*) FROM chat_trash t JOIN chats c ON c.id=t.chat_id
+                         WHERE c.owner=?""", (owner,)).fetchone()[0] >= 100:
+            raise HTTPException(429, "В корзине 100 чатов. Удалите из неё ненужные навсегда, чтобы освободить место.")
+        db.execute("INSERT INTO chat_trash(chat_id, deleted) VALUES (?, ?)", (chat_id, time.time()))
+
+
+def active_count(db, owner):
+    return db.execute("""SELECT count(*) FROM chats c WHERE c.owner=?
+                         AND NOT EXISTS (SELECT 1 FROM chat_trash WHERE chat_id=c.id)""", (owner,)).fetchone()[0]
+
+
+def trashed_chat(db, owner, chat_id):
+    row = db.execute("SELECT * FROM chats WHERE id=? AND owner=?", (chat_id, owner)).fetchone()
+    if row is None:
+        raise HTTPException(404, "Диалог не найден.")
+    if not db.execute("SELECT 1 FROM chat_trash WHERE chat_id=?", (chat_id,)).fetchone():
+        raise HTTPException(409, "Сначала переместите диалог в корзину.")
+    if row["busy_until"] > time.time():
+        raise HTTPException(409, "Дождитесь завершения ответа.")
+
+
+@router.post("/{chat_id}/restore", status_code=204)
+def restore_chat(chat_id: str, request: Request):
+    history, owner = identity(request)
+    if request.headers.get("content-type", "").split(";")[0].strip().lower() != "application/json":
+        raise HTTPException(415, "Ожидается JSON.")
+    with history.connect() as db:
+        db.execute("BEGIN IMMEDIATE")
+        trashed_chat(db, owner, chat_id)
+        if active_count(db, owner) >= 100:
+            raise HTTPException(429, "Уже сохранено 100 диалогов. Освободите место перед восстановлением.")
+        db.execute("DELETE FROM chat_trash WHERE chat_id=?", (chat_id,))
+
+
+@router.delete("/{chat_id}/permanent", status_code=204)
+def permanently_delete_chat(chat_id: str, request: Request):
+    history, owner = identity(request)
+    with history.connect() as db:
+        db.execute("BEGIN IMMEDIATE")
+        trashed_chat(db, owner, chat_id)
         db.execute("DELETE FROM chats WHERE id=? AND owner=?", (chat_id, owner))

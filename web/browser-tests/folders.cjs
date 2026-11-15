@@ -75,7 +75,10 @@ const fs = require('node:fs');
     console.log('PASS: create, move, rename, second browser, mobile drawer, new chat in folder, delete folder without deleting chats.');
   } finally {
     if (folderId) await context.request.delete(base + '/api/chat-folders/' + folderId);
-    for (const id of chats) await context.request.delete(base + '/api/chats/' + id);
+    for (const id of chats) {
+      await context.request.delete(base + '/api/chats/' + id);
+      await context.request.delete(base + '/api/chats/' + id + '/permanent');
+    }
     await browser.close();
   }
 })().catch(error => {console.error(error); process.exit(1);});

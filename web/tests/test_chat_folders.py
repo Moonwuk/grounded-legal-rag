@@ -98,6 +98,7 @@ class ChatFolderTests(unittest.TestCase):
         store.finish("alice", chat, lease, [{"question": "q", "answer": {"status": "answer", "text": "a"}}])
         self.assertEqual(self.client.get(f"/api/chats/{chat}", headers=self.headers).json()["folder_id"], folder)
         self.assertEqual(self.client.delete(f"/api/chats/{chat}", headers=self.headers).status_code, 204)
+        self.assertEqual(self.client.delete(f"/api/chats/{chat}/permanent", headers=self.headers).status_code, 204)
         with store.connect() as db:
             self.assertEqual(db.execute("SELECT count(*) FROM chat_folder_items").fetchone()[0], 0)
 

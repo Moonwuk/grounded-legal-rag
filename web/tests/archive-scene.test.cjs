@@ -43,6 +43,7 @@ class Element {
 }
 function harness(saved = null, documents = [], tabs = [], folders = []) {
   const requests = [];
+  const trash = [];
   const storage = new Map();
   const ids = new Map();
   const get = id => { if (!ids.has(id)) ids.set(id, new Element()); return ids.get(id); };
@@ -72,13 +73,21 @@ function harness(saved = null, documents = [], tabs = [], folders = []) {
       }
       if (url.startsWith("/api/chats")) {
         if (!saved) return {ok: false, status: 503, json: async () => ({detail: "disabled"})};
+        if (url.includes("?trash=true")) return ok(trash);
         const id = url.split("/")[3];
+        if (options.method === "POST" && url.endsWith("/restore")) {
+          const chat = trash.splice(trash.findIndex(c => c.id === id), 1)[0];
+          delete chat.deleted_at;
+          saved.push(chat);
+          return {ok: true, status: 204};
+        }
         if (options.method === "POST") {
           const chat = {id: "chat-" + (saved.length + 1), title: "Новый диалог", updated: Date.now() / 1000, turns: []};
           saved.unshift(chat); return ok(chat);
         }
         if (options.method === "DELETE") {
-          saved.splice(saved.findIndex(c => c.id === id), 1);
+          if (url.endsWith("/permanent")) trash.splice(trash.findIndex(c => c.id === id), 1);
+          else trash.push({...saved.splice(saved.findIndex(c => c.id === id), 1)[0], deleted_at: Date.now() / 1000});
           return {ok: true, status: 204};
         }
         return ok(id ? saved.find(c => c.id === id) : saved);
@@ -292,4 +301,28 @@ test("chat folders filter existing history without removing chats or losing the 
   h.get("folder-list").children[0].events.click();
   assert.deepEqual(visible(), ["a", "b", "c"]);
   assert.equal(saved.length, 3);
+});
+
+test("trash keeps deleted chats out of active folders, restores sources, and exposes permanent deletion separately", async () => {
+  const saved = [{id: "saved", title: "Аренда", updated: 1000, turns: [
+    {question: "Вопрос", answer: {status: "answer", text: "Ответ [1]", sources: [source]}}
+  ]}];
+  const h = harness(saved); await h.ready;
+  const settle = () => new Promise(resolve => setImmediate(resolve));
+  h.get("chat-list").children[0].children[1].events.click(); await settle();
+  assert.equal(saved.length, 0);
+  h.get("folder-list").children.at(-1).events.click();
+  let row = h.get("chat-list").children[0];
+  assert.equal(row.children[0].disabled, true);
+  assert.equal(row.children[1].textContent, "Восстановить");
+  assert.equal(row.children[2].textContent, "Удалить навсегда");
+  row.children[1].events.click(); await settle();
+  assert.equal(saved.length, 1);
+  assert.ok(h.get("conversation").children.find(n => n.dataset.status === "answer"));
+  h.get("chat-list").children[0].children[1].events.click(); await settle();
+  h.get("folder-list").children.at(-1).events.click();
+  row = h.get("chat-list").children[0];
+  row.children[2].events.click(); await settle();
+  assert.equal(h.get("chat-list").children.length, 0);
+  assert.equal(h.get("folder-empty").textContent, "Корзина пуста.");
 });
