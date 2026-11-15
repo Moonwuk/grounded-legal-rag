@@ -35,7 +35,7 @@
     panel.before(placeholder);
     active = panel;
     host.append(panel);
-    get("mobile-panel-title").textContent = kind === "history" ? "История чатов" : "Документы";
+    get("mobile-panel-title").textContent = kind === "history" ? "Ваши диалоги" : "Документы";
     dialog.dataset.panel = kind;
     dialog.showModal();
     get("close-mobile-panel").focus({preventScroll: true});
