@@ -9,7 +9,7 @@ const SpriteAnimation = (() => {
     running.delete(frame);
   }
 
-  function play(frame, {src, images, columns = 1, rows = 1, frames, fps = 30, loop = false}) {
+  function play(frame, {src, images, columns = 1, rows = 1, frames, fps = 24, loop = false}) {
     stop(frame);
     const count = images ? images.length : columns * rows;
     const sequence = frames ?? Array.from({length: count}, (_, index) => index);

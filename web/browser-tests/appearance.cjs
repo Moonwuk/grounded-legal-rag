@@ -87,6 +87,9 @@ function contrast(rgb, other) {
     });
     const animationCount = () => searching.evaluate(scene => scene.firstElementChild.getAnimations().length);
     assert.equal(await animationCount(), 1);
+    assert.equal(await searching.evaluate(scene =>
+      scene.firstElementChild.getAnimations()[0].effect.getTiming().duration
+    ), 2000); // 48 frames at 24 fps.
     await animations.selectOption('off');
     assert.equal(await page.locator('html').getAttribute('data-motion'), 'reduced');
     assert.equal(await animationCount(), 0);
