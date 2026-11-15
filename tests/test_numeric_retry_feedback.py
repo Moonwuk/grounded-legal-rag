@@ -58,7 +58,7 @@ class NumericRetryFeedbackTests(unittest.TestCase):
         self.assertEqual(model.calls[1][1]['retry_reason'], 'answer_lost_restrictions')
         self.assertNotIn('retry_numeric_feedback', model.calls[1][1])
         self.assertNotIn('retry_rejected_answer', model.calls[1][1])
-        self.assertEqual(model.calls[1][0], policy.SYSTEM)
+        self.assertEqual(model.calls[1][0], policy.SYSTEM + policy.RESTRICTION_RETRY_GUIDANCE)
 
     def test_feedback_does_not_cross_questions(self):
         bad = 'Период учёта составляет 99 месяцев (п. 4.2).'

@@ -475,6 +475,25 @@ def lost_restrictions(text: str, selected: list[Fragment], question: str = "") -
     return list(dict.fromkeys(lost))[:6]
 
 
+def remember_lost_restrictions(previous, text: str, selected: list[Fragment], question: str = "") -> list[str]:
+    """Keep alternating omissions in retry feedback, grounded in current sources.
+
+    Memory contains classes, not old legal conditions: a changed selection
+    removes absent classes and supplies its own operator wording. Publication
+    still uses the unchanged restrictions_kept guard and the same call budget.
+    """
+    current = lost_restrictions(text, selected, question)
+    if not previous:
+        return current
+    patterns = [("upper_bound", _UPPER_BOUND_SOURCE), *_RESTRICTIONS.items()]
+    def restriction_class(wording):
+        return next((name for name, pattern in patterns if re.fullmatch(pattern, wording)), None)
+    wanted = {restriction_class(wording) for wording in [*previous, *current]} - {None}
+    required = _required_classes(norm(text).lower().replace("ё", "е")) | {"upper_bound"}
+    available = lost_restrictions("", selected, question)
+    return [wording for wording in available if restriction_class(wording) in wanted & required]
+
+
 def restrictions_kept(text: str, selected: list[Fragment], strict: bool = False, question: str = "") -> bool:
     """Lexical barrier: the text must not drop a restriction class of its sources.
 
@@ -923,6 +942,7 @@ def prose_scope_safe(text: str, selected: list[Fragment], question: str = "") ->
                 or _CONTENT_ONLY.search(text[max(0, m.start() - 80):m.end()]) or _quoted_from(question, text, m)
                 or _restates_bound(text, m, source) or _restates_exception_list(text, m, source)
                 or _restates_permission_condition(text, m, source)
+                or _restates_list_membership(text, m, selected)
                 for m in _EXCLUSIVE.finditer(text))
             and not (_role_negation(text) and not _role_negation(source))
             and added_assertions_safe(text, selected))
@@ -988,6 +1008,67 @@ def _restates_permission_condition(text: str, m, source: str) -> bool:
     return any(_PERMIT_VERB.search(sentence) and re.search(r"(?<![а-яё])" + phrase, sentence)
                and subject & {w[:4] for w in re.findall(r"[а-яё]{4,}", sentence)}
                for sentence in _sentences(source))
+
+
+def _restates_list_membership(text: str, operator, selected: list[Fragment]) -> bool:
+    """Only «X — лишь один из них»: membership, never a count of permitted actors.
+
+    X must occur in one item of an explicit positive numbered source list.
+    The entire statement is a copula; no action, condition or qualification
+    can trail it. Other uses of exclusive words keep their existing barriers.
+    """
+    if operator.group().lower() != "лишь":
+        return False
+    cursor, membership = 0, None
+    for sentence in _trim_sentences(text):
+        start = text.find(sentence, cursor)
+        cursor = start + len(sentence)
+        if start <= operator.start() < cursor:
+            membership = re.fullmatch(
+                r'(?P<subject>[а-яё][а-яё -]{1,100}?)\s+(?P<copula>[—–-]|является)\s+'
+                r'(?P<operator>лишь)\s+(?P<form>один|одна|одним|одной)\s+из\s+них\.?',
+                sentence, re.I)
+            if not membership or start + membership.start('operator') != operator.start():
+                return False
+            break
+    if membership is None:
+        return False
+    if ((membership['copula'].lower() == 'является')
+            != (membership['form'].lower() in {'одним', 'одной'})):
+        return False
+    uncertain = re.compile(r'\b(?:не|ни|нет|если|когда|бы|ли|при|возмож\w*|'
+                           r'якобы|допустим|предполож\w*|мож\w*|мог\w*)\b', re.I)
+    subject = membership['subject'].lower().replace('ё', 'е')
+    words = re.findall(r'[а-я]{3,}', subject)
+    if len(words) < 2 or uncertain.search(subject):
+        return False
+    def contains_subject(item):
+        if uncertain.search(item):
+            return False
+        item_words = set(re.findall(r'[а-я]+', item.lower().replace('ё', 'е')))
+        # Exact words or a noun's explicit case suffix: «банк» in «банка».
+        # Four-letter stems would confuse «контрагента» and «контрабанды».
+        return all(any(re.fullmatch(re.escape(word) + r'(?:а|у|ом|е|и|ов|ам|ами|ах)?', source_word)
+                       for source_word in item_words) for word in words)
+    for fragment in selected:
+        for intro in re.finditer(r':\s*(?=1[.)]\s+)', fragment.text):
+            heading = re.split(r'[.!?\n]', fragment.text[:intro.start()])[-1]
+            if uncertain.search(heading):
+                continue
+            tail = fragment.text[intro.end():]
+            marks = list(re.finditer(r'(?<![\w.])(\d{1,2})[.)]\s+', tail))
+            items = []
+            for index, mark in enumerate(marks):
+                if int(mark[1]) != index + 1:
+                    break
+                end = marks[index + 1].start() if index + 1 < len(marks) else len(tail)
+                item = re.split(r'[.!?;\n]', tail[mark.end():end], maxsplit=1)[0].strip()
+                if not item:
+                    break
+                items.append(item)
+            if len(items) >= 2 and sum(contains_subject(item) for item in items) == 1:
+                return True
+    return False
 
 
 def _quoted_from(question: str, text: str, m) -> bool:
@@ -1444,6 +1525,36 @@ def _asks_value(question: str) -> bool:
             if marker or (index < len(parts) - 1 and (not tail or confirmation)):
                 return True
     return False
+
+
+def missing_value_inference(question: str) -> bool:
+    """A narrow negative inference from an absent value, not its confirmation.
+
+    This only selects application-owned wording after value_dependencies has
+    established a real missing defining document. It never authorizes model
+    prose, confirms a proposed number or decides whether that number is lawful.
+    """
+    current = user_turns(question)[-1]
+    if current.count('?') != 1:
+        return False
+    sentences = _trim_sentences(current)
+    if not sentences:
+        return False
+    match = re.fullmatch(
+        r'(?:означает|доказывает|подтверждает)\s+ли\s+'
+        r'(?:(?:само\s+по\s+себе|само)\s+)?отсутствие\s+'
+        r'(?:числа|значения|срока|суммы|размера)\b'
+        r'(?P<basis>[^!?;]{0,120}?),?\s+что\s+(?P<conclusion>[^!?;]{1,240})\?',
+        sentences[-1].strip(), re.I)
+    if not match or re.search(r'\b(?:не|ни|нет|и|либо|или|вместе\s+с)\b', match['basis'], re.I):
+        return False
+    conclusion = match['conclusion']
+    if (len(re.findall(r'\bне\b', conclusion, re.I)) != 1
+            or re.search(r'\b(?:и|либо|или|вместе\s+с|но|однако|зато)\b', conclusion, re.I)):
+        return False
+    return bool(re.search(
+        r'\bне\s+(?:мог|могла|могло|могли|может|могут)\s+'
+        r'(?:установить|предусмотреть|назначить)\b', conclusion, re.I))
 
 
 def value_dependencies(question: str, selected: list[Fragment], documents) -> list[str]:
@@ -2474,8 +2585,49 @@ def gap_lines(source_gaps, *, required: bool = True) -> list[str]:
     tail = ("Содержание этих оснований и их применимость по доступным материалам установить нельзя. "
             "Предоставьте эти статьи." if required else
             "Условия применения этих отсылочных оснований в данном ответе не устанавливаются.")
-    return ["В предоставленной базе не найдены тексты отсылочных статей " + ", ".join(gap["articles"]) +
-            " того же нормативного документа. " + tail for gap in source_gaps]
+    lines = []
+    for gap in source_gaps:
+        if gap.get("reason") == "incomplete_context":
+            lines.append("Полнота основания не подтверждена: не проверены все условия и исключения, "
+                         "связанные с положениями «" + "; ".join(gap["provisions"]) + "». "
+                         "По приведённым выдержкам окончательный вывод об их применимости сделать нельзя.")
+        else:
+            lines.append("В предоставленной базе не найдены тексты отсылочных статей " + ", ".join(gap["articles"]) +
+                         " того же нормативного документа. " + tail)
+    return lines
+
+
+def _bounded_context_warning(candidate, evidence, source_gaps, editions, published_sources):
+    """No legal claims or cut quotations when the incomplete view is too long.
+
+    A source name can still link to its exact first selected fragment. Every
+    displayed name is complete, and the metadata includes only displayed names.
+    This special partial result does not relax the ordinary answer-size limit.
+    """
+    if (candidate["status"] != "partial"
+            or not any(g.get("reason") == "incomplete_context" for g in source_gaps)):
+        raise ProviderError("answer_length_limit")
+    lines = ["Полнота основания не подтверждена: не проверены все связанные условия и исключения. "
+             "Окончательный вывод об их применимости сделать нельзя. "
+             "Указанные ниже источники найдены, но их положения в этом ответе не воспроизводятся."]
+    by_id = {f.id: f for f in evidence}
+    kept, documents = [], set()
+    for claim in candidate["claims"]:
+        for cite in claim["sources"]:
+            source = by_id[cite["fragment_id"]]
+            if source.document in documents:
+                continue
+            line = f"[{len(kept) + 1}] " + cite_name(source.document, editions) + "."
+            if len("\n".join([*lines, line])) <= 10000:
+                lines.append(line)
+                documents.add(source.document)
+                kept.append(source)
+    if not kept:
+        lines[0] = ("Полнота основания не подтверждена: не проверены все связанные условия и исключения. "
+                    "Окончательный вывод об их применимости сделать нельзя.")
+    if published_sources is not None:
+        published_sources[:] = kept
+    return "\n".join(lines)
 
 
 def render(candidate: dict, evidence: list[Fragment], source_gaps=(), prose: str = "", *, question: str = "", value_gaps=(), keep_sources: bool = False, context_sources=(), published_sources: list[Fragment] | None = None, editions=None) -> str:
@@ -2519,7 +2671,7 @@ def render(candidate: dict, evidence: list[Fragment], source_gaps=(), prose: str
             lines.append("Чтобы назвать конкретное значение, нужен этот документ.")
         answer = "\n".join(lines + gap_lines(source_gaps, required=reference_required))
         if len(answer) > 10000:
-            raise ProviderError("answer_length_limit")
+            return _bounded_context_warning(candidate, evidence, source_gaps, editions, published_sources)
         return answer
     if status == "out_of_scope":
         return "Я отвечаю на юридические вопросы по предоставленной базе документов. Этот запрос выходит за пределы моей задачи."
@@ -2623,12 +2775,15 @@ def render(candidate: dict, evidence: list[Fragment], source_gaps=(), prose: str
             # The answer opens with what the documents do and do not settle.
             lines.insert(0, "Конкретное значение в найденных документах не установлено: положение отсылает к "
                             "отдельному документу («" + "; ".join(value_gaps) + "»).")
+            if missing_value_inference(question):
+                lines.insert(0, "Само по себе отсутствие значения в отсылочном положении не доказывает, "
+                                "что названное в вопросе значение не могло быть установлено.")
         lines.append("Чтобы назвать значение, нужен этот документ. Предоставьте его, если он у вас есть.")
     reference_lines = [', '.join(f'[{n}]' for n in values) + ' ' + cite_name(name, editions) + '.'
                        for name, values in references.items()]
     answer = "\n".join(lines + reference_lines)
     if len(answer) > 10000:
-        raise ProviderError("answer_length_limit")
+        return _bounded_context_warning(candidate, evidence, source_gaps, editions, published_sources)
     return answer
 
 
@@ -2666,6 +2821,44 @@ retry_value_documents перечисляет положения, которые 
 что остаётся неизвестным и какой документ нужен. Не начинай с категорического
 «да» или «нет» о самом значении. Условия другого договора явно отделяй от
 условий запрошенного. Отвечай обычным JSON; сами ссылки не задают значения.
+"""
+
+RESTRICTION_RETRY_GUIDANCE = """
+В повторной формулировке сохрани буквально ограничительные операторы из
+retry_restrictions вместе с подтверждённым условием или исключением источника.
+Не заменяй эти операторы синонимами и не оставляй их без относящегося к ним
+условия. Если исправляешь одно ограничение, сохрани остальные из списка.
+Список не является самостоятельным основанием: нельзя переносить ограничение
+на другой объект или добавлять не подтверждённые выбранными источниками условия.
+Верни обычный JSON. Все проверки ответа сохраняются.
+"""
+
+EXCLUSIVE_RETRY_GUIDANCE = """
+В этом повторе измени в черновике только отклонённую исключительную формулировку.
+Сохрани основной вывод и подтверждённые ограничения ответа. Поле
+retry_preserve_restrictions содержит операторы из выбранных источников, включая
+уже сохранённые в черновике: передай их буквально вместе с относящимися к ним
+условиями. Удаление лишнего «только» или «лишь» не должно удалять запрет, условие
+или исключение источника. Не переноси ограничение на другой объект и не добавляй
+новых условий. Поле является диагностикой, а правовые основания остаются в evidence.
+"""
+
+CONTEXT_RETRY_GUIDANCE = """
+retry_context_gaps перечисляет положения, полнота которых не была обеспечена
+в предыдущем evidence. Это не отсутствие документа в базе. Проверь расширенные
+источники и связанные условия и исключения, прежде чем давать окончательный вывод.
+Если полного основания по-прежнему нет в evidence, сохрани partial; не утверждай,
+что документов нет в базе, и не проси пользователя повторно предоставить их.
+Диагностика не является источником правовых условий. Верни обычный JSON.
+"""
+
+CONTEXT_VERIFY_GUIDANCE = """
+В source_gaps запись reason=incomplete_context означает, что полнота выбранного
+основания и связанных положений не подтверждена в evidence. Она не означает
+отсутствия документов в базе. Такой ответ остаётся partial с исходными выдержками
+и пояснением границы; requested_facts=referenced_documents обозначает недостающую
+проверку основания, а не просьбу пользователю снова прислать имеющийся документ.
+reference_scope=local не отменяет эту неполноту выбранного основания.
 """
 
 MONEY_RETRY_GUIDANCE = """
@@ -2722,7 +2915,9 @@ def answer_steps(question: str, retriever, client, top_k: int = 6, verify: bool 
     retry_numeric = None
     retry_draft = ""
     retry_policy, retry_policy_draft = None, ""
+    retry_preserve_restrictions = []
     retry_value_documents = []
+    retry_context_gaps = []
     final_repair = False
     verified_once = False
     provisional = None
@@ -2764,6 +2959,11 @@ def answer_steps(question: str, retriever, client, top_k: int = 6, verify: bool 
                     generation_system += VALUE_RETRY_GUIDANCE
                     generation_payload = {**generation_payload,
                                           "retry_value_documents": retry_value_documents}
+                if retry_reason == "incomplete_source_context" and retry_context_gaps:
+                    generation_system += CONTEXT_RETRY_GUIDANCE
+                    generation_payload = {**generation_payload, "retry_context_gaps": retry_context_gaps}
+                if retry_reason == "answer_lost_restrictions" and retry_restrictions:
+                    generation_system += RESTRICTION_RETRY_GUIDANCE
                 if retry_reason == "answer_numbers_not_in_sources" and retry_numeric:
                     generation_system += NUMERIC_RETRY_GUIDANCE
                     # The rejected text is generation-only data. It does not
@@ -2780,6 +2980,10 @@ def answer_steps(question: str, retriever, client, top_k: int = 6, verify: bool 
                                           else POLICY_RETRY_GUIDANCE)
                     generation_payload = {**generation_payload, "retry_policy_feedback": retry_policy,
                                           "retry_policy_draft": retry_policy_draft}
+                    if retry_policy["scope_barrier"] == "exclusive_word" and retry_preserve_restrictions:
+                        generation_system += EXCLUSIVE_RETRY_GUIDANCE
+                        generation_payload = {**generation_payload,
+                                              "retry_preserve_restrictions": retry_preserve_restrictions}
                 if final_repair:
                     if retry_policy and "retry_policy_feedback" not in generation_payload:
                         generation_system += POLICY_RETRY_GUIDANCE
@@ -2789,7 +2993,9 @@ def answer_steps(question: str, retriever, client, top_k: int = 6, verify: bool 
                     generation_payload = {**generation_payload, "final_text_repair": True}
                 retry_numeric, retry_draft = None, ""
                 retry_policy, retry_policy_draft = None, ""
+                retry_preserve_restrictions = []
                 retry_value_documents = []
+                retry_context_gaps = []
                 calls += 1
                 generated = client.complete(generation_system, generation_payload)
                 candidate = expand_selection(generated, evidence)
@@ -2818,6 +3024,9 @@ def answer_steps(question: str, retriever, client, top_k: int = 6, verify: bool 
                                     for f in retriever.publication_context(source)
                                     if not bound_elsewhere(f, source, retriever, question)}.values()) if hasattr(retriever, 'publication_context') else []
             source_gaps = retriever.reference_gaps(selected) if hasattr(retriever, "reference_gaps") else []
+            context_gaps = (retriever.context_gaps(selected, evidence)
+                            if hasattr(retriever, "context_gaps") else [])
+            source_gaps = list(source_gaps) + list(context_gaps)
             value_gaps = value_dependencies(question, selected, getattr(retriever, "documents", {}))
             # Keep the missing-value explanation even when a numerical or
             # semantic rejection also drives the next generation. This is
@@ -2860,7 +3069,7 @@ def answer_steps(question: str, retriever, client, top_k: int = 6, verify: bool 
             # establish it. Publish the source-owned dependency and application
             # explanation; an expanded search can still resolve the gap.
             source_only = ((restricted and not (draft and restrictions_kept(draft, selected, question=question)))
-                           or bool(value_gaps))
+                           or bool(value_gaps) or bool(context_gaps))
             scope_guard = (scope_block_reason(draft, selected, retriever, question)
                            if draft and selected and not source_only else "")
             if (draft and selected and not source_only and not scope_guard
@@ -2884,6 +3093,9 @@ def answer_steps(question: str, retriever, client, top_k: int = 6, verify: bool 
             if retry_policy is not None and scope_guard == "money_base_mismatch":
                 retry_policy = {**retry_policy, "scope_barrier": scope_guard}
             retry_policy_draft = raw_draft if retry_policy else ""
+            retry_preserve_restrictions = (lost_restrictions("", selected, question)
+                                           if retry_policy and retry_policy["scope_barrier"] == "exclusive_word"
+                                           else [])
             if prose:
                 candidate["answer"] = prose
             # The recommended answer is short (regulation, section 3). A restricted
@@ -2893,7 +3105,7 @@ def answer_steps(question: str, retriever, client, top_k: int = 6, verify: bool 
             # A catalog gap is not necessarily a dependency of this question.
             # Default to partial. A direct answer may propose independence only
             # with grounded prose; its exact scope needs an explicit second verdict.
-            local_reference = bool(source_gaps and candidate["status"] == "answer" and prose
+            local_reference = bool(source_gaps and not context_gaps and candidate["status"] == "answer" and prose
                                    and generated.get("reference_scope") == "local"
                                    and retry_reason != "source_references_required")
             if local_reference:
@@ -2901,6 +3113,10 @@ def answer_steps(question: str, retriever, client, top_k: int = 6, verify: bool 
             elif source_gaps and not value_gaps and candidate["status"] in {"answer", "partial"}:
                 candidate = {**candidate, "status": "partial", "missing": ["source_gap"],
                              "requested_facts": ["referenced_documents"]}
+            if context_gaps and candidate["status"] in {"answer", "partial", "clarify"}:
+                candidate = {**candidate, "status": "partial", "missing": ["source_gap"],
+                             "requested_facts": candidate.get("requested_facts") or ["referenced_documents"]}
+                candidate.pop("reference_scope", None)
             published_sources: list[Fragment] = []
             rendered = render(candidate, evidence, source_gaps, prose, question=question, value_gaps=value_gaps,
                               keep_sources=quote_restricted, context_sources=context_sources, editions=editions,
@@ -2938,11 +3154,18 @@ def answer_steps(question: str, retriever, client, top_k: int = 6, verify: bool 
                                     else "answer_not_supported" if prose_state == "rejected"
                                     else "answer_lost_restrictions")
                     retry_scope_guard = scope_blocked
-                    retry_restrictions = lost_restrictions(draft, selected, question)
+                    retry_restrictions = remember_lost_restrictions(retry_restrictions, draft, selected, question)
                     retry_extra, retry_items = [], []
                     attempts.append((True, None))
                     continue
                 if not expanded:
+                    if context_gaps and candidate["status"] == "partial":
+                        # A complete provision may be available in the expanded
+                        # context. Keep this bounded, explicitly partial view.
+                        fallback = best
+                        retry_reason, retry_scope_guard = "incomplete_source_context", False
+                        retry_context_gaps = list(context_gaps)
+                        continue
                     if prose_state in {"rejected", "ungrounded"}:
                         # The checks rejected the text: the provisions are kept, the
                         # text gets one more generation told the reason.
@@ -2962,7 +3185,7 @@ def answer_steps(question: str, retriever, client, top_k: int = 6, verify: bool 
                     if prose_state == "source_only" and draft and restricted and not value_gaps:
                         fallback = result
                         retry_reason, retry_scope_guard = "answer_lost_restrictions", False
-                        retry_restrictions = lost_restrictions(draft, selected, question)
+                        retry_restrictions = remember_lost_restrictions(retry_restrictions, draft, selected, question)
                         continue
                     if (candidate["status"] == "partial" and not source_gaps and set(candidate.get("requested_facts", []))
                             & {"document", "referenced_documents", "warranty_document"}):
@@ -2986,7 +3209,8 @@ def answer_steps(question: str, retriever, client, top_k: int = 6, verify: bool 
                        "status": "provisional", "sources": [], "quote_only": True}
                 yield provisional
             calls += 1
-            verdict = client.complete(VERIFY, {**payload, "candidate": candidate,
+            verdict = client.complete(VERIFY + (CONTEXT_VERIFY_GUIDANCE if context_gaps else ""),
+                                      {**payload, "candidate": candidate,
                                                "rendered_answer": rendered,
                                                "source_gaps":source_gaps, "value_gaps":value_gaps})
             allowed = approved(candidate, verdict)
@@ -3035,7 +3259,7 @@ def answer_steps(question: str, retriever, client, top_k: int = 6, verify: bool 
                      "prose":prose_state, "scope_guard":scope_guard,
                      "verdict_status":vstatus if isinstance(vstatus,str) and vstatus in STATUSES else "invalid",
                      "check_count":len(checks) if isinstance(checks,list) else -1,
-                     "source_gap_count":sum(len(g["articles"]) for g in source_gaps),
+                     "source_gap_count":sum(len(g["articles"]) + len(g.get("provisions", [])) for g in source_gaps),
                      "reference_scope":"local" if local_reference else "required",
                      "failed_claim_positions":[i for i, c in enumerate(checks[:12])
                          if not isinstance(c,dict) or c.get("supported") is not True or c.get("applicable") is not True]
@@ -3048,6 +3272,13 @@ def answer_steps(question: str, retriever, client, top_k: int = 6, verify: bool 
                 retry_reason, retry_scope_guard = "answer_not_supported", True
             if edition_wrong:
                 retry_reason, retry_scope_guard = "inapplicable_edition", False
+                continue
+            if context_gaps and candidate["status"] == "partial" and not expanded:
+                if allowed:
+                    fallback = {"text": rendered, "status": candidate["status"],
+                                "sources": published_sources, "quote_only": True}
+                retry_reason, retry_scope_guard = "incomplete_source_context", False
+                retry_context_gaps = list(context_gaps)
                 continue
             if (not allowed and not expanded and not reduced and isinstance(checks, list)
                     and any(isinstance(c, dict) and c.get("supported") is True and c.get("applicable") is False for c in checks)):
@@ -3066,7 +3297,7 @@ def answer_steps(question: str, retriever, client, top_k: int = 6, verify: bool 
                 # The text was dropped for losing a restriction and the quotes alone
                 # did not answer: the retry is told which restrictions to keep.
                 retry_reason, retry_scope_guard = "answer_lost_restrictions", False
-                retry_restrictions = lost_restrictions(draft, selected, question)
+                retry_restrictions = remember_lost_restrictions(retry_restrictions, draft, selected, question)
             # Only within the per-question call limit: exceeding it would turn a
             # refusal into a technical error.
             dropped = [] if allowed or reduced or calls >= QUESTION_CALL_LIMIT else inapplicable_only(candidate, verdict)
@@ -3100,7 +3331,7 @@ def answer_steps(question: str, retriever, client, top_k: int = 6, verify: bool 
                     # quotation is published: one attempt is told which wordings to keep.
                     fallback = result
                     retry_reason, retry_scope_guard = "answer_lost_restrictions", False
-                    retry_restrictions = lost_restrictions(draft, selected, question)
+                    retry_restrictions = remember_lost_restrictions(retry_restrictions, draft, selected, question)
                     continue
                 extra = (unneeded(candidate, verdict) if candidate["status"] == "answer" and prose_state == "published"
                          and not expanded and not reduced and calls + 2 <= QUESTION_CALL_LIMIT else [])
