@@ -1,0 +1,58 @@
+{
+  "date": "2026-11-14",
+  "base_commit": "1ade7e9b5700105436389e1807591189637481be",
+  "base_submission": "PSB_27_explaining_provision.zip",
+  "python": "3.12.14",
+  "baseline_tests": {
+    "count": 459,
+    "passed": true
+  },
+  "tests": {
+    "count": 474,
+    "passed": true,
+    "new_tests": 15
+  },
+  "evaluation_validator_tests": {
+    "count": 106,
+    "passed": true
+  },
+  "official_replay": {
+    "question_ids": [
+      "16",
+      "17"
+    ],
+    "model": "deterministic fixture",
+    "full_text_preserved": true,
+    "real_batch": true,
+    "source_offsets_checked": true
+  },
+  "submission": {
+    "file": "PSB_baseline_submission.zip",
+    "bytes": 71992,
+    "sha256": "f03186ccf1b5b77339d143643fd14f3128a08da4ee617f5324bf7e37b13c944f",
+    "entries": [
+      "solution.py",
+      "psb_corpus.py",
+      "psb_retrieval.py",
+      "psb_policy.py",
+      "psb_llm.py",
+      "requirements.txt"
+    ],
+    "platform_execution": "NOT RUN; proxy credentials unavailable in this session"
+  },
+  "source_sha256": {
+    "solution.py": "c1baa073ba594c0f0aae9fa6448da0ae876a7cf6414056da01f0e38c2905ebe2",
+    "psb_corpus.py": "cece0f0ff1f49c08aaf97fddb8e9f8f0ab3a9e80a2648062b9e7e7a4084e8a51",
+    "psb_retrieval.py": "b82f851966983949518768dec995f3306da46ca27322edf4cbbc293550b47dbe",
+    "psb_policy.py": "2becdfac37723439c22559ea82faf3253bf84a6d4ed0d23898eb0db87dde9cd8",
+    "psb_llm.py": "0a3cf1ccc698b990c571a706e6937cd865686417e2ffd62e11bfef5f0a9d3f32",
+    "requirements.txt": "d5373dfa08adacd00365dfefc08228f255806bcea3dc28ea355b2c8e886fa30f"
+  },
+  "limitations": [
+    "Version 28 and RUN_AB archive unavailable",
+    "No live model API or full 18-question A/B run",
+    "No contest submission or score measurement",
+    "Lexical guard is not a general semantic proof"
+  ],
+  "corpus_sha256": "cea8ef2c8f6c8b9f498efacf705b97bf3da53cc78f366f9b1fef7a6de66327e0"
+}

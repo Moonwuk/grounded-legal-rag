@@ -95,6 +95,10 @@ def run_questions(questions, retriever, deadline, workers, top_k, verify=False):
     returns its provisional text) instead of a technical stub.
     """
     queue = deque((index, None, None, None) for index in range(len(questions)))
+    # A row whose every call failed (429, 5xx, timeouts of an overloaded proxy)
+    # is a technical stub worth zero. It is started again after the other rows,
+    # at most twice, while the run deadline allows.
+    technical_tries = {}
 
     def advance(task):
         index, client, steps, checkpoint = task
@@ -112,7 +116,13 @@ def run_questions(questions, retriever, deadline, workers, top_k, verify=False):
                 if result["status"] == "provisional":
                     result = next(steps)
             except StopIteration as finished:
-                return index, finished.value, None
+                result = finished.value
+                if (result.get("status") == "technical_error" and checkpoint is None
+                        and technical_tries.get(index, 0) < 2):
+                    # Every call of this row failed on the API: start it again later.
+                    technical_tries[index] = technical_tries.get(index, 0) + 1
+                    return index, result, (index, None, None, None)
+                return index, result, None
             if result["status"] == "answer" and not result.get("quote_only"):
                 steps.close()
                 return index, result, None
@@ -122,6 +132,9 @@ def run_questions(questions, retriever, deadline, workers, top_k, verify=False):
             print("question_error: " + type(error).__name__, file=sys.stderr)
             if steps is not None:
                 steps.close()
+            if checkpoint is None and technical_tries.get(index, 0) < 2:
+                technical_tries[index] = technical_tries.get(index, 0) + 1
+                return index, {"text": TECHNICAL, "status": "technical_error"}, (index, None, None, None)
             return index, checkpoint or {"text": TECHNICAL, "status": "technical_error"}, None
 
     with ThreadPoolExecutor(max_workers=workers) as pool:
@@ -142,7 +155,9 @@ def run_questions(questions, retriever, deadline, workers, top_k, verify=False):
                     yield index, result["text"], result["status"]
             # Unresolved rows first, then verified partials, then verified answers
             # whose text was dropped (bare quotations).
-            queue = deque(sorted(deferred, key=lambda task: ({"partial": 1, "answer": 2}.get(task[3]["status"], 0), task[0])))
+            # Rows that failed on the API go last: the proxy gets time to recover.
+            queue = deque(sorted(deferred, key=lambda task: (
+                3 if task[3] is None else {"partial": 1, "answer": 2}.get(task[3]["status"], 0), task[0])))
         for _, _, steps, _ in queue:
             if steps is not None:
                 steps.close()

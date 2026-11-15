@@ -79,14 +79,16 @@ class ReasoningBudgetTests(unittest.TestCase):
             return 200, reply('stop', json.dumps(VALUE))
         with provider(script) as calls:
             self.assertEqual(self.complete()['status'], 'out_of_scope')
-        # low is the floor: the retry keeps it and only asks for a compact JSON.
+        # low is the floor: the retry keeps it, asks for a compact JSON and gets a
+        # doubled budget (a cut JSON cannot be parsed at the tested low limit).
         self.assertEqual([c.get('reasoning_effort') for c in calls], ['low', 'low'])
-        self.assertEqual(calls[0]['max_tokens'], calls[1]['max_tokens'])
+        self.assertEqual(calls[1]['max_tokens'], min(4096, calls[0]['max_tokens'] * 2))
+        self.assertGreaterEqual(calls[0]['max_tokens'], 2048)
 
     def test_each_configured_level_steps_down(self):
         for configured, expected in (('max', 'low'), ('high', 'low'), ('low', 'low'), ('none', 'none')):
             def script(i, body):
-                return (200, reply('length', '', reasoning=990, budget=1000) if i == 0
+                return (200, reply('length', '', reasoning=body['max_tokens'] - 10, budget=body['max_tokens']) if i == 0
                         else reply('stop', json.dumps(VALUE)))
             with provider(script) as calls, patch.dict(os.environ, {'LLM_REASONING_EFFORT': configured}):
                 self.complete()
@@ -154,6 +156,25 @@ class ReasoningBudgetTests(unittest.TestCase):
         with provider(script) as calls:
             self.complete()
         self.assertEqual(['reasoning_effort' in c for c in calls], [False, False])
+
+
+class PlatformBudgetTests(unittest.TestCase):
+    """The platform passes MAX_TOKENS=1024. Run of 14 November with that value:
+    15–25% of the JSON answers were cut, 4–10% of rows became technical stubs."""
+
+    def test_platform_budget_has_a_floor(self):
+        def script(i, body):
+            return 200, reply('stop', json.dumps(VALUE))
+        with provider(script) as calls, patch.dict(os.environ, {'MAX_TOKENS': '1024'}):
+            ReasoningBudgetTests.complete(self)
+        self.assertEqual(calls[0]['max_tokens'], 2048)
+
+    def test_larger_configuration_is_kept(self):
+        def script(i, body):
+            return 200, reply('stop', json.dumps(VALUE))
+        with provider(script) as calls, patch.dict(os.environ, {'MAX_TOKENS': '6000'}):
+            ReasoningBudgetTests.complete(self)
+        self.assertEqual(calls[0]['max_tokens'], 6000)
 
 
 if __name__ == '__main__':

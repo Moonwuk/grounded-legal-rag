@@ -1,0 +1,385 @@
+{
+  "date": "2026-11-14",
+  "code_commit": "cadbe99c8951039f34e2915e753d944da254b200",
+  "manifest": {
+    "provider": "https://api.deepseek.com/v1",
+    "settings": {
+      "LLM_MODEL": "deepseek-flash",
+      "LLM_REASONING_EFFORT": "low",
+      "MAX_TOKENS": "8192",
+      "MAX_WORKERS": "2",
+      "TEMPERATURE": "0",
+      "PSB_VERIFY": "0",
+      "PSB_RUN_SECONDS": "1100"
+    },
+    "max_http_attempts": 72,
+    "conservative_token_reservation_cap": 4000000,
+    "questions": 18,
+    "archive28_available": false,
+    "corpus_sha256": "cea8ef2c8f6c8b9f498efacf705b97bf3da53cc78f366f9b1fef7a6de66327e0",
+    "questions_sha256": "e922cee1e155ed23f9f1c8f9758e396ed0e72e4309343dffe33824139bbf1423",
+    "scope": "One live run per archive; known demo questions, not official Score or an independent holdout.",
+    "variants": {
+      "baseline27": {
+        "archive_sha256": "4a1c23ecff23967bbd6828d5bf657358a5602aa8079513b52a4755deb6915d18",
+        "returncode": 0,
+        "seconds": 38.034,
+        "http_attempts": 21,
+        "csv_contract_valid": true,
+        "rows": 18,
+        "abort": null
+      },
+      "guard_fix": {
+        "archive_sha256": "f03186ccf1b5b77339d143643fd14f3128a08da4ee617f5324bf7e37b13c944f",
+        "returncode": 0,
+        "seconds": 38.53,
+        "http_attempts": 21,
+        "csv_contract_valid": true,
+        "rows": 18,
+        "abort": null
+      }
+    },
+    "total_http_attempts": 42,
+    "usage": {
+      "prompt_tokens": 396376,
+      "completion_tokens": 20930,
+      "total_tokens": 417306,
+      "prompt_cache_hit_tokens": 367729,
+      "prompt_cache_miss_tokens": 28647
+    },
+    "abort": null
+  },
+  "element_validation": {
+    "baseline27": {
+      "outcomes": {
+        "pass": 18
+      },
+      "statuses": {
+        "answer": 17,
+        "insufficient": 1
+      },
+      "passed": 18,
+      "total": 18,
+      "quotes_only": [
+        "9"
+      ],
+      "false_refusals": 0,
+      "failures": {},
+      "not_evaluated": {},
+      "checked_by_hand": 0
+    },
+    "guard_fix": {
+      "outcomes": {
+        "pass": 18
+      },
+      "statuses": {
+        "answer": 17,
+        "insufficient": 1
+      },
+      "passed": 18,
+      "total": 18,
+      "quotes_only": [],
+      "false_refusals": 0,
+      "failures": {},
+      "not_evaluated": {},
+      "checked_by_hand": 0
+    }
+  },
+  "paired_guard_replay": {
+    "scope": "Identical live candidate and exact source text through scope_block_reason only; not full policy replay",
+    "candidates": 38,
+    "new_rejections": [],
+    "resolved_rejections": [
+      {
+        "request": "request-038.json",
+        "generated_by": "guard_fix",
+        "baseline_guard": "added_assertion",
+        "fixed_guard": ""
+      },
+      {
+        "request": "request-042.json",
+        "generated_by": "guard_fix",
+        "baseline_guard": "added_assertion",
+        "fixed_guard": ""
+      }
+    ],
+    "rows": [
+      {
+        "request": "request-001.json",
+        "generated_by": "baseline27",
+        "baseline_guard": "",
+        "fixed_guard": ""
+      },
+      {
+        "request": "request-002.json",
+        "generated_by": "baseline27",
+        "baseline_guard": "",
+        "fixed_guard": ""
+      },
+      {
+        "request": "request-004.json",
+        "generated_by": "baseline27",
+        "baseline_guard": "",
+        "fixed_guard": ""
+      },
+      {
+        "request": "request-005.json",
+        "generated_by": "baseline27",
+        "baseline_guard": "",
+        "fixed_guard": ""
+      },
+      {
+        "request": "request-006.json",
+        "generated_by": "baseline27",
+        "baseline_guard": "",
+        "fixed_guard": ""
+      },
+      {
+        "request": "request-007.json",
+        "generated_by": "baseline27",
+        "baseline_guard": "",
+        "fixed_guard": ""
+      },
+      {
+        "request": "request-008.json",
+        "generated_by": "baseline27",
+        "baseline_guard": "",
+        "fixed_guard": ""
+      },
+      {
+        "request": "request-009.json",
+        "generated_by": "baseline27",
+        "baseline_guard": "exclusive_word",
+        "fixed_guard": "exclusive_word"
+      },
+      {
+        "request": "request-010.json",
+        "generated_by": "baseline27",
+        "baseline_guard": "",
+        "fixed_guard": ""
+      },
+      {
+        "request": "request-011.json",
+        "generated_by": "baseline27",
+        "baseline_guard": "",
+        "fixed_guard": ""
+      },
+      {
+        "request": "request-012.json",
+        "generated_by": "baseline27",
+        "baseline_guard": "",
+        "fixed_guard": ""
+      },
+      {
+        "request": "request-013.json",
+        "generated_by": "baseline27",
+        "baseline_guard": "",
+        "fixed_guard": ""
+      },
+      {
+        "request": "request-014.json",
+        "generated_by": "baseline27",
+        "baseline_guard": "",
+        "fixed_guard": ""
+      },
+      {
+        "request": "request-015.json",
+        "generated_by": "baseline27",
+        "baseline_guard": "",
+        "fixed_guard": ""
+      },
+      {
+        "request": "request-016.json",
+        "generated_by": "baseline27",
+        "baseline_guard": "",
+        "fixed_guard": ""
+      },
+      {
+        "request": "request-017.json",
+        "generated_by": "baseline27",
+        "baseline_guard": "",
+        "fixed_guard": ""
+      },
+      {
+        "request": "request-018.json",
+        "generated_by": "baseline27",
+        "baseline_guard": "",
+        "fixed_guard": ""
+      },
+      {
+        "request": "request-020.json",
+        "generated_by": "baseline27",
+        "baseline_guard": "",
+        "fixed_guard": ""
+      },
+      {
+        "request": "request-021.json",
+        "generated_by": "baseline27",
+        "baseline_guard": "",
+        "fixed_guard": ""
+      },
+      {
+        "request": "request-022.json",
+        "generated_by": "guard_fix",
+        "baseline_guard": "",
+        "fixed_guard": ""
+      },
+      {
+        "request": "request-023.json",
+        "generated_by": "guard_fix",
+        "baseline_guard": "",
+        "fixed_guard": ""
+      },
+      {
+        "request": "request-025.json",
+        "generated_by": "guard_fix",
+        "baseline_guard": "",
+        "fixed_guard": ""
+      },
+      {
+        "request": "request-026.json",
+        "generated_by": "guard_fix",
+        "baseline_guard": "",
+        "fixed_guard": ""
+      },
+      {
+        "request": "request-027.json",
+        "generated_by": "guard_fix",
+        "baseline_guard": "",
+        "fixed_guard": ""
+      },
+      {
+        "request": "request-028.json",
+        "generated_by": "guard_fix",
+        "baseline_guard": "",
+        "fixed_guard": ""
+      },
+      {
+        "request": "request-029.json",
+        "generated_by": "guard_fix",
+        "baseline_guard": "",
+        "fixed_guard": ""
+      },
+      {
+        "request": "request-030.json",
+        "generated_by": "guard_fix",
+        "baseline_guard": "",
+        "fixed_guard": ""
+      },
+      {
+        "request": "request-031.json",
+        "generated_by": "guard_fix",
+        "baseline_guard": "",
+        "fixed_guard": ""
+      },
+      {
+        "request": "request-032.json",
+        "generated_by": "guard_fix",
+        "baseline_guard": "",
+        "fixed_guard": ""
+      },
+      {
+        "request": "request-033.json",
+        "generated_by": "guard_fix",
+        "baseline_guard": "",
+        "fixed_guard": ""
+      },
+      {
+        "request": "request-034.json",
+        "generated_by": "guard_fix",
+        "baseline_guard": "",
+        "fixed_guard": ""
+      },
+      {
+        "request": "request-035.json",
+        "generated_by": "guard_fix",
+        "baseline_guard": "",
+        "fixed_guard": ""
+      },
+      {
+        "request": "request-036.json",
+        "generated_by": "guard_fix",
+        "baseline_guard": "",
+        "fixed_guard": ""
+      },
+      {
+        "request": "request-037.json",
+        "generated_by": "guard_fix",
+        "baseline_guard": "",
+        "fixed_guard": ""
+      },
+      {
+        "request": "request-038.json",
+        "generated_by": "guard_fix",
+        "baseline_guard": "added_assertion",
+        "fixed_guard": ""
+      },
+      {
+        "request": "request-039.json",
+        "generated_by": "guard_fix",
+        "baseline_guard": "",
+        "fixed_guard": ""
+      },
+      {
+        "request": "request-040.json",
+        "generated_by": "guard_fix",
+        "baseline_guard": "",
+        "fixed_guard": ""
+      },
+      {
+        "request": "request-042.json",
+        "generated_by": "guard_fix",
+        "baseline_guard": "added_assertion",
+        "fixed_guard": ""
+      }
+    ]
+  },
+  "changed_candidates": [
+    {
+      "request": "request-038.json",
+      "question": "Пользователь: Подскажите гарантию по договору с «Альфой».\nАссистент: Уточните, пожалуйста, поставщик — «Альфа-Трейд» или «Альфа-Трейдинг»?\nПользователь: «Альфа-Трейдинг», у них компьютеры покупали. На сколько гарантия?",
+      "candidate": {
+        "status": "answer",
+        "answer": "По договору поставки № ПТ-05/2023 с ООО «Альфа-Трейдинг» конкретный гарантийный срок не установлен: он определяется производителем и указывается в гарантийном талоне (п. 6.1).",
+        "source_ids": [
+          "c55eafb16d0a4cc3b1f1"
+        ],
+        "requested_facts": [],
+        "issue": "",
+        "reference_scope": "local",
+        "search_terms": [],
+        "topic": ""
+      },
+      "selected_evidence": [
+        {
+          "id": "c55eafb16d0a4cc3b1f1",
+          "document": "документы компании__Договор поставки ПТ-05-2023 Альфа-Трейдинг.txt",
+          "text": "6.1. Гарантийный срок на Товар устанавливается производителем и указывается в гарантийном талоне.\n"
+        }
+      ]
+    },
+    {
+      "request": "request-042.json",
+      "question": "Пользователь: Подскажите гарантию по договору с «Альфой».\nАссистент: Уточните, пожалуйста, поставщик — «Альфа-Трейд» или «Альфа-Трейдинг»?\nПользователь: «Альфа-Трейдинг», у них компьютеры покупали. На сколько гарантия?",
+      "candidate": {
+        "status": "answer",
+        "answer": "По договору с «Альфа-Трейдинг» конкретный гарантийный срок не установлен: он определяется производителем и указывается в гарантийном талоне (п. 6.1).",
+        "source_ids": [
+          "c55eafb16d0a4cc3b1f1"
+        ],
+        "requested_facts": [],
+        "issue": "",
+        "reference_scope": "local",
+        "search_terms": [],
+        "topic": ""
+      },
+      "selected_evidence": [
+        {
+          "id": "c55eafb16d0a4cc3b1f1",
+          "document": "документы компании__Договор поставки ПТ-05-2023 Альфа-Трейдинг.txt",
+          "text": "6.1. Гарантийный срок на Товар устанавливается производителем и указывается в гарантийном талоне.\n"
+        }
+      ]
+    }
+  ]
+}

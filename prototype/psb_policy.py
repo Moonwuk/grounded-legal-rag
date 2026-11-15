@@ -81,16 +81,39 @@ SYSTEM = """Ты юридический ассистент по предоста
 {"status":"answer|partial|clarify|insufficient|out_of_scope|disallowed",
  "answer":"текст ответа пользователю",
  "source_ids":["id полного положения evidence"],"requested_facts":[],"issue":"",
- "reference_scope":"local|required","search_terms":[]}
+ "reference_scope":"local|required","search_terms":[],"topic":""}
 search_terms заполняй только при insufficient: 2–6 юридических терминов, которыми
 нужные нормы могли бы называться в законах и документах, если вопрос сформулирован
 бытовыми словами («проверка пригодности» → «испытание при приеме на работу»;
 «забрал разрешение на работу с информацией» → «отзыв согласия субъекта
 персональных данных»). Приложение повторит по ним поиск. Иначе список пуст.
+topic заполняй только при insufficient: о чём вопрос, 2–8 слов вопроса с предлогом
+«о», «об» или «по», без чисел («о пособиях по беременности и родам»). Иначе пусто.
 Обычно достаточно 1–4 положений. Если ответ требует больше отдельных условий,
 исключений или элементов перечня, выбери все необходимые, не более 12, без
 копирования цитат. Не жертвуй полнотой ради четырёх положений и не выбирай
-лишние соседние нормы. При вопросе об условиях увеличения предела проверь также
+лишние соседние нормы. Выбирай основания, достаточные для полного ответа. Краткий прямой вывод
+не заменяет существенных пояснений: добавляй связанные положения, если они
+объясняют применимость, исключение, изменение условия или практический смысл
+ответа. Не добавляй нормы лишь из-за соседства в документе. Три случая требуют второго положения, оно не лишнее:
+(1) вопрос с неверным значением или «почему так»: кроме верного значения выбери
+положение, которое могло бы изменить значение (право стороны пересмотреть его,
+порядок изменения), и скажи, есть ли в базе документ о таком изменении;
+(2) ответ по редакции на дату события: назови и значение другой (новой или прежней)
+редакции и скажи, что она к этому случаю не применяется;
+(3) норма применяется при условии, которое факты пользователя не подтверждают и не
+опровергают: отвечай «Да, если …» с этим условием, а не просто «Да». Юридическое название ситуации в вопросе само по себе не доказывает,
+что фактические критерии нормы выполнены. Объясни, от каких обстоятельств
+зависит применение, не подменяя их словами пользователя. Если факты явно
+подтверждают все условия, отвечай прямо и укажи основание. На вопрос «X или Y?»
+назови верный вариант; кратко объясни роль альтернативы, если это снимает
+неопределённость. Для перечисления из источника передай спрошенные элементы
+и существенные связанные условия, не теряя смысл положения ради краткости.
+Если источник указывает, где определено значение обсуждаемого условия
+(в приложении, спецификации, акте или другом документе), сохрани эту привязку
+при объяснении значения или его состава. Не превращай отсылку в известное
+число: если самого значения нет, назови нужный документ и границу вывода.
+При вопросе об условиях увеличения предела проверь также
 отдельные положения о допуске к превышению этого предела: они могут содержать
 дополнительные обязательные условия, а не только новое числовое значение.
 При answer/partial нужны source_ids. При clarify и disallowed выбери положения,
@@ -99,13 +122,18 @@ search_terms заполняй только при insufficient: 2–6 юриди
 out_of_scope список пуст. Всё, что answer берёт из документов, должно быть в
 выбранных source_ids.
 
-Поле answer — связный ответ на русском: 1–3 предложения, обычно 20–60 слов, без
-списков, разметки и ссылок на сайты. Ответ сравнивают с кратким эталоном: любая
-верная деталь, о которой не спрашивали, считается лишней и может обнулить ответ. Первая фраза — прямой ответ на последнюю
+Поле answer — связный ответ на русском, обычно до 150 слов; подробнее, если
+этого требуют юридическое обоснование и ссылки. Достаточная полнота важнее
+механического сокращения: сохрани прямой вывод, применимые условия и исключения,
+начало отсчёта срока, объяснение исправленной предпосылки и границу применимости.
+Не пересказывай документ целиком. Подтверждённая существенная деталь допустима;
+выдумывать факты или делать неподтверждённые выводы нельзя. Не используй ссылки
+на сайты. Первая фраза — прямой ответ на последнюю
 реплику: «Да», «Нет» или конкретное значение. Неверную предпосылку исправь первой
 фразой и назови верное значение рядом с ошибочным. Затем условия, исключения и
-основание: назови документ и в скобках пункт или статью выбранного положения;
-у положения без номера назови только документ. Не называй разделов и глав,
+основание: документ назови в самой фразе («По договору поставки № …»), если он
+нужен для ответа, а в скобках — только номер пункта или статьи: «(п. 3.1)», «(ст. 70)»;
+у положения без номера скобок не ставь. Не называй разделов и глав,
 которых нет в тексте документа.
 Строку «Источник» добавит приложение. Пиши только то, что прямо следует из
 выбранных source_ids и фактов пользователя. Числа, суммы, сроки, даты и номера
@@ -113,11 +141,13 @@ out_of_scope список пуст. Всё, что answer берёт из док
 «5 (пяти) рабочих дней». Если вопрос требует расчёта, запиши расчёт в answer
 явно, не более двух действий на шаг: числа из выбранных положений и вопроса и
 результат («400 × 1,5 × 2 = 1200; 400 × 2 × 3 = 2400; итого 3600 рублей»).
-Приложение проверяет каждое новое число по этим шагам. Отвечай строго на заданный
-вопрос: не добавляй соседние пункты, сроки, адреса, другие договоры и документы;
+Приложение проверяет каждое новое число по этим шагам. Отвечай по существу заданного
+вопроса. Дополнительные сроки, положения или документы включай, если они
+помогают правильно понять и применить ответ; подтверждай их source_ids.
 не называй даты подписания договоров, даты писем, записок и приказов, реквизиты и
 ИНН; не пиши о редакциях статей закона, датах их изменения и выгрузки, если вопрос
-не о дате или редакции; не давай общих советов и не пересказывай процедуру целиком.
+не о дате или редакции (при ответе по редакции на дату события контраст с другой
+редакцией обязателен); не добавляй общих советов, не основанных на документах, и не пересказывай процедуру целиком.
 Оговорку добавляй, только если без неё ответ неверен или вводит в заблуждение
 (ложная предпосылка, редакция на дату события, исключение для случая из вопроса,
 чего нет в базе). Сохрани существенные условия и исключения именно для случая из
@@ -144,14 +174,23 @@ insufficient: выбери partial с положением этого докум
 Образцы формы на вымышленных документах (строку «Источник» добавит приложение):
 «Плата за хранение — 30 000 рублей в месяц, вносится до 10-го числа (п. 4.1–4.2).»
 «Да. В марте 2030 года действовало Положение о командировках в редакции от 10.01.2029:
-суточные — 900 рублей (п. 2.3); новая редакция к этой поездке не применяется.»
+суточные — 900 рублей (п. 2.3). В редакции от 01.06.2030 суточные — 1200 рублей, но к
+этой поездке она не применяется.»
+«Почему абонентская плата 9 000 рублей? По договору обслуживания № С-4/2031 плата —
+7 500 рублей в месяц, а не 9 000 (п. 2.1). Исполнитель вправе раз в год повысить её
+не более чем на 5% с уведомлением (п. 2.5), но документов о таком повышении в базе нет.»
+«Можно ли выдать стажёру пропуск на склад на месяц? Да, если стажёр оформлен
+по договору о практике: пропуск выдаётся на срок практики (п. 4.2 Положения о пропусках).»
 «Срок гарантии договором не назван: его определяет изготовитель, и он указывается
 в техническом паспорте (п. 6.1).»
+«Входит ли монтаж в цену? Да, цена оборудования включает монтаж (п. 3.1).» — при пункте
+«Цена включает НДС 20%, доставку и монтаж» НДС и доставку не называй: о них не спрашивали.
 «Штраф составит 48 000 рублей: 24 000 × 2 = 48 000 (п. 4 ст. 77 Учебного кодекса).»
 «Нет. По договору подряда № Д-3/2030 с ООО «Вектор» аванс составляет 20% цены
 работ, а не 50% (п. 4.2). Документов об изменении этого условия в базе нет.»
-«В базе нет документов о порядке оформления командировок, поэтому ответить по
-документам не могу; по памяти отвечать не буду.»
+«Кто утверждает график дежурств — служба охраны или начальник смены? Начальник
+смены: график утверждает он (п. 2.2).» — без пересказа того, что делает служба охраны.
+При insufficient answer не публикуется: отказ формирует приложение по полю topic.
 Если есть поле retry_reason, прошлый answer не прошёл проверку приложения:
 answer_numbers_not_in_sources — в тексте были числа или номера пунктов, которых нет
 в выбранных положениях и в вопросе: выбери положения, в которых эти значения есть
@@ -168,6 +207,9 @@ source_references_required — независимость ответа от от
 положения, о которых не спрашивали; их id перечислены в retry_extra_source_ids.
 Дай тот же ответ без них: не выбирай и не упоминай их, если без них ответ не
 становится неполным или вводящим в заблуждение.
+Если retry_reason=answer_extra_items, прошлый answer верен, но назвал элементы
+выбранного положения, о которых не спрашивали; они перечислены в retry_extra_items.
+Дай тот же ответ без них.
 Если retry_reason=answer_lost_restrictions, прошлый answer опустил ограничения
 выбранных положений; поле retry_restrictions перечисляет их формулировки из
 источника. Новый answer должен прямо сохранить каждое из них.
@@ -184,6 +226,12 @@ source_references_required — независимость ответа от от
 При partial/insufficient/clarify назови конкретный тип недостающих сведений в requested_facts:
 contract, counterparty, event_date, specification_date, warranty_document, document,
 facts, referenced_documents, priority_rule. При answer requested_facts пуст.
+Если должность, лицо или понятие из вопроса прямо не названо в документе, не
+утверждай, что норма к нему не относится: это тоже выдуманный факт. Если оно по
+смыслу совпадает с категорией документа (заведующий кассой — кассир, руководитель
+кадровой службы — начальник отдела кадров), ответь для этой категории и назови её;
+если совпадение неочевидно, дай ответ для этой категории с оговоркой «если вы —
+…». Не делай вывод «не предусмотрено для вашей должности».
 Не превращай описание функции подразделения в исключительный перечень его прав:
 «согласует проект» не означает «лишь согласует» или «никогда не инициирует».
 Если значение определяется другим лицом и указывается в отдельном документе,
@@ -355,6 +403,33 @@ _BOILERPLATE_EXCEPTION = re.compile(
     r"за\s+исключением\s+случаев,?\s+(?:предусмотренн|установленн)\w*\s+[^.;]{0,120}?"
     r"(?:кодекс|закон|част|стать|пункт)\w*[^.;,]{0,40}", re.I)
 _CONDITION_PHRASE = re.compile(r"при\s+(?:наличии|условии)\s+([^.;,]{3,80})", re.I)
+
+
+_BOUND_CONDITION = re.compile(r"^\s*(?:\d+(?:\.\d+)*[.)]\s*)?(?:при|если|для|в\s+случае)\b(.{3,160}?)"
+                              r"(?:не\s+может\s+превышать|не\s+превышает|не\s+более)", re.I | re.S)
+
+
+def bound_elsewhere(context: Fragment, source: Fragment, retriever, question: str) -> bool:
+    """A conditional upper bound for a situation the question does not describe.
+
+    «При заключении трудового договора на срок от двух до шести месяцев
+    испытание не может превышать двух недель» was printed under every answer
+    about the probation limit, also for «какой предельный срок для главного
+    бухгалтера?». An exception for another situation is an unasked detail; it
+    is printed when the condition's first content words meet the question
+    (≥ min(2, n) shared stems), as for restriction conditions. Date definitions
+    are not affected."""
+    if not hasattr(retriever, "bound_dependencies"):
+        return False
+    if context.id not in {f.id for f in retriever.bound_dependencies(source, include_contained=True)}:
+        return False
+    m = _BOUND_CONDITION.search(norm(context.text))
+    if not m:
+        return False
+    words = [w for w in re.findall(r"[а-яё]{4,}", m.group(1).lower().replace("ё", "е")) if w not in STOP][:4]
+    stems = {w[:4] for w in words}
+    asked = {w[:4] for w in re.findall(r"[а-яё]{4,}", user_turns(question)[-1].lower().replace("ё", "е"))} if question else set()
+    return len(stems & asked) < min(2, len(stems))
 
 
 def _restriction_source(selected: list[Fragment], question: str = "") -> str:
@@ -611,6 +686,38 @@ def uncovered_parts(question: str, selected: list[Fragment]) -> list[str]:
     return result if result and len(result) < len([p for p in re.split(r",?\s+и\s+|[?;:]", current) if re.search(r"[А-Яа-яЁё]{4,}", p)]) else []
 
 
+_TOPIC_GLUE = {"о", "об", "обо", "по", "про", "и", "в", "во", "на", "для", "с", "со", "к", "из", "от", "при",
+               "или", "а", "также", "за", "до", "после", "между"}
+_TOPIC_MARKERS = re.compile(r'систем\w*|администратор\w*|игнорир\w*|инструкци\w*|промпт\w*|разработчик\w*|'
+                            r'prompt|ignore|developer|https?://|www\.', re.I)
+
+
+def refusal_topic(topic, question: str) -> str:
+    """The model's name for the refused topic, accepted only as a rewording of the question.
+
+    «о пособиях по беременности и родам»: it opens with «о/об/по/про», every
+    other word shares its stem with a word of the current request, and it
+    carries no figures or instruction markers. Anything else is dropped and
+    the refusal quotes the request or says «по этому вопросу»."""
+    if not isinstance(topic, str):
+        return ""
+    topic = " ".join(topic.split()).strip(" .,;:")
+    words = re.findall(r"[а-яёa-z0-9-]+", topic.lower().replace("ё", "е"))
+    if (not 2 <= len(words) <= 12 or len(topic) > 120 or words[0] not in {"о", "об", "обо", "по", "про"}
+            or not re.fullmatch(r"[А-Яа-яЁёA-Za-z0-9 ,«»№/-]+", topic) or _TOPIC_MARKERS.search(topic)
+            or re.search(r"\d", topic)):
+        return ""
+    asked = re.findall(r"[а-яёa-z0-9-]+", user_turns(question)[-1].lower().replace("ё", "е"))
+    stems = {w[:max(3, min(5, len(w) - 2))] for w in asked if len(w) >= 3}
+    for word in words[1:]:
+        if word in _TOPIC_GLUE or word in asked:
+            continue
+        if len(word) < 3 or not any(word.startswith(stem) or stem.startswith(word[:max(3, min(5, len(word) - 2))])
+                                    for stem in stems):
+            return ""
+    return topic
+
+
 def request_scope(question: str) -> str:
     """Quote a short current user request as data, never a generated legal claim."""
     current = user_turns(question)[-1].strip()
@@ -711,7 +818,8 @@ def prose_scope_safe(text: str, selected: list[Fragment], question: str = "") ->
               for f in selected for s in _sentences(f.text) if _SCOPE_RULE.search(s)]
     return (all(m.group().lower().replace("ё", "е") in operators or _restates_scope(text, m, scopes)
                 or _CONTENT_ONLY.search(text[max(0, m.start() - 80):m.end()]) or _quoted_from(question, text, m)
-                or _restates_bound(text, m, source)
+                or _restates_bound(text, m, source) or _restates_exception_list(text, m, source)
+                or _restates_permission_condition(text, m, source)
                 for m in _EXCLUSIVE.finditer(text))
             and not (_role_negation(text) and not _role_negation(source))
             and added_assertions_safe(text, selected))
@@ -728,6 +836,57 @@ def _restates_bound(text: str, m, source: str) -> bool:
     return any(re.sub(r"\s+", " ", b.group()) in source for b in _BOUND.finditer(window))
 
 
+# «Срок испытания не может превышать трех месяцев, а для руководителей
+# организаций …, главных бухгалтеров … — шести месяцев»: a general rule and an
+# exception for listed persons. The listed value is allowed only for them.
+_EXCEPTION_LIST = re.compile(r",\s*а\s+(?:для|у|в\s+отношении)\s+([^.;]{5,400}?)\s*[-—–]\s*", re.I)
+
+
+def _restates_exception_list(text: str, m, source: str) -> bool:
+    """«6 месяцев допускается только для главных бухгалтеров …» restates the
+    source's «…, а для … главных бухгалтеров … — шести месяцев»: the words
+    after «только для» are taken from that list."""
+    window = text[m.end():m.end() + 160].lower().replace("ё", "е")
+    after = re.match(r"\s*(?:для|у|в\s+отношении)\s+([^.;:()]+)", window)
+    if not after:
+        return False
+    words = [w for w in re.findall(r"[а-яё]{4,}", after.group(1)) if w not in STOP][:4]
+    if not words:
+        return False
+    for listed in _EXCEPTION_LIST.finditer(source):
+        stems = {w[:5] for w in re.findall(r"[а-яё]{4,}", listed.group(1))}
+        if all(w[:5] in stems for w in words):
+            return True
+    return False
+
+
+_PERMIT_VERB = re.compile(r"\b(?:допуска\w*|разреша\w*|вправе|может|могут|возможн\w*)\b", re.I)
+
+
+def _restates_permission_condition(text: str, m, source: str) -> bool:
+    """«предоплата возможна только по соглашению Сторон» for «По соглашению
+    Сторон допускается предоплата»: «только» before the condition of a
+    conditional permission. The preposition and the next two content words
+    must stand together in one source sentence with a permission verb."""
+    window = text[m.end():m.end() + 80].lower().replace("ё", "е")
+    after = re.match(r"\s*(по|при|с|со|если|в\s+случае)\s+([^.;,:()]+)", window)
+    if not after:
+        return False
+    words = [w for w in re.findall(r"[а-яё]{4,}", after.group(2)) if w not in STOP][:2]
+    if not words:
+        return False
+    phrase = re.escape(after.group(1)) + r"\s+" + r"\w*\s+".join(re.escape(w[:5]) for w in words) + r"\w*"
+    # The clause before «только» names what is permitted; the same source
+    # sentence must permit it, not a neighbouring permission («по соглашению
+    # сторон допускается аванс» says nothing of a work schedule).
+    clause = re.split(r"[.;:!?]", text[:m.start()].lower().replace("ё", "е"))[-1]
+    subject = {w[:4] for w in re.findall(r"[а-яё]{4,}", clause)
+               if w not in STOP and not _PERMIT_VERB.fullmatch(w)} - {w[:4] for w in words}
+    return any(_PERMIT_VERB.search(sentence) and re.search(r"(?<![а-яё])" + phrase, sentence)
+               and subject & {w[:4] for w in re.findall(r"[а-яё]{4,}", sentence)}
+               for sentence in _sentences(source))
+
+
 def _quoted_from(question: str, text: str, m) -> bool:
     """The exclusive word comes with its next two words from the latest user
     turn: «только из-за суммы» answering «… только из-за суммы?»."""
@@ -737,6 +896,72 @@ def _quoted_from(question: str, text: str, m) -> bool:
     phrase = r'\s+'.join(re.escape(w) for w in [m.group().lower().replace('ё', 'е')] + following)
     return len(following) == 2 and bool(re.search(r'\b' + phrase + r'\b',
                                                   user_turns(question)[-1].lower().replace('ё', 'е')))
+
+
+_LISTING = re.compile(r"\b(?:включа\w*|входит|входят|состоит\s+из|относятся)\s+(.+)", re.I)
+
+
+def _item_tokens(item: str) -> set[str]:
+    return ({w[:4] for w in re.findall(r"[а-яёa-z]{3,}", item.lower().replace("ё", "е"))
+             if w not in STOP and w not in {"стоимость", "сумма", "размер", "ставке", "ставка", "также"}}
+            | set(re.findall(r"\d+(?:[.,]\d+)?", item)))
+
+
+def unasked_items(text: str, selected: list[Fragment], question: str) -> list[str]:
+    """Elements of a source enumeration that the text names and the question does not.
+
+    «Цена Товара … включает НДС по ставке 20%, стоимость упаковки и доставки»:
+    asked about delivery and packaging, the text also named «НДС по ставке 20%».
+    An element counts as unasked only when another element of the same list
+    is recognised in the question — otherwise the question may use synonyms
+    («перевозка и тара») and nothing is claimed. The text names an element
+    when it carries at least min(2, n) of its words and figures."""
+    if not question:
+        return []
+    asked = _item_tokens(user_turns(question)[-1])
+    said = _item_tokens(text)
+    found = []
+    for fragment in selected:
+        for sentence in re.split(r"(?<=[.;])\s+", norm(fragment.text)):
+            listing = _LISTING.search(sentence)
+            if not listing:
+                continue
+            items = [x for x in re.split(r",\s*|\s+и\s+|;\s*", listing.group(1).rstrip(". ")) if x.strip()]
+            tokens = [(item, _item_tokens(item)) for item in items]
+            if len(tokens) < 2 or not any(t & asked for _, t in tokens):
+                continue
+            for item, t in tokens:
+                if t and not t & asked and len(t & said) >= min(2, len(t)) and item.strip() not in found:
+                    found.append(item.strip())
+    return found[:4]
+
+
+def without_blocked_sentence(text: str, selected: list[Fragment], retriever, question: str = "", *, preserved_sources=None) -> str:
+    """The text without the one later sentence that the scope barriers reject.
+
+    «Запускает начальник вашего отдела (п. 1.3). Юридический отдел проект
+    согласует, но не запускает согласование (п. 2.1).»: the second sentence
+    adds a role negation, the first is the direct answer. The first sentence is
+    never dropped, only one sentence may go, at least ten words must stay (a
+    bare «Нет.» is not an answer), and the shorter text must pass the barriers;
+    every other check then runs on it as usual. Otherwise the text is returned
+    unchanged and rejected as before. A uniquely addressed selected provision
+    cited only in the removed sentence can be kept as a source-owned quotation;
+    the rejected assertion itself is never transferred."""
+    if not scope_block_reason(text, selected, retriever, question):
+        return text
+    sentences = [x for x in re.split(r"(?<=[.!?])\s+(?=[А-ЯЁA-Z«(])", text.strip()) if x]
+    for i in range(1, len(sentences)):
+        shorter = " ".join(sentences[:i] + sentences[i + 1:])
+        if len(shorter.split()) >= 10 and not scope_block_reason(shorter, selected, retriever, question):
+            if preserved_sources is not None and len({f.document for f in selected}) == 1:
+                for fragment in selected:
+                    clause = re.match(r"(\d+(?:\.\d+)+)[.)]?(?:\s|$)", norm(fragment.text))
+                    if (clause and _cites(sentences[i], clause.group(1))
+                            and not _cites(shorter, clause.group(1))):
+                        preserved_sources.append(fragment)
+            return shorter
+    return text
 
 
 def scope_block_reason(text: str, selected: list[Fragment], retriever, question: str = "") -> str:
@@ -809,6 +1034,43 @@ def _record_clauses(text):
         yield from clauses or [sentence]
 
 
+_SETTING = re.compile(r'\b(?:устанавливает(?:ся)?|определяет(?:ся)?)\s+([а-яё]+)\b', re.I)
+
+
+def _predicate_limits(text):
+    """Keep explicit modality and conditions when normalizing a predicate.
+
+    Conditions compare verbatim: unsupported paraphrases fail conservatively.
+    """
+    text = text.lower().replace('ё', 'е')
+    modal = tuple(re.findall(r'\b(?:может|могут|будет|будут|допускается)\b', text))
+    conditions = tuple(m.group().strip() for m in re.finditer(
+        r'\b(?:если|при|только|после|до|кроме|исключая)\b[^.!?;]*', text))
+    return modal, conditions
+
+
+def _setting_actor(text):
+    """Bind the actor to the setting verb, not to the sentence's bag of words.
+
+    Only the present-tense, verb-before-actor construction is recognized. Other
+    word orders keep their original lexical comparison; this is not a parser.
+    """
+    result = []
+    for match in _SETTING.finditer(text):
+        actor = re.sub(r'(?:ем|ом|а|я|у|е|ы|и)$', '', match[1].lower()).rstrip('ь')
+        negative = bool(re.search(r'\bне\s*$', text[:match.start()]))
+        result.append((actor, negative, _predicate_limits(text)))
+    return tuple(result)
+
+
+def _equivalent_record_words(text):
+    # Do not ignore either verb globally: retain a common predicate and its actor.
+    text = _SETTING.sub(lambda m: 'задает ' + m[1], text)
+    # Aspect is redundant only immediately before a present inclusion predicate.
+    text = re.sub(r'\bуже\s+(?=включает\b|включен[аоы]?\b)', '', text, flags=re.I)
+    return _assertion_words(text)
+
+
 def _record_facts(text):
     result = []
     for sentence in _record_clauses(text):
@@ -817,7 +1079,10 @@ def _record_facts(text):
             negative = bool(re.search(r'\bне\s+(?:долж\w*\s+)?(?:быть\s+)?' + _RECORD_VERB, sentence))
             optional = bool(re.search(r'\b(?:может|могут|допускается)\b', sentence))
             doc = next(iter(_assertion_words(document[1])))
-            result.append((doc, negative, optional, _assertion_words(sentence)))
+            inclusion = ((bool(re.search(r'\bне\b', sentence)), _predicate_limits(sentence))
+                         if _INCLUDED.search(sentence) else None)
+            result.append((doc, negative, optional, _equivalent_record_words(sentence),
+                           _setting_actor(sentence), inclusion))
     return result
 
 
@@ -839,20 +1104,22 @@ def added_assertions_safe(text, selected):
     text = _REFERENCE.sub(' ', text)
     # The document's own name ("по договору поставки № …") may accompany the items.
     inclusions = [_assertion_words(s) | _assertion_words(display_name(f.document))
-                  for f in selected for s in _sentences(f.text) if _INCLUDED.search(s)]
+                  for f in selected for s in _sentences(f.text) if _positive_inclusion(s)]
     # A separate-payment absence covered by an inclusion clause is not a claim
     # about a document's contents either.
     whole = re.split(r'(?<=[.!?])\s+|\n', text)
     for i, sentence in enumerate(whole):
         if _included_not_separate(_with_antecedent(whole, i), inclusions):
-            text = text.replace(sentence, _SEPARATE_PAYMENT.sub(' ', sentence))
+            text = text.replace(sentence, _without_payment_absence(sentence))
     # The selected document's own name («по договору поставки … с «Альфа-Трейдинг»»)
     # is not an added assertion about what a record contains.
-    names = set().union(*(_assertion_words(display_name(f.document)) for f in selected)) if selected else set()
-    source_facts = [(d, n, o, w | names) for f in selected for d, n, o, w in _record_facts(f.text)]
-    for doc, negative, optional, words in _record_facts(text):
+    source_facts = [(d, n, o, w | _assertion_words(display_name(f.document)), actors, inclusion)
+                    for f in selected for d, n, o, w, actors, inclusion in _record_facts(f.text)]
+    for doc, negative, optional, words, actors, inclusion in _record_facts(text):
         if not any(doc == sd and negative == sn and (not so or optional) and words <= sw
-                   for sd, sn, so, sw in source_facts):
+                   and (not actors or actors == sa)
+                   and (inclusion is None or inclusion == si)
+                   for sd, sn, so, sw, sa, si in source_facts):
             return False
     text = _restated_other(text, selected)
     source_absences = [_assertion_words(s) for f in selected for s in _sentences(f.text)
@@ -897,7 +1164,7 @@ def _restated_other(text, selected):
 def _with_antecedent(sentences, i):
     """«Отдельно их оплачивать не нужно.» names its items in the sentence before."""
     sentence = sentences[i].lower().replace('ё', 'е')
-    if i and _SEPARATE_PAYMENT.search(sentence) and not (_assertion_words(sentence) - _PAYMENT_WORDS):
+    if i and _SEPARATE_PAYMENT.search(sentence) and not _payment_content_words(sentence):
         return sentences[i - 1].lower().replace('ё', 'е') + ' ' + sentence
     return sentence
 
@@ -918,12 +1185,37 @@ _SEPARATE_PAYMENT = re.compile(r'\bотдельн\w*[^.!?;\n]{0,40}?\b(?:опл�
 _PAYMENT_WORDS = {'отде', 'опла', 'плат', 'нужн', 'треб', 'поэт', 'пото', 'знач', 'нет', 'вход', 'вклю'}
 
 
+def _payment_content_words(sentence):
+    # These expenses refer only to the immediately preceding inclusion clause.
+    # Do not erase named expenses, arbitrary conditions, or other payments.
+    sentence = re.sub(r'\bэтих\s+расходов\b', '', sentence, flags=re.I)
+    sentence = re.sub(r'\bусловиями\s+(?=не\s+предусмотрена\b)', '', sentence, flags=re.I)
+    sentence = re.sub(r'\bне\s+предусмотрена\b', '', sentence, flags=re.I)
+    return _equivalent_record_words(sentence) - _PAYMENT_WORDS
+
+
+def _positive_inclusion(sentence):
+    # A possible, future, negative or conditional inclusion cannot prove that an
+    # expense is already covered. Inspect the inclusion, not the payment negation.
+    inclusion = _SEPARATE_PAYMENT.split(sentence)[0]
+    return bool(_INCLUDED.search(inclusion)) and not re.search(
+        r'\b(?:не|может|могут|будет|будут|если|при|кроме|исключая|только|возможно)\b', inclusion, re.I)
+
+
+def _without_payment_absence(sentence):
+    match = _SEPARATE_PAYMENT.search(sentence)
+    return sentence[:match.start()] if match else sentence
+
+
 def _included_not_separate(sentence, inclusions):
-    if not inclusions or not _SEPARATE_PAYMENT.search(sentence) or not _INCLUDED.search(sentence):
+    payment = _SEPARATE_PAYMENT.search(sentence)
+    if not inclusions or not payment or not _positive_inclusion(sentence):
         return False
     if re.search(r'\b(?:ин\w*|друг\w*|дополнительн\w*|ничего|никаких)\b', sentence, re.I):
         return False  # a claim about other payments is not covered by the inclusion
-    words = _assertion_words(sentence) - _PAYMENT_WORDS
+    if not re.search(_ABSENCE + r'|\bне\s+оплач\w*', sentence[payment.start():], re.I):
+        return False
+    words = _payment_content_words(sentence)
     return any(words <= source for source in inclusions)
 
 
@@ -1157,6 +1449,42 @@ def _cites(prose: str, clause: str) -> bool:
     return bool(re.search(r"(?<![\d.])" + re.escape(clause) + r"(?![\d]|\.\d)", prose))
 
 
+# «(п. 1.3 Регламента согласования договоров ред. 2025)», «(служебная записка об
+# архиве договоров)»: the document is named again by the source line under the
+# text, often in another form. Only the clause stays in the parenthesis.
+# «подп. 2.1 п. 1 ст. 112»: a chain of units from the smallest to the article.
+_REF_UNIT = r'(?:подп\.|пп?\.|ст\.|ч\.|абз\.|подпункт\w*|пункт\w*|стать\w*|част\w*)'
+_INLINE_REF = re.compile(_REF_UNIT + r'\s*\d+(?:\.\d+)*(?:\s*[–-]\s*\d+(?:\.\d+)*)?'
+                         r'(?:\s*(?:,|и)?\s*(?:' + _REF_UNIT + r'\s*)?\d+(?:\.\d+)*)*', re.I)
+_NAME_WORDS = ('ред', 'редак', 'докум', 'догов', 'согла', 'допсо', 'регла', 'полож', 'служе', 'запис', 'письм',
+               'прика', 'закон', 'кодек', 'федер', 'фз', 'тк', 'нк', 'гк', 'рф', 'коап', 'трудо', 'налог', 'гражд',
+               'от', 'в', 'на', 'и', 'к', 'по', 'с', 'о', 'об', 'г', 'года', 'ооо', 'зао', 'пао', 'действ', 'текущ')
+
+
+def trim_inline_references(prose: str, names: list[str]) -> str:
+    """Drop the document name from a parenthesised reference when one document is cited.
+
+    Every other word must belong to the cited document's names or to generic
+    document words; otherwise the parenthesis says something else and stays."""
+    named = [w for name in names for w in re.findall(r'[а-яёa-z0-9]+', name.lower().replace('ё', 'е'))]
+
+    def allowed(word):
+        if word in named or word in _NAME_WORDS:
+            return True
+        # Inflected forms: «договоров», «регламента» share the stem of a name word.
+        return len(word) >= 4 and any(len(n) >= 4 and n[:5] == word[:5] for n in named + list(_NAME_WORDS))
+
+    def replace(match):
+        content = match.group(1)
+        ref = _INLINE_REF.search(content)
+        rest = content[:ref.start()] + ' ' + content[ref.end():] if ref else content
+        words = re.findall(r'[а-яёa-z0-9]+', rest.lower().replace('ё', 'е'))
+        if not words or not all(allowed(w) for w in words):
+            return match.group()
+        return ' (' + ref.group().strip() + ')' if ref else ''
+    return re.sub(r'\s?\(([^()]{1,200})\)', replace, prose)
+
+
 def cite_name(document: str, editions=None) -> str:
     """The name a reader expects: «ТК РФ, ст. 70», «Договор аренды … № А-08/2024»,
     «Регламент согласования договоров (ред. от 01.03.2025)». The file name only
@@ -1230,7 +1558,7 @@ def names_referenced_documents(text: str, value_gaps) -> bool:
     return True
 
 
-def source_line(candidate: dict, evidence: list[Fragment], editions=None, prose: str = "") -> str:
+def source_line(candidate: dict, evidence: list[Fragment], editions=None, prose: str = "", printed_context=()) -> str:
     """Application-owned reference: document names, editions and dotted clause numbers.
 
     With a model text, a document lists only the clauses the text cites, when it
@@ -1238,18 +1566,23 @@ def source_line(candidate: dict, evidence: list[Fragment], editions=None, prose:
     as a basis («п. 4.3, 1.1» for an answer resting on п. 4.3)."""
     by_id = {f.id: f for f in evidence}
     documents = {}
+    def add(fragment):
+        labels = documents.setdefault(cite_name(fragment.document, editions), [])
+        clause = re.match(r"(\d+(?:\.\d+)+)[.)]?(?:\s|$)", norm(fragment.text))
+        if clause and clause.group(1) not in labels:
+            labels.append(clause.group(1))
     for claim in candidate["claims"]:
         for cite in claim["sources"]:
-            f = by_id[cite["fragment_id"]]
-            labels = documents.setdefault(cite_name(f.document, editions), [])
-            clause = re.match(r"(\d+(?:\.\d+)+)[.)]?(?:\s|$)", norm(f.text))
-            if clause and clause.group(1) not in labels:
-                labels.append(clause.group(1))
+            add(by_id[cite["fragment_id"]])
     if prose:
         for name, labels in documents.items():
             cited = [label for label in labels if _cites(prose, label)]
             if cited:
                 labels[:] = cited
+    # These source-owned quotations were actually appended by render. Their
+    # references must survive filtering by the model's original prose.
+    for fragment in printed_context:
+        add(fragment)
     parts = [name + (", п. " + ", ".join(labels) if labels else "") for name, labels in documents.items()]
     if not parts:
         return ""
@@ -1518,7 +1851,7 @@ def expand_selection(value, evidence):
             "missing":["source_gap"] if status in {"partial","insufficient"} else [],
             "clarification":"clarify" if status=="clarify" else "",
             "requested_facts":requested,"issue":value.get("issue",""),
-            "answer":value.get("answer","")}
+            "answer":value.get("answer",""), "topic":value.get("topic","")}
 
 
 def gap_lines(source_gaps, *, required: bool = True) -> list[str]:
@@ -1544,21 +1877,29 @@ def render(candidate: dict, evidence: list[Fragment], source_gaps=(), prose: str
     issue = ISSUES.get(candidate.get("issue", ""), "")
     conflict = candidate.get("issue") == CONFLICT and bool(candidate["claims"])
     if prose and not ((keep_sources or conflict) and candidate["claims"]):
-        lines = [prose]
+        cited_docs = list(dict.fromkeys(next(f.document for f in evidence if f.id == c["fragment_id"])
+                                        for claim in candidate["claims"] for c in claim["sources"]))
+        # The source line below is built from the text as checked; only then the
+        # repeated document name leaves the parenthesis.
+        lines = [trim_inline_references(prose, [display_name(cited_docs[0]), cite_name(cited_docs[0], editions)])
+                 if len(cited_docs) == 1 else prose]
         # A model can omit a start event or conditional bound while citing the
         # general duration correctly. Keep the source-owned context in prose mode.
         # A context provision the text already cites by its clause number is not repeated.
-        lines.extend('«' + norm(f.text) + '»' for f in context_sources
-                     if norm(f.text) not in prose and not ((clause := re.match(r"(\d+(?:\.\d+)+)[.)]?\s", norm(f.text)))
-                                                          and _cites(prose, clause.group(1))))
+        printed_context = list({f.id: f for f in context_sources
+                                if norm(f.text).rstrip('.') not in norm(prose) and not (
+                                    (clause := re.match(r"(\d+(?:\.\d+)+)[.)]?\s", norm(f.text)))
+                                    and _cites(prose, clause.group(1)))}.values())
+        lines.extend('«' + norm(f.text) + '»' for f in printed_context)
         if candidate["claims"]:
-            lines.append(source_line(candidate, evidence, editions, prose))
+            lines.append(source_line(candidate, evidence, editions, prose, printed_context))
             if published_sources is not None:
                 by_id = {fragment.id: fragment for fragment in evidence}
                 cited_ids = dict.fromkeys(
                     cite["fragment_id"] for claim in candidate["claims"] for cite in claim["sources"]
                 )
                 published_sources.extend(by_id[fragment_id] for fragment_id in cited_ids)
+                published_sources.extend(f for f in printed_context if f.id not in cited_ids)
         # Mentioning an article number does not explain that its text is absent.
         if value_gaps:
             lines.append("Чтобы назвать конкретное значение, нужен этот документ.")
@@ -1587,8 +1928,9 @@ def render(candidate: dict, evidence: list[Fragment], source_gaps=(), prose: str
         scope = request_scope(question)
         if len(scope) > REFUSAL_QUOTE_LIMIT + 2:
             scope = ""
+        topic = refusal_topic(candidate.get("topic"), question) if scope or not _TOPIC_MARKERS.search(question) else ""
         lead = (issue + " Поэтому ответить по документам я не могу." if issue
-                else "В базе знаний нет документов по " + ("вопросу " + scope if scope else "этому вопросу")
+                else "В базе знаний нет документов " + (topic if topic else "по вопросу " + scope if scope else "по этому вопросу")
                 + ", поэтому ответить по документам я не могу.")
         requested = set(candidate.get("requested_facts", []))
         known = contract_known(question, evidence)
@@ -1599,8 +1941,9 @@ def render(candidate: dict, evidence: list[Fragment], source_gaps=(), prose: str
                                        if code != "referenced_documents" or source_gaps]
         requested = set(concrete["requested_facts"])
         # A specific fact (a date, an unknown contract's number) is still asked for.
-        specific = (followup(concrete, known)
-                    if requested - {"document", "contract"} or ("contract" in requested and not known) else "")
+        # «обстоятельства конкретного случая» cannot fill a gap in the base.
+        specific = (followup({**concrete, "requested_facts": sorted(requested - {"facts"})}, known)
+                    if requested - {"document", "contract", "facts"} or ("contract" in requested and not known) else "")
         if source_gaps:
             specific = " ".join(gap_lines(source_gaps)) + (" " + specific if specific else "")
         return lead + " " + INSUFFICIENT_TAIL + " " + (specific or INSUFFICIENT_REFER)
@@ -1700,6 +2043,7 @@ def answer_steps(question: str, retriever, client, top_k: int = 6, verify: bool 
     retry_scope_guard = False
     retry_restrictions = []
     retry_extra: list[str] = []
+    retry_items: list[str] = []
     verified_once = False
     provisional = None
     search_terms: list[str] = []
@@ -1733,6 +2077,8 @@ def answer_steps(question: str, retriever, client, top_k: int = 6, verify: bool 
                         payload["retry_restrictions"] = retry_restrictions
                     if retry_extra:
                         payload["retry_extra_source_ids"] = retry_extra
+                    if retry_items:
+                        payload["retry_extra_items"] = retry_items
                 calls += 1
                 generated = client.complete(SYSTEM, payload)
                 candidate = expand_selection(generated, evidence)
@@ -1758,7 +2104,8 @@ def answer_steps(question: str, retriever, client, top_k: int = 6, verify: bool 
             by_id = {f.id:f for f in evidence}
             selected = [by_id[cite["fragment_id"]] for c in candidate["claims"] for cite in c["sources"]]
             context_sources = list({f.id:f for source in selected
-                                    for f in retriever.publication_context(source)}.values()) if hasattr(retriever, 'publication_context') else []
+                                    for f in retriever.publication_context(source)
+                                    if not bound_elsewhere(f, source, retriever, question)}.values()) if hasattr(retriever, 'publication_context') else []
             source_gaps = retriever.reference_gaps(selected) if hasattr(retriever, "reference_gaps") else []
             value_gaps = value_dependencies(question, selected, getattr(retriever, "documents", {}))
             candidate = {**candidate, "claims": [{**c, "text": source_wording(c, evidence),
@@ -1772,6 +2119,14 @@ def answer_steps(question: str, retriever, client, top_k: int = 6, verify: bool 
             # selected provisions and the verifier confirms that very text.
             candidate = {k: v for k, v in candidate.items() if k != "answer"}
             draft = prose_of(generated)
+            # An added negation or exclusive claim in a later sentence does not
+            # discard a correct direct answer: that sentence is dropped and the
+            # remaining text goes through every check below and is the one published.
+            scope_trimmed = False
+            if draft and selected:
+                trimmed = without_blocked_sentence(draft, selected, retriever, question,
+                                                   preserved_sources=context_sources)
+                scope_trimmed, draft = trimmed != draft, trimmed
             # Known restrictive units always keep their source wording in the
             # answer. A model conclusion may precede it only if it repeats every
             # restriction class of the sources; a positive verdict cannot waive this.
@@ -1821,7 +2176,7 @@ def answer_steps(question: str, retriever, client, top_k: int = 6, verify: bool 
                 print(json.dumps({"event": "policy_one_call",
                                   "position": position if type(position) is int else None,
                                   "expanded": expanded, "candidate_status": candidate["status"],
-                                  "prose": prose_state, "scope_guard": scope_guard,
+                                  "prose": prose_state, "scope_guard": scope_guard, "scope_trimmed": scope_trimmed,
                                   "edition_mismatch": edition_wrong}), file=sys.stderr)
                 if edition_wrong:
                     # Every selected provision was out of force on the event date.
@@ -1839,6 +2194,14 @@ def answer_steps(question: str, retriever, client, top_k: int = 6, verify: bool 
                         retry_reason = ("answer_numbers_not_in_sources" if prose_state == "ungrounded"
                                         else "answer_not_supported")
                         retry_scope_guard = scope_blocked
+                        continue
+                    extra_items = unasked_items(prose, selected, question) if prose_state == "published" else []
+                    if extra_items:
+                        # A listed element nobody asked about («включает НДС 20%, …»
+                        # for a question on delivery and packaging): the judge reads it
+                        # as invented. The checked text stays as the fallback.
+                        fallback = result
+                        retry_reason, retry_scope_guard, retry_items = "answer_extra_items", False, extra_items
                         continue
                     if prose_state == "source_only" and draft and restricted and not value_gaps:
                         fallback = result

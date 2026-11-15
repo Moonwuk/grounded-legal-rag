@@ -49,7 +49,8 @@ class RefusalWordingTests(unittest.TestCase):
         self.assertNotIn('обратитесь к юристу', text)
 
     def test_unsourced_reference_request_does_not_invent_found_provisions(self):
-        for codes in [['referenced_documents'], ['document', 'referenced_documents']]:
+        for codes in [['referenced_documents'], ['document', 'referenced_documents'],
+                      ['facts', 'referenced_documents'], ['facts', 'document', 'referenced_documents']]:
             with self.subTest(codes=codes):
                 text, status, _, _ = run('Какие документы нужны для возмещения расходов на переезд?',
                                           [refuse(codes)] * 2 + [VERDICT])
