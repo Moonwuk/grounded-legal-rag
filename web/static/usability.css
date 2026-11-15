@@ -30,7 +30,7 @@ summary:focus-visible { outline: 3px solid #3868df; outline-offset: 2px; }
 .source-excerpt[open] summary::after { content: 'Свернуть цитату'; }
 .source-excerpt[open] .quote-preview { display: none; }
 .source-excerpt blockquote { margin: .4rem 0; white-space: pre-wrap; }
-.copy-answer { margin: .3rem .6rem .3rem 0; min-height: 44px; font-size: .75rem; }
+.copy-answer, .share-answer { margin: .3rem .6rem .3rem 0; min-height: 44px; font-size: .75rem; }
 .clarification-form { display: grid; gap: .6rem; margin-top: .8rem; border-top: 1px solid var(--line); padding-top: .7rem; }
 .clarification-form label { display: grid; gap: .25rem; font-size: .85rem; }
 .clarification-form button { justify-self: start; color: white; background: var(--blue); }
@@ -119,3 +119,9 @@ summary:focus-visible { outline: 3px solid #3868df; outline-offset: 2px; }
   #mobile-panel-content > .documents[data-view="document"] { display: flex; overflow: hidden; }
   #mobile-panel .documents[data-view="document"] #doc-text { overflow: auto; min-height: 0; }
 }
+
+#copy-dialog-status { min-height: 1.5em; }
+@media print { dialog::backdrop { display: none !important; } }
+#copy-dialog[open] { display: flex; flex-direction: column; gap: .5rem; height: min(36rem, calc(var(--mobile-height, 100dvh) - 1rem)); overflow: hidden; }
+#copy-dialog > * { flex-shrink: 0; }
+#copy-dialog textarea { flex: 1 1 auto; min-height: 5rem; margin: 0; resize: none; }

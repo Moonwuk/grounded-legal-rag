@@ -720,6 +720,8 @@ function showList() {
   clearQuote();
   byId("documents-panel").dataset.view = "list";
   byId("document-search").hidden = true;
+  byId("print-document").disabled = true;
+  printableDocument = null;
   docTitle.textContent = "Документы";
   docStatus.textContent = "";
   docText.hidden = true;
@@ -744,6 +746,8 @@ async function openDocument(id, source, focus = true) {
   clearQuote();
   const request = new AbortController();
   activeDocument = request;
+  printableDocument = null;
+  byId("print-document").disabled = true;
   const timer = setTimeout(() => request.abort(), 10000);
   docStatus.textContent = "Открываем документ…";
   try {
@@ -763,6 +767,8 @@ async function openDocument(id, source, focus = true) {
     allDocs.hidden = false;
     if (focus) docTitle.focus();
     documentBody = doc.text;
+    printableDocument = {title: doc.title, text: doc.text, status: doc.status};
+    byId("print-document").disabled = false;
     documentSource = null;
     byId("document-query").value = "";
     if (source) {
@@ -895,9 +901,22 @@ function renderAnswer(node, answer, retry) {
   copy.type = "button"; copy.className = "copy-answer"; copy.textContent = "Копировать с источниками";
   copy.addEventListener("click", async () => {
     try { await navigator.clipboard.writeText(answerText(answer)); copy.textContent = "Скопировано"; }
-    catch { byId("copy-text").value = answerText(answer); byId("copy-dialog").showModal(); byId("copy-text").select(); }
+    catch { openCopyDialog(answerText(answer)); }
   });
-  node.body.append(copy);
+  const share = document.createElement("button");
+  share.type = "button"; share.className = "share-answer"; share.textContent = "Поделиться";
+  share.addEventListener("click", async () => {
+    const text = answerText(answer);
+    share.disabled = true;
+    try {
+      if (typeof navigator.share === "function") {
+        try { await navigator.share({title: "Ответ юридического ассистента", text}); return; }
+        catch (error) { if (error.name === "AbortError") return; }
+      }
+      openCopyDialog(text, true);
+    } finally { share.disabled = false; }
+  });
+  node.body.append(copy, share);
   if (answer.status === "clarify") renderClarification(node, answer);
   if ((answer.status === "technical_error" && !missingModel) || answer.status === "cancelled") {
     const button = document.createElement("button");
@@ -917,10 +936,29 @@ function answerText(answer) {
     "[" + source.n + "] " + [source.title, source.heading, source.status].filter(Boolean).join(" · ") +
     "\n«" + source.quote + "»").join("\n\n") : "");
 }
+function openCopyDialog(text, sharing = false) {
+  byId("copy-title").textContent = sharing ? "Поделиться ответом" : "Ответ с источниками";
+  byId("copy-note").textContent = sharing ? "Скопируйте ответ с источниками и вставьте его в нужный мессенджер или письмо." : "Выделите текст и скопируйте его.";
+  byId("copy-text").value = text;
+  byId("copy-dialog-status").textContent = "";
+  byId("copy-dialog").showModal(); byId("copy-text").select();
+  byId("copy-text").scrollTop = 0;
+}
+byId("copy-dialog-button").addEventListener("click", async () => {
+  try { await navigator.clipboard.writeText(byId("copy-text").value); byId("copy-dialog-status").textContent = "Скопировано"; }
+  catch { byId("copy-text").focus(); byId("copy-text").select(); byId("copy-dialog-status").textContent = "Скопируйте выделенный текст через меню устройства или Ctrl+C."; }
+});
+let printableDocument = null, printRequest = null;
 byId("close-copy").addEventListener("click", () => byId("copy-dialog").close());
 function preparePrint() {
   const host = byId("print-view"); host.replaceChildren();
   const title = document.createElement("h1");
+  if (printRequest) {
+    title.textContent = printRequest.title;
+    const status = document.createElement("p"); status.textContent = printRequest.status || "";
+    const content = document.createElement("p"); content.className = "printed-document"; content.textContent = printRequest.text;
+    host.append(title, status, content); return;
+  }
   title.textContent = savedChats.find(chat => chat.id === currentChat)?.title || "Юридический диалог";
   const date = document.createElement("p"); date.textContent = "Экспорт: " + new Date().toLocaleString("ru-RU");
   host.append(title, date);
@@ -935,7 +973,17 @@ function preparePrint() {
   if (!log.querySelector(".message")) { const empty = document.createElement("p"); empty.textContent = "В диалоге пока нет сообщений."; host.append(empty); }
 }
 globalThis.addEventListener?.("beforeprint", preparePrint);
-byId("print-dialogue").addEventListener("click", () => { preparePrint(); window.print(); });
+globalThis.addEventListener?.("afterprint", () => { printRequest = null; });
+function startPrint(doc = null) {
+  printRequest = doc;
+  preparePrint();
+  try { window.print(); } catch {
+    printRequest = null;
+    byId(doc ? "document-search-status" : "input-error").textContent = "Не удалось открыть печать. Повторите попытку.";
+  }
+}
+byId("print-dialogue").addEventListener("click", () => startPrint());
+byId("print-document").addEventListener("click", () => { if (printableDocument) startPrint({...printableDocument}); });
 function setDocumentsVisible(visible) {
   byId("workspace").classList[visible ? "remove" : "add"]("documents-collapsed");
   byId("toggle-documents").setAttribute("aria-expanded", String(visible));

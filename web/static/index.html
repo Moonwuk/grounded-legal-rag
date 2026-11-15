@@ -129,7 +129,7 @@
           </span>
         </button><p class="copy-feedback" role="status" aria-live="polite" aria-atomic="true"></p></div>
       <ul id="doc-list" role="tabpanel" tabindex="0" aria-label="Документы вкладки"></ul>
-      <div id="document-search" hidden><label for="document-query">Найти в документе</label><input id="document-query" type="search" maxlength="200" autocomplete="off"><div class="document-search-actions"><span id="document-search-status" role="status"></span><button id="document-prev" type="button" aria-label="Предыдущее совпадение">↑</button><button id="document-next" type="button" aria-label="Следующее совпадение">↓</button><button id="document-citation" type="button" hidden>К цитате</button></div></div>
+      <div id="document-search" hidden><label for="document-query">Найти в документе</label><input id="document-query" type="search" maxlength="200" autocomplete="off"><div class="document-search-actions"><span id="document-search-status" role="status"></span><button id="document-prev" type="button" aria-label="Предыдущее совпадение">↑</button><button id="document-next" type="button" aria-label="Следующее совпадение">↓</button><button id="document-citation" type="button" hidden>К цитате</button><button id="print-document" type="button" aria-label="Печать документа или сохранение в PDF" title="Печать всего документа" disabled>Печать / PDF</button></div></div>
       <div id="doc-text" tabindex="0" aria-label="Текст документа" hidden></div>
     </aside>
   </main>
@@ -201,7 +201,7 @@
       </div>
     </form>
   </dialog>
-<dialog id="copy-dialog" class="history-dialog" aria-labelledby="copy-title"><h2 id="copy-title">Ответ с источниками</h2><p>Выделите текст и скопируйте его.</p><textarea id="copy-text" readonly rows="12"></textarea><button id="close-copy" type="button">Закрыть</button></dialog>
+<dialog id="copy-dialog" class="history-dialog" aria-labelledby="copy-title"><h2 id="copy-title">Ответ с источниками</h2><p id="copy-note">Выделите текст и скопируйте его.</p><textarea id="copy-text" aria-label="Ответ с источниками" readonly rows="12"></textarea><p id="copy-dialog-status" role="status"></p><div class="history-dialog-actions"><button id="copy-dialog-button" type="button">Копировать</button><button id="close-copy" type="button">Закрыть</button></div></dialog>
   <section id="print-view" aria-hidden="true"></section>
 </body>
 </html>
