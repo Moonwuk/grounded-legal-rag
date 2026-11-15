@@ -15,6 +15,7 @@ from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel, Field, ValidationError
 from starlette.concurrency import run_in_threadpool
 from web.history import History, identity, router as history_router
+from web.document_tabs import router as document_tabs_router
 
 ROOT = Path(__file__).resolve().parents[1]
 STATIC = Path(__file__).with_name("static")
@@ -65,12 +66,13 @@ def index_dense(state):
 app = FastAPI(title="Юридический ассистент", lifespan=lifespan,
               docs_url=None, redoc_url=None, openapi_url=None)
 app.include_router(history_router)
+app.include_router(document_tabs_router)
 
 
 @app.middleware("http")
 async def private_chat_responses(request: Request, call_next):
     response = await call_next(request)
-    if request.url.path == "/api/chat" or request.url.path.startswith("/api/chats"):
+    if request.url.path == "/api/chat" or request.url.path.startswith(("/api/chats", "/api/document-tabs")):
         response.headers["Cache-Control"] = "private, no-store"
     return response
 

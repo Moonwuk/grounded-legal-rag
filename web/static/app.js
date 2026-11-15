@@ -35,6 +35,138 @@ let currentScene;
 let busy = false;
 let activeDocument;
 let catalog = [];
+let customTabs = [];
+let selectedTab = "laws";
+let editingTab = null;
+let savingTab = false;
+const builtInTabs = [
+  {id: "laws", title: "Законы"}, {id: "contracts", title: "Договоры"},
+  {id: "policies", title: "Регламенты"}, {id: "other", title: "Прочее"}
+];
+function documentGroup(doc) {
+  if (doc.category.toLocaleLowerCase("ru") === "законы") return "laws";
+  if (/^(договор|доп соглашение|дополнительное соглашение)/i.test(doc.title)) return "contracts";
+  if (/^регламент/i.test(doc.title)) return "policies";
+  return "other";
+}
+function documentsInTab(tab) {
+  return catalog.filter(doc => tab.document_ids ? tab.document_ids.includes(doc.id) : documentGroup(doc) === tab.id);
+}
+function renderTabs() {
+  const tabs = [...builtInTabs, ...customTabs];
+  if (!tabs.some(tab => tab.id === selectedTab)) selectedTab = "laws";
+  const host = byId("doc-tabs");
+  host.replaceChildren();
+  for (const [index, tab] of tabs.entries()) {
+    const button = document.createElement("button");
+    button.type = "button";
+    button.id = "doc-tab-" + tab.id;
+    button.textContent = tab.title + " · " + documentsInTab(tab).length;
+    button.title = tab.title;
+    button.setAttribute("role", "tab");
+    button.setAttribute("aria-selected", String(tab.id === selectedTab));
+    button.setAttribute("aria-controls", "doc-list");
+    button.tabIndex = tab.id === selectedTab ? 0 : -1;
+    button.addEventListener("click", () => {
+      selectedTab = tab.id;
+      docQuery.value = "";
+      showList();
+      byId("doc-tab-" + tab.id).focus();
+    });
+    button.addEventListener("keydown", event => {
+      const offset = {ArrowRight: 1, ArrowLeft: -1, Home: -index, End: tabs.length - index - 1}[event.key];
+      if (offset === undefined) return;
+      event.preventDefault();
+      byId("doc-tab-" + tabs[(index + offset + tabs.length) % tabs.length].id).click();
+    });
+    host.append(button);
+  }
+  list.setAttribute("aria-labelledby", "doc-tab-" + selectedTab);
+  byId("edit-doc-tab").hidden = !customTabs.some(tab => tab.id === selectedTab);
+}
+async function tabRequest(path = "", options = {}) {
+  const response = await fetch("/api/document-tabs" + path, {
+    ...options, headers: {"Content-Type": "application/json"}, signal: AbortSignal.timeout(10000)
+  });
+  if (!response.ok) {
+    const data = await response.json().catch(() => ({}));
+    throw new Error(response.status === 503 ? "Свои вкладки доступны после настройки серверного хранения и входа." :
+      typeof data.detail === "string" ? data.detail : "Не удалось сохранить вкладку. Попробуйте ещё раз.");
+  }
+  return response.status === 204 ? null : response.json();
+}
+async function loadTabs() {
+  byId("refresh-doc-tabs").disabled = true;
+  try {
+    customTabs = await tabRequest();
+    byId("create-doc-tab").disabled = false;
+    byId("tabs-status").textContent = "Свои вкладки сохраняются под вашим логином.";
+    renderTabs();
+    if (docText.hidden) renderCatalog();
+  } catch (error) {
+    byId("tabs-status").textContent = error.message;
+  } finally {
+    byId("refresh-doc-tabs").disabled = false;
+  }
+}
+function editTab(tab = null) {
+  editingTab = tab;
+  byId("tab-dialog-title").textContent = tab ? "Изменить вкладку" : "Создать вкладку";
+  byId("tab-name").value = tab?.title || "";
+  byId("tab-error").textContent = "";
+  byId("delete-doc-tab").hidden = !tab;
+  const choices = byId("tab-choices");
+  choices.replaceChildren();
+  const legend = document.createElement("legend");
+  legend.textContent = "Документы во вкладке";
+  choices.append(legend);
+  for (const doc of catalog) {
+    const label = document.createElement("label");
+    const checkbox = document.createElement("input");
+    checkbox.type = "checkbox";
+    checkbox.value = doc.id;
+    checkbox.checked = tab?.document_ids.includes(doc.id) || false;
+    const title = document.createElement("span");
+    title.textContent = doc.title;
+    label.append(checkbox, title);
+    choices.append(label);
+  }
+  byId("tab-dialog").showModal();
+  byId("tab-name").focus();
+}
+async function saveTab(remove = false) {
+  if (savingTab) return;
+  if (remove && !confirm("Удалить вкладку «" + editingTab.title + "»? Документы останутся в базе.")) return;
+  savingTab = true;
+  for (const id of ["save-doc-tab", "delete-doc-tab", "cancel-doc-tab"]) byId(id).disabled = true;
+  byId("tab-error").textContent = "";
+  try {
+    const path = editingTab ? "/" + editingTab.id : "";
+    const body = {title: byId("tab-name").value.trim(), revision: editingTab?.revision || 0,
+      document_ids: [...byId("tab-choices").querySelectorAll("input:checked")].map(input => input.value)};
+    const saved = await tabRequest(path, {method: remove ? "DELETE" : editingTab ? "PUT" : "POST",
+      ...(remove ? {} : {body: JSON.stringify(body)})});
+    customTabs = customTabs.filter(tab => tab.id !== editingTab?.id);
+    if (saved) customTabs.push(saved);
+    selectedTab = saved?.id || "laws";
+    docQuery.value = "";
+    byId("tab-dialog").close();
+    showList();
+    byId("doc-tab-" + selectedTab).focus();
+  } catch (error) {
+    byId("tab-error").textContent = error.message;
+  } finally {
+    savingTab = false;
+    for (const id of ["save-doc-tab", "delete-doc-tab", "cancel-doc-tab"]) byId(id).disabled = false;
+  }
+}
+byId("create-doc-tab").addEventListener("click", () => editTab());
+byId("edit-doc-tab").addEventListener("click", () => editTab(customTabs.find(tab => tab.id === selectedTab)));
+byId("refresh-doc-tabs").addEventListener("click", loadTabs);
+byId("tab-form").addEventListener("submit", event => { event.preventDefault(); saveTab(); });
+byId("cancel-doc-tab").addEventListener("click", () => byId("tab-dialog").close());
+byId("delete-doc-tab").addEventListener("click", () => saveTab(true));
+byId("tab-dialog").addEventListener("cancel", event => { if (savingTab) event.preventDefault(); });
 let currentChat = null;
 let savedChats = [];
 let historyEnabled = false;
@@ -208,6 +340,8 @@ function showList() {
   docText.hidden = true;
   list.hidden = false;
   docFilter.hidden = catalog.length === 0;
+  byId("doc-navigation").hidden = catalog.length === 0;
+  renderTabs();
   allDocs.hidden = true;
   renderCatalog();
 }
@@ -236,6 +370,7 @@ async function openDocument(id, source, focus = true) {
     list.hidden = true;
     docFilter.hidden = true;
     docText.hidden = false;
+    byId("doc-navigation").hidden = true;
     allDocs.hidden = false;
     if (focus) docTitle.focus();
     if (source) {
@@ -267,7 +402,9 @@ function renderCatalog() {
   clearDocQuery.hidden = !docQuery.value;
   list.replaceChildren();
   if (!catalog.length) return;
-  const matching = catalog.filter(doc => doc.title.toLocaleLowerCase("ru").includes(query));
+  const tab = [...builtInTabs, ...customTabs].find(tab => tab.id === selectedTab) || builtInTabs[0];
+  const documents = documentsInTab(tab);
+  const matching = documents.filter(doc => doc.title.toLocaleLowerCase("ru").includes(query));
   for (const doc of matching) {
     const row = document.createElement("li");
     const button = document.createElement("button");
@@ -282,7 +419,8 @@ function renderCatalog() {
     row.append(button);
     list.append(row);
   }
-  docStatus.textContent = matching.length ? "Документов: " + matching.length : "По этому запросу документов нет.";
+  docStatus.textContent = matching.length ? "Документов: " + matching.length + " из " + documents.length :
+    query ? "В этой вкладке ничего не найдено." : tab.document_ids ? "Вкладка пока пустая. Нажмите «Изменить», чтобы добавить документы." : "В этой вкладке пока нет документов.";
 }
 
 async function loadDocuments() {
@@ -290,8 +428,8 @@ async function loadDocuments() {
     const response = await fetch("/api/documents", {signal: AbortSignal.timeout(10000)});
     if (!response.ok) throw new Error();
     catalog = await response.json();
-    docFilter.hidden = !catalog.length;
-    renderCatalog();
+    showList();
+    await loadTabs();
   } catch {
     docStatus.textContent = "Список документов недоступен. Обновите страницу.";
   }

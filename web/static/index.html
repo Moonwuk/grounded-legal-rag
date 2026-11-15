@@ -74,6 +74,15 @@
         <div><span class="brand">База знаний</span><h2 id="doc-title" tabindex="-1">Документы</h2></div>
         <button type="button" id="all-docs" hidden disabled>К списку</button>
       </div>
+      <div id="doc-navigation" hidden>
+        <div id="doc-tabs" role="tablist" aria-label="Разделы документов"></div>
+        <div class="tab-actions">
+          <button type="button" id="create-doc-tab" disabled>+ Создать вкладку</button>
+          <button type="button" id="edit-doc-tab" hidden>Изменить</button>
+          <button type="button" id="refresh-doc-tabs">Обновить</button>
+        </div>
+        <p id="tabs-status" role="status"></p>
+      </div>
       <div id="doc-filter" class="catalog-filter" hidden>
         <label for="doc-query">Поиск по названиям</label>
         <div class="filter-fields">
@@ -92,9 +101,24 @@
             <span class="sl-copy__label">Цитата</span>
           </span>
         </button><p class="copy-feedback" role="status" aria-live="polite" aria-atomic="true"></p></div>
-      <ul id="doc-list" aria-label="Документы базы"></ul>
+      <ul id="doc-list" role="tabpanel" tabindex="0" aria-label="Документы вкладки"></ul>
       <div id="doc-text" tabindex="0" aria-label="Текст документа" hidden></div>
     </aside>
   </main>
+  <dialog id="tab-dialog" aria-labelledby="tab-dialog-title">
+    <form id="tab-form">
+      <h2 id="tab-dialog-title">Своя вкладка</h2>
+      <label for="tab-name">Название</label>
+      <input id="tab-name" required maxlength="60" autocomplete="off" placeholder="Например, Сделка с Альфой">
+      <p>Выберите документы из базы. Состав вкладки можно изменить позже.</p>
+      <div id="tab-choice-scroll"><fieldset id="tab-choices"><legend>Документы во вкладке</legend></fieldset></div>
+      <p id="tab-error" role="alert"></p>
+      <div class="tab-dialog-actions">
+        <button type="submit" id="save-doc-tab">Сохранить</button>
+        <button type="button" id="cancel-doc-tab">Отмена</button>
+        <button type="button" id="delete-doc-tab" hidden>Удалить вкладку</button>
+      </div>
+    </form>
+  </dialog>
 </body>
 </html>

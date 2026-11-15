@@ -270,3 +270,27 @@ mark { background: var(--mark); color: var(--ink); box-decoration-break: clone; 
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { scroll-behavior: auto !important; }
 }
+
+#doc-navigation { flex: none; padding: .65rem 1rem 0; }
+#doc-tabs { display: flex; gap: .35rem; overflow-x: auto; padding: .2rem .1rem .5rem; scrollbar-width: thin; }
+#doc-tabs button { flex: none; max-width: 14rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: .82rem; }
+#doc-tabs button[aria-selected="true"] { color: white; background: var(--blue); border-color: var(--blue); }
+.tab-actions { display: flex; flex-wrap: wrap; gap: .35rem; }
+.tab-actions button { font-size: .78rem; padding-inline: .5rem; }
+#tabs-status { margin: .35rem 0 0; color: var(--muted); font-size: .75rem; }
+#tab-dialog { width: min(38rem, calc(100% - 1.5rem)); max-height: calc(100dvh - 2rem); padding: 0; color: var(--ink); background: var(--paper); border: 1px solid var(--line); border-radius: 15px; }
+#tab-dialog::backdrop { background: #10275b88; }
+#tab-form { display: flex; flex-direction: column; gap: .7rem; padding: 1.2rem; max-height: calc(100dvh - 3rem); }
+#tab-form > * { flex-shrink: 0; }
+#tab-form h2 { font-size: 1.5rem; }
+#tab-form p { margin: 0; color: var(--muted); font-size: .85rem; }
+#tab-name { min-width: 0; width: 100%; font: inherit; color: var(--ink); padding: .6rem; border: 1px solid #9eb4d7; border-radius: 8px; }
+#tab-form #tab-choice-scroll { flex: 1 1 auto; min-height: 6rem; overflow: auto; }
+#tab-choices { min-width: 0; border: 1px solid var(--line); border-radius: 8px; margin: 0; }
+#tab-choices legend { font-size: .85rem; font-weight: 650; }
+#tab-choices label { display: flex; align-items: flex-start; gap: .6rem; padding: .6rem .2rem; font-size: .85rem; overflow-wrap: anywhere; cursor: pointer; }
+#tab-choices label + label { border-top: 1px solid var(--line); }
+#tab-choices input { flex: none; width: 1.1rem; height: 1.1rem; margin-top: .1rem; accent-color: var(--blue); }
+.tab-dialog-actions { display: flex; flex-wrap: wrap; gap: .5rem; }
+#save-doc-tab { color: white; background: var(--blue); }
+#tab-form #tab-error { color: #962c29; }

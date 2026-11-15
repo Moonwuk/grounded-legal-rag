@@ -21,6 +21,10 @@ class History:
                 id TEXT PRIMARY KEY, owner TEXT NOT NULL, title TEXT NOT NULL,
                 updated REAL NOT NULL, turns TEXT NOT NULL DEFAULT '[]', busy_until REAL NOT NULL DEFAULT 0)""")
             db.execute("CREATE INDEX IF NOT EXISTS chats_owner ON chats(owner, updated)")
+            db.execute("""CREATE TABLE IF NOT EXISTS document_tabs (
+                id TEXT PRIMARY KEY, owner TEXT NOT NULL, title TEXT NOT NULL,
+                document_ids TEXT NOT NULL, revision INTEGER NOT NULL DEFAULT 1)""")
+            db.execute("CREATE INDEX IF NOT EXISTS document_tabs_owner ON document_tabs(owner)")
 
     @contextmanager
     def connect(self):

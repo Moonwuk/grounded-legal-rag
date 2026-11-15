@@ -41,7 +41,7 @@ class Element {
     return new Element();
   }
 }
-function harness(saved = null) {
+function harness(saved = null, documents = [], tabs = []) {
   const requests = [];
   const storage = new Map();
   const ids = new Map();
@@ -83,6 +83,8 @@ function harness(saved = null) {
         }
         return ok(id ? saved.find(c => c.id === id) : saved);
       }
+      if (url === "/api/documents") return ok(documents);
+      if (url === "/api/document-tabs") return ok(tabs);
       return ok([]);
     },
     AbortController, AbortSignal, performance, Intl, matchMedia: () => ({matches: false}), CustomEvent,
@@ -104,6 +106,32 @@ function harness(saved = null) {
   };
 }
 const source = {n: 1, title: "Документ", document_id: "fixture", quote: "Текст", start: 0, end: 5};
+test("document tabs partition the corpus, include addenda, and scope search to a custom collection", async () => {
+  const docs = [
+    {id: "law", title: "НК ст1", category: "законы"},
+    {id: "contract", title: "Договор поставки", category: "документы компании"},
+    {id: "addendum", title: "Доп соглашение 1", category: "документы компании"},
+    {id: "policy", title: "Регламент", category: "документы компании"},
+    {id: "letter", title: "Письмо", category: "документы компании"}
+  ];
+  const h = harness(null, docs, [{id: "mine", title: "Моя сделка", document_ids: ["contract", "letter"]}]);
+  await h.ready;
+  const titles = () => h.get("doc-list").children.map(row => row.children[0].children[0].textContent);
+  assert.deepEqual(titles(), ["НК ст1"]);
+  assert.equal(h.get("doc-tabs").children.length, 5);
+  h.get("doc-tabs").children[1].events.click();
+  assert.deepEqual(titles(), ["Договор поставки", "Доп соглашение 1"]);
+  h.get("doc-tabs").children[4].events.click();
+  assert.deepEqual(titles(), ["Договор поставки", "Письмо"]);
+  assert.equal(h.get("edit-doc-tab").hidden, false);
+  h.get("doc-query").value = "НК";
+  h.get("doc-query").events.input();
+  assert.deepEqual(titles(), []);
+  assert.equal(h.get("doc-status").textContent, "В этой вкладке ничего не найдено.");
+  h.get("doc-tabs").children[2].events.click();
+  assert.deepEqual(titles(), ["Регламент"]);
+  assert.equal(h.get("doc-query").value, "");
+});
 test("only a complete sourced answer celebrates; refusal and error never do, even with sources", () => {
   const h = harness();
   assert.equal(h.stateFor({status: "answer", sources: [source]}), "success");
