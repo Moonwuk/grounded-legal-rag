@@ -122,3 +122,11 @@ button.icon-only { width: 38px; min-width: 38px; min-height: 38px; padding: .35r
 @media (pointer: coarse) {
   #history-panel .chat-actions > button, #history-panel .chat-actions > summary { min-height: 44px; }
 }
+@media (min-width: 901px) {
+  .workspace { grid-template-columns: clamp(230px, 14.375rem, 300px) minmax(0, 1.6fr) minmax(300px, 1fr); }
+  .workspace.documents-collapsed { grid-template-columns: clamp(230px, 14.375rem, 300px) minmax(0, 1fr); }
+}
+@media (min-width: 901px) and (max-width: 1150px) {
+  .workspace { grid-template-columns: clamp(190px, 12rem, 264px) minmax(0, 1fr) 300px; }
+  .workspace.documents-collapsed { grid-template-columns: clamp(190px, 12rem, 264px) minmax(0, 1fr); }
+}
