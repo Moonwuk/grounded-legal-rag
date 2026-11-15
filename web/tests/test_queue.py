@@ -65,6 +65,41 @@ class QueueTests(unittest.TestCase):
         self.assertIn('Ассистент: Ответ: Первый', self.calls[1][0])
         self.assertEqual(self.calls[1][1], 'Второй')
 
+    def test_rename_during_generation_survives_completion(self):
+        self.submit('Исходный вопрос')
+        self.manager.start()
+        self.assertTrue(self.started.wait(3))
+        response = self.client.put(f'/api/chats/{self.chat}/title', headers=self.headers, json={'title': 'Мои договоры'})
+        self.assertEqual(response.status_code, 200)
+        self.release.set()
+        self.until(lambda: len(self.state()['turns']) == 1)
+        self.assertEqual(self.state()['title'], 'Мои договоры')
+
+    def test_reorder_waiting_questions_preserves_active_and_context(self):
+        first = self.submit('Активный').json()['id']
+        self.manager.start()
+        self.assertTrue(self.started.wait(3))
+        second = self.submit('Второй').json()['id']
+        third = self.submit('Третий').json()['id']
+        prefix = f'/api/chats/{self.chat}/jobs/'
+        move = lambda id_, direction, headers=self.headers: self.client.post(prefix + id_ + '/move/' + direction, headers=headers)
+        self.assertEqual(move(first, 'up').status_code, 409)
+        self.assertEqual(move(third, 'up', {}).status_code, 401)
+        self.assertEqual(move(third, 'up', {**self.headers, 'X-Chat-User': 'bob'}).status_code, 404)
+        self.assertEqual(move(third, 'up', {**self.headers, 'Content-Type': 'text/plain'}).status_code, 415)
+        self.assertEqual(move(third, 'sideways').status_code, 422)
+        self.assertEqual(move(str(uuid4()), 'up').status_code, 404)
+        self.assertEqual(move(third, 'up').status_code, 204)
+        self.assertEqual([j['id'] for j in self.state()['jobs'] if j['status'] == 'queued'], [third, second])
+        self.assertEqual(move(third, 'down').status_code, 204)
+        self.assertEqual([j['id'] for j in self.state()['jobs'] if j['status'] == 'queued'], [second, third])
+        self.assertEqual(move(second, 'up').status_code, 204)
+        self.assertEqual(move(third, 'up').status_code, 204)
+        self.release.set()
+        self.until(lambda: len(self.state()['turns']) == 3)
+        self.assertEqual([t['question'] for t in self.state()['turns']], ['Активный', 'Третий', 'Второй'])
+        self.assertIn('Ассистент: Ответ: Третий', self.calls[2][0])
+
     def test_stop_pauses_queue_removes_waiting_and_excludes_cancelled_context(self):
         first = self.submit('Первый').json()['id']
         removed = self.submit('Убрать').json()['id']

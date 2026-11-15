@@ -108,6 +108,31 @@ def cancel(chat_id: str, job_id: str, request: Request):
             db.execute("UPDATE chat_queue SET paused=1 WHERE chat_id=?", (chat_id,))
 
 
+@router.post("/{chat_id}/jobs/{job_id}/move/{direction}", status_code=204)
+def move_job(chat_id: str, job_id: str, direction: str, request: Request):
+    history, owner = identity(request)
+    json_only(request)
+    if direction not in ("up", "down"):
+        raise HTTPException(422, "Выберите направление: выше или ниже.")
+    with history.connect() as db:
+        db.execute("BEGIN IMMEDIATE")
+        history.get(db, owner, chat_id)
+        job = db.execute("SELECT status FROM chat_jobs WHERE id=? AND chat_id=?", (job_id, chat_id)).fetchone()
+        if job is None:
+            raise HTTPException(404, "Вопрос не найден.")
+        if job["status"] != "queued":
+            raise HTTPException(409, "Порядок можно менять только у ожидающих вопросов.")
+        rows = db.execute("SELECT id,created FROM chat_jobs WHERE chat_id=? AND status='queued' ORDER BY created,rowid", (chat_id,)).fetchall()
+        ids = [row["id"] for row in rows]
+        index = ids.index(job_id)
+        target = index + (-1 if direction == "up" else 1)
+        if 0 <= target < len(ids):
+            ids[index], ids[target] = ids[target], ids[index]
+            # Keep all waiting jobs before future submissions, including equal timestamps.
+            start = min(rows[0]["created"], time.time() - len(ids) * .001)
+            db.executemany("UPDATE chat_jobs SET created=? WHERE id=?", [(start + i * .001, id_) for i, id_ in enumerate(ids)])
+
+
 @router.post("/{chat_id}/jobs/resume", status_code=204)
 def resume(chat_id: str, request: Request):
     history, owner = identity(request)
@@ -147,7 +172,7 @@ class QueueManager:
             turns.pop()
         turns.append(dict(question=job["question"], answer=result))
         status = "cancelled" if result["status"] == "cancelled" else "failed" if result["status"] == "technical_error" else "done"
-        db.execute("UPDATE chats SET turns=?,title=?,updated=?,busy_until=0 WHERE id=?",
+        db.execute("UPDATE chats SET turns=?,title=CASE WHEN title_manual=1 THEN title ELSE ? END,updated=?,busy_until=0 WHERE id=?",
                    (json.dumps(turns, ensure_ascii=False), turns[0]["question"][:80], time.time(), job["chat_id"]))
         db.execute("UPDATE chat_jobs SET status=?,lease_until=0 WHERE id=?", (status, job["id"]))
         if status != "done":

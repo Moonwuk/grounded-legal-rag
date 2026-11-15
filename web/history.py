@@ -8,6 +8,7 @@ import time
 from uuid import uuid4
 
 from fastapi import APIRouter, HTTPException, Request
+from starlette.concurrency import run_in_threadpool
 
 router = APIRouter(prefix="/api/chats")
 
@@ -17,9 +18,12 @@ class History:
         self.path, self.token = path, token
         with self.connect() as db:
             db.execute("PRAGMA journal_mode=WAL")
+            db.execute("BEGIN IMMEDIATE")
             db.execute("""CREATE TABLE IF NOT EXISTS chats (
                 id TEXT PRIMARY KEY, owner TEXT NOT NULL, title TEXT NOT NULL,
                 updated REAL NOT NULL, turns TEXT NOT NULL DEFAULT '[]', busy_until REAL NOT NULL DEFAULT 0)""")
+            if "title_manual" not in {row["name"] for row in db.execute("PRAGMA table_info(chats)")}:
+                db.execute("ALTER TABLE chats ADD COLUMN title_manual INTEGER NOT NULL DEFAULT 0")
             db.execute("CREATE INDEX IF NOT EXISTS chats_owner ON chats(owner, updated)")
             db.execute("""CREATE TABLE IF NOT EXISTS document_tabs (
                 id TEXT PRIMARY KEY, owner TEXT NOT NULL, title TEXT NOT NULL,
@@ -88,7 +92,7 @@ class History:
                               AND NOT EXISTS (SELECT 1 FROM chat_trash WHERE chat_id=chats.id)""",
                            (chat_id, owner, lease))
             else:
-                db.execute("""UPDATE chats SET turns=?, title=?, updated=?, busy_until=0
+                db.execute("""UPDATE chats SET turns=?, title=CASE WHEN title_manual=1 THEN title ELSE ? END, updated=?, busy_until=0
                               WHERE id=? AND owner=? AND busy_until=?
                               AND NOT EXISTS (SELECT 1 FROM chat_trash WHERE chat_id=chats.id)""",
                            (json.dumps(turns, ensure_ascii=False), turns[0]["question"][:80], time.time(),
@@ -148,6 +152,37 @@ def get_chat(chat_id: str, request: Request):
         return dict(id=row["id"], title=row["title"], updated=row["updated"],
                     turns=json.loads(row["turns"]), busy=row["busy_until"] > time.time(),
                     folder_id=membership["folder_id"] if membership else None)
+
+
+def save_chat_title(history, owner, chat_id, title):
+    with history.connect() as db:
+        db.execute("BEGIN IMMEDIATE")
+        history.get(db, owner, chat_id)
+        db.execute("UPDATE chats SET title=?, title_manual=1 WHERE id=? AND owner=?", (title, chat_id, owner))
+    return dict(id=chat_id, title=title)
+
+
+@router.put("/{chat_id}/title")
+async def rename_chat(chat_id: str, request: Request):
+    history, owner = identity(request)
+    if request.headers.get("content-type", "").split(";")[0].strip().lower() != "application/json":
+        raise HTTPException(415, "Ожидается JSON.")
+    body = bytearray()
+    async for chunk in request.stream():
+        body.extend(chunk)
+        if len(body) > 4096:
+            raise HTTPException(413, "Слишком большой запрос.")
+    try:
+        data = json.loads(body)
+    except (ValueError, UnicodeDecodeError):
+        raise HTTPException(422, "Ожидается название диалога в JSON.") from None
+    title = data.get("title") if isinstance(data, dict) else None
+    if not isinstance(title, str) or any(ord(c) < 32 or 127 <= ord(c) <= 159 or 0xD800 <= ord(c) <= 0xDFFF for c in title):
+        raise HTTPException(422, "Укажите название без управляющих символов.")
+    title = title.strip()
+    if not 1 <= len(title) <= 80:
+        raise HTTPException(422, "Название должно содержать от 1 до 80 символов.")
+    return await run_in_threadpool(save_chat_title, history, owner, chat_id, title)
 
 
 @router.delete("/{chat_id}", status_code=204)

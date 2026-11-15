@@ -4,6 +4,7 @@
   let chatId = null, timer = null, controller = null, revision = 0;
   let snapshot = null, transcript = "", activityKey = "", nodes = [], scene = null;
   let submission = null, pendingSubmission = false, pollId = 0, waitingSignature = "";
+  let actionError = "", resumePending = false;
   const clearActivity = () => {
     if (scene) ArchiveScene.stop(scene);
     scene = null;
@@ -17,6 +18,7 @@
     controller?.abort();
     clearActivity();
     chatId = null; snapshot = null; transcript = ""; waitingSignature = "";
+    actionError = "";
     get("question-queue").hidden = true;
     get("queue-error").textContent = "";
     get("queue-list").replaceChildren();
@@ -68,18 +70,34 @@
     get("stop-generation").hidden = !active;
     get("stop-generation").disabled = active?.status === "cancelling";
     get("resume-queue").hidden = !data.paused || !!active;
+    const retry = !waiting.length && ["cancelled", "technical_error"].includes(data.turns.at(-1)?.answer.status);
+    get("resume-queue").textContent = retry ? "Повторить ответ" : "Продолжить очередь";
+    get("resume-queue").disabled = resumePending;
     const nextWaiting = JSON.stringify(waiting);
     if (nextWaiting === waitingSignature) return;
     waitingSignature = nextWaiting;
     const list = get("queue-list");
     list.replaceChildren();
-    for (const job of waiting) {
+    for (const [index, job] of waiting.entries()) {
       const row = document.createElement("li");
       const text = document.createElement("span"); text.textContent = job.question; text.title = job.question;
       const remove = document.createElement("button"); remove.type = "button"; remove.textContent = "Убрать";
       remove.setAttribute("aria-label", "Убрать из очереди: " + job.question);
       remove.addEventListener("click", () => action("/" + job.id, "DELETE"));
-      row.append(text, remove); list.append(row);
+      const controls = document.createElement("div"); controls.className = "queue-item-actions";
+      for (const [direction, label, disabled] of [["up", "↑ Выше", index === 0], ["down", "↓ Ниже", index === waiting.length - 1]]) {
+        const move = document.createElement("button"); move.type = "button"; move.textContent = label;
+        move.disabled = disabled;
+        move.setAttribute("aria-label", (direction === "up" ? "Выше: " : "Ниже: ") + job.question);
+        move.addEventListener("click", async () => {
+          move.disabled = true;
+          await action("/" + job.id + "/move/" + direction, "POST");
+          if (move.isConnected) move.disabled = disabled;
+        });
+        controls.append(move);
+      }
+      controls.append(remove);
+      row.append(text, controls); list.append(row);
     }
   }
   async function refresh() {
@@ -91,7 +109,7 @@
     try {
       const data = await request(id, "", "GET", null, AbortSignal.any([controller.signal, AbortSignal.timeout(10000)]));
       if (id !== chatId || version !== revision || ticket !== pollId) return;
-      get("queue-error").textContent = "";
+      get("queue-error").textContent = actionError;
       render(data);
     } catch (error) {
       if (version !== revision || id !== chatId || error.name === "AbortError") return;
@@ -127,18 +145,35 @@
   async function action(path, method) {
     const id = chatId;
     if (!id) return;
+    actionError = "";
     try {
       await request(id, path, method);
       if (chatId === id) await refresh();
     } catch (error) {
-      if (chatId === id) get("queue-error").textContent = error.message;
+      if (chatId === id) get("queue-error").textContent = actionError = error.message;
     }
   }
   get("stop-generation").addEventListener("click", () => {
     const active = snapshot?.jobs.find(job => ["running", "cancelling"].includes(job.status));
     if (active) action("/" + active.id, "DELETE");
   });
-  get("resume-queue").addEventListener("click", () => action("/resume", "POST"));
+  get("resume-queue").addEventListener("click", async () => {
+    if (resumePending) return;
+    const id = chatId, last = snapshot?.turns.at(-1);
+    resumePending = true;
+    get("resume-queue").disabled = true;
+    actionError = "";
+    try {
+      if (!snapshot?.jobs.length && last && ["cancelled", "technical_error"].includes(last.answer.status)) {
+        await submit(last.question, true);
+      } else await action("/resume", "POST");
+    } catch (error) {
+      if (chatId === id) get("queue-error").textContent = actionError = error.message;
+    } finally {
+      resumePending = false;
+      get("resume-queue").disabled = false;
+    }
+  });
   window.addEventListener("pagehide", detach);
   window.addEventListener("pageshow", event => { if (event.persisted && currentChat) attach({id: currentChat, turns: []}); });
   window.ChatQueue = {attach, detach, submit};

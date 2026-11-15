@@ -1,4 +1,5 @@
 import os
+import json
 from pathlib import Path
 from tempfile import TemporaryDirectory
 import unittest
@@ -109,3 +110,36 @@ class HistoryTests(unittest.TestCase):
         response, core = self.ask(chat_id)
         self.assertEqual(response.status_code, 413)
         core.assert_not_called()
+
+    def test_manual_title_survives_generation_restart_and_trash(self):
+        chat = self.create()
+        store = self.client.app.state.history
+        _, lease = store.begin("alice", chat)
+        response = self.client.put(f"/api/chats/{chat}/title", headers=self.headers, json={"title": "  Аренда склада  "})
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.json()["title"], "Аренда склада")
+        turns = [dict(question="Первый вопрос", answer=dict(status="answer", text="Ответ", sources=[]))]
+        store.finish("alice", chat, lease, turns)
+        reopened = History(self.path, "test-proxy-token")
+        with reopened.connect() as db:
+            self.assertEqual(reopened.get(db, "alice", chat)["title"], "Аренда склада")
+        self.assertEqual(self.ask(chat, "Ещё вопрос")[0].status_code, 200)
+        self.client.delete(f"/api/chats/{chat}", headers=self.headers)
+        self.assertEqual(self.client.get("/api/chats?trash=true", headers=self.headers).json()[0]["title"], "Аренда склада")
+        self.assertEqual(self.client.put(f"/api/chats/{chat}/title", headers=self.headers, json={"title": "Корзина"}).status_code, 404)
+        self.client.post(f"/api/chats/{chat}/restore", headers=self.headers)
+        data = self.client.get(f"/api/chats/{chat}", headers=self.headers).json()
+        self.assertEqual(data["title"], "Аренда склада")
+        self.assertEqual(len(data["turns"]), 2)
+
+    def test_rename_validation_and_owner_isolation(self):
+        chat = self.create()
+        url = f"/api/chats/{chat}/title"
+        for headers, status in [({}, 401), ({**self.headers, "X-Chat-User": "bob"}, 404)]:
+            self.assertEqual(self.client.put(url, headers=headers, json={"title": "Чужой"}).status_code, status)
+        for title in [None, 42, "", "   ", "x" * 81, "a\nb", "a\x7fb", "\ud800"]:
+            self.assertEqual(self.client.put(url, headers=self.headers, content=json.dumps({"title": title})).status_code, 422)
+        self.assertEqual(self.client.put(url, headers=self.headers, content="[").status_code, 422)
+        self.assertEqual(self.client.put(url, headers=self.headers, content="x" * 4097).status_code, 413)
+        self.assertEqual(self.client.put(url, headers={**self.headers, "Content-Type": "text/plain"}, content='{}').status_code, 415)
+        self.assertEqual(self.client.get(f"/api/chats/{chat}", headers=self.headers).json()["title"], "Новый диалог")

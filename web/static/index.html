@@ -134,6 +134,15 @@
       <div class="history-dialog-actions"><button id="save-chat-folder" type="submit">Сохранить</button><button id="cancel-chat-folder" type="button">Отмена</button><button id="delete-chat-folder" type="button" hidden>Удалить папку</button></div>
     </form>
   </dialog>
+  <dialog id="rename-dialog" class="history-dialog" aria-labelledby="rename-dialog-title">
+    <form id="rename-form">
+      <h2 id="rename-dialog-title">Переименовать диалог</h2>
+      <label for="chat-name">Название диалога</label>
+      <input id="chat-name" required maxlength="80" autocomplete="off">
+      <p id="rename-error" role="alert"></p>
+      <div class="history-dialog-actions"><button id="save-chat-name" type="submit">Сохранить</button><button id="cancel-chat-name" type="button">Отмена</button></div>
+    </form>
+  </dialog>
   <dialog id="move-dialog" class="history-dialog" aria-labelledby="move-dialog-title">
     <form id="move-form">
       <h2 id="move-dialog-title">Переместить чат</h2>

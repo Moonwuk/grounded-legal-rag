@@ -219,7 +219,7 @@ async function folderRequest(path = "", method = "GET", body) {
     ...(body === undefined ? {} : {body: JSON.stringify(body)}), signal: AbortSignal.timeout(10000)});
   if (!response.ok) {
     const data = await response.json().catch(() => ({}));
-    throw new Error(typeof data.detail === "string" ? data.detail : "Не удалось изменить папку. Обновите список и повторите.");
+    throw new Error(typeof data.detail === "string" ? data.detail : "Не удалось сохранить изменения. Обновите список и повторите.");
   }
   return response.status === 204 ? null : response.json();
 }
@@ -354,6 +354,41 @@ byId("cancel-chat-move").addEventListener("click", () => byId("move-dialog").clo
 for (const id of ["folder-dialog", "move-dialog"]) byId(id).addEventListener("cancel", event => { if (folderSaving) event.preventDefault(); });
 let historyEnabled = false;
 let navigating = false;
+let renamingChat = null, renameSaving = false;
+
+function editChatTitle(chat) {
+  renamingChat = chat.id;
+  byId("chat-name").value = chat.title;
+  byId("rename-error").textContent = "";
+  byId("rename-dialog").showModal();
+  byId("chat-name").focus();
+  byId("chat-name").select();
+}
+byId("rename-form").addEventListener("submit", async event => {
+  event.preventDefault();
+  if (renameSaving) return;
+  renameSaving = true;
+  for (const id of ["chat-name", "save-chat-name", "cancel-chat-name"]) byId(id).disabled = true;
+  byId("rename-error").textContent = "";
+  try {
+    const result = await folderRequest("/chats/" + renamingChat + "/title", "PUT", {title: byId("chat-name").value.trim()});
+    const chat = savedChats.find(item => item.id === result.id);
+    if (chat) chat.title = result.title;
+    byId("rename-dialog").close();
+    byId("history-status").textContent = "Название сохранено";
+  } catch (error) {
+    byId("rename-error").textContent = error.message;
+  } finally {
+    renameSaving = false;
+    for (const id of ["chat-name", "save-chat-name", "cancel-chat-name"]) byId(id).disabled = false;
+    if (!byId("rename-dialog").open) {
+      renderHistory();
+      byId("chat-list").querySelector('[data-chat-id="' + renamingChat + '"] .chat-rename')?.focus();
+    }
+  }
+});
+byId("cancel-chat-name").addEventListener("click", () => byId("rename-dialog").close());
+byId("rename-dialog").addEventListener("cancel", event => { if (renameSaving) event.preventDefault(); });
 
 function rememberChat() {
   try {
@@ -441,7 +476,16 @@ function renderHistory() {
       });
     });
     if (inTrash) row.append(button, move, remove);
-    else row.append(button, remove, move);
+    else {
+      const rename = document.createElement("button");
+      rename.type = "button";
+      rename.className = "chat-rename";
+      rename.textContent = "Переименовать";
+      rename.setAttribute("aria-label", "Переименовать диалог: " + chat.title);
+      rename.disabled = navigating || renameSaving;
+      rename.addEventListener("click", () => editChatTitle(chat));
+      row.append(button, rename, move, remove);
+    }
     chatList.append(row);
   }
 }
@@ -713,7 +757,7 @@ function renderAnswer(node, answer, retry) {
     button.addEventListener("click", () => openDocument(source.document_id, source));
     node.body.append(button);
   }
-  if (answer.status === "technical_error" && !missingModel) {
+  if ((answer.status === "technical_error" && !missingModel) || answer.status === "cancelled") {
     const button = document.createElement("button");
     button.type = "button";
     button.textContent = "Повторить";

@@ -277,7 +277,7 @@ test("server history restores citations after a new browser and sends only the c
   assert.notEqual(second.requests[0].chat_id, "first");
   second.reply({status: "answer", text: "Другой ответ", sources: []}); await newRequest;
   const row = second.get("chat-list").children[0];
-  row.children[1].events.click(); await new Promise(resolve => setImmediate(resolve));
+  row.children.find(n => n.className === "chat-delete").events.click(); await new Promise(resolve => setImmediate(resolve));
   assert.equal(saved.length, 1);
   assert.equal(second.get("welcome").hidden, false);
 });
@@ -309,7 +309,7 @@ test("trash keeps deleted chats out of active folders, restores sources, and exp
   ]}];
   const h = harness(saved); await h.ready;
   const settle = () => new Promise(resolve => setImmediate(resolve));
-  h.get("chat-list").children[0].children[1].events.click(); await settle();
+  h.get("chat-list").children[0].children.find(n => n.className === "chat-delete").events.click(); await settle();
   assert.equal(saved.length, 0);
   h.get("folder-list").children.at(-1).events.click();
   let row = h.get("chat-list").children[0];
@@ -319,7 +319,7 @@ test("trash keeps deleted chats out of active folders, restores sources, and exp
   row.children[1].events.click(); await settle();
   assert.equal(saved.length, 1);
   assert.ok(h.get("conversation").children.find(n => n.dataset.status === "answer"));
-  h.get("chat-list").children[0].children[1].events.click(); await settle();
+  h.get("chat-list").children[0].children.find(n => n.className === "chat-delete").events.click(); await settle();
   h.get("folder-list").children.at(-1).events.click();
   row = h.get("chat-list").children[0];
   row.children[2].events.click(); await settle();
