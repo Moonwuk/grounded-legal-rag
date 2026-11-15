@@ -3,6 +3,10 @@
 (() => {
   const get = id => document.getElementById(id);
   const fieldNames = {contract: "Договор", counterparty: "Контрагент", event_date: "Дата события", amount: "Сумма", situation: "Обстоятельства"};
+  // The user's own work state; none of these labels claims that the answer is correct.
+  const reviewLabels = {"": "Не проверено мной", sources_viewed: "Источники просмотрены", needs_check: "Нужна дополнительная проверка"};
+  const noReview = {state: "", updated: null, revision: 0};
+  const shortTime = seconds => new Date(seconds * 1000).toLocaleString("ru-RU", {dateStyle: "short", timeStyle: "short"});
   let bridge, activeId = null, data = null, generation = 0, refreshVersion = 0, bindings = [], renderedCount = 0;
   let draft = null, draftTimer, typingVersion = 0, enabled = false, activityTimer, unread = new Set();
   let noteTarget = null, questionTarget = null, saved = [], displayedDocument = null, passage = null;
@@ -10,7 +14,7 @@
 
   async function request(path, method = "GET", body) {
     const response = await fetch("/api/workspace" + path, {method, headers: {"Content-Type": "application/json"},
-      ...(body === undefined ? {} : {body: JSON.stringify(body)}), signal: AbortSignal.timeout(10000), keepalive: method === "PUT"});
+      ...(body === undefined ? {} : {body: JSON.stringify(body)}), signal: AbortSignal.timeout(10000), keepalive: method === "PUT" && !path.endsWith("/checklist") && path !== "/searches"});
     if (!response.ok) {
       const result = await response.json().catch(() => ({}));
       const error = new Error(typeof result.detail === "string" ? result.detail : "Не удалось сохранить изменения. Попробуйте ещё раз.");
@@ -69,7 +73,7 @@
   function detach() {
     generation++; refreshVersion++; clearTimeout(draftTimer);
     activeId = null; data = null; draft = null; bindings = []; renderedCount = 0;
-    get("open-matter").disabled = true; get("parent-dialogue").hidden = true;
+    get("open-matter").disabled = true; get("parent-dialogue").hidden = true; get("open-brief").disabled = true;
     get("matter-summary").textContent = ""; showDraftStatus();
   }
   async function open(id, preservedText) {
@@ -96,14 +100,14 @@
       drafts.set(draft.id, draft);
       get("question").value = draft.text;
       globalThis.MobileLayout?.resizeInput();
-      get("open-matter").disabled = false;
+      get("open-matter").disabled = false; get("open-brief").disabled = !id;
       showDraftStatus(draft.conflict ? "Есть другая версия черновика" : draft.text ? "Черновик сохранён на сервере" : "");
       reflectMatter(); updateBindings();
       if (draft.dirty && !draft.conflict) await flushDraft();
     } catch (error) {
       if (generation === token) {
         showDraftStatus(error.message + " Нажмите «Обновить список».");
-        get("open-matter").disabled = true;
+        get("open-matter").disabled = true; get("open-brief").disabled = true;
       }
     }
   }
@@ -143,8 +147,10 @@
     const binding = {chat: activeId, index, turn, node, info: null};
     const edit = button("Изменить вопрос", () => editQuestion(binding, false), "edit-question");
     globalThis.WebIcons?.set(edit, "edit");
+    const template = button("Сохранить как шаблон", () => globalThis.QuestionTemplates?.saveQuestion(turn.question), "template-question");
+    globalThis.WebIcons?.set(template, "template");
     const questionActions = document.createElement("div"); questionActions.className = "question-workspace-actions";
-    questionActions.append(edit); userNode.append(questionActions);
+    questionActions.append(edit, template); userNode.append(questionActions);
     const actions = document.createElement("div"); actions.className = "answer-workspace-actions";
     const star = button("☆ Сохранить", () => toggleSaved(binding), "save-answer");
     const note = button("Заметка", () => editNote(binding), "note-answer");
@@ -152,9 +158,27 @@
     globalThis.WebIcons?.set(branch, "branch", undefined, false);
     const preview = document.createElement("p"); preview.className = "answer-note-preview"; preview.hidden = true;
     const error = document.createElement("p"); error.className = "answer-workspace-error"; error.setAttribute("role", "status");
-    if (!["technical_error", "cancelled"].includes(turn.answer.status)) actions.append(star, note);
-    actions.append(branch); node.body.append(actions, preview, error);
-    Object.assign(binding, {edit, star, note, branch, preview, error}); bindings.push(binding); updateBinding(binding);
+    const finished = !["technical_error", "cancelled"].includes(turn.answer.status);
+    if (finished) actions.append(star, note);
+    const review = finished ? reviewControl(binding, !!turn.answer.sources?.length) : null;
+    actions.append(branch); node.body.append(actions, ...(review ? [review.root] : []), preview, error);
+    Object.assign(binding, {edit, star, note, branch, preview, error, review}); bindings.push(binding); updateBinding(binding);
+  }
+  function reviewControl(binding, hasSources) {
+    const root = document.createElement("div"); root.className = "answer-review";
+    const label = document.createElement("label");
+    const caption = document.createElement("span"); caption.textContent = "Моя проверка";
+    const select = document.createElement("select"); select.className = "review-select";
+    for (const [value, text] of Object.entries(reviewLabels)) {
+      const option = new Option(text, value);
+      // "Sources viewed" is offered only where the answer has sources to view.
+      if (value === "sources_viewed" && !hasSources) { option.disabled = true; option.textContent = text + " — у ответа нет источников"; }
+      select.append(option);
+    }
+    const date = document.createElement("small"); date.className = "review-date";
+    label.append(caption, select); root.append(label, date);
+    select.addEventListener("change", () => setReview(binding, select.value));
+    return {root, select, date, saving: false};
   }
   function updateBinding(binding) {
     if (binding.chat !== activeId) return;
@@ -168,13 +192,35 @@
     globalThis.WebIcons?.set(binding.note, "note", undefined, false);
     binding.preview.textContent = info?.note ? "Ваша заметка: " + info.note : "";
     binding.preview.hidden = !info?.note;
+    if (binding.review) {
+      const review = info?.review || noReview;
+      binding.review.select.disabled = !info || binding.review.saving;
+      if (!binding.review.saving) binding.review.select.value = review.state;
+      binding.review.root.dataset.state = review.state || "none";
+      binding.review.date.textContent = review.state && review.updated ? "Ваша отметка · " + shortTime(review.updated) : "";
+    }
   }
   function updateBindings() { for (const binding of bindings) updateBinding(binding); }
   async function writeAnnotation(target, savedValue, noteValue) {
     const result = await request(pathFor(target.chat) + "/answers/" + target.index, "PUT",
       {revision: target.info.revision, turn_key: target.info.turn_key, saved: savedValue, note: noteValue});
     refreshVersion++;
-    if (target.chat === activeId && data) { data.answers[target.index] = result; updateBindings(); }
+    // Keep the separate review mark when the annotation response replaces saved/note.
+    if (target.chat === activeId && data) { data.answers[target.index] = {...data.answers[target.index], ...result}; updateBindings(); }
+  }
+  async function setReview(target, state) {
+    if (!target.info || target.review.saving) return;
+    const current = target.info.review || noReview;
+    target.review.saving = true; target.review.select.disabled = true; target.error.textContent = "";
+    try {
+      const result = await request(pathFor(target.chat) + "/answers/" + target.index + "/review", "PUT",
+        {revision: current.revision, turn_key: target.info.turn_key, state});
+      refreshVersion++;
+      if (target.chat === activeId && data?.answers[target.index]?.turn_key === result.turn_key) {
+        data.answers[target.index] = {...data.answers[target.index], review: {state: result.state, updated: result.updated, revision: result.revision}};
+      }
+    } catch (error) { target.error.textContent = error.message; await refresh(); }
+    finally { target.review.saving = false; if (target.chat === activeId) updateBindings(); }
   }
   async function toggleSaved(target) {
     if (!target.info || target.star.disabled) return;
@@ -195,6 +241,8 @@
     if (!target.info) return;
     questionTarget = {type: "branch", chat: target.chat, index: target.index, key: target.info.turn_key,
       includeAnswer, id: crypto.randomUUID()};
+    get("copy-branch-checklist-label").hidden = false;
+    get("copy-branch-checklist").checked = false;
     get("question-dialog-title").textContent = includeAnswer ? "Продолжить в новой ветке" : "Изменить вопрос в новой ветке";
     get("question-edit-help").textContent = includeAnswer ? "Ветка сохранит историю до этого ответа. Следующий вопрос можно отправить после её создания." :
       "В новой ветке останутся предыдущие сообщения и ваш исправленный вопрос в поле ввода. Исходный диалог сохранится целиком.";
@@ -205,6 +253,7 @@
   }
   function editQueued(chat, job) {
     questionTarget = {type: "queue", chat, job: job.id, expected: job.question};
+    get("copy-branch-checklist-label").hidden = true;
     get("question-dialog-title").textContent = "Изменить вопрос в очереди";
     get("question-edit-help").textContent = "Изменение доступно, пока вопрос ожидает обработки. Его место в очереди сохранится.";
     get("question-edit-text").value = job.question; get("save-question-edit").textContent = "Сохранить вопрос";
@@ -215,6 +264,10 @@
     if (value.length > 10000) throw new Error("Вопрос получился длиннее 10 000 символов. Сократите черновик или выделенный фрагмент.");
     get("question").value = value; captureDraft(); globalThis.MobileLayout?.resizeInput();
   }
+  function replaceText(text) {
+    if (text.length > 10000) throw new Error("Вопрос получился длиннее 10 000 символов. Сократите текст.");
+    get("question").value = text; captureDraft(); globalThis.MobileLayout?.resizeInput();
+  }
   async function showSaved() {
     get("saved-dialog").showModal(); get("saved-status").textContent = "Загружаем…";
     get("saved-answers").replaceChildren();
@@ -223,10 +276,12 @@
   }
   function renderSaved() {
     const query = get("saved-search").value.trim().toLocaleLowerCase("ru");
-    const filter = get("saved-filter").value;
+    const filter = get("saved-filter").value, reviewFilter = get("saved-review").value;
     const visible = saved.filter(item => (filter !== "saved" || item.saved) && (filter !== "notes" || item.note) &&
+      (reviewFilter === "any" || (item.review?.state || "") === reviewFilter) &&
       [item.title, item.question, item.answer.text, item.note].join("\n").toLocaleLowerCase("ru").includes(query));
-    get("saved-status").textContent = visible.length ? "Найдено: " + visible.length : "Пока ничего нет. Сохраните ответ или добавьте заметку в диалоге.";
+    get("saved-status").textContent = visible.length ? "Найдено: " + visible.length : saved.length ? "Ничего не найдено. Измените поиск или фильтры." :
+      "Пока ничего нет. Сохраните ответ, добавьте заметку или свою отметку проверки в диалоге.";
     const host = get("saved-answers"); host.replaceChildren();
     for (const item of visible) {
       const card = document.createElement("article"); card.className = "saved-answer";
@@ -235,6 +290,11 @@
       const preview = document.createElement("p"); preview.className = "saved-preview"; preview.textContent = item.answer.text;
       card.append(meta, title, preview);
       if (item.note) { const note = document.createElement("p"); note.className = "answer-note-preview"; note.textContent = "Ваша заметка: " + item.note; card.append(note); }
+      if (item.review?.state) {
+        const mark = document.createElement("p"); mark.className = "saved-review"; mark.dataset.state = item.review.state;
+        mark.textContent = "Ваша отметка: " + reviewLabels[item.review.state] + (item.review.updated ? " · " + shortTime(item.review.updated) : "");
+        card.append(mark);
+      }
       const actions = document.createElement("div"); actions.className = "answer-workspace-actions";
       actions.append(button("Открыть ответ и источники", async () => {
         try {
@@ -270,6 +330,7 @@
   }
   function setEnabled(value) {
     enabled = value; get("open-saved").disabled = !value;
+    globalThis.WorkspaceTools?.setEnabled(value);
     if (value) pollActivity(); else clearTimeout(activityTimer);
   }
   function readingPositions() {
@@ -288,7 +349,8 @@
     rememberPosition(); displayedDocument = null; passage = null;
     get("document-workspace-actions").hidden = true; get("ask-selection").disabled = true;
   }
-  function documentOpened(id, doc, hasSource) {
+  function documentOpened(id, doc, hasSource, manual) {
+    if (manual) globalThis.WorkspaceTools?.rememberDocument(id);
     displayedDocument = {id, ...doc}; passage = null;
     get("document-workspace-actions").hidden = false;
     get("selection-status").textContent = "Выделите фрагмент текста.";
@@ -317,6 +379,12 @@
   }
   function init(api) {
     bridge = api;
+    globalThis.WorkspaceTools?.init(api, request, button, key => {
+      const info = data?.answers.find(answer => answer.turn_key === key && answer.saved);
+      const binding = info && bindings.find(item => item.index === info.turn_index);
+      if (!binding) throw new Error("Связанный ответ недоступен. Обновите диалог.");
+      return binding.node.item;
+    });
     for (const node of document.querySelectorAll("[data-close]")) node.addEventListener("click", () => {
       const dialog = get(node.dataset.close); if (dialog.dataset.saving !== "true") dialog.close();
     });
@@ -324,6 +392,7 @@
     get("question").addEventListener("input", captureDraft);
     get("open-saved").addEventListener("click", showSaved);
     get("saved-search").addEventListener("input", renderSaved); get("saved-filter").addEventListener("change", renderSaved);
+    get("saved-review").addEventListener("change", renderSaved);
     get("parent-dialogue").addEventListener("click", async () => {
       try { if (data?.parent) await bridge.openChat(data.parent.id); }
       catch (error) { get("input-error").textContent = error.message; }
@@ -336,6 +405,7 @@
         for (const name of Object.keys(fieldNames)) form.elements[name].value = data.matter[name] || "";
         form.dataset.revision = data.matter_revision; form.dataset.chat = activeId;
         get("matter-error").textContent = ""; get("matter-dialog").showModal(); form.elements.contract.focus();
+        globalThis.WorkspaceTools?.openChecklist(activeId);
       } catch (error) { get("input-error").textContent = error.message; }
     });
     get("matter-form").addEventListener("submit", async event => {
@@ -372,9 +442,12 @@
           await globalThis.ChatQueue?.refresh(); dialog.close();
         } else {
           await leave();
-          if (target.submittedText !== undefined && target.submittedText !== text) target.id = crypto.randomUUID();
+          const copyChecklist = get("copy-branch-checklist").checked;
+          if (target.submittedText !== undefined && (target.submittedText !== text || target.copyChecklist !== copyChecklist))
+            target.id = crypto.randomUUID();
+          target.copyChecklist = copyChecklist;
           target.submittedText = text;
-          const result = await request(pathFor(target.chat) + "/branch", "POST", {id: target.id, index: target.index, turn_key: target.key, include_answer: target.includeAnswer, draft: text});
+          const result = await request(pathFor(target.chat) + "/branch", "POST", {id: target.id, index: target.index, turn_key: target.key, include_answer: target.includeAnswer, draft: text, ...(copyChecklist ? {copy_checklist: true} : {})});
           await bridge.openChat(result.id); dialog.close(); get("question").focus();
         }
       } catch (error) { get("question-edit-error").textContent = error.message; }
@@ -417,5 +490,6 @@
     window.addEventListener("pagehide", () => { captureDraft(); flushDraft().catch(() => {}); rememberPosition(); });
   }
   window.WebWorkspace = {init, open, detach, leave, clearNewDraft, captureDraft, flushDraft, refresh, beginTurns,
-    addTurn, setEnabled, decorateHistory, editQueued, beforeDocument, documentOpened};
+    addTurn, setEnabled, decorateHistory, editQueued, beforeDocument, documentOpened, insertText, replaceText,
+    chatId: () => activeId, isEnabled: () => enabled, reviewLabels};
 })();

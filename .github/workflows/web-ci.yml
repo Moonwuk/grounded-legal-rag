@@ -38,11 +38,14 @@ jobs:
           node --check web/static/app.js
           node --check web/static/appearance.js
           node --check web/static/workspace.js
+          node --check web/static/workspace-tools.js
           node --check web/static/icons.js
           node --check web/static/queue-ui.js
           node --check web/static/vendor/sl-ui/send/buttons.js
           node --check web/static/mobile-layout.js
           node --check web/static/archive-scene.js
+          node --check web/static/question-templates.js
+          node --check web/static/answer-briefs.js
           node --test web/tests/archive-scene.test.cjs
       - name: Parse PowerShell deployment scripts
         shell: pwsh

@@ -8,6 +8,8 @@
 !web/chat_folders.py
 !web/queue.py
 !web/generation.py
+!web/answer_briefs.py
+!web/question_templates.py
 !web/__init__.py
 !web/requirements.txt
 !web/static/

@@ -111,3 +111,27 @@ button.icon-only { width: 38px; min-width: 38px; min-height: 38px; padding: .35r
   .workspace { grid-template-columns: clamp(190px, 12rem, 264px) minmax(0, 1fr) 300px; }
   .workspace.documents-collapsed { grid-template-columns: clamp(190px, 12rem, 264px) minmax(0, 1fr); }
 }
+
+.catalog-tools {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: start;
+  gap: .35rem .65rem;
+  padding: .4rem .75rem;
+  border-bottom: 1px solid var(--line);
+}
+.catalog-tools[hidden] { display: none; }
+.catalog-tools summary, .matter-tasks summary { cursor: pointer; padding: .35rem 0; }
+.catalog-tools details, .workspace-tool-list li { min-width: 0; overflow-wrap: anywhere; }
+.catalog-tools details[open] { flex-basis: 100%; }
+#recent-documents-list { max-height: 7.5rem; overflow: auto; }
+.workspace-tool-list { list-style: none; margin: .4rem 0; padding: 0; }
+.workspace-tool-list li { padding: .45rem 0; border-top: 1px solid var(--line); }
+.workspace-tool-list button { text-align: left; white-space: normal; overflow-wrap: anywhere; }
+.workspace-tool-actions { display: flex; flex-wrap: wrap; align-items: center; gap: .35rem; margin-block: .25rem; }
+.matter-tasks { margin-top: .75rem; padding-top: .4rem; border-top: 1px solid var(--line); }
+.matter-tasks #checklist-count { font-size: .85em; font-weight: normal; }
+.workspace-task-comment { margin: .2rem 0; white-space: pre-wrap; }
+.workspace-dialog .workspace-check-option { display: flex; align-items: start; gap: .45rem; }
+.workspace-dialog .workspace-check-option input { width: auto; flex: none; margin-top: .2em; }
+.workspace-check-option[hidden] { display: none; }
