@@ -205,6 +205,151 @@ byId("delete-doc-tab").addEventListener("click", () => saveTab(true));
 byId("tab-dialog").addEventListener("cancel", event => { if (savingTab) event.preventDefault(); });
 let currentChat = null;
 let savedChats = [];
+let chatFolders = [];
+let selectedFolder = "all";
+let foldersEnabled = false;
+let editingFolder = null;
+let movingChat = null;
+let folderSaving = false;
+
+async function folderRequest(path = "", method = "GET", body) {
+  const response = await fetch("/api" + path, {method, headers: {"Content-Type": "application/json"},
+    ...(body === undefined ? {} : {body: JSON.stringify(body)}), signal: AbortSignal.timeout(10000)});
+  if (!response.ok) {
+    const data = await response.json().catch(() => ({}));
+    throw new Error(typeof data.detail === "string" ? data.detail : "Не удалось изменить папку. Обновите список и повторите.");
+  }
+  return response.status === 204 ? null : response.json();
+}
+async function loadFolders() {
+  try {
+    chatFolders = await folderRequest("/chat-folders");
+    foldersEnabled = true;
+    byId("folder-status").textContent = "";
+  } catch (error) {
+    byId("folder-status").textContent = error.message;
+  }
+}
+function chatsInFolder(id) {
+  return savedChats.filter(chat => id === "all" || (id === "unfiled" ? !chat.folder_id : chat.folder_id === id));
+}
+function renderFolders() {
+  if (!["all", "unfiled"].includes(selectedFolder) && !chatFolders.some(f => f.id === selectedFolder)) selectedFolder = "all";
+  const host = byId("folder-list");
+  host.replaceChildren();
+  const folders = [{id: "all", title: "Все чаты"}, {id: "unfiled", title: "Без папки"}, ...chatFolders];
+  for (const folder of folders) {
+    const button = document.createElement("button");
+    button.type = "button";
+    button.className = "folder-select";
+    button.dataset.folderId = folder.id;
+    button.title = folder.title;
+    button.setAttribute("aria-current", String(selectedFolder === folder.id));
+    const title = document.createElement("span");
+    title.textContent = folder.title;
+    const count = document.createElement("small");
+    count.textContent = chatsInFolder(folder.id).length;
+    button.append(title, count);
+    button.addEventListener("click", () => {
+      selectedFolder = folder.id;
+      renderHistory();
+      byId("folder-list").querySelector('[data-folder-id="' + folder.id + '"]')?.focus();
+    });
+    host.append(button);
+  }
+  byId("create-chat-folder").disabled = !foldersEnabled || folderSaving;
+  byId("edit-chat-folder").hidden = ["all", "unfiled"].includes(selectedFolder);
+  byId("new-folder-chat").disabled = !historyEnabled || busy || navigating;
+  byId("new-folder-chat").textContent = ["all", "unfiled"].includes(selectedFolder) ? "+ Новый диалог" : "+ Диалог в этой папке";
+}
+function editFolder(folder = null) {
+  editingFolder = folder;
+  byId("folder-dialog-title").textContent = folder ? "Изменить папку" : "Создать папку";
+  byId("folder-name").value = folder?.title || "";
+  byId("folder-error").textContent = "";
+  byId("delete-chat-folder").hidden = !folder;
+  byId("folder-dialog").showModal();
+  byId("folder-name").focus();
+}
+function folderPending(pending) {
+  folderSaving = pending;
+  for (const id of ["save-chat-folder", "cancel-chat-folder", "delete-chat-folder", "save-chat-move", "cancel-chat-move"]) byId(id).disabled = pending;
+}
+async function saveFolder(remove = false) {
+  if (folderSaving) return;
+  if (remove && !confirm("Удалить папку «" + editingFolder.title + "»? Чаты сохранятся в разделе «Без папки».")) return;
+  folderPending(true);
+  byId("folder-error").textContent = "";
+  try {
+    const folder = await folderRequest("/chat-folders" + (editingFolder ? "/" + editingFolder.id : ""),
+      remove ? "DELETE" : editingFolder ? "PUT" : "POST", remove ? undefined : {title: byId("folder-name").value.trim()});
+    if (remove) {
+      savedChats.forEach(chat => { if (chat.folder_id === editingFolder.id) chat.folder_id = null; });
+      chatFolders = chatFolders.filter(item => item.id !== editingFolder.id);
+      selectedFolder = "unfiled";
+    } else {
+      const index = chatFolders.findIndex(item => item.id === folder.id);
+      if (index === -1) chatFolders.push(folder); else chatFolders[index] = folder;
+      selectedFolder = folder.id;
+    }
+    byId("folder-status").textContent = remove ? "Папка удалена. Чаты сохранены." : "";
+    byId("folder-dialog").close();
+    renderHistory();
+  } catch (error) {
+    byId("folder-error").textContent = error.message;
+  } finally {
+    folderPending(false);
+    renderHistory();
+    if (!byId("folder-dialog").open && !byId("move-dialog").open) {
+      byId("folder-list").querySelector('[data-folder-id="' + selectedFolder + '"]')?.focus();
+    }
+  }
+}
+function editChatFolder(chat) {
+  movingChat = chat;
+  byId("move-chat-title").textContent = chat.title;
+  byId("move-error").textContent = "";
+  const select = byId("move-folder");
+  select.replaceChildren();
+  for (const folder of [{id: "", title: "Без папки"}, ...chatFolders]) {
+    const option = document.createElement("option");
+    option.value = folder.id;
+    option.textContent = folder.title;
+    select.append(option);
+  }
+  select.value = chat.folder_id || "";
+  byId("move-dialog").showModal();
+  select.focus();
+}
+async function saveChatMove() {
+  if (folderSaving) return;
+  folderPending(true);
+  try {
+    const result = await folderRequest("/chats/" + movingChat.id + "/folder", "PUT", {folder_id: byId("move-folder").value || null});
+    const chat = savedChats.find(item => item.id === result.id);
+    if (chat) chat.folder_id = result.folder_id;
+    byId("move-dialog").close();
+    renderHistory();
+    byId("folder-status").textContent = "Чат перемещён в «" + (chatFolders.find(f => f.id === result.folder_id)?.title || "Без папки") + "».";
+  } catch (error) {
+    byId("move-error").textContent = error.message;
+  } finally {
+    folderPending(false);
+    renderHistory();
+    if (!byId("folder-dialog").open && !byId("move-dialog").open) {
+      byId("folder-list").querySelector('[data-folder-id="' + selectedFolder + '"]')?.focus();
+    }
+  }
+}
+byId("new-folder-chat").addEventListener("click", () => reset.click());
+byId("create-chat-folder").addEventListener("click", () => editFolder());
+byId("edit-chat-folder").addEventListener("click", () => editFolder(chatFolders.find(f => f.id === selectedFolder)));
+byId("folder-form").addEventListener("submit", event => { event.preventDefault(); saveFolder(); });
+byId("delete-chat-folder").addEventListener("click", () => saveFolder(true));
+byId("cancel-chat-folder").addEventListener("click", () => byId("folder-dialog").close());
+byId("move-form").addEventListener("submit", event => { event.preventDefault(); saveChatMove(); });
+byId("cancel-chat-move").addEventListener("click", () => byId("move-dialog").close());
+for (const id of ["folder-dialog", "move-dialog"]) byId(id).addEventListener("cancel", event => { if (folderSaving) event.preventDefault(); });
 let historyEnabled = false;
 let navigating = false;
 
@@ -229,10 +374,14 @@ async function historyRequest(path = "", method = "GET") {
 }
 
 function renderHistory() {
+  renderFolders();
   const chatList = byId("chat-list");
   chatList.replaceChildren();
-  for (const chat of savedChats) {
+  const visibleChats = chatsInFolder(selectedFolder);
+  byId("folder-empty").hidden = !historyEnabled || !!visibleChats.length;
+  for (const chat of visibleChats) {
     const row = document.createElement("li");
+    row.dataset.chatId = chat.id;
     if (chat.id === currentChat) row.setAttribute("aria-current", "true");
     const button = document.createElement("button");
     button.type = "button";
@@ -262,7 +411,14 @@ function renderHistory() {
         savedChats = await historyRequest();
       });
     });
-    row.append(button, remove);
+    const move = document.createElement("button");
+    move.type = "button";
+    move.className = "chat-move";
+    move.textContent = "В папку";
+    move.setAttribute("aria-label", "Переместить диалог: " + chat.title);
+    move.disabled = !foldersEnabled || folderSaving;
+    move.addEventListener("click", () => editChatFolder(chat));
+    row.append(button, remove, move);
     chatList.append(row);
   }
 }
@@ -335,6 +491,7 @@ async function loadHistory() {
   try {
     savedChats = await historyRequest();
     historyEnabled = true;
+    await loadFolders();
     let selected;
     try { selected = localStorage.getItem("psb-current-chat"); } catch { /* Optional selection only. */ }
     const chat = savedChats.find(item => item.id === (currentChat || selected)) || savedChats[0];
@@ -639,7 +796,8 @@ const sendController = SLComponent.mount(send.closest(".sl-component"), {
       navigating = true;
       reset.disabled = true;
       try {
-        const chat = await historyRequest("", "POST");
+        const folderPath = ["all", "unfiled"].includes(selectedFolder) ? "" : "?folder_id=" + encodeURIComponent(selectedFolder);
+        const chat = await historyRequest(folderPath, "POST");
         currentChat = chat.id;
         rememberChat();
         savedChats.unshift(chat);

@@ -14,6 +14,7 @@ const fs = require('node:fs');
   const page = await context.newPage();
   const errors = []; page.on('pageerror', error => errors.push(error.message));
   let tabs = [], savedIds = [];
+  await page.route("**/api/chat-folders", route => route.fulfill({json: []}));
   await page.route('**/api/document-tabs**', async route => {
     const method = route.request().method();
     if (method === 'GET') return route.fulfill({json: tabs});

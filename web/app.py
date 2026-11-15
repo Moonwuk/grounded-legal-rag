@@ -16,6 +16,7 @@ from pydantic import BaseModel, Field, ValidationError
 from starlette.concurrency import run_in_threadpool
 from web.history import History, identity, router as history_router
 from web.document_tabs import router as document_tabs_router
+from web.chat_folders import router as chat_folders_router
 
 ROOT = Path(__file__).resolve().parents[1]
 STATIC = Path(__file__).with_name("static")
@@ -67,12 +68,13 @@ app = FastAPI(title="Юридический ассистент", lifespan=lifesp
               docs_url=None, redoc_url=None, openapi_url=None)
 app.include_router(history_router)
 app.include_router(document_tabs_router)
+app.include_router(chat_folders_router)
 
 
 @app.middleware("http")
 async def private_chat_responses(request: Request, call_next):
     response = await call_next(request)
-    if request.url.path == "/api/chat" or request.url.path.startswith(("/api/chats", "/api/document-tabs")):
+    if request.url.path == "/api/chat" or request.url.path.startswith(("/api/chats", "/api/chat-folders", "/api/document-tabs")):
         response.headers["Cache-Control"] = "private, no-store"
     return response
 

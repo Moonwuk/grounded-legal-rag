@@ -41,7 +41,7 @@ class Element {
     return new Element();
   }
 }
-function harness(saved = null, documents = [], tabs = []) {
+function harness(saved = null, documents = [], tabs = [], folders = []) {
   const requests = [];
   const storage = new Map();
   const ids = new Map();
@@ -83,6 +83,7 @@ function harness(saved = null, documents = [], tabs = []) {
         }
         return ok(id ? saved.find(c => c.id === id) : saved);
       }
+      if (url === "/api/chat-folders") return ok(folders);
       if (url === "/api/documents") return ok(documents);
       if (url === "/api/document-tabs") return ok(tabs);
       return ok([]);
@@ -270,4 +271,25 @@ test("server history restores citations after a new browser and sends only the c
   row.children[1].events.click(); await new Promise(resolve => setImmediate(resolve));
   assert.equal(saved.length, 1);
   assert.equal(second.get("welcome").hidden, false);
+});
+
+test("chat folders filter existing history without removing chats or losing the all/unfiled views", async () => {
+  const saved = [
+    {id: "a", title: "Первый", updated: 1, turns: [], folder_id: "folder-a"},
+    {id: "b", title: "Второй", updated: 2, turns: [], folder_id: null},
+    {id: "c", title: "Третий", updated: 3, turns: [], folder_id: "folder-b"}
+  ];
+  const h = harness(saved, [], [], [{id: "folder-a", title: "Сделки"}, {id: "folder-b", title: "Регламенты"}]);
+  await h.ready;
+  const visible = () => h.get("chat-list").children.map(row => row.dataset.chatId);
+  assert.deepEqual(visible(), ["a", "b", "c"]);
+  h.get("folder-list").children[2].events.click();
+  assert.deepEqual(visible(), ["a"]);
+  assert.equal(h.get("edit-chat-folder").hidden, false);
+  h.get("folder-list").children[1].events.click();
+  assert.deepEqual(visible(), ["b"]);
+  assert.equal(h.get("edit-chat-folder").hidden, true);
+  h.get("folder-list").children[0].events.click();
+  assert.deepEqual(visible(), ["a", "b", "c"]);
+  assert.equal(saved.length, 3);
 });

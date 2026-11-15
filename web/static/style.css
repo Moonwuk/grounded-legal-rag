@@ -304,3 +304,27 @@ mark { background: var(--mark); color: var(--ink); box-decoration-break: clone; 
 #reset-tab-filters { font-size: .75rem; font-weight: 500; padding: .3rem; min-height: 40px; }
 #tab-form #tab-selection-status { color: var(--ink); font-size: .8rem; }
 select:focus-visible { outline: 3px solid #3868df; outline-offset: 2px; }
+
+.folder-heading { display: flex; align-items: center; justify-content: space-between; gap: .4rem; padding: 0 1rem; flex: none; font-size: .8rem; font-weight: 650; }
+.folder-heading button { min-height: 40px; padding: .3rem .45rem; font-size: .8rem; }
+#folder-list { flex: 0 1 auto; max-height: 12rem; overflow: auto; padding: .4rem .65rem; }
+.folder-select { display: flex; align-items: center; gap: .5rem; width: 100%; padding: .45rem .55rem; text-align: left; border: 0; font-size: .82rem; font-weight: 550; }
+.folder-select span { flex: 1; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
+.folder-select small { color: var(--muted); font-variant-numeric: tabular-nums; }
+.folder-select[aria-current="true"] { background: #e8efff; color: var(--blue); }
+#edit-chat-folder { flex: none; align-self: flex-start; margin: .25rem 1rem; font-size: .75rem; min-height: 36px; }
+#folder-status, #folder-empty { flex: none; margin: .4rem 1rem; color: var(--muted); font-size: .8rem; }
+#folder-status:empty { display: none; }
+#chat-list { flex: 1; min-height: 4rem; }
+.chat-move { font-size: .75rem; min-height: 36px; padding: .2rem .5rem; margin-left: .3rem; }
+.history-dialog { width: min(28rem, calc(100% - 1.5rem)); max-height: calc(100dvh - 2rem); overflow: auto; padding: 1.2rem; color: var(--ink); border: 1px solid var(--line); border-radius: 15px; }
+.history-dialog::backdrop { background: #10275b88; }
+.history-dialog form { display: flex; flex-direction: column; gap: .65rem; }
+.history-dialog h2 { font-size: 1.4rem; }
+.history-dialog p { margin: 0; overflow-wrap: anywhere; font-size: .85rem; }
+.history-dialog input, .history-dialog select { width: 100%; min-width: 0; min-height: 44px; padding: .55rem; border: 1px solid #9eb4d7; border-radius: 8px; background: white; color: var(--ink); font: inherit; }
+.history-dialog-actions { display: flex; gap: .5rem; flex-wrap: wrap; }
+#folder-error, #move-error { color: #962c29; }
+@media (min-width: 901px) and (max-width: 1150px) { .chat-history { max-height: 29rem; } #folder-list { max-height: 9rem; } }
+
+#new-folder-chat { flex: none; margin: .4rem 1rem 0; font-size: .8rem; }

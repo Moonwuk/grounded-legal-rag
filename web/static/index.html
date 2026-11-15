@@ -37,9 +37,15 @@
     <aside id="history-panel" class="chat-history" aria-labelledby="history-title">
       <div class="panel-heading"><h2 id="history-title">Ваши чаты</h2></div>
       <p class="history-hint">Диалоги доступны с разных устройств под вашим логином.</p>
+      <div class="folder-heading"><span>Папки</span><button id="create-chat-folder" type="button" disabled>+ Папка</button></div>
+      <nav id="folder-list" aria-label="Папки чатов"></nav>
+      <button id="edit-chat-folder" type="button" hidden>Изменить папку</button>
+      <p id="folder-status" role="status"></p>
+      <button id="new-folder-chat" type="button" disabled>+ Новый диалог</button>
       <p id="history-status" role="status">Загружаем историю…</p>
       <button type="button" id="refresh-history">Обновить список</button>
       <ul id="chat-list" aria-label="Сохранённые диалоги"></ul>
+      <p id="folder-empty" hidden>В этой папке пока нет чатов. Перенесите сюда диалог кнопкой «В папку» или начните новый.</p>
     </aside>
     <section class="chat" aria-labelledby="chat-title">
       <header class="panel-heading">
@@ -112,6 +118,25 @@
   <dialog id="mobile-panel" aria-labelledby="mobile-panel-title">
     <div class="mobile-panel-toolbar"><button id="close-mobile-panel" type="button" aria-label="Закрыть панель и вернуться к диалогу">← К диалогу</button><h2 id="mobile-panel-title">Документы</h2></div>
     <div id="mobile-panel-content"></div>
+  </dialog>
+  <dialog id="folder-dialog" class="history-dialog" aria-labelledby="folder-dialog-title">
+    <form id="folder-form">
+      <h2 id="folder-dialog-title">Создать папку</h2>
+      <label for="folder-name">Название папки</label>
+      <input id="folder-name" required maxlength="60" autocomplete="off" placeholder="Например, Договоры поставки">
+      <p id="folder-error" role="alert"></p>
+      <div class="history-dialog-actions"><button id="save-chat-folder" type="submit">Сохранить</button><button id="cancel-chat-folder" type="button">Отмена</button><button id="delete-chat-folder" type="button" hidden>Удалить папку</button></div>
+    </form>
+  </dialog>
+  <dialog id="move-dialog" class="history-dialog" aria-labelledby="move-dialog-title">
+    <form id="move-form">
+      <h2 id="move-dialog-title">Переместить чат</h2>
+      <p id="move-chat-title"></p>
+      <label for="move-folder">Папка</label>
+      <select id="move-folder"></select>
+      <p id="move-error" role="alert"></p>
+      <div class="history-dialog-actions"><button id="save-chat-move" type="submit">Переместить</button><button id="cancel-chat-move" type="button">Отмена</button></div>
+    </form>
   </dialog>
   <dialog id="tab-dialog" aria-labelledby="tab-dialog-title">
     <form id="tab-form">

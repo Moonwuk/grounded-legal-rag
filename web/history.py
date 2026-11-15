@@ -25,11 +25,19 @@ class History:
                 id TEXT PRIMARY KEY, owner TEXT NOT NULL, title TEXT NOT NULL,
                 document_ids TEXT NOT NULL, revision INTEGER NOT NULL DEFAULT 1)""")
             db.execute("CREATE INDEX IF NOT EXISTS document_tabs_owner ON document_tabs(owner)")
+            db.execute("""CREATE TABLE IF NOT EXISTS chat_folders (
+                id TEXT PRIMARY KEY, owner TEXT NOT NULL, title TEXT NOT NULL)""")
+            db.execute("CREATE INDEX IF NOT EXISTS chat_folders_owner ON chat_folders(owner)")
+            db.execute("""CREATE TABLE IF NOT EXISTS chat_folder_items (
+                chat_id TEXT PRIMARY KEY REFERENCES chats(id) ON DELETE CASCADE,
+                folder_id TEXT NOT NULL REFERENCES chat_folders(id) ON DELETE CASCADE)""")
+            db.execute("CREATE INDEX IF NOT EXISTS chat_folder_items_folder ON chat_folder_items(folder_id)")
 
     @contextmanager
     def connect(self):
         db = sqlite3.connect(self.path, timeout=10)
         db.row_factory = sqlite3.Row
+        db.execute("PRAGMA foreign_keys=ON")
         try:
             with db:
                 yield db
@@ -85,11 +93,13 @@ def list_chats(request: Request):
     history, owner = identity(request)
     with history.connect() as db:
         return [dict(row) for row in db.execute(
-            "SELECT id, title, updated FROM chats WHERE owner=? ORDER BY updated DESC, id", (owner,))]
+            """SELECT c.id, c.title, c.updated, i.folder_id FROM chats c
+               LEFT JOIN chat_folder_items i ON i.chat_id=c.id
+               WHERE c.owner=? ORDER BY c.updated DESC, c.id""", (owner,))]
 
 
 @router.post("", status_code=201)
-def create_chat(request: Request):
+def create_chat(request: Request, folder_id: str | None = None):
     history, owner = identity(request)
     # Requiring a non-simple content type prevents creation via cross-site HTML forms.
     if request.headers.get("content-type", "").split(";")[0].strip().lower() != "application/json":
@@ -97,11 +107,16 @@ def create_chat(request: Request):
     chat = dict(id=str(uuid4()), title="Новый диалог", updated=time.time())
     with history.connect() as db:
         db.execute("BEGIN IMMEDIATE")
+        if folder_id is not None and not db.execute(
+                "SELECT id FROM chat_folders WHERE id=? AND owner=?", (folder_id, owner)).fetchone():
+            raise HTTPException(404, "Папка не найдена. Обновите список.")
         if db.execute("SELECT COUNT(*) FROM chats WHERE owner=?", (owner,)).fetchone()[0] >= 100:
             raise HTTPException(429, "Сохранено 100 диалогов. Удалите ненужный, чтобы создать новый.")
         db.execute("INSERT INTO chats(id, owner, title, updated) VALUES (?, ?, ?, ?)",
                    (chat["id"], owner, chat["title"], chat["updated"]))
-    return {**chat, "turns": []}
+        if folder_id is not None:
+            db.execute("INSERT INTO chat_folder_items(chat_id, folder_id) VALUES (?, ?)", (chat["id"], folder_id))
+    return {**chat, "turns": [], "folder_id": folder_id}
 
 
 @router.get("/{chat_id}")
@@ -109,8 +124,10 @@ def get_chat(chat_id: str, request: Request):
     history, owner = identity(request)
     with history.connect() as db:
         row = history.get(db, owner, chat_id)
+        membership = db.execute("SELECT folder_id FROM chat_folder_items WHERE chat_id=?", (chat_id,)).fetchone()
         return dict(id=row["id"], title=row["title"], updated=row["updated"],
-                    turns=json.loads(row["turns"]), busy=row["busy_until"] > time.time())
+                    turns=json.loads(row["turns"]), busy=row["busy_until"] > time.time(),
+                    folder_id=membership["folder_id"] if membership else None)
 
 
 @router.delete("/{chat_id}", status_code=204)
