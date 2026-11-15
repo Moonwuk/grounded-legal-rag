@@ -36,10 +36,11 @@ let busy = false;
 let activeDocument;
 let catalog = [];
 let customTabs = [];
-let selectedTab = "laws";
+let selectedTab = "all";
 let editingTab = null;
 let savingTab = false;
 const builtInTabs = [
+  {id: "all", title: "Все"},
   {id: "laws", title: "Законы"}, {id: "contracts", title: "Договоры"},
   {id: "policies", title: "Регламенты"}, {id: "other", title: "Прочее"}
 ];
@@ -50,11 +51,11 @@ function documentGroup(doc) {
   return "other";
 }
 function documentsInTab(tab) {
-  return catalog.filter(doc => tab.document_ids ? tab.document_ids.includes(doc.id) : documentGroup(doc) === tab.id);
+  return catalog.filter(doc => tab.id === "all" || (tab.document_ids ? tab.document_ids.includes(doc.id) : documentGroup(doc) === tab.id));
 }
 function renderTabs() {
   const tabs = [...builtInTabs, ...customTabs];
-  if (!tabs.some(tab => tab.id === selectedTab)) selectedTab = "laws";
+  if (!tabs.some(tab => tab.id === selectedTab)) selectedTab = "all";
   const host = byId("doc-tabs");
   host.replaceChildren();
   for (const [index, tab] of tabs.entries()) {
@@ -111,6 +112,10 @@ async function loadTabs() {
 }
 function editTab(tab = null) {
   editingTab = tab;
+  byId("tab-doc-query").value = "";
+  byId("tab-doc-type").value = "";
+  byId("tab-doc-status").value = "";
+  byId("tab-doc-selected").checked = false;
   byId("tab-dialog-title").textContent = tab ? "Изменить вкладку" : "Создать вкладку";
   byId("tab-name").value = tab?.title || "";
   byId("tab-error").textContent = "";
@@ -122,18 +127,49 @@ function editTab(tab = null) {
   choices.append(legend);
   for (const doc of catalog) {
     const label = document.createElement("label");
+    label.dataset.documentId = doc.id;
     const checkbox = document.createElement("input");
     checkbox.type = "checkbox";
     checkbox.value = doc.id;
     checkbox.checked = tab?.document_ids.includes(doc.id) || false;
+    checkbox.addEventListener("change", filterTabChoices);
     const title = document.createElement("span");
     title.textContent = doc.title;
     label.append(checkbox, title);
     choices.append(label);
   }
+  filterTabChoices();
   byId("tab-dialog").showModal();
   byId("tab-name").focus();
 }
+function filterTabChoices() {
+  const query = byId("tab-doc-query").value.trim().toLocaleLowerCase("ru");
+  const type = byId("tab-doc-type").value;
+  const status = byId("tab-doc-status").value;
+  const onlySelected = byId("tab-doc-selected").checked;
+  const documents = new Map(catalog.map(doc => [doc.id, doc]));
+  let visible = 0, selected = 0;
+  for (const label of byId("tab-choices").querySelectorAll("label")) {
+    const doc = documents.get(label.dataset.documentId);
+    const checked = label.querySelector("input").checked;
+    if (checked) selected++;
+    const group = doc.status === "допсоглашение" ? "addenda" : documentGroup(doc);
+    const edition = doc.status === "утратил силу" ? "expired" : doc.status === "действующая редакция" ? "current" : "unspecified";
+    label.hidden = !doc.title.toLocaleLowerCase("ru").includes(query) || (type && group !== type) ||
+      (status && edition !== status) || (onlySelected && !checked);
+    if (!label.hidden) visible++;
+  }
+  byId("tab-selection-status").textContent = "Выбрано: " + selected + " · Найдено: " + visible +
+    (visible ? "" : ". Измените или сбросьте фильтры.");
+}
+for (const id of ["tab-doc-query", "tab-doc-type", "tab-doc-status", "tab-doc-selected"]) {
+  byId(id).addEventListener("input", filterTabChoices);
+}
+byId("reset-tab-filters").addEventListener("click", () => {
+  byId("tab-doc-query").value = byId("tab-doc-type").value = byId("tab-doc-status").value = "";
+  byId("tab-doc-selected").checked = false;
+  filterTabChoices();
+});
 async function saveTab(remove = false) {
   if (savingTab) return;
   if (remove && !confirm("Удалить вкладку «" + editingTab.title + "»? Документы останутся в базе.")) return;
@@ -148,7 +184,7 @@ async function saveTab(remove = false) {
       ...(remove ? {} : {body: JSON.stringify(body)})});
     customTabs = customTabs.filter(tab => tab.id !== editingTab?.id);
     if (saved) customTabs.push(saved);
-    selectedTab = saved?.id || "laws";
+    selectedTab = saved?.id || "all";
     docQuery.value = "";
     byId("tab-dialog").close();
     showList();
@@ -259,6 +295,7 @@ function clearChat() {
   log.replaceChildren(welcome);
   welcome.hidden = false;
   input.value = "";
+  globalThis.MobileLayout?.resizeInput();
   input.removeAttribute("aria-invalid");
   byId("input-error").textContent = "";
   showList();
@@ -287,8 +324,9 @@ async function selectChat(id) {
       sendController.start();
     });
   }
+  globalThis.MobileLayout?.close("history");
   if (chat.busy) byId("history-status").textContent = "Ответ ещё готовится. Обновите список через несколько секунд.";
-  input.focus();
+  if (!globalThis.MobileLayout?.isMobile()) input.focus();
 }
 
 async function loadHistory() {
@@ -353,6 +391,7 @@ function clearQuote() {
 }
 
 async function openDocument(id, source, focus = true) {
+  globalThis.MobileLayout?.open("documents");
   activeDocument?.abort();
   clearQuote();
   const request = new AbortController();
@@ -550,7 +589,7 @@ async function ask(question, existing, signal) {
   ArchiveScene.setState(scene, ArchiveScene.stateFor(answer));
   progress.remove();
   if (answer.status !== "technical_error" && answer.sources?.length) {
-    if (activeDocument === documentAtStart && docText.hidden) {
+    if (activeDocument === documentAtStart && docText.hidden && !globalThis.MobileLayout?.isMobile()) {
       const first = answer.sources[0];
       openDocument(first.document_id, first, false);
     }
@@ -570,7 +609,7 @@ async function ask(question, existing, signal) {
     node.item.remove();
     sendController.start();
   });
-  input.focus();
+  if (!globalThis.MobileLayout?.isMobile()) input.focus();
   log.scrollTop = log.scrollHeight;
   if (historyEnabled) {
     try {
@@ -614,6 +653,8 @@ const sendController = SLComponent.mount(send.closest(".sl-component"), {
       }
     }
     if (!retry) input.value = "";
+    globalThis.MobileLayout?.resizeInput();
+    if (globalThis.MobileLayout?.isMobile()) input.blur();
     await ask(question, retry?.userNode, signal);
   }
 });
@@ -631,6 +672,7 @@ input.addEventListener("keydown", event => {
 });
 reset.addEventListener("click", () => {
   if (busy || navigating) return;
+  globalThis.MobileLayout?.close();
   clearChat();
   renderHistory();
   input.focus();
@@ -645,7 +687,7 @@ clearDocQuery.addEventListener("click", () => {
 });
 clearDocQuery.disabled = false;
 for (const example of document.querySelectorAll(".example")) {
-  example.addEventListener("click", () => { input.value = example.textContent; input.focus(); });
+  example.addEventListener("click", () => { input.value = example.textContent; globalThis.MobileLayout?.resizeInput(); input.focus(); });
   example.disabled = false;
 }
 reset.disabled = false;

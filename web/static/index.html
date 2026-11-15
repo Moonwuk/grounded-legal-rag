@@ -2,7 +2,7 @@
 <html lang="ru">
 <head>
   <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, interactive-widget=resizes-content">
   <meta name="color-scheme" content="light">
   <title>Юридический ассистент</title>
   <link rel="stylesheet" href="/static/vendor/sl-ui/send/buttons.css">
@@ -11,26 +11,30 @@
   <script defer src="/static/vendor/sl-ui/send/buttons.js"></script>
   <script defer src="/static/vendor/sl-ui/copy/buttons.js"></script>
   <link rel="stylesheet" href="/static/archive-scene.css">
+  <link rel="stylesheet" href="/static/mobile.css">
   <link rel="preload" as="image" href="/static/media/archive-blue.webp">
   <link rel="preload" as="image" href="/static/media/archive-outcomes.webp">
   <link rel="preload" as="image" href="/static/media/archive-found.webp">
   <link rel="preload" as="image" href="/static/media/archive-clarify.webp">
   <script defer src="/static/archive-scene.js"></script>
+  <script defer src="/static/mobile-layout.js"></script>
   <script defer src="/static/app.js"></script>
 </head>
 <body>
   <header class="masthead">
     <div class="masthead-inner">
+      <button class="mobile-only mobile-icon" id="open-history" type="button" aria-label="Открыть историю чатов" aria-haspopup="dialog"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 6h16M4 12h11M4 18h16"/></svg></button>
       <div class="brand-mark" aria-hidden="true">§</div>
       <div class="identity">
         <span class="brand">ПСБ / Hack&amp;Change</span>
         <h1>Юридический ассистент</h1>
       </div>
-      <button type="button" id="reset" disabled>Новый диалог</button>
+      <button class="mobile-only mobile-icon" id="open-documents" type="button" aria-label="Открыть документы" aria-haspopup="dialog"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 3h8l4 4v14H6zM14 3v5h4M9 12h6M9 16h6"/></svg></button>
+      <button type="button" id="reset" aria-label="Новый диалог" disabled><span>Новый диалог</span><svg class="mobile-only" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg></button>
     </div>
   </header>
   <main class="workspace">
-    <aside class="chat-history" aria-labelledby="history-title">
+    <aside id="history-panel" class="chat-history" aria-labelledby="history-title">
       <div class="panel-heading"><h2 id="history-title">Ваши чаты</h2></div>
       <p class="history-hint">Диалоги доступны с разных устройств под вашим логином.</p>
       <p id="history-status" role="status">Загружаем историю…</p>
@@ -69,7 +73,7 @@
         <span id="input-error" role="status"></span>
       </form>
     </section>
-    <aside class="documents" aria-labelledby="doc-title">
+    <aside id="documents-panel" class="documents" aria-labelledby="doc-title">
       <div class="doc-header">
         <div><span class="brand">База знаний</span><h2 id="doc-title" tabindex="-1">Документы</h2></div>
         <button type="button" id="all-docs" hidden disabled>К списку</button>
@@ -105,12 +109,24 @@
       <div id="doc-text" tabindex="0" aria-label="Текст документа" hidden></div>
     </aside>
   </main>
+  <dialog id="mobile-panel" aria-labelledby="mobile-panel-title">
+    <div class="mobile-panel-toolbar"><button id="close-mobile-panel" type="button" aria-label="Закрыть панель и вернуться к диалогу">← К диалогу</button><h2 id="mobile-panel-title">Документы</h2></div>
+    <div id="mobile-panel-content"></div>
+  </dialog>
   <dialog id="tab-dialog" aria-labelledby="tab-dialog-title">
     <form id="tab-form">
       <h2 id="tab-dialog-title">Своя вкладка</h2>
       <label for="tab-name">Название</label>
       <input id="tab-name" required maxlength="60" autocomplete="off" placeholder="Например, Сделка с Альфой">
       <p>Выберите документы из базы. Состав вкладки можно изменить позже.</p>
+      <div class="tab-filters">
+        <label class="tab-search" for="tab-doc-query">Поиск документов<input id="tab-doc-query" type="search" placeholder="Название документа" autocomplete="off"></label>
+        <label for="tab-doc-type">Тип<select id="tab-doc-type"><option value="">Все типы</option><option value="laws">Законы</option><option value="contracts">Договоры</option><option value="addenda">Допсоглашения</option><option value="policies">Регламенты</option><option value="other">Прочее</option></select></label>
+        <label for="tab-doc-status">Редакция<select id="tab-doc-status"><option value="">Все редакции</option><option value="current">Действующая</option><option value="expired">Утратил силу</option><option value="unspecified">Без отметки</option></select></label>
+        <label class="tab-selected-filter"><input id="tab-doc-selected" type="checkbox">Только выбранные</label>
+        <button id="reset-tab-filters" type="button">Сбросить фильтры</button>
+      </div>
+      <p id="tab-selection-status" role="status"></p>
       <div id="tab-choice-scroll"><fieldset id="tab-choices"><legend>Документы во вкладке</legend></fieldset></div>
       <p id="tab-error" role="alert"></p>
       <div class="tab-dialog-actions">
