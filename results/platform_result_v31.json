@@ -1,0 +1,41 @@
+{
+  "context_date": "2026-11-15",
+  "submission": "31",
+  "filename": "PSB_31_complete_roles.zip",
+  "archive_sha256": "0df0e986e2319ff2a0776319a2fc74f3c941cfdc20755a68b365d267858c9047",
+  "archive_bytes": 75531,
+  "runtime_code_commit": "69faba6ba04952c9bf05d5311cc28acdf4f2351e",
+  "score": 36.583,
+  "elapsed_seconds": 381.5,
+  "displayed_time": "07:40",
+  "displayed_time_timezone": "not specified in reported row",
+  "source": "Result row supplied by the user; not independently fetched from the platform",
+  "raw_row": "PSB_31_complete_roles.zip\t36.583\t07:40\t381.5 sec",
+  "available_detail": "User confirmed that only aggregate score and time are available, no per-question answers or scores",
+  "comparison": {
+    "baseline": "29",
+    "baseline_score": 37.375,
+    "baseline_seconds": 439.2,
+    "difference_points": -0.792,
+    "score_change_percent": -2.119,
+    "time_difference_seconds": -57.7,
+    "time_reduction_percent": 13.14
+  },
+  "best_by_reported_score": "29",
+  "causal_attribution": "UNKNOWN",
+  "limits": [
+    "The reported filename matches the locally verified archive; platform-side hash is unavailable.",
+    "No reported platform score for v30: v31 versus v29 compares five classes of policy changes, not only the role fix.",
+    "No per-question platform outputs, repeated submissions, or measured run-to-run variance.",
+    "The known-question composite 6/0/12 is not a release-quality guarantee or an independent holdout.",
+    "Observed elapsed time alone does not establish an algorithmic speedup."
+  ],
+  "runtime_change_classes_since_v29": [
+    "SYSTEM examples on price composition and role explanation",
+    "Removal of answer_extra_items deletion retry",
+    "Proposed-duration missing-document guard",
+    "Restricted agreement-condition paraphrase support",
+    "Retention of a grounded positive agreement role after removing an unsupported denial"
+  ],
+  "next_evidence_needed": "Fresh, frozen evaluation outside the already-used demos, with per-case semantic review and one changed mechanism per comparison; a new contest submission remains a separate user action."
+}
