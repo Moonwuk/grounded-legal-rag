@@ -110,7 +110,8 @@ def run_questions(questions, retriever, deadline, workers, top_k, verify=False):
                 # calls, 120 s: 0 answers instead of 21). Fairness comes from the
                 # order: one step per row before any retry.
                 client = ProxyClient(deadline, position=index)
-                steps = answer_steps(questions[index][1], retriever, client, top_k, verify)
+                steps = answer_steps(questions[index][1], retriever, client, top_k, verify,
+                                     repair_quotes=not verify)
             try:
                 result = next(steps)
                 if result["status"] == "provisional":

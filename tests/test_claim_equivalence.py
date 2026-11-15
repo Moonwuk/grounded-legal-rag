@@ -167,13 +167,25 @@ class OfficialGuardReplayTests(unittest.TestCase):
                 selected = [f for f in evidence if f.id in response['source_ids']]
                 self.assertEqual(scope_block_reason(text, selected, self.retriever, self.questions[qid]), '')
 
-    def test_official_text_survives_real_one_call_policy(self):
+    def assert_complete_answer(self, qid, text):
+        if qid == '16':
+            self.assertTrue(text.startswith(self.texts[qid]), text)
+        else:
+            # Missing-value answers now use application wording. Preserve all
+            # official substantive facts without admitting a guessed duration.
+            self.assertTrue(text.startswith('Конкретное значение в найденных документах не установлено:'), text)
+            self.assertIn('Гарантийный срок на Товар устанавливается производителем '
+                          'и указывается в гарантийном талоне.', text)
+            self.assertIn('Предоставьте его, если он у вас есть.', text)
+            self.assertIn('Договор поставки № ПТ-05/2023', text)
+
+    def test_official_facts_survive_real_one_call_policy(self):
         for qid, text in self.texts.items():
             model = ScriptedModel([self.response(qid)] * 5)
             with self.subTest(qid=qid), redirect_stderr(io.StringIO()):
                 result = answer_structured(self.questions[qid], self.retriever, model, verify=False)
-                self.assertTrue(result['text'].startswith(text), result['text'])
-                self.assertFalse(result['quote_only'])
+                self.assert_complete_answer(qid, result['text'])
+                self.assertEqual(result['quote_only'], qid == '17')
                 for f in result['sources']:
                     self.assertEqual(f.text, self.retriever.documents[f.document].text[f.start:f.end])
 
@@ -191,7 +203,7 @@ class OfficialGuardReplayTests(unittest.TestCase):
         latest = {index: text for index, text, _ in checkpoints}
         self.assertEqual(set(latest), {0, 1})
         for index, qid in enumerate(ids):
-            self.assertTrue(latest[index].startswith(self.texts[qid]), latest[index])
+            self.assert_complete_answer(qid, latest[index])
 
     def test_invented_term_does_not_pass_full_policy(self):
         bad = 'Гарантийный срок составляет 93 месяца и указывается в гарантийном талоне.'
