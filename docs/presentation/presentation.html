@@ -82,14 +82,12 @@ figure{margin:0}
   <p class="lead">Юридический RAG-ассистент: ответы только по базе документов, с дословными основаниями, подсветкой положения в полном тексте и обоснованным отказом, если сведений нет.</p>
   <div class="links">
     <div><b>Репозиторий</b><span>https://github.com/Moonwuk/grounded-legal-rag</span></div>
-    <div><b>Демо</b><span>https://legal.77-221-140-87.sslip.io</span></div>
-    <div><b>Доступ к демо</b><span>логин и пароль выдаёт команда по запросу</span></div>
     <div><b>Запуск</b><span><code style="background:#29437f;color:#fff">docker compose up --build -d --wait</code> → http://127.0.0.1:8000</span></div>
   </div>
   <div class="check">
     <h3>Порядок проверки</h3>
     <ol>
-      <li>Откройте демо или запустите локально по README (в <code>.env</code> — <code>LLM_BASE_URL</code>, <code>LLM_API_KEY</code>, <code>LLM_MODEL</code>).</li>
+      <li>Запустите локально по README (в <code>.env</code> — <code>LLM_BASE_URL</code>, <code>LLM_API_KEY</code>, <code>LLM_MODEL</code>).</li>
       <li>В разделе документов на вкладке «Все» найдите договор аренды с ООО «Северный Склад».</li>
       <li>Спросите: <b>«Какова арендная плата по договору с ООО „Северный Склад“?»</b></li>
       <li>Сверьте смысл: <b>450 000 ₽ в месяц, включая НДС, п. 3.1</b>.</li>
@@ -465,7 +463,7 @@ docker compose up --build -d --wait
         <li>Конкурсный ZIP: <span class="mono">dist/PSB_experiment_docnum_fix.zip</span>.</li>
         <li>Эта презентация: <span class="mono">docs/presentation/</span>.</li>
       </ul>
-      <p class="small muted" style="margin-top:8px">Ключи, пароли демо, рабочая <span class="mono">.env</span> и пользовательская SQLite в материалы не входят.</p>
+      <p class="small muted" style="margin-top:8px">Ключи, рабочая <span class="mono">.env</span> и пользовательская SQLite в материалы не входят.</p>
     </div>
   </div>
   <table style="margin-top:10px;font-size:12.5px;line-height:1.3">
