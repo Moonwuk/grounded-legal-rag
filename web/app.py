@@ -44,6 +44,9 @@ async def lifespan(app):
     documents, fragments = load_corpus(path, skipped=skipped)
     if skipped:
         print("documents_skipped=%d reasons=%s" % (len(skipped), ",".join(sorted({c for _, c in skipped}))), file=sys.stderr)
+    app.state.core = os.getenv("WEB_CORE", "experiment").strip() or "experiment"
+    if app.state.core not in {"experiment", "prototype"}:
+        raise ValueError("unsupported_web_core")
     app.state.skipped = len(skipped)
     app.state.retriever = Retriever(documents, fragments)
     app.state.documents = {doc.sha256: doc for doc in documents}
@@ -56,7 +59,7 @@ async def lifespan(app):
     app.state.queue = manager
     if manager:
         manager.start()
-    if os.getenv("EMB_MODEL", "").strip():
+    if app.state.core == "prototype" and os.getenv("EMB_MODEL", "").strip():
         # Dense candidates are indexed after start-up; until then search is BM25 only.
         app.state.dense = "indexing"
         Thread(target=index_dense, args=(app.state,), daemon=True).start()
@@ -183,6 +186,12 @@ def answer(question, state, latest_user_text=""):
                 sources=[],
                 elapsed_seconds=round(time.monotonic() - started, 1),
             )
+        if getattr(state, "core", "prototype") == "experiment":
+            from web.generation import run_generation
+            response = run_generation(question, latest_user_text, state, lambda: False)
+            if response["status"] in {"out_of_scope", "disallowed"} and FORGED_ROLE.search(latest_user_text):
+                response["ui_state"] = "role_protection"
+            return response
         result = answer_structured(question, state.retriever, client, top_k=integer("TOP_K", 6, 1, 40))
         sources = []
         for number, fragment in enumerate(result["sources"], 1):
@@ -264,7 +273,8 @@ def answer_saved(history, owner, chat_id, message, state):
 def healthz(request: Request):
     retriever = request.app.state.retriever
     return dict(status="ok", documents=len(retriever.documents), fragments=len(retriever.fragments),
-                dense=request.app.state.dense, skipped=request.app.state.skipped)
+                dense=request.app.state.dense, skipped=request.app.state.skipped,
+                core=request.app.state.core)
 
 
 @app.get("/api/documents")

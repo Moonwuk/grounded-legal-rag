@@ -14,3 +14,10 @@
 !web/requirements.txt
 !web/static/
 !web/static/**
+
+!submissions/
+!submissions/psb_experiment/
+!submissions/psb_experiment/*.py
+!submissions/psb_experiment/index_vectors.json
+!web/experiment.py
+!web/workspace.py

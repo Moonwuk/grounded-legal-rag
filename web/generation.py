@@ -6,7 +6,7 @@ import time
 from types import SimpleNamespace
 
 
-def generate(connection, control, question, latest, documents, fragments, vectors):
+def generate(connection, control, question, latest, documents, fragments, vectors, core):
     def watch_parent():
         try:
             control.recv_bytes()
@@ -17,6 +17,18 @@ def generate(connection, control, question, latest, documents, fragments, vector
         os._exit(0)
     Thread(target=watch_parent, daemon=True).start()
     try:
+        if core == "experiment":
+            from web.experiment import run
+            from web.app import FORGED_ROLE, model_client
+            if model_client(time.monotonic() + 150) is None:
+                connection.send(dict(status="technical_error", error_code="model_not_configured",
+                    text="Заполните LLM_BASE_URL, LLM_API_KEY и LLM_MODEL в файле .env и перезапустите веб-сервис.", sources=[]))
+                return
+            result = run(question, documents)
+            if result["status"] in {"out_of_scope", "disallowed"} and FORGED_ROLE.search(latest):
+                result["ui_state"] = "role_protection"
+            connection.send(result)
+            return
         from web.app import answer, EmbeddingClient, Retriever
         retriever = Retriever(documents, fragments)
         if vectors is not None:
@@ -25,6 +37,8 @@ def generate(connection, control, question, latest, documents, fragments, vector
             retriever.vectors = vectors
         state = SimpleNamespace(retriever=retriever, slots=BoundedSemaphore(1))
         connection.send(answer(question, state, latest))
+    except Exception:
+        connection.send(dict(status="technical_error", text="Не удалось завершить ответ. Повторите вопрос.", sources=[]))
     finally:
         connection.close()
 
@@ -36,7 +50,8 @@ def run_generation(question, latest, state, cancelled):
     retriever = state.retriever
     vectors = None if getattr(retriever, "_dense_failed", False) else retriever.vectors
     process = context.Process(target=generate, args=(sender, control_reader, question, latest,
-                              list(retriever.documents.values()), retriever.fragments, vectors), daemon=True)
+                              list(retriever.documents.values()), retriever.fragments, vectors,
+                              getattr(state, "core", "prototype")), daemon=True)
     try:
         process.start()
         sender.close()
