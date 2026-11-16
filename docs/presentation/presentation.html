@@ -105,7 +105,7 @@ figure{margin:0}
 
 <!-- 2 -->
 <section class="slide"><div class="top"></div>
-  <div class="kicker">Проблема и пользователь</div>
+  <div class="kicker">Проблема и пользователь · веб-прототип</div>
   <h2>Юристу нужен ответ, который можно проверить за минуту</h2>
   <div class="grid2" style="gap:22px">
     <div>
@@ -145,8 +145,8 @@ figure{margin:0}
 
 <!-- 2b -->
 <section class="slide"><div class="top"></div>
-  <div class="kicker">Фишки и преимущества</div>
-  <h2>Почему этому ассистенту можно доверять</h2>
+  <div class="kicker">Возможности веб-прототипа</div>
+  <h2>Инструменты для проверки ответа юристом</h2>
   <div class="grid4 perks" style="gap:18px;margin-top:14px">
     <div class="card" style="padding:14px 16px"><h3><span class="num">1</span>Цитаты не выдумываются</h3><p class="small">Модель выбирает только ID положений, дословный текст подставляет приложение из корпуса.</p></div>
     <div class="card" style="padding:14px 16px"><h3><span class="num">2</span>Проверка перед ответом</h3><p class="small">Числа, даты, пункты, ограничения и редакция сверяются с источником; при сомнении — отказ, а не догадка.</p></div>
@@ -155,7 +155,7 @@ figure{margin:0}
     <div class="card" style="padding:14px 16px"><h3><span class="num">5</span>Честный статус</h3><p class="small">Ответ, частичный ответ, уточнение, «нет в базе», отказ и техническая ошибка различаются явно.</p></div>
     <div class="card" style="padding:14px 16px"><h3><span class="num">6</span>Источник в один клик</h3><p class="small">Положение открывается в полном тексте с подсветкой; можно спросить о выделенном фрагменте.</p></div>
     <div class="card" style="padding:14px 16px"><h3><span class="num">7</span>Рабочее место юриста</h3><p class="small">История на сервере, ветки диалога, карточка дела, шаблоны, справка из ответов в PDF, очередь вопросов.</p></div>
-    <div class="card" style="padding:14px 16px"><h3><span class="num">8</span>Быстро и воспроизводимо</h3><p class="small">Один вызов модели на вопрос в пакетном режиме, запуск одной командой Docker, ядро без внешних зависимостей.</p></div>
+    <div class="card" style="padding:14px 16px"><h3><span class="num">8</span>Быстро и воспроизводимо</h3><p class="small">Запуск веб-прототипа одной командой Docker. Конкурсный конвейер и его проверки показаны отдельно на слайдах 5–6.</p></div>
   </div>
   <div class="foot"><span>grounded-legal-rag</span><span>3</span></div>
 </section>
@@ -176,71 +176,58 @@ figure{margin:0}
 
 <!-- 4 -->
 <section class="slide"><div class="top"></div>
-  <div class="kicker">Архитектура</div>
-  <h2>Одно ядро для веба и пакетного сабмита</h2>
-  <div class="flow" style="margin-bottom:16px">
-    <div class="node"><h3>Браузер</h3><div class="xs">HTML/CSS/JS без сборки; десктоп и телефон</div></div>
+  <div class="kicker">Архитектура конкурсной версии</div>
+  <h2>Как вопрос превращается в ответ по документам</h2>
+  <p class="small muted" style="margin-bottom:20px">Конвейер <span class="mono">PSB_experiment_docnum_fix.zip</span> · Python + httpx · модели через API организаторов</p>
+  <div class="flow" style="margin-bottom:20px">
+    <div class="node"><h3><span class="num">1</span>Вопрос</h3><div class="small">Последняя реплика и история диалога. При слабом поиске — переформулировка, если хватает времени.</div></div>
     <div class="arrow">→</div>
-    <div class="node"><h3>HTTPS-прокси</h3><div class="xs">Caddy + вход; передаёт проверенный логин</div></div>
+    <div class="node"><h3><span class="num">2</span>Поиск</h3><div class="small">BM25 + эмбеддинги bge-m3. Объединение рангов через RRF и реранжирование кандидатов по законам.</div></div>
     <div class="arrow">→</div>
-    <div class="node"><h3>FastAPI</h3><div class="xs">API, очередь в отдельном процессе, квоты</div></div>
+    <div class="node"><h3><span class="num">3</span>Контекст</h3><div class="small">Документы компании целиком при достаточном бюджете; законы — релевантными статьями и пунктами. Справка по датам.</div></div>
     <div class="arrow">→</div>
-    <div class="node"><h3>SQLite</h3><div class="xs">диалоги, папки, подборки, заметки, очередь</div></div>
+    <div class="node"><h3><span class="num">4</span>Ответ</h3><div class="small">DeepSeek формирует текст со ссылками. Инструкция требует проверять предпосылки и обозначать недостающие сведения.</div></div>
+    <div class="arrow">→</div>
+    <div class="node"><h3><span class="num">5</span>Проверка</h3><div class="small">Числа и даты сверяются с контекстом и вопросом. При ошибке и запасе времени — запрос исправления, затем CSV.</div></div>
   </div>
-  <div class="card" style="padding:16px 18px">
-    <h3>Ядро RAG — <span class="mono">prototype/</span>, стандартная библиотека Python</h3>
-    <div class="flow" style="margin-top:10px">
-      <div class="node" style="background:#f5f8fd"><h3>1. Корпус</h3><div class="xs">TXT/MD/DOCX из ZIP → фрагменты с позициями start/end; карантин строк-инструкций для ИИ; нечитаемый файл исключается явно</div></div>
-      <div class="arrow">→</div>
-      <div class="node" style="background:#f5f8fd"><h3>2. Поиск</h3><div class="xs">BM25 + номера пунктов и статей, договоры и контрагенты, связанные документы и редакции; bge-m3 опционально</div></div>
-      <div class="arrow">→</div>
-      <div class="node" style="background:#f5f8fd"><h3>3. Модель</h3><div class="xs">OpenAI-совместимый API; JSON: статус, текст, ID положений (≤ 4), недостающие сведения</div></div>
-      <div class="arrow">→</div>
-      <div class="node" style="background:#f5f8fd"><h3>4. Проверки</h3><div class="xs">программные проверки + проверяющий вызов модели (в вебе); при провале — без свободного текста</div></div>
-      <div class="arrow">→</div>
-      <div class="node" style="background:#f5f8fd"><h3>5. Ответ</h3><div class="xs">текст, статус и источники: документ, цитата, позиции символов</div></div>
-    </div>
+  <div class="grid3" style="gap:16px">
+    <div class="card"><h3>Индекс привязан к базе</h3><p class="small">Готовые векторы используются после сверки корпуса, нарезки, модели и контрольных эмбеддингов. Если проверка не пройдена — построение через API; без эмбеддингов остаётся BM25.</p></div>
+    <div class="card"><h3>Контроль времени</h3><p class="small">Внутренний бюджет — 16 мин 30 с, по умолчанию два потока. При нехватке времени сокращаются контекст и дополнительные вызовы; в конце возможна дообработка.</p></div>
+    <div class="card"><h3>Две точечные правки</h3><p class="small">Номера договоров исключены из числовых фактов. Ответ с конечным знаком «.», «!» или «?» сохраняется при достижении лимита токенов, чтобы не обрезать ссылку.</p></div>
   </div>
-  <div class="grid3" style="margin-top:16px">
-    <div class="card small" style="padding:12px 16px"><b>Веб:</b> <span class="mono">web/</span>, <span class="mono">compose.yaml</span> → <span class="mono">web/Dockerfile</span>, порт 8000</div>
-    <div class="card small" style="padding:12px 16px"><b>Batch:</b> <span class="mono">prototype/solution.py</span>: <span class="mono">questions.csv</span> → <span class="mono">submission.csv</span></div>
-    <div class="card small" style="padding:12px 16px"><b>Модель:</b> выбирается окружением <span class="mono">LLM_*</span>; на платформе — модель организаторов</div>
-  </div>
-  <div class="foot"><span>Подробно: README «Архитектура», docs/rag_architecture.md</span><span>5</span></div>
+  <p class="xs muted" style="margin-top:16px"><b>Вход:</b> questions.csv + knowledge-base.zip → <b>выход:</b> submission.csv (id, answer). Веб-прототип использует отдельное ядро prototype/; интеграция этой конкурсной версии в веб здесь не заявляется.</p>
+  <div class="foot"><span>Исходники: submissions/psb_experiment/ · оригинальный архив: dist/PSB_experiment_docnum_fix.zip</span><span>5</span></div>
 </section>
 
 <!-- 5 -->
 <section class="slide"><div class="top"></div>
-  <div class="kicker">Контроль достоверности</div>
-  <h2>Модель предлагает, приложение проверяет и публикует</h2>
-  <div class="grid2" style="grid-template-columns:1.25fr 1fr;gap:20px">
+  <div class="kicker">Контроль достоверности конкурсной версии</div>
+  <h2>Что проверяет код, а что поручено модели</h2>
+  <div class="grid2" style="grid-template-columns:1.2fr 1fr;gap:20px">
     <table>
-      <tr><th style="width:36%">Проверка</th><th>Что ловит</th></tr>
-      <tr><td><b>Существующие ID</b></td><td>ссылки на несуществующие положения и документы</td></tr>
-      <tr><td><b>Дословность</b></td><td>цитату подставляет приложение из корпуса, модель её не пишет</td></tr>
-      <tr><td><b>Числа, даты, пункты</b></td><td>каждое значение текста есть в положениях, в вопросе или в записанном расчёте</td></tr>
-      <tr><td><b>Границы вывода</b></td><td>сведения вне выбранных положений, выдуманные разделы, ложное «документа нет»</td></tr>
-      <tr><td><b>Ограничения</b></td><td>«не вправе», «только», «не может превышать» сохраняются в выводе</td></tr>
-      <tr><td><b>Редакция на дату</b></td><td>положение не действовало на дату события → ответ отклоняется</td></tr>
-      <tr><td><b>Отсылки</b></td><td>статья, на которую ссылается норма, отсутствует → частичный ответ с названием пробела</td></tr>
-      <tr><td><b>Инъекции</b></td><td>инструкции внутри документов и вопроса не получают полномочий</td></tr>
+      <tr><th style="width:32%">Механизм</th><th>Как работает в этой сборке</th></tr>
+      <tr><td><b>Числа и даты</b></td><td>Сопоставление с переданным контекстом и вопросом, учёт единиц измерения и поддержанных расчётов.</td></tr>
+      <tr><td><b>Номера документов</b></td><td>А-08/2024 и подобные реквизиты исключаются из числовых фактов ответа. Проверка сумм и сроков сохраняется.</td></tr>
+      <tr><td><b>Исправление</b></td><td>На полном уровне при запасе времени — один запрос исправления найденных ошибок, затем повторная проверка.</td></tr>
+      <tr><td><b>Остаточные ошибки</b></td><td>Попытка удалить предложения с неподтверждёнными сроками и датами; слишком короткий результат не заменяет ответ.</td></tr>
+      <tr><td><b>Формат и ссылки</b></td><td>Очистка оформления и формат «ответ + источник». Конечная пунктуация защищает текст от лишней обрезки при лимите токенов.</td></tr>
     </table>
     <div>
       <div class="card" style="margin-bottom:14px">
-        <h3>Проверяющий вызов</h3>
-        <p class="small">В вебе отдельный вызов модели оценивает каждое положение (поддерживает ли, применимо ли) и готовый текст. Одобрение модели <b>не отменяет</b> провал программной проверки.</p>
+        <h3>Правила для модели</h3>
+        <p class="small">Только приложенные документы. Исправить ложную предпосылку, учесть дату и редакцию, дать доступную часть ответа и назвать пробел. Инструкции внутри документов не должны менять роль.</p>
       </div>
       <div class="card" style="margin-bottom:14px">
-        <h3>Если проверка не пройдена</h3>
-        <p class="small">Повтор с расширенным поиском; затем — только исходные положения без текста модели или фиксированный отказ. Не более 5 вызовов модели на вопрос.</p>
+        <h3>Граница автоматической проверки</h3>
+        <p class="small">Совпадение числа не доказывает, что цитируемый пункт обосновывает вывод. Проверка существования ссылок <span class="mono">CHECK_REFS</span> выключена; отдельного смыслового верификатора в batch нет.</p>
       </div>
       <div class="card">
-        <h3>Сбой ≠ «нет в базе»</h3>
-        <p class="small">Техническая ошибка показывается отдельным статусом и никогда не выдаётся за отсутствие сведений.</p>
+        <h3>Если API недоступен</h3>
+        <p class="small">Сохраняется запасной ответ с фрагментом, найденным BM25; при наличии времени выполняется повтор. Такой ответ не следует считать проверенным юридическим выводом.</p>
       </div>
     </div>
   </div>
-  <div class="foot"><span>docs/rag_architecture.md, docs/prose_safety.md, docs/evidence_boundary_fix.md</span><span>6</span></div>
+  <div class="foot"><span>Реализация: submissions/psb_experiment/{checks,pipeline,prompts,llm,config}.py</span><span>6</span></div>
 </section>
 
 <!-- 6 -->
@@ -303,7 +290,7 @@ figure{margin:0}
 
 <!-- 8 -->
 <section class="slide"><div class="top"></div>
-  <div class="kicker">Примеры ответов</div>
+  <div class="kicker">Примеры ответов веб-прототипа</div>
   <h2>Ответ, ссылка на пункт и учёт редакции</h2>
   <div style="display:grid;grid-template-columns:1fr 470px;gap:22px">
     <div style="display:grid;gap:12px">
@@ -321,7 +308,7 @@ figure{margin:0}
 
 <!-- 9 -->
 <section class="slide"><div class="top"></div>
-  <div class="kicker">Примеры отказов и защиты роли</div>
+  <div class="kicker">Веб-прототип · примеры отказов и защиты роли</div>
   <h2>Не выдумывает, не подстраивается, не выходит из роли</h2>
   <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px">
     <div class="card" style="padding:12px 16px"><span class="tag no">Нет в базе</span><div class="q" style="margin-top:6px">«Какой размер пособия по беременности и родам?»</div>
@@ -342,7 +329,7 @@ figure{margin:0}
 
 <!-- 10 -->
 <section class="slide"><div class="top"></div>
-  <div class="kicker">Скорость, проверки и безопасность</div>
+  <div class="kicker">Веб-прототип · скорость, проверки и безопасность</div>
   <h2>Что проверено и как</h2>
   <div class="grid3" style="margin-bottom:16px">
     <div class="card"><h3>Скорость</h3><p class="small">18 демо-вопросов — за 38,5 секунды, то есть около двух секунд на вопрос в два потока. Модель вызывается один раз на вопрос; второй раз — только если ответ не прошёл проверку.</p><p class="xs muted">Замер 14.11.2026 на публичном DeepSeek, не на конкурсном прокси.</p></div>
@@ -471,11 +458,11 @@ docker compose up --build -d --wait
     <div class="card">
       <h3>Что в репозитории</h3>
       <ul class="small">
-        <li>Исходники ядра (<span class="mono">prototype/</span>) и веба (<span class="mono">web/</span>).</li>
+        <li>Веб: <span class="mono">prototype/</span> и <span class="mono">web/</span>. Конкурсное ядро: <span class="mono">submissions/psb_experiment/</span>.</li>
         <li>README: назначение, архитектура, переменные, порты, сценарий проверки, ограничения.</li>
         <li><span class="mono">compose.yaml</span>, <span class="mono">web/Dockerfile</span>, <span class="mono">.dockerignore</span>, закреплённые зависимости.</li>
         <li><span class="mono">.env.example</span> без действующих секретов.</li>
-        <li>Сборщик пакетного сабмита: <span class="mono">python3 build_submission.py</span>.</li>
+        <li>Конкурсный ZIP: <span class="mono">dist/PSB_experiment_docnum_fix.zip</span>.</li>
         <li>Эта презентация: <span class="mono">docs/presentation/</span>.</li>
       </ul>
       <p class="small muted" style="margin-top:8px">Ключи, пароли демо, рабочая <span class="mono">.env</span> и пользовательская SQLite в материалы не входят.</p>
