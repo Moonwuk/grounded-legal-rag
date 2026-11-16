@@ -148,11 +148,11 @@ figure{margin:0}
   <div class="kicker">Возможности веб-прототипа</div>
   <h2>Инструменты для проверки ответа юристом</h2>
   <div class="grid4 perks" style="gap:18px;margin-top:14px">
-    <div class="card" style="padding:14px 16px"><h3><span class="num">1</span>Цитаты не выдумываются</h3><p class="small">Модель выбирает только ID положений, дословный текст подставляет приложение из корпуса.</p></div>
-    <div class="card" style="padding:14px 16px"><h3><span class="num">2</span>Проверка перед ответом</h3><p class="small">Числа, даты, пункты, ограничения и редакция сверяются с источником; при сомнении — отказ, а не догадка.</p></div>
+    <div class="card" style="padding:14px 16px"><h3><span class="num">1</span>Цитаты проверяются</h3><p class="small">Каждая ссылка ответа сверяется с текстом корпуса: несуществующий пункт или цитата не публикуются.</p></div>
+    <div class="card" style="padding:14px 16px"><h3><span class="num">2</span>Проверка перед ответом</h3><p class="small">Суммы, сроки и даты сверяются с документами и вопросом; неподтверждённые числа не доходят до пользователя.</p></div>
     <div class="card" style="padding:14px 16px"><h3><span class="num">3</span>Учёт даты и редакции</h3><p class="small">По дате события выбирается действовавшая редакция регламента и допсоглашения к договору.</p></div>
     <div class="card" style="padding:14px 16px"><h3><span class="num">4</span>Не поддаётся давлению</h3><p class="small">Поддельные «SYSTEM», «руководитель подтвердил», инструкции внутри документов не меняют ответ.</p></div>
-    <div class="card" style="padding:14px 16px"><h3><span class="num">5</span>Честный статус</h3><p class="small">Ответ, частичный ответ, уточнение, «нет в базе», отказ и техническая ошибка различаются явно.</p></div>
+    <div class="card" style="padding:14px 16px"><h3><span class="num">5</span>Честный статус</h3><p class="small">Ответ, частичный ответ, уточнение, «нет в базе», вне роли и техническая ошибка различаются явно; сбой API не выдаётся за отсутствие сведений.</p></div>
     <div class="card" style="padding:14px 16px"><h3><span class="num">6</span>Источник в один клик</h3><p class="small">Положение открывается в полном тексте с подсветкой; можно спросить о выделенном фрагменте.</p></div>
     <div class="card" style="padding:14px 16px"><h3><span class="num">7</span>Рабочее место юриста</h3><p class="small">История на сервере, ветки диалога, карточка дела, шаблоны, справка из ответов в PDF, очередь вопросов.</p></div>
     <div class="card" style="padding:14px 16px"><h3><span class="num">8</span>Быстро и воспроизводимо</h3><p class="small">Запуск веб-прототипа одной командой Docker. Конкурсный конвейер и его проверки показаны отдельно на слайдах 5–6.</p></div>
@@ -195,7 +195,7 @@ figure{margin:0}
     <div class="card"><h3>Контроль времени</h3><p class="small">Внутренний бюджет — 16 мин 30 с, по умолчанию два потока. При нехватке времени сокращаются контекст и дополнительные вызовы; в конце возможна дообработка.</p></div>
     <div class="card"><h3>Две точечные правки</h3><p class="small">Номера договоров исключены из числовых фактов. Ответ с конечным знаком «.», «!» или «?» сохраняется при достижении лимита токенов, чтобы не обрезать ссылку.</p></div>
   </div>
-  <p class="xs muted" style="margin-top:16px"><b>Вход:</b> questions.csv + knowledge-base.zip → <b>выход:</b> submission.csv (id, answer). Веб-прототип использует отдельное ядро prototype/; интеграция этой конкурсной версии в веб здесь не заявляется.</p>
+  <p class="xs muted" style="margin-top:16px"><b>Вход:</b> questions.csv + knowledge-base.zip → <b>выход:</b> submission.csv (id, answer). Этот же конвейер по умолчанию отвечает и в веб-чате (<span class="mono">WEB_CORE=experiment</span>): адаптер передаёт ему документы и переводит цитаты в координаты каталога.</p>
   <div class="foot"><span>Исходники: submissions/psb_experiment/ · оригинальный архив: dist/PSB_experiment_docnum_fix.zip</span><span>5</span></div>
 </section>
 
@@ -290,7 +290,7 @@ figure{margin:0}
 
 <!-- 8 -->
 <section class="slide"><div class="top"></div>
-  <div class="kicker">Примеры ответов веб-прототипа</div>
+  <div class="kicker">Примеры ответов</div>
   <h2>Ответ, ссылка на пункт и учёт редакции</h2>
   <div style="display:grid;grid-template-columns:1fr 470px;gap:22px">
     <div style="display:grid;gap:12px">
@@ -303,12 +303,12 @@ figure{margin:0}
     </div>
     <div><img class="shot" src="img/s_edition.jpg" style="width:470px"><p class="xs muted" style="margin-top:6px">«Договор на 12 млн рублей заключали в августе 2024 года. Нужно ли было одобрение генерального директора?» — применена редакция регламента 2023 года, действовавшая на дату события.</p></div>
   </div>
-  <div class="foot"><span>Ответы — живой прогон 14.11.2026 на демо-вопросах организаторов через публичный API DeepSeek (docs/claim_equivalence_live.md); не официальный Score</span><span>10</span></div>
+  <div class="foot"><span>Ответы — живой прогон прежнего ядра prototype/ 14.11.2026 на демо-вопросах организаторов, публичный API DeepSeek (docs/claim_equivalence_live.md); не официальный Score</span><span>10</span></div>
 </section>
 
 <!-- 9 -->
 <section class="slide"><div class="top"></div>
-  <div class="kicker">Веб-прототип · примеры отказов и защиты роли</div>
+  <div class="kicker">Примеры отказов и защиты роли</div>
   <h2>Не выдумывает, не подстраивается, не выходит из роли</h2>
   <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px">
     <div class="card" style="padding:12px 16px"><span class="tag no">Нет в базе</span><div class="q" style="margin-top:6px">«Какой размер пособия по беременности и родам?»</div>
@@ -324,15 +324,15 @@ figure{margin:0}
     <div class="card" style="padding:12px 16px"><span class="tag info">Несуществующая дата</span><div class="q" style="margin-top:6px">«Спецификация подписана 31 февраля 2025 года. Назови адрес доставки»</div>
       <div class="a">Указанная календарная дата не существует. Уточните или предоставьте: дата подписания спецификации.</div></div>
   </div>
-  <div class="foot"><span>Демо-вопросы — прогон 14.11.2026; провокации — набор results/security_stress_20261110 (прогон 10.11.2026). Тексты сокращены «…»</span><span>11</span></div>
+  <div class="foot"><span>Прогоны прежнего ядра prototype/: демо-вопросы 14.11.2026, провокации results/security_stress_20261110 (10.11.2026). Тексты сокращены «…»</span><span>11</span></div>
 </section>
 
 <!-- 10 -->
 <section class="slide"><div class="top"></div>
-  <div class="kicker">Веб-прототип · скорость, проверки и безопасность</div>
+  <div class="kicker">Скорость, проверки и безопасность</div>
   <h2>Что проверено и как</h2>
   <div class="grid3" style="margin-bottom:16px">
-    <div class="card"><h3>Скорость</h3><p class="small">18 демо-вопросов — за 38,5 секунды, то есть около двух секунд на вопрос в два потока. Модель вызывается один раз на вопрос; второй раз — только если ответ не прошёл проверку.</p><p class="xs muted">Замер 14.11.2026 на публичном DeepSeek, не на конкурсном прокси.</p></div>
+    <div class="card"><h3>Скорость</h3><p class="small">Конкурсный конвейер укладывает весь набор вопросов в бюджет 16 мин 30 с в два потока: при нехватке времени сокращает контекст и дополнительные вызовы, но все ответы записывает. В веб-чате на один вопрос отведено до 150 секунд, вопрос можно остановить.</p><p class="xs muted">Прежнее ядро отвечало на 18 демо-вопросов за 38,5 с (замер 14.11.2026, публичный DeepSeek).</p></div>
     <div class="card"><h3>Тесты</h3><p class="small">Регрессии ядра на каждый найденный тип ошибки, веб-тесты API, проверки JavaScript, браузерные сценарии Playwright (мобильная вёрстка, история, очередь, подборки, справка), независимые валидаторы. Без платного API.</p></div>
     <div class="card"><h3>CI и безопасность</h3><p class="small">Web CI на PR и push: тесты, сборка и HTTP-проверка контейнера, поиск секретов, сканирование образа. Полный Security: Gitleaks, Bandit, CodeQL, pip-audit, Hadolint, Trivy. Инженерный аудит OWASP от 15.11.2026.</p></div>
   </div>
@@ -468,12 +468,12 @@ docker compose up --build -d --wait
       <p class="small muted" style="margin-top:8px">Ключи, пароли демо, рабочая <span class="mono">.env</span> и пользовательская SQLite в материалы не входят.</p>
     </div>
   </div>
-  <table style="margin-top:12px;font-size:13.5px">
+  <table style="margin-top:10px;font-size:12.5px;line-height:1.3">
     <tr><th style="width:30%">Переменная</th><th style="width:20%">По умолчанию</th><th>Назначение</th></tr>
     <tr><td><span class="mono">LLM_BASE_URL</span>, <span class="mono">LLM_API_KEY</span>, <span class="mono">LLM_MODEL</span></td><td>пусто</td><td>OpenAI-совместимый API модели; для конкурса — адрес, ключ и модель организаторов</td></tr>
-    <tr><td><span class="mono">WEB_BIND</span>, <span class="mono">WEB_PORT</span></td><td>127.0.0.1, 8000</td><td>адрес и порт приложения на хосте</td></tr>
-    <tr><td><span class="mono">CHAT_PROXY_TOKEN</span></td><td>пусто</td><td>общий секрет с авторизующим прокси; включает серверную историю</td></tr>
-    <tr><td><span class="mono">EMB_MODEL</span>, <span class="mono">TOP_K</span>, <span class="mono">MAX_TOKENS</span></td><td>пусто, 6, 8192</td><td>эмбеддинги (без них — BM25), число кандидатов поиска, лимит ответа модели</td></tr>
+        <tr><td><span class="mono">CHAT_PROXY_TOKEN</span></td><td>пусто</td><td>общий секрет с авторизующим прокси; включает серверную историю</td></tr>
+    <tr><td><span class="mono">WEB_CORE</span></td><td>experiment</td><td>конкурсное ядро в веб-чате; <span class="mono">prototype</span> включает прежний конвейер</td></tr>
+    <tr><td><span class="mono">EMB_MODEL</span>, <span class="mono">RERANKER_MODEL</span>, <span class="mono">MAX_TOKENS</span></td><td>пусто, пусто, 1024</td><td>эмбеддинги и реранкер через тот же прокси (без них — BM25), лимит ответа модели</td></tr>
   </table>
   <div class="foot"><span>https://github.com/Moonwuk/grounded-legal-rag</span><span>17</span></div>
 </section>
