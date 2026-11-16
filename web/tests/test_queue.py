@@ -237,7 +237,7 @@ class ProcessCancellationTests(unittest.TestCase):
         Thread(target=server.serve_forever, daemon=True).start()
         try:
             with patch.dict(os.environ, LLM_BASE_URL=f'http://127.0.0.1:{server.server_port}',
-                            LLM_API_KEY='fixture-key', LLM_MODEL='fixture-model'), TestClient(app) as client:
+                            LLM_API_KEY='fixture-key', LLM_MODEL='fixture-model', WEB_CORE='prototype'), TestClient(app) as client:
                 result = run_generation('Арендная плата Северный Склад', 'Арендная плата Северный Склад', client.app.state, lambda: False)
                 self.assertEqual(result['status'], 'answer')
                 self.assertIn('450 000', result['text'])

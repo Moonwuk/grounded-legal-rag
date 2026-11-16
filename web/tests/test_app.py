@@ -1,3 +1,4 @@
+import os
 import unittest
 from unittest.mock import patch
 
@@ -24,6 +25,9 @@ class LocalModel:
 class WebTests(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
+        mode = patch.dict(os.environ, WEB_CORE="prototype")
+        mode.start()
+        cls.addClassCleanup(mode.stop)
         cls.client = TestClient(app)
         cls.client.__enter__()
         cls.addClassCleanup(cls.client.__exit__, None, None, None)
@@ -135,7 +139,7 @@ class DenseIndexTests(unittest.TestCase):
 
         server = ThreadingHTTPServer(("127.0.0.1", 0), Handler)
         threading.Thread(target=server.serve_forever, daemon=True).start()
-        env = {"EMB_MODEL": "configured-embedding-model", "LLM_BASE_URL": f"http://127.0.0.1:{server.server_port}/v1",
+        env = {"WEB_CORE": "prototype", "EMB_MODEL": "configured-embedding-model", "LLM_BASE_URL": f"http://127.0.0.1:{server.server_port}/v1",
                "LLM_API_KEY": "test-placeholder", "NO_PROXY": "127.0.0.1"}
         try:
             with patch.dict(os.environ, env), TestClient(app) as client:
